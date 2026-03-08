@@ -44,7 +44,7 @@ def fetch_html(url, timeout=15):
 
 def scrape_espn_standings(sport, league, season=2026):
     """Generic ESPN standings scraper — returns list of {team, wins, losses, win_pct}"""
-    url = f'https://site.api.espn.com/apis/v2/sports/{sport}/{league}/standings?season={season}'
+    url = f'https://site.web.api.espn.com/apis/v2/sports/{sport}/{league}/standings?season={season}'
     try:
         data = fetch_json(url)
         standings = []
@@ -92,7 +92,7 @@ def scrape_mlb():
 def scrape_nhl():
     """NHL uses points percentage, not win%"""
     try:
-        url = 'https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings?season=2026'
+        url = 'https://site.web.api.espn.com/apis/v2/sports/hockey/nhl/standings?season=2026'
         data = fetch_json(url)
         standings = []
         for conf in data.get('children', [data]):
@@ -113,7 +113,7 @@ def scrape_nhl():
 def scrape_ncaaf():
     """NCAAF AP Poll from ESPN"""
     try:
-        url = 'https://site.api.espn.com/apis/v2/sports/football/college-football/rankings?season=2025'
+        url = 'https://site.web.api.espn.com/apis/v2/sports/football/college-football/rankings?season=2025'
         data = fetch_json(url)
         poll = []
         for ranking in data.get('rankings', []):
@@ -133,7 +133,7 @@ def scrape_ncaaf():
 def scrape_ncaab():
     """NCAAB AP Poll from ESPN"""
     try:
-        url = 'https://site.api.espn.com/apis/v2/sports/basketball/mens-college-basketball/rankings?season=2026'
+        url = 'https://site.web.api.espn.com/apis/v2/sports/basketball/mens-college-basketball/rankings?season=2026'
         data = fetch_json(url)
         poll = []
         for ranking in data.get('rankings', []):
@@ -153,7 +153,7 @@ def scrape_ncaab():
 def scrape_mls():
     """MLS standings from ESPN"""
     try:
-        url = 'https://site.api.espn.com/apis/v2/sports/soccer/usa.1/standings?season=2026'
+        url = 'https://site.web.api.espn.com/apis/v2/sports/soccer/usa.1/standings?season=2026'
         data = fetch_json(url)
         standings = []
         for conf in data.get('children', [data]):
@@ -234,7 +234,7 @@ def scrape_golf():
 def scrape_nascar():
     """NASCAR standings from ESPN API"""
     try:
-        url = 'https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings?season=2026'
+        url = 'https://site.web.api.espn.com/apis/v2/sports/racing/nascar/series/premier/standings?season=2026'
         data = fetch_json(url)
         standings = []
         for entry in data.get('standings', {}).get('entries', []):
