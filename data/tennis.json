@@ -1,0 +1,70 @@
+{
+  "rankings": [
+    {
+      "player": "Jannik Sinner",
+      "rank": 1,
+      "tour": "ATP"
+    },
+    {
+      "player": "Carlos Alcaraz",
+      "rank": 2,
+      "tour": "ATP"
+    },
+    {
+      "player": "Alexander Zverev",
+      "rank": 3,
+      "tour": "ATP"
+    },
+    {
+      "player": "Taylor Fritz",
+      "rank": 4,
+      "tour": "ATP"
+    },
+    {
+      "player": "Novak Djokovic",
+      "rank": 7,
+      "tour": "ATP"
+    },
+    {
+      "player": "Daniil Medvedev",
+      "rank": 5,
+      "tour": "ATP"
+    },
+    {
+      "player": "Aryna Sabalenka",
+      "rank": 1,
+      "tour": "WTA"
+    },
+    {
+      "player": "Iga Swiatek",
+      "rank": 2,
+      "tour": "WTA"
+    },
+    {
+      "player": "Coco Gauff",
+      "rank": 3,
+      "tour": "WTA"
+    },
+    {
+      "player": "Jessica Pegula",
+      "rank": 4,
+      "tour": "WTA"
+    },
+    {
+      "player": "Madison Keys",
+      "rank": 7,
+      "tour": "WTA"
+    },
+    {
+      "player": "Jasmine Paolini",
+      "rank": 5,
+      "tour": "WTA"
+    },
+    {
+      "player": "Amanda Anisimova",
+      "rank": 18,
+      "tour": "WTA"
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.786337"
+}

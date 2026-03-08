@@ -1,0 +1,57 @@
+{
+  "standings": [
+    {
+      "team": "Florida Panthers",
+      "points_pct": 0.72
+    },
+    {
+      "team": "Colorado Avalanche",
+      "points_pct": 0.7
+    },
+    {
+      "team": "Toronto Maple Leafs",
+      "points_pct": 0.685
+    },
+    {
+      "team": "Carolina Hurricanes",
+      "points_pct": 0.67
+    },
+    {
+      "team": "Boston Bruins",
+      "points_pct": 0.655
+    },
+    {
+      "team": "Edmonton Oilers",
+      "points_pct": 0.64
+    },
+    {
+      "team": "Vegas Golden Knights",
+      "points_pct": 0.615
+    },
+    {
+      "team": "Washington Capitals",
+      "points_pct": 0.59
+    },
+    {
+      "team": "New York Rangers",
+      "points_pct": 0.56
+    },
+    {
+      "team": "Dallas Stars",
+      "points_pct": 0.53
+    },
+    {
+      "team": "Tampa Bay Lightning",
+      "points_pct": 0.5
+    },
+    {
+      "team": "New Jersey Devils",
+      "points_pct": 0.45
+    },
+    {
+      "team": "Detroit Red Wings",
+      "points_pct": 0.38
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.785915"
+}

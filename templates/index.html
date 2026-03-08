@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fantasy Life 2026 🏆</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0b0f;
+      --surface: #12141a;
+      --surface2: #1a1d26;
+      --border: #252836;
+      --accent: #f0b429;
+      --accent2: #e8451a;
+      --green: #22c55e;
+      --red: #ef4444;
+      --muted: #6b7280;
+      --text: #e8eaf0;
+      --text-dim: #9ca3af;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 0 2rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 11, 15, 0.95);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .logo-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+    }
+
+    .logo-year {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      background: var(--surface2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .last-updated {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .refresh-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .refresh-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Main layout */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Season banner */
+    .season-banner {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .season-banner::before {
+      content: '2026';
+      position: absolute;
+      right: -0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 8rem;
+      color: rgba(240, 180, 41, 0.04);
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .banner-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .banner-stat-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .banner-stat-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .banner-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--border);
+    }
+
+    /* Leaderboard */
+    .leaderboard {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .lb-header {
+      display: grid;
+      grid-template-columns: 60px 1fr 100px 100px;
+      padding: 0.75rem 1.5rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .lb-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 100px 100px;
+      align-items: center;
+      padding: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: background 0.1s;
+      position: relative;
+    }
+
+    .lb-row:last-child { border-bottom: none; }
+
+    .lb-row:hover { background: var(--surface2); }
+
+    .lb-row.expanded { background: var(--surface2); }
+
+    .lb-row-main {
+      display: contents;
+    }
+
+    .lb-row-main > * {
+      padding: 1rem 1.5rem;
+    }
+
+    /* Place badge */
+    .place {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .place-badge {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .place-1 { background: rgba(240, 180, 41, 0.15); color: var(--accent); border: 1px solid rgba(240, 180, 41, 0.3); }
+    .place-2 { background: rgba(156, 163, 175, 0.12); color: #cbd5e1; border: 1px solid rgba(156, 163, 175, 0.25); }
+    .place-3 { background: rgba(180, 120, 60, 0.12); color: #cd9055; border: 1px solid rgba(180, 120, 60, 0.25); }
+    .place-other { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+    /* Player name */
+    .player-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .player-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .player-name {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .player-meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* Category mini-dots */
+    .cat-dots {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      max-width: 200px;
+    }
+
+    .cat-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      opacity: 0.4;
+    }
+
+    .cat-dot.top3 { background: var(--green); opacity: 0.9; }
+    .cat-dot.top6 { background: var(--accent); opacity: 0.7; }
+    .cat-dot.bottom { background: var(--red); opacity: 0.5; }
+
+    /* Total score */
+    .total-score {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .total-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* Expand arrow */
+    .expand-cell {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .expand-arrow {
+      width: 20px;
+      height: 20px;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+
+    .lb-row.expanded .expand-arrow {
+      transform: rotate(180deg);
+    }
+
+    /* Category breakdown */
+    .cat-breakdown {
+      display: none;
+      grid-column: 1 / -1;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+
+    .cat-breakdown.visible { display: block; }
+
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0;
+      padding: 0;
+    }
+
+    .cat-card {
+      padding: 1rem 1.25rem;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+
+    .cat-card:hover { background: var(--surface); }
+
+    .cat-name {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 0.5rem;
+    }
+
+    .cat-pick {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cat-stats {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cat-rank {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .cat-pts {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      margin-left: auto;
+    }
+
+    .pts-top { color: var(--green); }
+    .pts-mid { color: var(--accent); }
+    .pts-low { color: var(--red); }
+    .pts-zero { color: var(--muted); }
+
+    .cat-bonus {
+      font-size: 0.65rem;
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* Todd premium overlay */
+    .premium-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      background: rgba(240, 180, 41, 0.08);
+      border: 1px solid rgba(240, 180, 41, 0.2);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .premium-overlay:hover {
+      background: rgba(240, 180, 41, 0.15);
+    }
+
+    .premium-lock {
+      font-size: 0.9rem;
+    }
+
+    .premium-text {
+      font-size: 0.72rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Score blurred for Todd */
+    .score-blurred {
+      filter: blur(6px);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .score-revealed {
+      filter: none;
+    }
+
+    /* Category filter tabs */
+    .filter-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .filter-tab:hover, .filter-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+      font-weight: 600;
+    }
+
+    /* Loading state */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem;
+      color: var(--muted);
+      gap: 0.75rem;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Category leaderboard mode */
+    .cat-leaderboard {
+      display: none;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .cat-leaderboard.visible { display: flex; }
+
+    .cat-lb-row {
+      display: grid;
+      grid-template-columns: 40px 1fr 80px 80px 80px;
+      align-items: center;
+      padding: 0.875rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      gap: 0;
+    }
+
+    .cat-lb-row:last-child { border-bottom: none; }
+
+    .cat-lb-row:nth-child(odd) { background: var(--surface2); }
+
+    .col-header {
+      font-size: 0.65rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: relative;
+    }
+
+    .tooltip:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e2130;
+      color: var(--text);
+      font-size: 0.72rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      border: 1px solid var(--border);
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Player colors */
+    .color-0  { background: #ef4444; color: #fff; }
+    .color-1  { background: #f97316; color: #fff; }
+    .color-2  { background: #eab308; color: #000; }
+    .color-3  { background: #22c55e; color: #fff; }
+    .color-4  { background: #14b8a6; color: #fff; }
+    .color-5  { background: #3b82f6; color: #fff; }
+    .color-6  { background: #8b5cf6; color: #fff; }
+    .color-7  { background: #ec4899; color: #fff; }
+    .color-8  { background: #06b6d4; color: #fff; }
+    .color-9  { background: #84cc16; color: #000; }
+    .color-10 { background: #f43f5e; color: #fff; }
+    .color-11 { background: #a855f7; color: #fff; }
+    .color-12 { background: #0ea5e9; color: #fff; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      display: none;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 380px;
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .modal h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .modal p {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .modal-price {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .modal-price-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 0.75rem;
+      font-family: 'DM Sans', sans-serif;
+      transition: opacity 0.15s;
+    }
+
+    .modal-btn:hover { opacity: 0.9; }
+
+    .modal-cancel {
+      font-size: 0.8rem;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .modal-cancel:hover { color: var(--text); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      main { padding: 1rem; }
+      .lb-header, .lb-row { grid-template-columns: 50px 1fr 80px; }
+      .lb-header > *:last-child, .lb-row > *:last-child { display: none; }
+      .cat-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+      .banner-stat:nth-child(n+4) { display: none; }
+      .season-banner::before { font-size: 5rem; }
+    }
+
+    /* Entrance animation */
+    .lb-row {
+      opacity: 0;
+      transform: translateY(8px);
+      animation: slideIn 0.3s ease forwards;
+    }
+
+    @keyframes slideIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .lb-row:nth-child(1)  { animation-delay: 0.02s; }
+    .lb-row:nth-child(2)  { animation-delay: 0.04s; }
+    .lb-row:nth-child(3)  { animation-delay: 0.06s; }
+    .lb-row:nth-child(4)  { animation-delay: 0.08s; }
+    .lb-row:nth-child(5)  { animation-delay: 0.10s; }
+    .lb-row:nth-child(6)  { animation-delay: 0.12s; }
+    .lb-row:nth-child(7)  { animation-delay: 0.14s; }
+    .lb-row:nth-child(8)  { animation-delay: 0.16s; }
+    .lb-row:nth-child(9)  { animation-delay: 0.18s; }
+    .lb-row:nth-child(10) { animation-delay: 0.20s; }
+    .lb-row:nth-child(11) { animation-delay: 0.22s; }
+    .lb-row:nth-child(12) { animation-delay: 0.24s; }
+    .lb-row:nth-child(13) { animation-delay: 0.26s; }
+
+    /* Admin panel */
+    .admin-panel {
+      position: fixed;
+      right: 2rem;
+      bottom: 2rem;
+      z-index: 50;
+    }
+
+    .admin-fab {
+      width: 48px;
+      height: 48px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.15s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .admin-fab:hover {
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+
+    /* Score bar */
+    .score-bar-wrap {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      max-width: 120px;
+    }
+
+    .score-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-text">Fantasy Life</span>
+      <span class="logo-year">2026 SEASON</span>
+    </div>
+    <div class="header-right">
+      <span class="last-updated" id="last-updated">Loading...</span>
+      <button class="refresh-btn" onclick="loadScores()">↻ Refresh</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Season stats banner -->
+  <div class="season-banner" id="season-banner">
+    <div class="banner-stat">
+      <div class="banner-stat-label">Players</div>
+      <div class="banner-stat-value">13</div>
+    </div>
+    <div class="banner-divider"></div>
+    <div class="banner-stat">
+      <div class="banner-stat-label">Categories</div>
+      <div class="banner-stat-value">15</div>
+    </div>
+    <div class="banner-divider"></div>
+    <div class="banner-stat" id="banner-leader">
+      <div class="banner-stat-label">Leader</div>
+      <div class="banner-stat-value" id="banner-leader-name">—</div>
+    </div>
+    <div class="banner-divider"></div>
+    <div class="banner-stat">
+      <div class="banner-stat-label">Top Score</div>
+      <div class="banner-stat-value" id="banner-top-score">—</div>
+    </div>
+    <div class="banner-divider"></div>
+    <div class="banner-stat">
+      <div class="banner-stat-label">Spread</div>
+      <div class="banner-stat-value" id="banner-spread">—</div>
+    </div>
+  </div>
+
+  <!-- Category filter -->
+  <div class="filter-row" id="filter-row">
+    <button class="filter-tab active" data-cat="all" onclick="filterCat('all', this)">All</button>
+    <button class="filter-tab" data-cat="NFL" onclick="filterCat('NFL', this)">NFL</button>
+    <button class="filter-tab" data-cat="NBA" onclick="filterCat('NBA', this)">NBA</button>
+    <button class="filter-tab" data-cat="MLB" onclick="filterCat('MLB', this)">MLB</button>
+    <button class="filter-tab" data-cat="NHL" onclick="filterCat('NHL', this)">NHL</button>
+    <button class="filter-tab" data-cat="NCAAF" onclick="filterCat('NCAAF', this)">NCAAF</button>
+    <button class="filter-tab" data-cat="NCAAB" onclick="filterCat('NCAAB', this)">NCAAB</button>
+    <button class="filter-tab" data-cat="Tennis" onclick="filterCat('Tennis', this)">Tennis</button>
+    <button class="filter-tab" data-cat="Golf" onclick="filterCat('Golf', this)">Golf</button>
+    <button class="filter-tab" data-cat="NASCAR" onclick="filterCat('NASCAR', this)">NASCAR</button>
+    <button class="filter-tab" data-cat="MLS" onclick="filterCat('MLS', this)">MLS</button>
+    <button class="filter-tab" data-cat="Actor" onclick="filterCat('Actor', this)">Actor</button>
+    <button class="filter-tab" data-cat="Actress" onclick="filterCat('Actress', this)">Actress</button>
+    <button class="filter-tab" data-cat="Musician" onclick="filterCat('Musician', this)">Music</button>
+    <button class="filter-tab" data-cat="Country" onclick="filterCat('Country', this)">Country</button>
+    <button class="filter-tab" data-cat="Stock" onclick="filterCat('Stock', this)">Stock</button>
+  </div>
+
+  <!-- Main leaderboard -->
+  <div class="leaderboard" id="leaderboard">
+    <div class="loading">
+      <div class="spinner"></div>
+      <span>Loading standings...</span>
+    </div>
+  </div>
+
+  <!-- Category leaderboard (shown when a cat filter is active) -->
+  <div class="cat-leaderboard" id="cat-leaderboard"></div>
+</main>
+
+<!-- Todd premium modal -->
+<div class="modal-backdrop" id="todd-modal" onclick="closeToddModal(event)">
+  <div class="modal">
+    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🤖</div>
+    <h2>ChatGPTodd Premium</h2>
+    <p>Todd's AI-powered picks are behind a paywall. Subscribe to see his current standings and picks across all 15 categories.</p>
+    <div class="modal-price">$9.99</div>
+    <div class="modal-price-sub">/ MONTH · CANCEL ANYTIME</div>
+    <button class="modal-btn" onclick="revealTodd()">Subscribe & Unlock Todd →</button>
+    <div class="modal-cancel" onclick="closeToddModal()">No thanks, I prefer not knowing</div>
+  </div>
+</div>
+
+<!-- Admin FAB -->
+<div class="admin-panel">
+  <div class="admin-fab tooltip" data-tip="Admin panel" onclick="openAdmin()">⚙️</div>
+</div>
+
+<script>
+  let allData = null;
+  let toddRevealed = false;
+  let currentCat = 'all';
+
+  const PLAYER_COLORS = [0,1,2,3,4,5,6,7,8,9,10,11,12];
+  const PLAYER_ORDER = ['Tim','Wu','Jens','Todd','Mitchell','Shep','Theo','Feder','Fryar','Korch','Molmen','Jamzee','Buckley'];
+  
+  function getColorIdx(name) {
+    return PLAYER_ORDER.indexOf(name) % 13;
+  }
+
+  async function loadScores() {
+    try {
+      const res = await fetch('/api/scores');
+      const data = await res.json();
+      allData = data;
+      renderLeaderboard(data);
+      updateBanner(data);
+      document.getElementById('last-updated').textContent = 
+        data.last_updated ? `Updated ${data.last_updated}` : 'Demo data';
+    } catch(e) {
+      console.error(e);
+      document.getElementById('leaderboard').innerHTML = 
+        '<div class="loading">⚠️ Failed to load scores</div>';
+    }
+  }
+
+  function updateBanner(data) {
+    const players = data.players;
+    const leader = players[0];
+    const last = players[players.length - 1];
+    document.getElementById('banner-leader-name').textContent = leader.name;
+    document.getElementById('banner-top-score').textContent = leader.total;
+    document.getElementById('banner-spread').textContent = 
+      (leader.total - last.total).toFixed(1);
+  }
+
+  function getPtsClass(pts) {
+    if (pts >= 10) return 'pts-top';
+    if (pts >= 7) return 'pts-mid';
+    if (pts >= 4) return 'pts-low';
+    return 'pts-zero';
+  }
+
+  function getDotClass(rank) {
+    if (rank <= 3) return 'top3';
+    if (rank <= 7) return 'top6';
+    if (rank >= 11) return 'bottom';
+    return '';
+  }
+
+  function renderCatCard(cat, catData) {
+    const pts = catData.total_pts || 0;
+    const bonus = catData.bonus_pts || 0;
+    const rank = catData.rank ? Math.round(catData.rank) : null;
+    const ptsClass = getPtsClass(pts);
+    return `
+      <div class="cat-card">
+        <div class="cat-name">${cat}</div>
+        <div class="cat-pick" title="${catData.pick || '—'}">${catData.pick || '—'}</div>
+        <div class="cat-stats">
+          ${rank ? `<span class="cat-rank">#${rank}</span>` : ''}
+          ${bonus > 0 ? `<span class="cat-bonus">+${bonus}✨</span>` : ''}
+          <span class="cat-pts ${ptsClass}">${pts}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderLeaderboard(data) {
+    const lb = document.getElementById('leaderboard');
+    const players = data.players;
+    const maxScore = players[0].total;
+
+    let html = `
+      <div class="lb-header">
+        <div>#</div>
+        <div>Player</div>
+        <div style="text-align:right">Score</div>
+        <div style="text-align:right">Details</div>
+      </div>
+    `;
+
+    players.forEach(player => {
+      const isTodd = player.is_premium;
+      const colorIdx = getColorIdx(player.name);
+      const initials = player.name.substring(0,2).toUpperCase();
+      const barWidth = ((player.total / maxScore) * 100).toFixed(1);
+
+      const placeClass = player.place === 1 ? 'place-1' :
+                         player.place === 2 ? 'place-2' :
+                         player.place === 3 ? 'place-3' : 'place-other';
+
+      // Cat dots
+      const cats = Object.values(player.categories || {});
+      const dots = cats.map(c => {
+        const rank = c.rank;
+        return `<div class="cat-dot ${getDotClass(rank)}"></div>`;
+      }).join('');
+
+      // Score display
+      const scoreHtml = isTodd && !toddRevealed
+        ? `<span class="score-blurred">${player.total}</span>`
+        : `${player.total}`;
+
+      // Category breakdown
+      const catHtml = Object.entries(player.categories || {}).map(([cat, d]) => 
+        renderCatCard(cat, d)
+      ).join('');
+
+      html += `
+        <div class="lb-row" id="row-${player.name}" onclick="toggleRow('${player.name}', ${isTodd})">
+          <div class="lb-row-main">
+            <div class="place"><span class="place-badge ${placeClass}">${player.place}</span></div>
+            <div style="padding: 0.875rem 1.5rem">
+              <div class="player-info">
+                <div class="player-avatar color-${colorIdx}">${initials}</div>
+                <div>
+                  <div class="player-name">${player.name}${isTodd ? ' 🤖' : ''}</div>
+                  <div style="display:flex; align-items:center; gap:0.5rem; margin-top:3px">
+                    <div class="score-bar-wrap">
+                      <div class="score-bar" style="width:${barWidth}%; background: var(--color-${colorIdx}, var(--accent));"></div>
+                    </div>
+                    <div class="cat-dots">${dots}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 0.875rem 1.5rem; text-align:right">
+              <div class="total-score">${scoreHtml}</div>
+              <div class="total-label">pts</div>
+            </div>
+            <div style="padding: 0.875rem 1.5rem" class="expand-cell">
+              ${isTodd && !toddRevealed ? `
+                <div class="premium-overlay" onclick="openToddModal(event)">
+                  <span class="premium-lock">🔒</span>
+                  <span class="premium-text">$9.99/mo</span>
+                </div>
+              ` : `<svg class="expand-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>`
+              }
+            </div>
+          </div>
+          <div class="cat-breakdown" id="breakdown-${player.name}">
+            <div class="cat-grid">${catHtml}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    lb.innerHTML = html;
+  }
+
+  function toggleRow(name, isTodd) {
+    if (isTodd && !toddRevealed) {
+      openToddModal(null);
+      return;
+    }
+    const row = document.getElementById(`row-${name}`);
+    const breakdown = document.getElementById(`breakdown-${name}`);
+    row.classList.toggle('expanded');
+    breakdown.classList.toggle('visible');
+  }
+
+  function filterCat(cat, btn) {
+    currentCat = cat;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+
+    const mainLb = document.getElementById('leaderboard');
+    const catLb = document.getElementById('cat-leaderboard');
+
+    if (cat === 'all') {
+      mainLb.style.display = '';
+      catLb.classList.remove('visible');
+      return;
+    }
+
+    mainLb.style.display = 'none';
+    renderCatLeaderboard(cat);
+    catLb.classList.add('visible');
+  }
+
+  function renderCatLeaderboard(cat) {
+    if (!allData) return;
+    const catLb = document.getElementById('cat-leaderboard');
+    const players = allData.players;
+
+    // Sort by this category's total
+    const sorted = [...players].sort((a, b) => 
+      (b.categories[cat]?.total_pts || 0) - (a.categories[cat]?.total_pts || 0)
+    );
+
+    let html = `
+      <div class="cat-lb-row" style="background: var(--surface2)">
+        <div class="col-header">#</div>
+        <div class="col-header">Player / Pick</div>
+        <div class="col-header" style="text-align:right">Raw</div>
+        <div class="col-header" style="text-align:right">Base</div>
+        <div class="col-header" style="text-align:right">Total</div>
+      </div>
+    `;
+
+    sorted.forEach((player, i) => {
+      const d = player.categories[cat] || {};
+      const colorIdx = getColorIdx(player.name);
+      const isTodd = player.is_premium;
+      const showData = !isTodd || toddRevealed;
+
+      html += `
+        <div class="cat-lb-row">
+          <div style="font-family: 'Bebas Neue'; font-size: 1.1rem; color: var(--muted)">${i+1}</div>
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem">
+              <div class="player-avatar color-${colorIdx}" style="width:28px;height:28px;font-size:0.7rem">${player.name.substring(0,2).toUpperCase()}</div>
+              <div>
+                <div style="font-weight:600; font-size:0.9rem">${player.name}${isTodd ? ' 🤖' : ''}</div>
+                <div style="font-size:0.72rem; color:var(--muted)">${showData ? (d.pick || '—') : '🔒 $9.99/mo'}</div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right; font-family:'DM Mono'; font-size:0.8rem; color:var(--text-dim)">
+            ${showData ? (d.raw_display || (d.raw_value !== null && d.raw_value !== undefined ? d.raw_value : '—')) : '—'}
+          </div>
+          <div style="text-align:right; font-family:'DM Mono'; font-size:0.85rem">
+            ${showData ? (d.baseline_pts || 0) : '?'}
+          </div>
+          <div style="text-align:right">
+            <span style="font-family:'Bebas Neue'; font-size:1.2rem; ${showData ? `color:${d.total_pts >= 10 ? 'var(--green)' : d.total_pts >= 7 ? 'var(--accent)' : 'var(--text)'}` : 'filter:blur(4px)'}">
+              ${d.total_pts || 0}
+            </span>
+            ${d.bonus_pts > 0 ? `<div style="font-size:0.65rem; color:var(--accent); font-family:'DM Mono'">+${d.bonus_pts} bonus</div>` : ''}
+          </div>
+        </div>
+      `;
+    });
+
+    catLb.innerHTML = html;
+  }
+
+  function openToddModal(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('todd-modal').classList.add('open');
+  }
+
+  function closeToddModal(e) {
+    if (e && e.target !== document.getElementById('todd-modal')) return;
+    document.getElementById('todd-modal').classList.remove('open');
+  }
+
+  function revealTodd() {
+    toddRevealed = true;
+    document.getElementById('todd-modal').classList.remove('open');
+    if (allData) renderLeaderboard(allData);
+    if (currentCat !== 'all') renderCatLeaderboard(currentCat);
+  }
+
+  function openAdmin() {
+    const pw = prompt('Admin password:');
+    if (pw === 'fantasyboss') {
+      window.location.href = '/admin';
+    } else if (pw !== null) {
+      alert('Wrong password. (Hint: it\'s not "fantasyboss" ... oh wait)');
+    }
+  }
+
+  // Score bar colors
+  const colorVars = [
+    '#ef4444','#f97316','#eab308','#22c55e','#14b8a6',
+    '#3b82f6','#8b5cf6','#ec4899','#06b6d4','#84cc16',
+    '#f43f5e','#a855f7','#0ea5e9'
+  ];
+  colorVars.forEach((c, i) => {
+    document.documentElement.style.setProperty(`--color-${i}`, c);
+  });
+
+  // Load on startup
+  loadScores();
+
+  // Auto-refresh every 5 min
+  setInterval(loadScores, 5 * 60 * 1000);
+</script>
+</body>
+</html>

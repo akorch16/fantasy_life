@@ -1,0 +1,57 @@
+{
+  "standings": [
+    {
+      "team": "Los Angeles Dodgers",
+      "win_pct": 0.642
+    },
+    {
+      "team": "New York Yankees",
+      "win_pct": 0.611
+    },
+    {
+      "team": "Atlanta Braves",
+      "win_pct": 0.58
+    },
+    {
+      "team": "Philadelphia Phillies",
+      "win_pct": 0.568
+    },
+    {
+      "team": "New York Mets",
+      "win_pct": 0.549
+    },
+    {
+      "team": "Houston Astros",
+      "win_pct": 0.543
+    },
+    {
+      "team": "San Diego Padres",
+      "win_pct": 0.531
+    },
+    {
+      "team": "Cleveland Guardians",
+      "win_pct": 0.519
+    },
+    {
+      "team": "Toronto Blue Jays",
+      "win_pct": 0.506
+    },
+    {
+      "team": "Milwaukee Brewers",
+      "win_pct": 0.494
+    },
+    {
+      "team": "Chicago Cubs",
+      "win_pct": 0.469
+    },
+    {
+      "team": "Texas Rangers",
+      "win_pct": 0.432
+    },
+    {
+      "team": "Seattle Mariners",
+      "win_pct": 0.395
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.785529"
+}

@@ -1,0 +1,57 @@
+{
+  "standings": [
+    {
+      "team": "Kansas City Chiefs",
+      "win_pct": 0.812
+    },
+    {
+      "team": "Philadelphia Eagles",
+      "win_pct": 0.75
+    },
+    {
+      "team": "Detroit Lions",
+      "win_pct": 0.75
+    },
+    {
+      "team": "Baltimore Ravens",
+      "win_pct": 0.688
+    },
+    {
+      "team": "Buffalo Bills",
+      "win_pct": 0.688
+    },
+    {
+      "team": "Green Bay Packers",
+      "win_pct": 0.625
+    },
+    {
+      "team": "San Francisco 49ers",
+      "win_pct": 0.563
+    },
+    {
+      "team": "Tampa Bay Buccaneers",
+      "win_pct": 0.5
+    },
+    {
+      "team": "Los Angeles Rams",
+      "win_pct": 0.5
+    },
+    {
+      "team": "Seattle Seahawks",
+      "win_pct": 0.438
+    },
+    {
+      "team": "Indianapolis Colts",
+      "win_pct": 0.375
+    },
+    {
+      "team": "Denver Broncos",
+      "win_pct": 0.313
+    },
+    {
+      "team": "New England Patriots",
+      "win_pct": 0.125
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.783672"
+}

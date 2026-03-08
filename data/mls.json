@@ -1,0 +1,57 @@
+{
+  "standings": [
+    {
+      "team": "LA Galaxy",
+      "points": 68
+    },
+    {
+      "team": "LAFC",
+      "points": 62
+    },
+    {
+      "team": "FC Cincinnati",
+      "points": 60
+    },
+    {
+      "team": "Columbus Crew",
+      "points": 58
+    },
+    {
+      "team": "Inter Miami",
+      "points": 55
+    },
+    {
+      "team": "Seattle Sounders",
+      "points": 52
+    },
+    {
+      "team": "Philadelphia Union",
+      "points": 50
+    },
+    {
+      "team": "Orlando City",
+      "points": 47
+    },
+    {
+      "team": "New York Red Bulls",
+      "points": 45
+    },
+    {
+      "team": "Vancouver Whitecaps",
+      "points": 42
+    },
+    {
+      "team": "Minnesota United",
+      "points": 38
+    },
+    {
+      "team": "San Diego FC",
+      "points": 30
+    },
+    {
+      "team": "Charlotte FC",
+      "points": 22
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.786732"
+}

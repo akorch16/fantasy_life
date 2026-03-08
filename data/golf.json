@@ -1,0 +1,57 @@
+{
+  "rankings": [
+    {
+      "player": "Scottie Scheffler",
+      "rank": 1
+    },
+    {
+      "player": "Rory McIlroy",
+      "rank": 2
+    },
+    {
+      "player": "Xander Schauffele",
+      "rank": 3
+    },
+    {
+      "player": "Collin Morikawa",
+      "rank": 4
+    },
+    {
+      "player": "Ludvig Aberg",
+      "rank": 5
+    },
+    {
+      "player": "Bryson DeChambeau",
+      "rank": 6
+    },
+    {
+      "player": "Tommy Fleetwood",
+      "rank": 7
+    },
+    {
+      "player": "Viktor Hovland",
+      "rank": 8
+    },
+    {
+      "player": "Jon Rahm",
+      "rank": 9
+    },
+    {
+      "player": "Patrick Cantlay",
+      "rank": 12
+    },
+    {
+      "player": "Justin Thomas",
+      "rank": 15
+    },
+    {
+      "player": "Russell Henley",
+      "rank": 22
+    },
+    {
+      "player": "J.J. Spaun",
+      "rank": 45
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.786476"
+}

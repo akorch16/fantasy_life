@@ -1,0 +1,57 @@
+{
+  "poll": [
+    {
+      "rank": 1,
+      "team": "Duke"
+    },
+    {
+      "rank": 2,
+      "team": "Kansas"
+    },
+    {
+      "rank": 3,
+      "team": "Houston"
+    },
+    {
+      "rank": 4,
+      "team": "Florida"
+    },
+    {
+      "rank": 5,
+      "team": "Kentucky"
+    },
+    {
+      "rank": 6,
+      "team": "Alabama"
+    },
+    {
+      "rank": 7,
+      "team": "Purdue"
+    },
+    {
+      "rank": 8,
+      "team": "North Carolina"
+    },
+    {
+      "rank": 9,
+      "team": "UConn"
+    },
+    {
+      "rank": 11,
+      "team": "St. John's"
+    },
+    {
+      "rank": 13,
+      "team": "UCLA"
+    },
+    {
+      "rank": 18,
+      "team": "Louisville"
+    },
+    {
+      "rank": 22,
+      "team": "Michigan"
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.786204"
+}

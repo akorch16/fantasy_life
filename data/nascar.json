@@ -1,0 +1,57 @@
+{
+  "standings": [
+    {
+      "driver": "Kyle Larson",
+      "points": 782
+    },
+    {
+      "driver": "Christopher Bell",
+      "points": 750
+    },
+    {
+      "driver": "William Byron",
+      "points": 731
+    },
+    {
+      "driver": "Denny Hamlin",
+      "points": 718
+    },
+    {
+      "driver": "Chase Elliott",
+      "points": 705
+    },
+    {
+      "driver": "Ryan Blaney",
+      "points": 698
+    },
+    {
+      "driver": "Tyler Reddick",
+      "points": 682
+    },
+    {
+      "driver": "Ross Chastain",
+      "points": 655
+    },
+    {
+      "driver": "Joey Logano",
+      "points": 641
+    },
+    {
+      "driver": "Daniel Suarez",
+      "points": 598
+    },
+    {
+      "driver": "Chase Briscoe",
+      "points": 572
+    },
+    {
+      "driver": "Shane van Gisbergen",
+      "points": 543
+    },
+    {
+      "driver": "Bubba Wallace",
+      "points": 490
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.786602"
+}

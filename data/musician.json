@@ -1,0 +1,70 @@
+{
+  "scores": [
+    {
+      "artist": "Kendrick Lamar",
+      "num1_weeks": 8,
+      "hot100_weeks": 24
+    },
+    {
+      "artist": "Beyonce",
+      "num1_weeks": 6,
+      "hot100_weeks": 20
+    },
+    {
+      "artist": "Taylor Swift",
+      "num1_weeks": 5,
+      "hot100_weeks": 22
+    },
+    {
+      "artist": "Bad Bunny",
+      "num1_weeks": 4,
+      "hot100_weeks": 18
+    },
+    {
+      "artist": "Sabrina Carpenter",
+      "num1_weeks": 3,
+      "hot100_weeks": 16
+    },
+    {
+      "artist": "SZA",
+      "num1_weeks": 2,
+      "hot100_weeks": 15
+    },
+    {
+      "artist": "Olivia Rodrigo",
+      "num1_weeks": 2,
+      "hot100_weeks": 14
+    },
+    {
+      "artist": "The Weeknd",
+      "num1_weeks": 2,
+      "hot100_weeks": 13
+    },
+    {
+      "artist": "Lady Gaga",
+      "num1_weeks": 1,
+      "hot100_weeks": 12
+    },
+    {
+      "artist": "Drake",
+      "num1_weeks": 1,
+      "hot100_weeks": 10
+    },
+    {
+      "artist": "Justin Bieber",
+      "num1_weeks": 0,
+      "hot100_weeks": 8
+    },
+    {
+      "artist": "FKA Twigs",
+      "num1_weeks": 0,
+      "hot100_weeks": 3
+    },
+    {
+      "artist": "BTS",
+      "num1_weeks": 0,
+      "hot100_weeks": 2
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.787116"
+}

@@ -1,0 +1,57 @@
+{
+  "scores": [
+    {
+      "name": "Timothee Chalamet",
+      "composite_score": 412.5
+    },
+    {
+      "name": "Pedro Pascal",
+      "composite_score": 387.2
+    },
+    {
+      "name": "Tom Holland",
+      "composite_score": 356.8
+    },
+    {
+      "name": "Dwayne Johnson",
+      "composite_score": 298.5
+    },
+    {
+      "name": "Chris Hemsworth",
+      "composite_score": 276.3
+    },
+    {
+      "name": "Robert Pattinson",
+      "composite_score": 241.7
+    },
+    {
+      "name": "Matt Damon",
+      "composite_score": 198.4
+    },
+    {
+      "name": "Leonardo DiCaprio",
+      "composite_score": 187.6
+    },
+    {
+      "name": "Jeremy Allen White",
+      "composite_score": 143.2
+    },
+    {
+      "name": "Jon Bernthal",
+      "composite_score": 118.9
+    },
+    {
+      "name": "George Clooney",
+      "composite_score": 95.4
+    },
+    {
+      "name": "Wagner Moura",
+      "composite_score": 72.1
+    },
+    {
+      "name": "Sean Penn",
+      "composite_score": 48.3
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.786857"
+}

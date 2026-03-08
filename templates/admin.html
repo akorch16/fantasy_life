@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin — Fantasy Life 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0b0f; --surface: #12141a; --surface2: #1a1d26;
+      --border: #252836; --accent: #f0b429; --text: #e8eaf0; --muted: #6b7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; padding: 2rem; }
+    h1 { font-family: 'Bebas Neue'; font-size: 2rem; color: var(--accent); margin-bottom: 0.5rem; }
+    .back { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; display: block; text-decoration: none; }
+    .back:hover { color: var(--accent); }
+    .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .section h2 { font-family: 'Bebas Neue'; font-size: 1.3rem; margin-bottom: 1rem; color: var(--text); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    label { display: block; font-size: 0.75rem; color: var(--muted); font-family: 'DM Mono'; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+    select, input { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: 0.9rem; font-family: 'DM Sans'; }
+    select:focus, input:focus { outline: none; border-color: var(--accent); }
+    .btn { background: var(--accent); color: #000; font-weight: 700; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-family: 'DM Sans'; }
+    .btn:hover { opacity: 0.9; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .status { font-family: 'DM Mono'; font-size: 0.8rem; padding: 8px 12px; border-radius: 6px; margin-top: 1rem; display: none; }
+    .status.ok { background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); display: block; }
+    .status.err { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); display: block; }
+    .bonus-list { margin-top: 1rem; }
+    .bonus-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--surface2); border-radius: 6px; margin-bottom: 6px; font-size: 0.85rem; }
+    .bonus-del { color: var(--muted); cursor: pointer; font-size: 1.1rem; }
+    .bonus-del:hover { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <a class="back" href="/">← Back to Leaderboard</a>
+  <h1>⚙️ Admin Panel</h1>
+  <p style="color:var(--muted); margin-bottom:2rem; font-size:0.9rem">Manage bonus points and trigger data refresh</p>
+
+  <!-- Refresh -->
+  <div class="section">
+    <h2>Data Refresh</h2>
+    <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem">Trigger a scrape of all data sources. Takes 30-60 seconds.</p>
+    <button class="btn" onclick="doRefresh()">🔄 Refresh All Data Now</button>
+    <div class="status" id="refresh-status"></div>
+  </div>
+
+  <!-- Add bonus points -->
+  <div class="section">
+    <h2>Add Bonus Points</h2>
+    <div class="grid">
+      <div>
+        <label>Player</label>
+        <select id="bonus-player">
+          <option value="">Select player...</option>
+          <option>Tim</option><option>Wu</option><option>Jens</option>
+          <option>Todd</option><option>Mitchell</option><option>Shep</option>
+          <option>Theo</option><option>Feder</option><option>Fryar</option>
+          <option>Korch</option><option>Molmen</option><option>Jamzee</option>
+          <option>Buckley</option>
+        </select>
+      </div>
+      <div>
+        <label>Category</label>
+        <select id="bonus-cat">
+          <option value="">Select category...</option>
+          <option>NFL</option><option>NBA</option><option>MLB</option>
+          <option>NHL</option><option>NCAAF</option><option>NCAAB</option>
+          <option>Tennis</option><option>Golf</option><option>NASCAR</option>
+          <option>MLS</option><option>Actor</option><option>Actress</option>
+          <option>Musician</option><option>Country</option><option>Stock</option>
+        </select>
+      </div>
+      <div>
+        <label>Bonus Points</label>
+        <input type="number" id="bonus-pts" step="0.5" placeholder="e.g. 13, 9, 6.5">
+      </div>
+      <div>
+        <label>Reason / Event</label>
+        <input type="text" id="bonus-reason" placeholder="e.g. NFL Champion">
+      </div>
+    </div>
+    <button class="btn" style="margin-top:1rem" onclick="addBonus()">+ Add Bonus</button>
+    <div class="status" id="bonus-status"></div>
+    <div class="bonus-list" id="bonus-list"></div>
+  </div>
+
+  <script>
+    let bonuses = {};
+
+    async function loadBonuses() {
+      try {
+        const res = await fetch('/api/bonuses');
+        bonuses = await res.json();
+        renderBonusList();
+      } catch(e) {}
+    }
+
+    function renderBonusList() {
+      const el = document.getElementById('bonus-list');
+      const entries = [];
+      for (const [cat, players] of Object.entries(bonuses)) {
+        for (const [player, pts] of Object.entries(players)) {
+          entries.push({cat, player, pts});
+        }
+      }
+      if (!entries.length) { el.innerHTML = '<p style="color:var(--muted); font-size:0.85rem; margin-top:1rem">No bonuses entered yet.</p>'; return; }
+      el.innerHTML = entries.map(e => `
+        <div class="bonus-item">
+          <span><strong>${e.player}</strong> · ${e.cat}</span>
+          <span style="font-family:'DM Mono'; color:var(--accent)">+${e.pts} pts</span>
+          <span class="bonus-del" onclick="removeBonus('${e.cat}','${e.player}')">×</span>
+        </div>
+      `).join('');
+    }
+
+    async function addBonus() {
+      const player = document.getElementById('bonus-player').value;
+      const cat = document.getElementById('bonus-cat').value;
+      const pts = parseFloat(document.getElementById('bonus-pts').value);
+      if (!player || !cat || isNaN(pts)) {
+        showStatus('bonus-status', 'Please fill in all fields', 'err');
+        return;
+      }
+      const res = await fetch('/api/bonuses', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({player, category: cat, points: pts})
+      });
+      if (res.ok) {
+        showStatus('bonus-status', `Added ${pts} pts to ${player} (${cat})`, 'ok');
+        loadBonuses();
+      }
+    }
+
+    async function removeBonus(cat, player) {
+      await fetch('/api/bonuses', {
+        method: 'DELETE',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({player, category: cat})
+      });
+      loadBonuses();
+    }
+
+    async function doRefresh() {
+      showStatus('refresh-status', 'Refreshing... (this takes ~30s)', 'ok');
+      try {
+        const res = await fetch('/api/refresh', {method:'POST'});
+        const d = await res.json();
+        showStatus('refresh-status', 'Refresh complete! ' + JSON.stringify(d), 'ok');
+      } catch(e) {
+        showStatus('refresh-status', 'Refresh failed: ' + e, 'err');
+      }
+    }
+
+    function showStatus(id, msg, type) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = 'status ' + type;
+    }
+
+    loadBonuses();
+  </script>
+</body>
+</html>

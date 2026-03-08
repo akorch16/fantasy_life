@@ -1,0 +1,57 @@
+{
+  "scores": [
+    {
+      "name": "Zendaya",
+      "composite_score": 445.2
+    },
+    {
+      "name": "Emma Stone",
+      "composite_score": 398.7
+    },
+    {
+      "name": "Sydney Sweeney",
+      "composite_score": 354.1
+    },
+    {
+      "name": "Anya Taylor-Joy",
+      "composite_score": 312.5
+    },
+    {
+      "name": "Florence Pugh",
+      "composite_score": 287.3
+    },
+    {
+      "name": "Cynthia Erivo",
+      "composite_score": 245.8
+    },
+    {
+      "name": "Anne Hathaway",
+      "composite_score": 198.2
+    },
+    {
+      "name": "Ariana Grande",
+      "composite_score": 176.4
+    },
+    {
+      "name": "Charlize Theron",
+      "composite_score": 134.7
+    },
+    {
+      "name": "Teyana Taylor",
+      "composite_score": 98.3
+    },
+    {
+      "name": "Tessa Thompson",
+      "composite_score": 76.5
+    },
+    {
+      "name": "Jessie Buckley",
+      "composite_score": 54.2
+    },
+    {
+      "name": "Amanda Seyfried",
+      "composite_score": 42.8
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.786986"
+}

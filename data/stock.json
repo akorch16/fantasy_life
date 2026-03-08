@@ -1,0 +1,70 @@
+{
+  "prices": [
+    {
+      "ticker": "COIN",
+      "current_price": 312.5,
+      "jan1_price": 248.75
+    },
+    {
+      "ticker": "LULU",
+      "current_price": 298.4,
+      "jan1_price": 342.1
+    },
+    {
+      "ticker": "SOFI",
+      "current_price": 14.82,
+      "jan1_price": 10.15
+    },
+    {
+      "ticker": "NVDA",
+      "current_price": 118.5,
+      "jan1_price": 134.25
+    },
+    {
+      "ticker": "CVNA",
+      "current_price": 198.75,
+      "jan1_price": 225.4
+    },
+    {
+      "ticker": "TSLA",
+      "current_price": 312.8,
+      "jan1_price": 403.84
+    },
+    {
+      "ticker": "CMG",
+      "current_price": 58.2,
+      "jan1_price": 55.48
+    },
+    {
+      "ticker": "PLTR",
+      "current_price": 78.45,
+      "jan1_price": 71.96
+    },
+    {
+      "ticker": "AVGO",
+      "current_price": 198.3,
+      "jan1_price": 185.44
+    },
+    {
+      "ticker": "SMCI",
+      "current_price": 45.2,
+      "jan1_price": 38.75
+    },
+    {
+      "ticker": "TTWO",
+      "current_price": 198.75,
+      "jan1_price": 176.25
+    },
+    {
+      "ticker": "INTC",
+      "current_price": 22.5,
+      "jan1_price": 20.15
+    },
+    {
+      "ticker": "NEE",
+      "current_price": 68.9,
+      "jan1_price": 72.35
+    }
+  ],
+  "_updated": "2026-03-06T23:14:42.787381"
+}
