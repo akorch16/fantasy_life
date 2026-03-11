@@ -43,17 +43,26 @@ def fetch_html(url, timeout=15):
 # ── ESPN API helpers ──────────────────────────────────────────────────────────
 
 def scrape_espn_standings(sport, league, season=2026):
-    """Generic ESPN standings scraper — returns list of {team, wins, losses, win_pct}"""
-    url = f'https://site.web.api.espn.com/apis/v2/sports/{sport}/{league}/standings?season={season}'
+    """Generic ESPN standings scraper — returns list of {team, win_pct}"""
+    url = f'https://site.api.espn.com/apis/v2/sports/{sport}/{league}/standings?season={season}'
     try:
         data = fetch_json(url)
         standings = []
-        for conf in data.get('children', [data]):
-            for entry in conf.get('standings', {}).get('entries', []):
-                team = entry.get('team', {}).get('displayName', '')
-                stats = {s['name']: s['value'] for s in entry.get('stats', [])}
-                win_pct = stats.get('winPercent') or stats.get('PCT') or 0
-                standings.append({'team': team, 'win_pct': round(float(win_pct), 4)})
+        # site.api.espn.com returns children[] with standings.entries[]
+        groups = data.get('children', [data])
+        for group in groups:
+            # each group may itself have children (e.g. divisions inside conferences)
+            subgroups = group.get('children', [group])
+            for sg in subgroups:
+                for entry in sg.get('standings', {}).get('entries', []):
+                    team = entry.get('team', {}).get('displayName', '')
+                    stats = {s['name']: s['value'] for s in entry.get('stats', [])}
+                    win_pct = (stats.get('winPercent')
+                               or stats.get('PCT')
+                               or stats.get('gamesBehind')  # fallback
+                               or 0)
+                    if team:
+                        standings.append({'team': team, 'win_pct': round(float(win_pct), 4)})
         return standings
     except Exception as e:
         print(f"    ESPN standings error: {e}")
@@ -92,17 +101,21 @@ def scrape_mlb():
 def scrape_nhl():
     """NHL uses points percentage, not win%"""
     try:
-        url = 'https://site.web.api.espn.com/apis/v2/sports/hockey/nhl/standings?season=2026'
+        url = 'https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings?season=2026'
         data = fetch_json(url)
         standings = []
-        for conf in data.get('children', [data]):
-            for entry in conf.get('standings', {}).get('entries', []):
-                team = entry.get('team', {}).get('displayName', '')
-                stats = {s['name']: s['value'] for s in entry.get('stats', [])}
-                pts = stats.get('points', 0)
-                gp = stats.get('gamesPlayed', 1) or 1
-                pts_pct = round(float(pts) / (float(gp) * 2), 4) if gp else 0
-                standings.append({'team': team, 'points_pct': pts_pct})
+        groups = data.get('children', [data])
+        for group in groups:
+            subgroups = group.get('children', [group])
+            for sg in subgroups:
+                for entry in sg.get('standings', {}).get('entries', []):
+                    team = entry.get('team', {}).get('displayName', '')
+                    stats = {s['name']: s['value'] for s in entry.get('stats', [])}
+                    pts = stats.get('points', 0)
+                    gp = stats.get('gamesPlayed', 1) or 1
+                    pts_pct = round(float(pts) / (float(gp) * 2), 4) if gp else 0
+                    if team:
+                        standings.append({'team': team, 'points_pct': pts_pct})
         if standings:
             return save_data('nhl', {'standings': standings})
         raise Exception("No data")
@@ -113,7 +126,7 @@ def scrape_nhl():
 def scrape_ncaaf():
     """NCAAF AP Poll from ESPN"""
     try:
-        url = 'https://site.web.api.espn.com/apis/v2/sports/football/college-football/rankings?season=2025'
+        url = 'https://site.api.espn.com/apis/v2/sports/football/college-football/rankings?season=2025'
         data = fetch_json(url)
         poll = []
         for ranking in data.get('rankings', []):
@@ -133,7 +146,7 @@ def scrape_ncaaf():
 def scrape_ncaab():
     """NCAAB AP Poll from ESPN"""
     try:
-        url = 'https://site.web.api.espn.com/apis/v2/sports/basketball/mens-college-basketball/rankings?season=2026'
+        url = 'https://site.api.espn.com/apis/v2/sports/basketball/mens-college-basketball/rankings?season=2026'
         data = fetch_json(url)
         poll = []
         for ranking in data.get('rankings', []):
@@ -153,15 +166,19 @@ def scrape_ncaab():
 def scrape_mls():
     """MLS standings from ESPN"""
     try:
-        url = 'https://site.web.api.espn.com/apis/v2/sports/soccer/usa.1/standings?season=2026'
+        url = 'https://site.api.espn.com/apis/v2/sports/soccer/usa.1/standings?season=2026'
         data = fetch_json(url)
         standings = []
-        for conf in data.get('children', [data]):
-            for entry in conf.get('standings', {}).get('entries', []):
-                team = entry.get('team', {}).get('displayName', '')
-                stats = {s['name']: s['value'] for s in entry.get('stats', [])}
-                pts = int(stats.get('points', 0))
-                standings.append({'team': team, 'points': pts})
+        groups = data.get('children', [data])
+        for group in groups:
+            subgroups = group.get('children', [group])
+            for sg in subgroups:
+                for entry in sg.get('standings', {}).get('entries', []):
+                    team = entry.get('team', {}).get('displayName', '')
+                    stats = {s['name']: s['value'] for s in entry.get('stats', [])}
+                    pts = int(stats.get('points', 0))
+                    if team:
+                        standings.append({'team': team, 'points': pts})
         if standings:
             return save_data('mls', {'standings': standings})
         raise Exception("No data")
@@ -234,7 +251,7 @@ def scrape_golf():
 def scrape_nascar():
     """NASCAR standings from ESPN API"""
     try:
-        url = 'https://site.web.api.espn.com/apis/v2/sports/racing/nascar/series/premier/standings?season=2026'
+        url = 'https://site.api.espn.com/apis/v2/sports/racing/nascar/series/premier/standings?season=2026'
         data = fetch_json(url)
         standings = []
         for entry in data.get('standings', {}).get('entries', []):
