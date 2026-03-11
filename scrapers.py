@@ -41,31 +41,35 @@ def fetch_html(url, timeout=15):
     return BeautifulSoup(r.text, 'html.parser')
 
 # ── ESPN API helpers ──────────────────────────────────────────────────────────
+# Correct base: site.api.espn.com/apis/site/v2/sports/{sport}/{league}/standings
+# Response shape: data['children'][*]['standings']['entries'][*]
+
+def _parse_espn_standings_entries(data):
+    """Walk children recursively to find all standings entries."""
+    entries = []
+    nodes = [data]
+    while nodes:
+        node = nodes.pop()
+        for entry in node.get('standings', {}).get('entries', []):
+            entries.append(entry)
+        nodes.extend(node.get('children', []))
+    return entries
 
 def scrape_espn_standings(sport, league, season=2026):
     """Generic ESPN standings scraper — returns list of {team, win_pct}"""
-    url = f'https://site.api.espn.com/apis/v2/sports/{sport}/{league}/standings?season={season}'
+    url = f'https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/standings?season={season}'
     try:
         data = fetch_json(url)
         standings = []
-        # site.api.espn.com returns children[] with standings.entries[]
-        groups = data.get('children', [data])
-        for group in groups:
-            # each group may itself have children (e.g. divisions inside conferences)
-            subgroups = group.get('children', [group])
-            for sg in subgroups:
-                for entry in sg.get('standings', {}).get('entries', []):
-                    team = entry.get('team', {}).get('displayName', '')
-                    stats = {s['name']: s['value'] for s in entry.get('stats', [])}
-                    win_pct = (stats.get('winPercent')
-                               or stats.get('PCT')
-                               or stats.get('gamesBehind')  # fallback
-                               or 0)
-                    if team:
-                        standings.append({'team': team, 'win_pct': round(float(win_pct), 4)})
+        for entry in _parse_espn_standings_entries(data):
+            team = entry.get('team', {}).get('displayName', '')
+            stats = {s['name']: s['value'] for s in entry.get('stats', [])}
+            win_pct = stats.get('winPercent') or stats.get('PCT') or 0
+            if team:
+                standings.append({'team': team, 'win_pct': round(float(win_pct), 4)})
         return standings
     except Exception as e:
-        print(f"    ESPN standings error: {e}")
+        print(f"    ESPN standings error ({sport}/{league}): {e}")
         return []
 
 def scrape_nfl():
@@ -101,21 +105,17 @@ def scrape_mlb():
 def scrape_nhl():
     """NHL uses points percentage, not win%"""
     try:
-        url = 'https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings?season=2026'
+        url = 'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/standings?season=2026'
         data = fetch_json(url)
         standings = []
-        groups = data.get('children', [data])
-        for group in groups:
-            subgroups = group.get('children', [group])
-            for sg in subgroups:
-                for entry in sg.get('standings', {}).get('entries', []):
-                    team = entry.get('team', {}).get('displayName', '')
-                    stats = {s['name']: s['value'] for s in entry.get('stats', [])}
-                    pts = stats.get('points', 0)
-                    gp = stats.get('gamesPlayed', 1) or 1
-                    pts_pct = round(float(pts) / (float(gp) * 2), 4) if gp else 0
-                    if team:
-                        standings.append({'team': team, 'points_pct': pts_pct})
+        for entry in _parse_espn_standings_entries(data):
+            team = entry.get('team', {}).get('displayName', '')
+            stats = {s['name']: s['value'] for s in entry.get('stats', [])}
+            pts = float(stats.get('points', 0) or 0)
+            gp = float(stats.get('gamesPlayed', 1) or 1)
+            pts_pct = round(pts / (gp * 2), 4) if gp else 0
+            if team:
+                standings.append({'team': team, 'points_pct': pts_pct})
         if standings:
             return save_data('nhl', {'standings': standings})
         raise Exception("No data")
@@ -126,7 +126,7 @@ def scrape_nhl():
 def scrape_ncaaf():
     """NCAAF AP Poll from ESPN"""
     try:
-        url = 'https://site.api.espn.com/apis/v2/sports/football/college-football/rankings?season=2025'
+        url = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings?season=2025'
         data = fetch_json(url)
         poll = []
         for ranking in data.get('rankings', []):
@@ -134,7 +134,8 @@ def scrape_ncaaf():
                 for entry in ranking.get('ranks', []):
                     team = entry.get('team', {}).get('displayName', '')
                     rank = entry.get('current', 0)
-                    poll.append({'rank': rank, 'team': team})
+                    if team:
+                        poll.append({'rank': rank, 'team': team})
                 break
         if poll:
             return save_data('ncaaf', {'poll': poll})
@@ -146,7 +147,7 @@ def scrape_ncaaf():
 def scrape_ncaab():
     """NCAAB AP Poll from ESPN"""
     try:
-        url = 'https://site.api.espn.com/apis/v2/sports/basketball/mens-college-basketball/rankings?season=2026'
+        url = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/rankings?season=2026'
         data = fetch_json(url)
         poll = []
         for ranking in data.get('rankings', []):
@@ -154,7 +155,8 @@ def scrape_ncaab():
                 for entry in ranking.get('ranks', []):
                     team = entry.get('team', {}).get('displayName', '')
                     rank = entry.get('current', 0)
-                    poll.append({'rank': rank, 'team': team})
+                    if team:
+                        poll.append({'rank': rank, 'team': team})
                 break
         if poll:
             return save_data('ncaab', {'poll': poll})
@@ -166,19 +168,15 @@ def scrape_ncaab():
 def scrape_mls():
     """MLS standings from ESPN"""
     try:
-        url = 'https://site.api.espn.com/apis/v2/sports/soccer/usa.1/standings?season=2026'
+        url = 'https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/standings?season=2026'
         data = fetch_json(url)
         standings = []
-        groups = data.get('children', [data])
-        for group in groups:
-            subgroups = group.get('children', [group])
-            for sg in subgroups:
-                for entry in sg.get('standings', {}).get('entries', []):
-                    team = entry.get('team', {}).get('displayName', '')
-                    stats = {s['name']: s['value'] for s in entry.get('stats', [])}
-                    pts = int(stats.get('points', 0))
-                    if team:
-                        standings.append({'team': team, 'points': pts})
+        for entry in _parse_espn_standings_entries(data):
+            team = entry.get('team', {}).get('displayName', '')
+            stats = {s['name']: s['value'] for s in entry.get('stats', [])}
+            pts = int(float(stats.get('points', 0) or 0))
+            if team:
+                standings.append({'team': team, 'points': pts})
         if standings:
             return save_data('mls', {'standings': standings})
         raise Exception("No data")
@@ -251,7 +249,7 @@ def scrape_golf():
 def scrape_nascar():
     """NASCAR standings from ESPN API"""
     try:
-        url = 'https://site.api.espn.com/apis/v2/sports/racing/nascar/series/premier/standings?season=2026'
+        url = 'https://site.api.espn.com/apis/site/v2/sports/racing/nascar-premier/standings?season=2026'
         data = fetch_json(url)
         standings = []
         for entry in data.get('standings', {}).get('entries', []):
@@ -392,8 +390,13 @@ def refresh_all():
     ]
     for name, fn in scrapers:
         print(f"Scraping {name}...")
-        result = fn()
-        results[name] = 'ok' if result else 'failed'
+        try:
+            result = fn()
+            status = 'ok' if result else 'failed (no data returned)'
+        except Exception as e:
+            status = f'error: {e}'
+        results[name] = status
+        print(f"  → {name}: {status}")
     print("\n✅ Refresh complete!")
     return results
 
