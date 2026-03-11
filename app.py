@@ -11,6 +11,28 @@ from scoring import compute_all_scores, get_last_updated
 app = Flask(__name__)
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
+# ── Auto-seed on cold start ───────────────────────────────────────────────────
+def _needs_seeding():
+    """Return True if any required data file is missing."""
+    required = ['nfl', 'nba', 'mlb', 'nhl', 'ncaaf', 'ncaab',
+                'tennis', 'golf', 'nascar', 'mls', 'stock', 'country', 'musician']
+    for key in required:
+        if not os.path.exists(os.path.join(DATA_DIR, f'{key}.json')):
+            return True
+    return False
+
+def _auto_seed():
+    """Seed demo data silently on startup if data is missing."""
+    from scrapers import seed_demo_data
+    print("⚠️  No data found — seeding demo data for cold start...")
+    seed_demo_data()
+    print("✅ Demo data seeded.")
+
+if _needs_seeding():
+    _auto_seed()
+
+# ─────────────────────────────────────────────────────────────────────────────
+
 def load_bonuses():
     path = os.path.join(DATA_DIR, 'bonuses.json')
     if not os.path.exists(path): return {}
