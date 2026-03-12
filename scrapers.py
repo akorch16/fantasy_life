@@ -305,7 +305,18 @@ def scrape_billboard():
 # ── Refresh All ───────────────────────────────────────────────────────────────
 
 def refresh_all():
+    import traceback
     print('\n🔄 Fantasy Life 2026 — Refreshing all data...\n')
+
+    # Diagnose env vars and db connectivity first
+    import os
+    surl = os.environ.get('SUPABASE_URL', 'NOT SET')
+    skey = os.environ.get('SUPABASE_KEY', 'NOT SET')
+    bdl  = os.environ.get('BALLDONTLIE_KEY', 'NOT SET')
+    print(f'  ENV: SUPABASE_URL={surl[:30] if surl != "NOT SET" else "NOT SET"}')
+    print(f'  ENV: SUPABASE_KEY={"SET (" + str(len(skey)) + " chars)" if skey != "NOT SET" else "NOT SET"}')
+    print(f'  ENV: BALLDONTLIE_KEY={"SET" if bdl != "NOT SET" else "NOT SET"}')
+
     results = {}
     all_scrapers = [
         ('NFL', scrape_nfl), ('NCAAF', scrape_ncaaf),
@@ -321,6 +332,7 @@ def refresh_all():
             status = 'ok' if result else 'failed'
         except Exception as e:
             status = f'error: {e}'
+            print(f'  TRACEBACK:\n{traceback.format_exc()}')
         results[name] = status
         print(f'  → {name}: {status}')
     print('\n✅ Refresh complete!')
