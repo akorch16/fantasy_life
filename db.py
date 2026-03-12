@@ -1,0 +1,144 @@
+"""
+db.py — Supabase database layer for Fantasy Life 2026
+Replaces local JSON file reads/writes with persistent Postgres via Supabase REST API.
+"""
+
+import os, json, requests
+from datetime import datetime
+
+SUPABASE_URL = os.environ.get('SUPABASE_URL', '').rstrip('/')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
+
+def _headers():
+    return {
+        'apikey': SUPABASE_KEY,
+        'Authorization': f'Bearer {SUPABASE_KEY}',
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+    }
+
+# ── Standings ────────────────────────────────────────────────────────────────
+
+def get_standing(category: str) -> dict:
+    """Return the data dict for a category, or {} if not found."""
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/standings',
+        headers=_headers(),
+        params={'category': f'eq.{category}', 'select': 'data,frozen'},
+    )
+    rows = r.json()
+    if rows:
+        return rows[0]['data']
+    return {}
+
+def get_all_standings() -> dict:
+    """Return {category: data} for all categories."""
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/standings',
+        headers=_headers(),
+        params={'select': 'category,data,frozen'},
+    )
+    return {row['category']: row['data'] for row in r.json()}
+
+def is_frozen(category: str) -> bool:
+    """Return True if this category is frozen (don't re-scrape)."""
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/standings',
+        headers=_headers(),
+        params={'category': f'eq.{category}', 'select': 'frozen'},
+    )
+    rows = r.json()
+    return rows[0]['frozen'] if rows else False
+
+def save_standing(category: str, data: dict, frozen: bool = None) -> bool:
+    """Upsert standings data for a category. Pass frozen=True/False to change freeze state."""
+    payload = {
+        'category': category,
+        'data': data,
+        'updated_at': datetime.utcnow().isoformat(),
+    }
+    if frozen is not None:
+        payload['frozen'] = frozen
+
+    r = requests.post(
+        f'{SUPABASE_URL}/rest/v1/standings',
+        headers={**_headers(), 'Prefer': 'resolution=merge-duplicates,return=representation'},
+        json=payload,
+    )
+    ok = r.status_code in (200, 201)
+    if ok:
+        print(f'  ✓ {category} saved to Supabase')
+    else:
+        print(f'  ✗ {category} save failed: {r.status_code} {r.text}')
+    return ok
+
+def freeze_category(category: str) -> bool:
+    """Mark a category as frozen so scrapers skip it."""
+    r = requests.patch(
+        f'{SUPABASE_URL}/rest/v1/standings',
+        headers=_headers(),
+        params={'category': f'eq.{category}'},
+        json={'frozen': True, 'updated_at': datetime.utcnow().isoformat()},
+    )
+    return r.status_code in (200, 204)
+
+def unfreeze_category(category: str) -> bool:
+    """Unfreeze a category so scrapers will update it again."""
+    r = requests.patch(
+        f'{SUPABASE_URL}/rest/v1/standings',
+        headers=_headers(),
+        params={'category': f'eq.{category}'},
+        json={'frozen': False, 'updated_at': datetime.utcnow().isoformat()},
+    )
+    return r.status_code in (200, 204)
+
+# ── Bonuses ──────────────────────────────────────────────────────────────────
+
+def get_all_bonuses() -> dict:
+    """Return {category: {player: points}} for all bonuses."""
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/bonuses',
+        headers=_headers(),
+        params={'select': 'category,player,points'},
+    )
+    result = {}
+    for row in r.json():
+        cat, player, pts = row['category'], row['player'], float(row['points'])
+        if cat not in result:
+            result[cat] = {}
+        result[cat][player] = pts
+    return result
+
+def add_bonus(category: str, player: str, points: float, reason: str = '') -> bool:
+    """Add points to a player's bonus for a category (accumulates)."""
+    # Get existing first
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/bonuses',
+        headers=_headers(),
+        params={'category': f'eq.{category}', 'player': f'eq.{player}', 'select': 'points'},
+    )
+    existing = float(r.json()[0]['points']) if r.json() else 0.0
+    new_total = round(existing + points, 2)
+
+    payload = {
+        'category': category,
+        'player': player,
+        'points': new_total,
+        'reason': reason,
+        'updated_at': datetime.utcnow().isoformat(),
+    }
+    r = requests.post(
+        f'{SUPABASE_URL}/rest/v1/bonuses',
+        headers={**_headers(), 'Prefer': 'resolution=merge-duplicates,return=representation'},
+        json=payload,
+    )
+    return r.status_code in (200, 201)
+
+def delete_bonus(category: str, player: str) -> bool:
+    """Remove a player's bonus for a category."""
+    r = requests.delete(
+        f'{SUPABASE_URL}/rest/v1/bonuses',
+        headers=_headers(),
+        params={'category': f'eq.{category}', 'player': f'eq.{player}'},
+    )
+    return r.status_code in (200, 204)
