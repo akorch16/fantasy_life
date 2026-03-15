@@ -44,14 +44,15 @@ def get_all_standings() -> dict:
     return {row['category']: row['data'] for row in r.json()}
 
 def is_frozen(category: str) -> bool:
-    """Return True if this category is frozen (don't re-scrape)."""
     r = requests.get(
         f'{SUPABASE_URL}/rest/v1/standings',
         headers=_headers(),
         params={'category': f'eq.{category}', 'select': 'frozen'},
     )
     rows = r.json()
-    return rows[0]['frozen'] if rows else False
+    if not isinstance(rows, list) or not rows:
+        return False
+    return rows[0].get('frozen', False)
 
 def save_standing(category: str, data: dict, frozen: bool = None) -> bool:
     """Upsert standings data for a category. Pass frozen=True/False to change freeze state."""
