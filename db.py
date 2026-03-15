@@ -9,6 +9,9 @@ from datetime import datetime
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '').rstrip('/')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
 
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print('WARNING: SUPABASE_URL or SUPABASE_KEY not set — db calls will fail gracefully')
+
 def _headers():
     return {
         'apikey': SUPABASE_KEY,
