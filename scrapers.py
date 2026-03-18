@@ -47,10 +47,19 @@ def _espn_standings(sport, league):
     url = f'{ESPN_BASE}/{sport}/{league}/standings'
     data = fetch_json(url, timeout=15)
     entries = []
-    for conf in data.get('children', []):
-        for div in conf.get('children', [conf]):
-            for entry in div.get('standings', {}).get('entries', []):
+
+    # Log top-level keys so we can see the structure
+    print(f'    ESPN {league} keys: {list(data.keys())}')
+    for i, conf in enumerate(data.get('children', [])):
+        print(f'    conf[{i}] keys: {list(conf.keys())}')
+        children = conf.get('children', [conf])
+        for j, div in enumerate(children):
+            print(f'      div[{j}] keys: {list(div.keys())}')
+            stand = div.get('standings', {})
+            print(f'      standings keys: {list(stand.keys())}')
+            for entry in stand.get('entries', []):
                 entries.append(entry)
+
     return entries
 
 def _espn_stat(entry, name):
