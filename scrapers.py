@@ -1,12 +1,11 @@
 """
 Fantasy Life 2026 — Data Scrapers
 Sources:
-  NBA/NHL/MLB  → balldontlie.io (free tier, needs BALLDONTLIE_KEY env var)
-  MLS          → api-football.com (free tier, needs API_FOOTBALL_KEY env var)
-  Tennis       → ATP/WTA scrape (working)
-  Golf         → OWGR scrape (working)
-  Stock        → Yahoo Finance (working)
-  Country      → IMF DataMapper API (working)
+  NBA/NHL/MLB/NCAAB/MLS → ESPN API (no key needed)
+  Tennis       → ATP/WTA scrape
+  Golf         → OWGR scrape
+  Stock        → Yahoo Finance
+  Country      → IMF DataMapper API
   Musician     → Billboard scrape (fragile, fallback to manual)
   NFL/NCAAF    → FROZEN in Supabase, scrapers skip these
 """
@@ -23,9 +22,7 @@ except ImportError:
 
 from db import save_standing, is_frozen, get_standing
 
-BDL_KEY          = os.environ.get('BALLDONTLIE_KEY', '')
-API_FOOTBALL_KEY = os.environ.get('API_FOOTBALL_KEY', '')
-BDL_BASE         = 'https://api.balldontlie.io'
+ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports'
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
@@ -44,13 +41,23 @@ def fetch_html(url, timeout=15):
     r.raise_for_status()
     return BeautifulSoup(r.text, 'html.parser')
 
-def _bdl_headers():
-    return {'Authorization': BDL_KEY}
+# ── ESPN helpers ──────────────────────────────────────────────────────────────
 
-def _bdl_standings(league, season):
-    url = f'{BDL_BASE}/{league}/v1/standings'
-    data = fetch_json(url, headers=_bdl_headers(), params={'season': season})
-    return data.get('data', [])
+def _espn_standings(sport, league):
+    url = f'{ESPN_BASE}/{sport}/{league}/standings'
+    data = fetch_json(url, timeout=15)
+    entries = []
+    for conf in data.get('children', []):
+        for div in conf.get('children', [conf]):
+            for entry in div.get('standings', {}).get('entries', []):
+                entries.append(entry)
+    return entries
+
+def _espn_stat(entry, name):
+    for s in entry.get('stats', []):
+        if s.get('name') == name or s.get('abbreviation') == name:
+            return s.get('value')
+    return None
 
 # ── NBA ───────────────────────────────────────────────────────────────────────
 
@@ -58,14 +65,15 @@ def scrape_nba():
     if is_frozen('NBA'):
         print('  ⏸ NBA is frozen, skipping'); return True
     try:
-        rows = _bdl_standings('nba', 2025)
-        if not rows: raise Exception('No data')
+        entries = _espn_standings('basketball', 'nba')
+        if not entries: raise Exception('No data')
         standings = []
-        for row in rows:
-            name = row.get('team', {}).get('full_name', '')
-            w, l = row.get('wins', 0), row.get('losses', 0)
-            gp = w + l
-            standings.append({'team': name, 'win_pct': round(w / gp, 4) if gp else 0})
+        for e in entries:
+            name = e.get('team', {}).get('displayName', '')
+            wins = _espn_stat(e, 'wins') or 0
+            losses = _espn_stat(e, 'losses') or 0
+            gp = wins + losses
+            standings.append({'team': name, 'win_pct': round(wins / gp, 4) if gp else 0})
         standings.sort(key=lambda x: x['win_pct'], reverse=True)
         return save_standing('NBA', {'standings': standings})
     except Exception as e:
@@ -77,13 +85,13 @@ def scrape_nhl():
     if is_frozen('NHL'):
         print('  ⏸ NHL is frozen, skipping'); return True
     try:
-        rows = _bdl_standings('nhl', 2025)
-        if not rows: raise Exception('No data')
+        entries = _espn_standings('hockey', 'nhl')
+        if not entries: raise Exception('No data')
         standings = []
-        for row in rows:
-            name = row.get('team', {}).get('full_name', '')
-            pts = float(row.get('points', 0) or 0)
-            gp  = float(row.get('games_played', 1) or 1)
+        for e in entries:
+            name = e.get('team', {}).get('displayName', '')
+            pts = _espn_stat(e, 'points') or 0
+            gp  = _espn_stat(e, 'gamesPlayed') or 1
             standings.append({'team': name, 'points_pct': round(pts / (gp * 2), 4)})
         standings.sort(key=lambda x: x['points_pct'], reverse=True)
         return save_standing('NHL', {'standings': standings})
@@ -96,14 +104,15 @@ def scrape_mlb():
     if is_frozen('MLB'):
         print('  ⏸ MLB is frozen, skipping'); return True
     try:
-        rows = _bdl_standings('mlb', 2026)
-        if not rows: raise Exception('Season not started yet')
+        entries = _espn_standings('baseball', 'mlb')
+        if not entries: raise Exception('No data')
         standings = []
-        for row in rows:
-            name = row.get('team', {}).get('full_name', '')
-            w, l = row.get('wins', 0), row.get('losses', 0)
-            gp = w + l
-            standings.append({'team': name, 'win_pct': round(w / gp, 4) if gp else 0})
+        for e in entries:
+            name = e.get('team', {}).get('displayName', '')
+            wins = _espn_stat(e, 'wins') or 0
+            losses = _espn_stat(e, 'losses') or 0
+            gp = wins + losses
+            standings.append({'team': name, 'win_pct': round(wins / gp, 4) if gp else 0})
         standings.sort(key=lambda x: x['win_pct'], reverse=True)
         return save_standing('MLB', {'standings': standings})
     except Exception as e:
@@ -131,10 +140,24 @@ def scrape_ncaab():
     if is_frozen('NCAAB'):
         print('  ⏸ NCAAB is frozen, skipping'); return True
     try:
-        rows = _bdl_standings('ncaab', 2026)
-        if not rows: raise Exception('No data')
-        poll = [{'rank': i+1, 'team': row.get('team', {}).get('full_name', '')}
-                for i, row in enumerate(rows[:25])]
+        url = f'{ESPN_BASE}/basketball/mens-college-basketball/standings'
+        data = fetch_json(url, timeout=15)
+        entries = []
+        for conf in data.get('children', []):
+            for div in conf.get('children', [conf]):
+                for entry in div.get('standings', {}).get('entries', []):
+                    entries.append(entry)
+        if not entries: raise Exception('No data')
+        ranked = []
+        for e in entries:
+            name = e.get('team', {}).get('displayName', '')
+            wins = _espn_stat(e, 'wins') or 0
+            losses = _espn_stat(e, 'losses') or 0
+            gp = wins + losses
+            pct = wins / gp if gp else 0
+            ranked.append({'team': name, 'pct': pct})
+        ranked.sort(key=lambda x: x['pct'], reverse=True)
+        poll = [{'rank': i+1, 'team': r['team']} for i, r in enumerate(ranked[:25])]
         return save_standing('NCAAB', {'poll': poll})
     except Exception as e:
         print(f'  ✗ NCAAB: {e}'); return False
@@ -145,15 +168,14 @@ def scrape_mls():
     if is_frozen('MLS'):
         print('  ⏸ MLS is frozen, skipping'); return True
     try:
-        data = fetch_json('https://v3.football.api-sports.io/standings',
-            headers={'x-apisports-key': API_FOOTBALL_KEY},
-            params={'league': 253, 'season': 2026})
-        leagues = data.get('response', [])
-        if not leagues: raise Exception('No MLS data')
-        standings = [
-            {'team': e.get('team', {}).get('name', ''), 'points': e.get('points', 0)}
-            for e in leagues[0].get('league', {}).get('standings', [[]])[0]
-        ]
+        entries = _espn_standings('soccer', 'usa.1')
+        if not entries: raise Exception('No MLS data')
+        standings = []
+        for e in entries:
+            name = e.get('team', {}).get('displayName', '')
+            pts = _espn_stat(e, 'points') or _espn_stat(e, 'pts') or 0
+            standings.append({'team': name, 'points': pts})
+        standings.sort(key=lambda x: x['points'], reverse=True)
         return save_standing('MLS', {'standings': standings})
     except Exception as e:
         print(f'  ✗ MLS: {e}'); return False
@@ -176,10 +198,13 @@ def scrape_tennis():
         soup = fetch_html('https://www.atptour.com/en/rankings/singles')
         for row in soup.select('table tbody tr')[:50]:
             cols = row.find_all('td')
-            if len(cols) >= 3:
+            if len(cols) >= 4:
                 try:
                     rank = int(cols[0].text.strip().replace('T', ''))
-                    player = cols[2].text.strip()
+                    # col[1] = move, col[2] = country, col[3] = player name
+                    player = cols[3].text.strip()
+                    if not player:
+                        player = cols[2].text.strip()
                     if player: rankings.append({'player': player, 'rank': rank, 'tour': 'ATP'})
                 except (ValueError, AttributeError): continue
         soup2 = fetch_html('https://www.wtatennis.com/rankings/singles')
@@ -308,14 +333,11 @@ def refresh_all():
     import traceback
     print('\n🔄 Fantasy Life 2026 — Refreshing all data...\n')
 
-    # Diagnose env vars and db connectivity first
     import os
     surl = os.environ.get('SUPABASE_URL', 'NOT SET')
     skey = os.environ.get('SUPABASE_KEY', 'NOT SET')
-    bdl  = os.environ.get('BALLDONTLIE_KEY', 'NOT SET')
     print(f'  ENV: SUPABASE_URL={surl[:30] if surl != "NOT SET" else "NOT SET"}')
     print(f'  ENV: SUPABASE_KEY={"SET (" + str(len(skey)) + " chars)" if skey != "NOT SET" else "NOT SET"}')
-    print(f'  ENV: BALLDONTLIE_KEY={"SET" if bdl != "NOT SET" else "NOT SET"}')
 
     results = {}
     all_scrapers = [
@@ -343,36 +365,8 @@ def refresh_all():
 def seed_demo_data():
     """Seed Supabase with starter data. Run once on empty DB."""
     print('Seeding demo data to Supabase...')
-    save_standing('NBA', {'standings': [
-        {'team': 'Cleveland Cavaliers', 'win_pct': 0.780},
-        {'team': 'Oklahoma City Thunder', 'win_pct': 0.760},
-        {'team': 'Boston Celtics', 'win_pct': 0.730},
-        {'team': 'Houston Rockets', 'win_pct': 0.680},
-        {'team': 'Denver Nuggets', 'win_pct': 0.650},
-        {'team': 'New York Knicks', 'win_pct': 0.630},
-        {'team': 'Minnesota Timberwolves', 'win_pct': 0.600},
-        {'team': 'Golden State Warriors', 'win_pct': 0.560},
-        {'team': 'Los Angeles Lakers', 'win_pct': 0.530},
-        {'team': 'Milwaukee Bucks', 'win_pct': 0.490},
-        {'team': 'Orlando Magic', 'win_pct': 0.450},
-        {'team': 'Los Angeles Clippers', 'win_pct': 0.400},
-        {'team': 'San Antonio Spurs', 'win_pct': 0.250},
-    ]})
-    save_standing('NHL', {'standings': [
-        {'team': 'Florida Panthers', 'points_pct': 0.720},
-        {'team': 'Colorado Avalanche', 'points_pct': 0.700},
-        {'team': 'Toronto Maple Leafs', 'points_pct': 0.685},
-        {'team': 'Carolina Hurricanes', 'points_pct': 0.670},
-        {'team': 'Boston Bruins', 'points_pct': 0.655},
-        {'team': 'Edmonton Oilers', 'points_pct': 0.640},
-        {'team': 'Vegas Golden Knights', 'points_pct': 0.615},
-        {'team': 'Washington Capitals', 'points_pct': 0.590},
-        {'team': 'New York Rangers', 'points_pct': 0.560},
-        {'team': 'Dallas Stars', 'points_pct': 0.530},
-        {'team': 'Tampa Bay Lightning', 'points_pct': 0.500},
-        {'team': 'New Jersey Devils', 'points_pct': 0.450},
-        {'team': 'Detroit Red Wings', 'points_pct': 0.380},
-    ]})
+    save_standing('NBA',     {'standings': []})
+    save_standing('NHL',     {'standings': []})
     save_standing('NFL',     {'standings': []}, frozen=True)
     save_standing('NCAAF',   {'poll': []},      frozen=True)
     save_standing('MLB',     {'standings': []})
