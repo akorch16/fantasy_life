@@ -44,23 +44,38 @@ def fetch_html(url, timeout=15):
 # ── ESPN helpers ──────────────────────────────────────────────────────────────
 
 def _espn_standings(sport, league):
-    url = f'{ESPN_BASE}/{sport}/{league}/standings'
-    data = fetch_json(url, timeout=15)
-    entries = []
+    # Try multiple ESPN URL patterns
+    urls = [
+        f'https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/standings',
+        f'https://site.web.api.espn.com/apis/v2/sports/{sport}/{league}/standings',
+        f'https://site.web.api.espn.com/apis/v2/sports/{sport}/{league}/standings?seasontype=2&type=0&level=3',
+    ]
+    
+    for url in urls:
+        try:
+            data = fetch_json(url, timeout=15)
+            print(f'    ESPN {league} keys: {list(data.keys())}')
+            entries = []
+            for conf in data.get('children', []):
+                children = conf.get('children', [conf])
+                for div in children:
+                    for entry in div.get('standings', {}).get('entries', []):
+                        entries.append(entry)
+                for entry in conf.get('standings', {}).get('entries', []):
+                    if entry not in entries:
+                        entries.append(entry)
+            if not entries:
+                for entry in data.get('standings', {}).get('entries', []):
+                    entries.append(entry)
+            if entries:
+                print(f'    ✓ Got {len(entries)} entries from {url}')
+                return entries
+            print(f'    ✗ No entries from {url}')
+        except Exception as e:
+            print(f'    ✗ {url}: {e}')
+    
+    return []
 
-    # Log top-level keys so we can see the structure
-    print(f'    ESPN {league} keys: {list(data.keys())}')
-    for i, conf in enumerate(data.get('children', [])):
-        print(f'    conf[{i}] keys: {list(conf.keys())}')
-        children = conf.get('children', [conf])
-        for j, div in enumerate(children):
-            print(f'      div[{j}] keys: {list(div.keys())}')
-            stand = div.get('standings', {})
-            print(f'      standings keys: {list(stand.keys())}')
-            for entry in stand.get('entries', []):
-                entries.append(entry)
-
-    return entries
 
 def _espn_stat(entry, name):
     for s in entry.get('stats', []):
@@ -177,7 +192,7 @@ def scrape_mls():
     if is_frozen('MLS'):
         print('  ⏸ MLS is frozen, skipping'); return True
     try:
-        entries = _espn_standings('soccer', 'usa.1')
+        entries = _espn_standings('soccer', 'usa.mls')
         if not entries: raise Exception('No MLS data')
         standings = []
         for e in entries:
