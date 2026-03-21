@@ -43,14 +43,14 @@ def fetch_html(url, timeout=15):
 
 # ── ESPN helpers ──────────────────────────────────────────────────────────────
 
+ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports'
+
 def _espn_standings(sport, league):
-    # Try multiple ESPN URL patterns
     urls = [
         f'https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/standings',
         f'https://site.web.api.espn.com/apis/v2/sports/{sport}/{league}/standings',
         f'https://site.web.api.espn.com/apis/v2/sports/{sport}/{league}/standings?seasontype=2&type=0&level=3',
     ]
-    
     for url in urls:
         try:
             data = fetch_json(url, timeout=15)
@@ -70,12 +70,9 @@ def _espn_standings(sport, league):
             if entries:
                 print(f'    ✓ Got {len(entries)} entries from {url}')
                 return entries
-            print(f'    ✗ No entries from {url}')
         except Exception as e:
             print(f'    ✗ {url}: {e}')
-    
     return []
-
 
 def _espn_stat(entry, name):
     for s in entry.get('stats', []):
@@ -158,7 +155,7 @@ def scrape_ncaaf():
     print('  ℹ NCAAF: enter final standings in admin panel, then freeze')
     return False
 
-# ── NCAAB ─────────────────────────────────────────────────────────────────────
+# ── NCAAB (ESPN - fixed name matching) ────────────────────────────────────────
 
 def scrape_ncaab():
     if is_frozen('NCAAB'):
@@ -171,36 +168,62 @@ def scrape_ncaab():
             for div in conf.get('children', [conf]):
                 for entry in div.get('standings', {}).get('entries', []):
                     entries.append(entry)
+        if not entries:
+            # Try alternate URL
+            url2 = 'https://site.web.api.espn.com/apis/v2/sports/basketball/mens-college-basketball/standings'
+            data2 = fetch_json(url2, timeout=15)
+            for conf in data2.get('children', []):
+                for div in conf.get('children', [conf]):
+                    for entry in div.get('standings', {}).get('entries', []):
+                        entries.append(entry)
         if not entries: raise Exception('No data')
         ranked = []
         for e in entries:
-            name = e.get('team', {}).get('displayName', '')
+            team = e.get('team', {})
+            # Store both displayName and shortDisplayName for better matching
+            full_name = team.get('displayName', '')
+            short_name = team.get('shortDisplayName', '')
+            location = team.get('location', '')
             wins = _espn_stat(e, 'wins') or 0
             losses = _espn_stat(e, 'losses') or 0
             gp = wins + losses
             pct = wins / gp if gp else 0
-            ranked.append({'team': name, 'pct': pct})
+            ranked.append({
+                'team': full_name,
+                'short': short_name,
+                'location': location,
+                'pct': pct,
+                'wins': wins,
+                'losses': losses
+            })
+            print(f'    NCAAB: {full_name} | {short_name} | {location} ({wins}-{losses})')
         ranked.sort(key=lambda x: x['pct'], reverse=True)
-        poll = [{'rank': i+1, 'team': r['team']} for i, r in enumerate(ranked[:25])]
+        poll = [{'rank': i+1, 'team': r['team'], 'short': r.get('short',''), 'location': r.get('location','')}
+                for i, r in enumerate(ranked[:25])]
         return save_standing('NCAAB', {'poll': poll})
     except Exception as e:
         print(f'  ✗ NCAAB: {e}'); return False
 
-# ── MLS ───────────────────────────────────────────────────────────────────────
+# ── MLS (ESPN) ────────────────────────────────────────────────────────────────
 
 def scrape_mls():
     if is_frozen('MLS'):
         print('  ⏸ MLS is frozen, skipping'); return True
     try:
-        entries = _espn_standings('soccer', 'usa.mls')
-        if not entries: raise Exception('No MLS data')
-        standings = []
-        for e in entries:
-            name = e.get('team', {}).get('displayName', '')
-            pts = _espn_stat(e, 'points') or _espn_stat(e, 'pts') or 0
-            standings.append({'team': name, 'points': pts})
-        standings.sort(key=lambda x: x['points'], reverse=True)
-        return save_standing('MLS', {'standings': standings})
+        # Try multiple MLS slugs
+        for slug in ['usa.1', 'mls', 'soccer.usa.1']:
+            entries = _espn_standings('soccer', slug)
+            if entries:
+                standings = []
+                for e in entries:
+                    name = e.get('team', {}).get('displayName', '')
+                    pts = _espn_stat(e, 'points') or _espn_stat(e, 'pts') or 0
+                    standings.append({'team': name, 'points': pts})
+                if standings:
+                    standings.sort(key=lambda x: x['points'], reverse=True)
+                    print(f'    ✓ Got {len(standings)} MLS teams from slug {slug}')
+                    return save_standing('MLS', {'standings': standings})
+        raise Exception('No MLS data from any slug')
     except Exception as e:
         print(f'  ✗ MLS: {e}'); return False
 
@@ -212,59 +235,91 @@ def scrape_nascar():
     print('  ℹ NASCAR: update manually in admin panel')
     return False
 
-# ── Tennis ────────────────────────────────────────────────────────────────────
+# ── Tennis (ESPN) ─────────────────────────────────────────────────────────────
 
 def scrape_tennis():
     if is_frozen('Tennis'):
         print('  ⏸ Tennis is frozen, skipping'); return True
     try:
         rankings = []
-        soup = fetch_html('https://www.atptour.com/en/rankings/singles')
-        for row in soup.select('table tbody tr')[:50]:
-            cols = row.find_all('td')
-            if len(cols) >= 4:
-                try:
-                    rank = int(cols[0].text.strip().replace('T', ''))
-                    # col[1] = move, col[2] = country, col[3] = player name
-                    player = cols[3].text.strip()
-                    if not player:
-                        player = cols[2].text.strip()
-                    if player: rankings.append({'player': player, 'rank': rank, 'tour': 'ATP'})
-                except (ValueError, AttributeError): continue
-        soup2 = fetch_html('https://www.wtatennis.com/rankings/singles')
-        for row in soup2.select('table tbody tr')[:50]:
-            cols = row.find_all('td')
-            if len(cols) >= 2:
-                try:
-                    rank = int(cols[0].text.strip())
-                    player = cols[1].text.strip()
-                    if player: rankings.append({'player': player, 'rank': rank, 'tour': 'WTA'})
-                except (ValueError, AttributeError): continue
-        if rankings: return save_standing('Tennis', {'rankings': rankings})
+        # ATP
+        atp_url = 'https://site.web.api.espn.com/apis/v2/sports/tennis/atp/rankings'
+        atp_data = fetch_json(atp_url, timeout=15)
+        for entry in atp_data.get('rankings', []):
+            rank = entry.get('current') or entry.get('rank')
+            athlete = entry.get('athlete', {})
+            player = athlete.get('displayName') or athlete.get('fullName') or ''
+            if player and rank:
+                rankings.append({'player': player, 'rank': int(rank), 'tour': 'ATP'})
+        print(f'    ATP: {len([r for r in rankings if r["tour"]=="ATP"])} players')
+
+        # WTA
+        wta_url = 'https://site.web.api.espn.com/apis/v2/sports/tennis/wta/rankings'
+        wta_data = fetch_json(wta_url, timeout=15)
+        for entry in wta_data.get('rankings', []):
+            rank = entry.get('current') or entry.get('rank')
+            athlete = entry.get('athlete', {})
+            player = athlete.get('displayName') or athlete.get('fullName') or ''
+            if player and rank:
+                rankings.append({'player': player, 'rank': int(rank), 'tour': 'WTA'})
+        print(f'    WTA: {len([r for r in rankings if r["tour"]=="WTA"])} players')
+
+        if rankings:
+            return save_standing('Tennis', {'rankings': rankings})
         raise Exception('No rankings found')
     except Exception as e:
-        print(f'  ✗ Tennis: {e}'); return False
+        print(f'  ✗ Tennis ESPN: {e}'); return False
 
-# ── Golf ──────────────────────────────────────────────────────────────────────
+# ── Golf (ESPN OWGR) ──────────────────────────────────────────────────────────
 
 def scrape_golf():
     if is_frozen('Golf'):
         print('  ⏸ Golf is frozen, skipping'); return True
     try:
-        soup = fetch_html('https://www.owgr.com/ranking')
+        # ESPN golf rankings
+        url = 'https://site.web.api.espn.com/apis/v2/sports/golf/rankings'
+        data = fetch_json(url, timeout=15)
         rankings = []
-        for row in soup.select('table tr')[1:60]:
-            cols = row.find_all('td')
-            if len(cols) >= 3:
-                try:
-                    rank = int(cols[0].text.strip())
-                    player = cols[2].text.strip() or cols[1].text.strip()
-                    if player: rankings.append({'player': player, 'rank': rank})
-                except (ValueError, AttributeError): continue
-        if rankings: return save_standing('Golf', {'rankings': rankings})
-        raise Exception('No rankings found')
+        for entry in data.get('rankings', []):
+            rank = entry.get('current') or entry.get('rank')
+            athlete = entry.get('athlete', {})
+            player = athlete.get('displayName') or athlete.get('fullName') or ''
+            if player and rank:
+                rankings.append({'player': player, 'rank': int(rank)})
+        if rankings:
+            print(f'    ✓ Got {len(rankings)} golf rankings from ESPN')
+            return save_standing('Golf', {'rankings': rankings})
+        raise Exception('No rankings found from ESPN')
     except Exception as e:
-        print(f'  ✗ Golf: {e}'); return False
+        print(f'  ✗ Golf ESPN: {e}')
+        # Fallback: try OWGR with better selectors
+        try:
+            soup = fetch_html('https://www.owgr.com/ranking')
+            rankings = []
+            # Try multiple selector patterns
+            for row in soup.select('tr.rankingTableRow, table tr')[1:60]:
+                cols = row.find_all('td')
+                if len(cols) >= 3:
+                    try:
+                        rank_text = cols[0].text.strip().replace('T', '').strip()
+                        rank = int(rank_text)
+                        # Try different column indices for name
+                        player = ''
+                        for idx in [2, 1, 3]:
+                            candidate = cols[idx].text.strip() if len(cols) > idx else ''
+                            # Filter out point values (contain commas or are pure numbers)
+                            if candidate and not candidate.replace(',', '').replace('.', '').isdigit():
+                                player = candidate
+                                break
+                        if player:
+                            rankings.append({'player': player, 'rank': rank})
+                    except (ValueError, AttributeError):
+                        continue
+            if rankings:
+                return save_standing('Golf', {'rankings': rankings})
+            raise Exception('No rankings found')
+        except Exception as e2:
+            print(f'  ✗ Golf OWGR fallback: {e2}'); return False
 
 # ── Stock ─────────────────────────────────────────────────────────────────────
 
@@ -295,32 +350,47 @@ def scrape_stock():
     except Exception as e:
         print(f'  ✗ Stock: {e}'); return False
 
-# ── Country GDP ───────────────────────────────────────────────────────────────
+# ── Country GDP (World Bank) ──────────────────────────────────────────────────
 
 def scrape_country_gdp():
     if is_frozen('Country'):
         print('  ⏸ Country is frozen, skipping'); return True
     try:
-        data = fetch_json('https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH')
+        from draft_picks_2026 import DRAFT_PICKS_2026
         ISO_MAP = {
             'Netherlands': 'NLD', 'United States': 'USA', 'Germany': 'DEU',
             'Guinea': 'GIN', 'South Sudan': 'SSD', 'France': 'FRA',
             'Switzerland': 'CHE', 'Brazil': 'BRA', 'Norway': 'NOR',
             'Guyana': 'GUY', 'Argentina': 'ARG', 'Spain': 'ESP', 'Canada': 'CAN',
         }
-        from draft_picks_2026 import DRAFT_PICKS_2026
         countries = list(DRAFT_PICKS_2026['Country'].values())
-        values = data.get('values', {}).get('NGDP_RPCH', {})
         gdp = []
         for country in countries:
             code = ISO_MAP.get(country)
-            if code and code in values:
-                growth = values[code].get('2026') or values[code].get('2025')
-                if growth: gdp.append({'country': country, 'gdp_growth_pct': float(growth)})
-        if gdp: return save_standing('Country', {'gdp': gdp})
+            if not code:
+                print(f'    ✗ No ISO code for {country}')
+                continue
+            try:
+                # World Bank API - most recent 5 years to ensure we get data
+                url = f'https://api.worldbank.org/v2/country/{code}/indicator/NY.GDP.MKTP.KD.ZG?format=json&mrv=5'
+                data = fetch_json(url, timeout=15)
+                records = data[1] if isinstance(data, list) and len(data) > 1 else []
+                for rec in records:
+                    val = rec.get('value')
+                    if val is not None:
+                        gdp.append({'country': country, 'gdp_growth_pct': round(float(val), 2)})
+                        print(f'    {country} ({code}): {val:.2f}%')
+                        break
+                else:
+                    print(f'    ✗ No GDP data for {country}')
+            except Exception as e:
+                print(f'    ✗ {country}: {e}')
+        if gdp:
+            return save_standing('Country', {'gdp': gdp})
         raise Exception('No GDP data found')
     except Exception as e:
         print(f'  ✗ Country: {e}'); return False
+
 
 # ── Musician (Billboard) ──────────────────────────────────────────────────────
 
