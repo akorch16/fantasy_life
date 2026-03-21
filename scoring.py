@@ -130,7 +130,6 @@ def compute_baseline_sports(category, data_key, value_key, reverse=True):
         }
     return result
 
-
 def compute_baseline_poll(category, data_key, reverse=False):
     picks = DRAFT_PICKS_2026.get(category, {})
     data = load_data(data_key)
@@ -140,7 +139,12 @@ def compute_baseline_poll(category, data_key, reverse=False):
         raw = None
         if data:
             for entry in data.get('poll', []):
-                if team_matches(team, entry.get('team', '')):
+                entry_team = entry.get('team', '')
+                entry_short = entry.get('short', '')
+                entry_location = entry.get('location', '')
+                if (team_matches(team, entry_team) or
+                    team_matches(team, entry_short) or
+                    team_matches(team, entry_location)):
                     raw = entry.get('rank')
                     break
         raw_values[player] = raw if raw is not None else 26
