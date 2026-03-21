@@ -12,7 +12,14 @@ from db import get_all_bonuses, add_bonus, delete_bonus, freeze_category, unfree
 app = Flask(__name__)
 
 @app.route('/')
-def index(): return render_template('index.html')
+def index():
+    import json
+    from scoring import compute_all_scores, get_last_updated
+    scores = compute_all_scores()
+    return render_template('index.html',
+        scores_json=json.dumps(scores['players']),
+        last_updated=scores.get('last_updated', '')
+    )
 
 @app.route('/admin')
 def admin(): return render_template('admin.html')
