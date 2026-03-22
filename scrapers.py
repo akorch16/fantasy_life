@@ -418,33 +418,86 @@ def scrape_country_gdp():
 
 
 # ── Musician (Billboard) ──────────────────────────────────────────────────────
-
 def scrape_billboard():
     if is_frozen('Musician'):
         print('  ⏸ Musician is frozen, skipping'); return True
     try:
-        existing = get_standing('Musician')
-        scores_map = {e['artist']: e for e in existing.get('scores', [])}
-        soup = fetch_html('https://www.billboard.com/charts/hot-100/')
-        entries_found = 0
-        for item in soup.select('li.o-chart-results-list__item'):
-            rank_el   = item.select_one('span.c-label')
-            artist_el = item.select_one('span.c-label.a-font-primary-s')
-            if rank_el and artist_el:
-                try:
-                    rank = int(rank_el.text.strip())
-                    artist = artist_el.text.strip()
-                    if artist not in scores_map:
-                        scores_map[artist] = {'artist': artist, 'num1_weeks': 0, 'hot100_weeks': 0}
-                    scores_map[artist]['hot100_weeks'] += 1
-                    if rank == 1: scores_map[artist]['num1_weeks'] += 1
-                    entries_found += 1
-                except ValueError: continue
-        if entries_found > 0:
+        import re
+        scores_map = {}
+
+        # ── Page 1: #1 weeks ─────────────────────────────────────────────
+        try:
+            soup1 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number_ones_of_2026', timeout=15)
+            for table in soup1.select('table.wikitable'):
+                for row in table.select('tr'):
+                    cols = row.find_all(['td', 'th'])
+                    if len(cols) < 4:
+                        continue
+                    # Table: No. | Issue date | Song | Artist(s) | Ref.
+                    artist_text = cols[3].get_text(separator=' ', strip=True)
+                    # Skip header rows
+                    if artist_text.lower() in ('artist', 'artist(s)', 'ref.', ''):
+                        continue
+                    # Each row = 1 week at #1
+                    artists = re.split(r'\s*[,&]\s*|\s+feat\.\s+|\s+and\s+', artist_text, flags=re.IGNORECASE)
+                    for a in artists:
+                        a = a.strip().strip('"').strip()
+                        if not a or len(a) < 2:
+                            continue
+                        if a not in scores_map:
+                            scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0}
+                        scores_map[a]['num1_weeks'] += 1
+                        scores_map[a]['hot100_weeks'] += 1  # #1 counts as top 10 too
+            print(f'    #1 page: {len(scores_map)} artists found')
+        except Exception as e:
+            print(f'    ✗ #1 page: {e}')
+
+        # ── Page 2: top-10 weeks ──────────────────────────────────────────
+        try:
+            soup2 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2026', timeout=15)
+            for table in soup2.select('table.wikitable'):
+                for row in table.select('tr'):
+                    cols = row.find_all(['td', 'th'])
+                    if len(cols) < 6:
+                        continue
+                    # Table: Date | Single | Artist(s) | Peak | Peak date | Weeks in top ten | Ref.
+                    artist_text = cols[2].get_text(separator=' ', strip=True)
+                    weeks_text  = cols[5].get_text(strip=True).replace('*', '').strip()
+
+                    if not weeks_text or artist_text.lower() in ('artist', 'artist(s)'):
+                        continue
+                    try:
+                        weeks = int(weeks_text.split()[0])
+                    except ValueError:
+                        continue
+
+                    artists = re.split(r'\s*[,&]\s*|\s+feat\.\s+|\s+and\s+', artist_text, flags=re.IGNORECASE)
+                    for a in artists:
+                        a = a.strip().strip('"').strip()
+                        if not a or len(a) < 2:
+                            continue
+                        if a not in scores_map:
+                            scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0}
+                        scores_map[a]['hot100_weeks'] += weeks
+            print(f'    Top-10 page: {len(scores_map)} total artists found')
+        except Exception as e:
+            print(f'    ✗ Top-10 page: {e}')
+
+        if scores_map:
+            # Log picks that matched
+            from draft_picks_2026 import DRAFT_PICKS_2026
+            picks = list(DRAFT_PICKS_2026.get('Musician', {}).values())
+            for pick in picks:
+                match = next((v for k, v in scores_map.items() if name_matches(pick, k)), None)
+                if match:
+                    print(f'    ✓ {pick}: {match["num1_weeks"]} #1 wks, {match["hot100_weeks"]} top-10 wks')
+                else:
+                    print(f'    – {pick}: no chart data')
             return save_standing('Musician', {'scores': list(scores_map.values())})
-        raise Exception('No chart entries found')
+
+        raise Exception('No chart data found')
     except Exception as e:
-        print(f'  ✗ Musician/Billboard: {e}'); return False
+        print(f'  ✗ Musician/Wikipedia: {e}'); return False
 
 # ── Refresh All ───────────────────────────────────────────────────────────────
 
