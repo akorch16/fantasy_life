@@ -906,21 +906,21 @@ const CAT_LABELS = {
 
 // Per-category stat label and value formatter
 const CAT_STAT = {
-  nfl:     { label: 'Win%',     fmt: c => c.win_pct !== undefined ? (c.win_pct * 100).toFixed(1) + '%' : (c.stat || '–') },
-  nba:     { label: 'Win%',     fmt: c => c.win_pct !== undefined ? (c.win_pct * 100).toFixed(1) + '%' : (c.stat || '–') },
-  mlb:     { label: 'Win%',     fmt: c => c.win_pct !== undefined ? (c.win_pct * 100).toFixed(1) + '%' : (c.stat || '–') },
-  nhl:     { label: 'Points',   fmt: c => c.stat !== undefined ? c.stat : (c.win_pct !== undefined ? (c.win_pct * 100).toFixed(1) + '%' : '–') },
-  ncaaf:   { label: 'Ranking',  fmt: c => c.stat !== undefined ? '#' + c.stat : (c.win_pct !== undefined ? (c.win_pct * 100).toFixed(1) + '%' : '–') },
-  ncaab:   { label: 'Ranking',  fmt: c => c.stat !== undefined ? '#' + c.stat : (c.win_pct !== undefined ? (c.win_pct * 100).toFixed(1) + '%' : '–') },
-  tennis:  { label: 'Ranking',  fmt: c => c.stat !== undefined ? '#' + c.stat : '–' },
-  golf:    { label: 'Ranking',  fmt: c => c.stat !== undefined ? '#' + c.stat : (c.owgr !== undefined ? '#' + c.owgr : '–') },
-  nascar:  { label: 'Points',   fmt: c => c.stat !== undefined ? c.stat : '–' },
-  mls:     { label: 'Win%',     fmt: c => c.win_pct !== undefined ? (c.win_pct * 100).toFixed(1) + '%' : (c.stat || '–') },
-  actor:   { label: 'Box Office', fmt: c => c.stat !== undefined ? '$' + c.stat + 'M' : '–' },
-  actress: { label: 'Box Office', fmt: c => c.stat !== undefined ? '$' + c.stat + 'M' : '–' },
-  musician:{ label: 'Streams',  fmt: c => c.stat !== undefined ? c.stat + 'B' : '–' },
-  country: { label: 'GDP Chg',  fmt: c => c.stat !== undefined ? c.stat + '%' : '–' },
-  stock:   { label: 'Chg%',     fmt: c => c.stat !== undefined ? (c.stat > 0 ? '+' : '') + c.stat + '%' : '–' },
+  nfl:     { label: 'Win%',      fmt: c => c.raw_value != null ? (c.raw_value * 100).toFixed(1) + '%' : '–' },
+  nba:     { label: 'Win%',      fmt: c => c.raw_value != null ? (c.raw_value * 100).toFixed(1) + '%' : '–' },
+  mlb:     { label: 'Win%',      fmt: c => c.raw_value != null ? (c.raw_value * 100).toFixed(1) + '%' : '–' },
+  nhl:     { label: 'Pts%',      fmt: c => c.raw_value != null ? (c.raw_value * 100).toFixed(1) + '%' : '–' },
+  ncaaf:   { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
+  ncaab:   { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
+  tennis:  { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
+  golf:    { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
+  nascar:  { label: 'Points',    fmt: c => c.raw_value != null ? c.raw_value : '–' },
+  mls:     { label: 'Points',    fmt: c => c.raw_value != null ? c.raw_value : '–' },
+  actor:   { label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
+  actress: { label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
+  musician:{ label: 'Wks Top10', fmt: c => c.raw_value != null ? c.raw_value : '–' },
+  country: { label: 'GDP Chg%',  fmt: c => c.raw_value != null ? c.raw_value.toFixed(2) + '%' : '–' },
+  stock:   { label: 'YTD Chg',   fmt: c => c.raw_display != null ? c.raw_display : (c.raw_value != null ? c.raw_value.toFixed(1) + '%' : '–') },
 };
 
 // ============================================================
@@ -1004,7 +1004,11 @@ function renderTable() {
       const pick = catData.pick || '–';
       const statFmt = CAT_STAT[currentFilter] || {};
       const statVal = statFmt.fmt ? statFmt.fmt(catData) : '–';
-      const regular = catData.points !== undefined ? catData.points.toFixed(1) : '–';
+      const regular = catData.baseline_pts !== undefined ? catData.baseline_pts.toFixed(1) : '–';
+      const bonus = catData.bonus_pts !== undefined && catData.bonus_pts > 0 ? '+' + catData.bonus_pts.toFixed(1) : '–';
+      const total = catData.baseline_pts !== undefined
+        ? (catData.baseline_pts + (catData.bonus_pts || 0)).toFixed(1)
+        : '–';
       const bonus = catData.bonus !== undefined && catData.bonus > 0 ? '+' + catData.bonus.toFixed(1) : '–';
       const total = catData.points !== undefined
         ? (catData.points + (catData.bonus || 0)).toFixed(1)
@@ -1039,10 +1043,10 @@ function renderTable() {
       const cats = player.categories || {};
       const items = window.CATEGORIES.map(cat => {
         const c = cats[cat] || {};
-        const pts = c.points !== undefined ? c.points : null;
+        const pts = c.baseline_pts !== undefined ? c.baseline_pts : null;
         const ptsDisplay = pts !== null ? pts.toFixed(1) : '–';
         const pick = c.pick || '–';
-        const bonus = c.bonus ? `<span class="bonus-pts"> +${c.bonus}✦</span>` : '';
+        const bonus = c.bonus_pts ? `<span class="bonus-pts"> +${c.bonus_pts}✦</span>` : '';
         let tierClass = '';
         let ptsColorClass = '';
         if (pts !== null) {
