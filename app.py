@@ -15,11 +15,17 @@ app = Flask(__name__)
 def index():
     import json
     from scoring import compute_all_scores, get_last_updated
-    scores = compute_all_scores()
+    try:
+        scores = compute_all_scores()
+        scores_json = json.dumps(scores['players'])
+        last_updated = scores.get('last_updated', '')
+    except Exception as e:
+        print(f'  ✗ compute_all_scores failed: {e}')
+        scores_json = '[]'
+        last_updated = ''
     return render_template('index.html',
-        scores_json=json.dumps(scores['players']),
-        last_updated=scores.get('last_updated', '')
-    )
+        scores_json=scores_json,
+        last_updated=last_updated
 
 @app.route('/admin')
 def admin(): return render_template('admin.html')
