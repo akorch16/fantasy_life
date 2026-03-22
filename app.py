@@ -23,9 +23,11 @@ def index():
         print(f'  ✗ compute_all_scores failed: {e}')
         scores_json = '[]'
         last_updated = ''
-    return render_template('index.html',
+    return render_template(
+        'index.html',
         scores_json=scores_json,
         last_updated=last_updated
+    )
 
 @app.route('/admin')
 def admin(): return render_template('admin.html')
