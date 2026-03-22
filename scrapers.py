@@ -21,7 +21,6 @@ except ImportError:
     SCRAPING_AVAILABLE = False
 
 from db import save_standing, is_frozen, get_standing
-from scoring import name_matches
 
 ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports'
 
@@ -41,6 +40,19 @@ def fetch_html(url, timeout=15):
     r = requests.get(url, headers=h, timeout=timeout)
     r.raise_for_status()
     return BeautifulSoup(r.text, 'html.parser')
+
+def name_matches(pick_name, data_name):
+    if not pick_name or not data_name:
+        return False
+    pick = pick_name.lower().strip()
+    data = data_name.lower().strip()
+    if pick in data or data in pick:
+        return True
+    pick_last = pick.split()[-1] if pick.split() else pick
+    data_last = data.split()[-1] if data.split() else data
+    if len(pick_last) > 3 and (pick_last in data or data_last in pick):
+        return True
+    return False
 
 # ── ESPN helpers ──────────────────────────────────────────────────────────────
 
