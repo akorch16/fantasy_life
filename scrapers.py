@@ -21,6 +21,7 @@ except ImportError:
     SCRAPING_AVAILABLE = False
 
 from db import save_standing, is_frozen, get_standing
+from scoring import name_matches
 
 ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports'
 
