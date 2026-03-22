@@ -243,83 +243,107 @@ def scrape_tennis():
     try:
         rankings = []
         # ATP
-        atp_url = 'https://site.web.api.espn.com/apis/v2/sports/tennis/atp/rankings'
-        atp_data = fetch_json(atp_url, timeout=15)
-        for entry in atp_data.get('rankings', []):
-            rank = entry.get('current') or entry.get('rank')
-            athlete = entry.get('athlete', {})
-            player = athlete.get('displayName') or athlete.get('fullName') or ''
-            if player and rank:
-                rankings.append({'player': player, 'rank': int(rank), 'tour': 'ATP'})
-        print(f'    ATP: {len([r for r in rankings if r["tour"]=="ATP"])} players')
+        try:
+            atp = fetch_json('https://site.web.api.espn.com/apis/v2/sports/tennis/rankings?tour=atp', timeout=15)
+            for entry in atp.get('rankings', []):
+                rank = entry.get('current') or entry.get('rank')
+                player = entry.get('athlete', {}).get('displayName', '')
+                if player and rank:
+                    rankings.append({'player': player, 'rank': int(rank), 'tour': 'ATP'})
+            print(f'    ATP: {len([r for r in rankings if r["tour"]=="ATP"])} players')
+        except Exception as e:
+            print(f'    ✗ ATP: {e}')
 
         # WTA
-        wta_url = 'https://site.web.api.espn.com/apis/v2/sports/tennis/wta/rankings'
-        wta_data = fetch_json(wta_url, timeout=15)
-        for entry in wta_data.get('rankings', []):
-            rank = entry.get('current') or entry.get('rank')
-            athlete = entry.get('athlete', {})
-            player = athlete.get('displayName') or athlete.get('fullName') or ''
-            if player and rank:
-                rankings.append({'player': player, 'rank': int(rank), 'tour': 'WTA'})
-        print(f'    WTA: {len([r for r in rankings if r["tour"]=="WTA"])} players')
+        try:
+            wta = fetch_json('https://site.web.api.espn.com/apis/v2/sports/tennis/rankings?tour=wta', timeout=15)
+            for entry in wta.get('rankings', []):
+                rank = entry.get('current') or entry.get('rank')
+                player = entry.get('athlete', {}).get('displayName', '')
+                if player and rank:
+                    rankings.append({'player': player, 'rank': int(rank), 'tour': 'WTA'})
+            print(f'    WTA: {len([r for r in rankings if r["tour"]=="WTA"])} players')
+        except Exception as e:
+            print(f'    ✗ WTA: {e}')
+
+        if rankings:
+            return save_standing('Tennis', {'rankings': rankings})
+
+        # Fallback to scraping ATP site
+        soup = fetch_html('https://www.atptour.com/en/rankings/singles')
+        for row in soup.select('table tbody tr')[:50]:
+            cols = row.find_all('td')
+            if len(cols) >= 4:
+                try:
+                    rank = int(cols[0].text.strip().replace('T', ''))
+                    # Try cols 3, 4 for player name (skip rank, move, country, points)
+                    for idx in [3, 4, 2]:
+                        candidate = cols[idx].text.strip() if len(cols) > idx else ''
+                        if candidate and not candidate.replace(',','').replace('.','').isdigit():
+                            player = candidate
+                            break
+                    if player:
+                        rankings.append({'player': player, 'rank': rank, 'tour': 'ATP'})
+                except (ValueError, AttributeError):
+                    continue
 
         if rankings:
             return save_standing('Tennis', {'rankings': rankings})
         raise Exception('No rankings found')
     except Exception as e:
-        print(f'  ✗ Tennis ESPN: {e}'); return False
+        print(f'  ✗ Tennis: {e}'); return False
 
 # ── Golf (ESPN OWGR) ──────────────────────────────────────────────────────────
-
 def scrape_golf():
     if is_frozen('Golf'):
         print('  ⏸ Golf is frozen, skipping'); return True
     try:
-        # ESPN golf rankings
-        url = 'https://site.web.api.espn.com/apis/v2/sports/golf/rankings'
-        data = fetch_json(url, timeout=15)
         rankings = []
-        for entry in data.get('rankings', []):
-            rank = entry.get('current') or entry.get('rank')
-            athlete = entry.get('athlete', {})
-            player = athlete.get('displayName') or athlete.get('fullName') or ''
-            if player and rank:
-                rankings.append({'player': player, 'rank': int(rank)})
+        # Try ESPN golf world rankings
+        for url in [
+            'https://site.web.api.espn.com/apis/v2/sports/golf/owgr/rankings',
+            'https://site.web.api.espn.com/apis/v2/sports/golf/pga/rankings',
+            'https://site.web.api.espn.com/apis/v2/sports/golf/rankings?tour=pga',
+        ]:
+            try:
+                data = fetch_json(url, timeout=15)
+                print(f'    Golf URL {url} keys: {list(data.keys())}')
+                for entry in data.get('rankings', []):
+                    rank = entry.get('current') or entry.get('rank')
+                    player = entry.get('athlete', {}).get('displayName', '')
+                    if player and rank:
+                        rankings.append({'player': player, 'rank': int(rank)})
+                if rankings:
+                    print(f'    ✓ Got {len(rankings)} golf rankings')
+                    break
+            except Exception as e:
+                print(f'    ✗ {url}: {e}')
+
         if rankings:
-            print(f'    ✓ Got {len(rankings)} golf rankings from ESPN')
             return save_standing('Golf', {'rankings': rankings})
-        raise Exception('No rankings found from ESPN')
+
+        # Fallback: OWGR with improved parsing
+        soup = fetch_html('https://www.owgr.com/ranking')
+        for row in soup.select('table tr')[1:60]:
+            cols = row.find_all('td')
+            if len(cols) >= 3:
+                try:
+                    rank = int(cols[0].text.strip())
+                    player = ''
+                    for idx in [2, 3, 1]:
+                        candidate = cols[idx].text.strip() if len(cols) > idx else ''
+                        if candidate and not candidate.replace(',','').replace('.','').isdigit():
+                            player = candidate
+                            break
+                    if player:
+                        rankings.append({'player': player, 'rank': rank})
+                except (ValueError, AttributeError):
+                    continue
+        if rankings:
+            return save_standing('Golf', {'rankings': rankings})
+        raise Exception('No rankings found')
     except Exception as e:
-        print(f'  ✗ Golf ESPN: {e}')
-        # Fallback: try OWGR with better selectors
-        try:
-            soup = fetch_html('https://www.owgr.com/ranking')
-            rankings = []
-            # Try multiple selector patterns
-            for row in soup.select('tr.rankingTableRow, table tr')[1:60]:
-                cols = row.find_all('td')
-                if len(cols) >= 3:
-                    try:
-                        rank_text = cols[0].text.strip().replace('T', '').strip()
-                        rank = int(rank_text)
-                        # Try different column indices for name
-                        player = ''
-                        for idx in [2, 1, 3]:
-                            candidate = cols[idx].text.strip() if len(cols) > idx else ''
-                            # Filter out point values (contain commas or are pure numbers)
-                            if candidate and not candidate.replace(',', '').replace('.', '').isdigit():
-                                player = candidate
-                                break
-                        if player:
-                            rankings.append({'player': player, 'rank': rank})
-                    except (ValueError, AttributeError):
-                        continue
-            if rankings:
-                return save_standing('Golf', {'rankings': rankings})
-            raise Exception('No rankings found')
-        except Exception as e2:
-            print(f'  ✗ Golf OWGR fallback: {e2}'); return False
+        print(f'  ✗ Golf: {e}'); return False
 
 # ── Stock ─────────────────────────────────────────────────────────────────────
 
@@ -351,7 +375,6 @@ def scrape_stock():
         print(f'  ✗ Stock: {e}'); return False
 
 # ── Country GDP (World Bank) ──────────────────────────────────────────────────
-
 def scrape_country_gdp():
     if is_frozen('Country'):
         print('  ⏸ Country is frozen, skipping'); return True
@@ -371,9 +394,10 @@ def scrape_country_gdp():
                 print(f'    ✗ No ISO code for {country}')
                 continue
             try:
-                # World Bank API - most recent 5 years to ensure we get data
                 url = f'https://api.worldbank.org/v2/country/{code}/indicator/NY.GDP.MKTP.KD.ZG?format=json&mrv=5'
-                data = fetch_json(url, timeout=15)
+                r = requests.get(url, headers=HEADERS, timeout=8)
+                r.raise_for_status()
+                data = r.json()
                 records = data[1] if isinstance(data, list) and len(data) > 1 else []
                 for rec in records:
                     val = rec.get('value')
@@ -382,9 +406,10 @@ def scrape_country_gdp():
                         print(f'    {country} ({code}): {val:.2f}%')
                         break
                 else:
-                    print(f'    ✗ No GDP data for {country}')
+                    print(f'    ✗ No data for {country}')
             except Exception as e:
-                print(f'    ✗ {country}: {e}')
+                print(f'    ✗ {country} skipped: {e}')
+                continue  # skip this country, don't crash
         if gdp:
             return save_standing('Country', {'gdp': gdp})
         raise Exception('No GDP data found')
