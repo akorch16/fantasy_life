@@ -41,6 +41,33 @@ def index():
 def api_scores():
     return jsonify(get_cached_scores())
 
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+
+@app.route('/api/bonuses', methods=['GET'])
+def api_bonuses_get():
+    return jsonify(get_all_bonuses())
+
+@app.route('/api/bonuses', methods=['POST'])
+def api_bonuses_post():
+    data = request.get_json()
+    ok = add_bonus(data['category'], data['player'], float(data['points']))
+    global _scores_cache, _scores_cache_time
+    _scores_cache = None
+    _scores_cache_time = 0
+    return jsonify({'ok': ok}), (200 if ok else 500)
+
+@app.route('/api/bonuses', methods=['DELETE'])
+def api_bonuses_delete():
+    data = request.get_json()
+    ok = delete_bonus(data['category'], data['player'])
+    # Invalidate scores cache
+    global _scores_cache, _scores_cache_time
+    _scores_cache = None
+    _scores_cache_time = 0
+    return jsonify({'ok': ok}), (200 if ok else 500)
+
 @app.route('/api/refresh', methods=['POST'])
 def api_refresh():
     import threading
