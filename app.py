@@ -40,3 +40,16 @@ def index():
 @app.route('/api/scores')
 def api_scores():
     return jsonify(get_cached_scores())
+
+@app.route('/api/refresh', methods=['POST'])
+def api_refresh():
+    import threading
+    from scrapers import refresh_all
+    def run():
+        global _scores_cache, _scores_cache_time
+        result = refresh_all()
+        # Invalidate cache after refresh
+        _scores_cache = None
+        _scores_cache_time = 0
+    threading.Thread(target=run, daemon=True).start()
+    return jsonify({'status': 'refresh started in background'})
