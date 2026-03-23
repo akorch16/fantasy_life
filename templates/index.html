@@ -1009,7 +1009,7 @@ function renderTable() {
       const total = catData.baseline_pts !== undefined
         ? (catData.baseline_pts + (catData.bonus_pts || 0)).toFixed(1)
         : '–';
-      const bonus = catData.bonus !== undefined && catData.bonus > 0 ? '+' + catData.bonus.toFixed(1) : '–';
+      const bonusTag = c.bonus_pts ? `<span class="bonus-pts"> +${c.bonus_pts}✦</span>` : '';
       const total = catData.points !== undefined
         ? (catData.points + (catData.bonus || 0)).toFixed(1)
         : '–';
@@ -1058,7 +1058,7 @@ function renderTable() {
           <div class="cat-item ${tierClass}">
             <span class="cat-name">${CAT_LABELS[cat]}</span>
             <span class="cat-pick">${pick}</span>
-            <span class="cat-pts ${ptsColorClass}">${ptsDisplay}${bonus}</span>
+            <span class="cat-pts ${ptsColorClass}">${ptsDisplay}${bonusTag}</span>
           </div>
         `;
       }).join('');
