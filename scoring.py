@@ -65,6 +65,7 @@ def get_last_updated():
             f'{SUPABASE_URL}/rest/v1/standings',
             headers={'apikey': SUPABASE_KEY, 'Authorization': f'Bearer {SUPABASE_KEY}'},
             params={'select': 'updated_at', 'order': 'updated_at.desc', 'limit': '1'},
+            timeout=10,
         )
         rows = r.json()
         if rows:
