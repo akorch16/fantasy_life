@@ -3,7 +3,7 @@ Fantasy Life 2026 — Live Leaderboard
 Run: python app.py
 Visit: http://localhost:5000
 """
-import os, json, time
+import os, json, time, threading
 from flask import Flask, render_template, jsonify, request
 from scoring import compute_all_scores, get_last_updated
 from db import get_all_bonuses, add_bonus, delete_bonus, freeze_category, unfreeze_category
@@ -11,22 +11,30 @@ from db import get_all_bonuses, add_bonus, delete_bonus, freeze_category, unfree
 app = Flask(__name__)
 
 # Cache scores for 5 minutes
-_scores_cache = None
+_scores_cache = {'players': [], 'last_updated': ''}  # non-None so first request returns fast
 _scores_cache_time = 0
 CACHE_TTL = 300  # seconds
 
 def get_cached_scores():
     global _scores_cache, _scores_cache_time
     now = time.time()
-    if _scores_cache is None or (now - _scores_cache_time) > CACHE_TTL:
+    if (now - _scores_cache_time) > CACHE_TTL:
         try:
             _scores_cache = compute_all_scores()
             _scores_cache_time = now
         except Exception as e:
             print(f'  ✗ compute_all_scores failed: {e}')
-            if _scores_cache is None:
-                _scores_cache = {'players': [], 'last_updated': ''}
     return _scores_cache
+
+def _warmup():
+    """Pre-warm Supabase connection and scores cache in background at startup."""
+    try:
+        get_cached_scores()
+        print('  ✓ warmup complete')
+    except Exception as e:
+        print(f'  ✗ warmup failed: {e}')
+
+threading.Thread(target=_warmup, daemon=True).start()
 
 @app.route('/')
 def index():
