@@ -400,29 +400,33 @@ def scrape_country_gdp():
             'Guyana': 'GUY', 'Argentina': 'ARG', 'Spain': 'ESP', 'Canada': 'CAN',
         }
         countries = list(DRAFT_PICKS_2026['Country'].values())
+        codes = [ISO_MAP[c] for c in countries if c in ISO_MAP]
+        
+        # Batch all countries in ONE request
+        codes_str = ';'.join(codes)
+        url = f'https://api.worldbank.org/v2/country/{codes_str}/indicator/NY.GDP.MKTP.KD.ZG?format=json&mrv=5&per_page=100'
+        r = requests.get(url, headers=HEADERS, timeout=10)
+        r.raise_for_status()
+        data = r.json()
+        records = data[1] if isinstance(data, list) and len(data) > 1 else []
+        
+        # Build lookup: iso_code -> gdp_growth
+        gdp_lookup = {}
+        for rec in records:
+            code = rec.get('countryiso3code') or rec.get('country', {}).get('id', '')
+            val = rec.get('value')
+            if code and val is not None and code not in gdp_lookup:
+                gdp_lookup[code] = round(float(val), 2)
+        
         gdp = []
         for country in countries:
             code = ISO_MAP.get(country)
-            if not code:
-                print(f'    ✗ No ISO code for {country}')
-                continue
-            try:
-                url = f'https://api.worldbank.org/v2/country/{code}/indicator/NY.GDP.MKTP.KD.ZG?format=json&mrv=5'
-                r = requests.get(url, headers=HEADERS, timeout=8)
-                r.raise_for_status()
-                data = r.json()
-                records = data[1] if isinstance(data, list) and len(data) > 1 else []
-                for rec in records:
-                    val = rec.get('value')
-                    if val is not None:
-                        gdp.append({'country': country, 'gdp_growth_pct': round(float(val), 2)})
-                        print(f'    {country} ({code}): {val:.2f}%')
-                        break
-                else:
-                    print(f'    ✗ No data for {country}')
-            except Exception as e:
-                print(f'    ✗ {country} skipped: {e}')
-                continue  # skip this country, don't crash
+            if code and code in gdp_lookup:
+                gdp.append({'country': country, 'gdp_growth_pct': gdp_lookup[code]})
+                print(f'    {country} ({code}): {gdp_lookup[code]}%')
+            else:
+                print(f'    ✗ No data for {country}')
+        
         if gdp:
             return save_standing('Country', {'gdp': gdp})
         raise Exception('No GDP data found')
