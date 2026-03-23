@@ -452,7 +452,7 @@ def compute_all_scores():
         player_totals[player] = {
             'name':       player,
             'total':      round(total, 2),
-            'categories': cat_breakdown,
+            'categories': {k.lower(): v for k, v in cat_breakdown.items()},
             'is_premium': player == 'Todd',
         }
 
