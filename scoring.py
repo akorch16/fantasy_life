@@ -30,17 +30,22 @@ BONUS_POINTS = {
 
 # ── Data loading ──────────────────────────────────────────────────────────────
 
+_KEY_MAP = {
+    'nfl': 'NFL', 'nba': 'NBA', 'mlb': 'MLB', 'nhl': 'NHL',
+    'ncaaf': 'NCAAF', 'ncaab': 'NCAAB', 'tennis': 'Tennis',
+    'golf': 'Golf', 'nascar': 'NASCAR', 'mls': 'MLS',
+    'actor': 'Actor', 'actress': 'Actress', 'musician': 'Musician',
+    'country': 'Country', 'stock': 'Stock',
+}
+
+# Populated at the start of compute_all_scores() to avoid 15 round-trips
+_bulk_standings: dict = {}
+
 def load_data(category_key):
     """Load category data from Supabase. Returns the data dict or None."""
-    # Map old file-based keys to Supabase category names
-    KEY_MAP = {
-        'nfl': 'NFL', 'nba': 'NBA', 'mlb': 'MLB', 'nhl': 'NHL',
-        'ncaaf': 'NCAAF', 'ncaab': 'NCAAB', 'tennis': 'Tennis',
-        'golf': 'Golf', 'nascar': 'NASCAR', 'mls': 'MLS',
-        'actor': 'Actor', 'actress': 'Actress', 'musician': 'Musician',
-        'country': 'Country', 'stock': 'Stock',
-    }
-    key = KEY_MAP.get(category_key.lower(), category_key)
+    key = _KEY_MAP.get(category_key.lower(), category_key)
+    if _bulk_standings:
+        return _bulk_standings.get(key) or None
     data = get_standing(key)
     return data if data else None
 
@@ -391,6 +396,13 @@ def apply_bonuses(category_scores, bonuses, category):
 # ── Main scorer ───────────────────────────────────────────────────────────────
 
 def compute_all_scores():
+    global _bulk_standings
+    try:
+        _bulk_standings = get_all_standings()
+    except Exception as e:
+        print(f'  ✗ get_all_standings failed: {e}')
+        _bulk_standings = {}
+
     bonuses = load_bonuses()
 
     categories = {
