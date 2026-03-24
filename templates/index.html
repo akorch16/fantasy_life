@@ -963,8 +963,8 @@ function renderTable() {
       if (bIsTodd) return -1;
       const apts = ((a.categories || {})[currentFilter] || {});
       const bpts = ((b.categories || {})[currentFilter] || {});
-      const atot = (apts.points || 0) + (apts.bonus || 0);
-      const btot = (bpts.points || 0) + (bpts.bonus || 0);
+      const atot = (apts.baseline_pts || 0) + (apts.bonus_pts || 0);
+      const btot = (bpts.baseline_pts || 0) + (bpts.bonus_pts || 0);
       return btot - atot;
     });
   }
