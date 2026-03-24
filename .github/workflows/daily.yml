@@ -1,0 +1,42 @@
+name: Daily Score Update
+
+on:
+  schedule:
+    - cron: '0 8 * * *'   # 8 AM UTC = midnight Pacific / 3 AM Eastern
+  workflow_dispatch:        # "Run workflow" button in GitHub Actions UI
+
+jobs:
+  update-scores:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # needed to commit scores.json back to the repo
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Scrape all data sources → Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python scrapers.py
+
+      - name: Compute scores → docs/scores.json
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python scoring.py
+
+      - name: Commit & push scores.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/scores.json
+          git diff --staged --quiet || git commit -m "chore: update scores $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push

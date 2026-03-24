@@ -570,4 +570,4 @@ def seed_demo_data():
     print('✅ Demo seed complete!')
 
 if __name__ == '__main__':
-    seed_demo_data()
+    refresh_all()

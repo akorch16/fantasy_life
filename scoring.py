@@ -503,6 +503,19 @@ def team_matches(pick_name, data_name):
     return pick_norm in data_norm or data_norm in pick_norm
 
 
+if __name__ == '__main__':
+    import json, os
+    out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'docs')
+    os.makedirs(out_dir, exist_ok=True)
+    print('Computing scores...')
+    data = compute_all_scores()
+    out_path = os.path.join(out_dir, 'scores.json')
+    with open(out_path, 'w') as f:
+        json.dump(data, f)
+    n = len(data.get('players', []))
+    print(f'✓ Wrote {out_path}  ({n} players, last_updated={data.get("last_updated")})')
+
+
 def name_matches(pick_name, data_name):
     if not pick_name or not data_name:
         return False
