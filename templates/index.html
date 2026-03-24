@@ -1037,7 +1037,12 @@ function renderTable() {
       td.colSpan = currentFilter === 'all' ? 4 : 7;
 
       const cats = player.categories || {};
-      const items = window.CATEGORIES.map(cat => {
+      const sortedCats = [...window.CATEGORIES].sort((a, b) => {
+        const aP = (cats[a] || {}).baseline_pts ?? -Infinity;
+        const bP = (cats[b] || {}).baseline_pts ?? -Infinity;
+        return bP - aP;
+      });
+      const items = sortedCats.map(cat => {
         const c = cats[cat] || {};
         const pts = c.baseline_pts !== undefined ? c.baseline_pts : null;
         const ptsDisplay = pts !== null ? pts.toFixed(1) : '–';
