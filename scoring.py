@@ -106,11 +106,50 @@ def rank_to_points(rank, n=13):
     return max(0, n - rank + 1)
 
 
+# ── Static data (frozen seasons) ──────────────────────────────────────────────
+
+# 2025 NFL regular season final standings
+NFL_2025_STANDINGS = {"standings": [
+    {"team": "New England Patriots",  "wins": 14, "losses": 3,  "win_pct": 0.824},
+    {"team": "Buffalo Bills",         "wins": 12, "losses": 5,  "win_pct": 0.706},
+    {"team": "Miami Dolphins",        "wins": 7,  "losses": 10, "win_pct": 0.412},
+    {"team": "New York Jets",         "wins": 3,  "losses": 14, "win_pct": 0.176},
+    {"team": "Pittsburgh Steelers",   "wins": 10, "losses": 7,  "win_pct": 0.588},
+    {"team": "Baltimore Ravens",      "wins": 8,  "losses": 9,  "win_pct": 0.471},
+    {"team": "Cincinnati Bengals",    "wins": 6,  "losses": 11, "win_pct": 0.353},
+    {"team": "Cleveland Browns",      "wins": 5,  "losses": 12, "win_pct": 0.294},
+    {"team": "Jacksonville Jaguars",  "wins": 13, "losses": 4,  "win_pct": 0.765},
+    {"team": "Houston Texans",        "wins": 12, "losses": 5,  "win_pct": 0.706},
+    {"team": "Indianapolis Colts",    "wins": 8,  "losses": 9,  "win_pct": 0.471},
+    {"team": "Tennessee Titans",      "wins": 3,  "losses": 14, "win_pct": 0.176},
+    {"team": "Denver Broncos",        "wins": 14, "losses": 3,  "win_pct": 0.824},
+    {"team": "Los Angeles Chargers",  "wins": 11, "losses": 6,  "win_pct": 0.647},
+    {"team": "Kansas City Chiefs",    "wins": 6,  "losses": 11, "win_pct": 0.353},
+    {"team": "Las Vegas Raiders",     "wins": 3,  "losses": 14, "win_pct": 0.176},
+    {"team": "Philadelphia Eagles",   "wins": 11, "losses": 6,  "win_pct": 0.647},
+    {"team": "Dallas Cowboys",        "wins": 7,  "losses": 9,  "win_pct": 0.441},
+    {"team": "Washington Commanders", "wins": 5,  "losses": 12, "win_pct": 0.294},
+    {"team": "New York Giants",       "wins": 4,  "losses": 13, "win_pct": 0.235},
+    {"team": "Chicago Bears",         "wins": 11, "losses": 6,  "win_pct": 0.647},
+    {"team": "Green Bay Packers",     "wins": 9,  "losses": 7,  "win_pct": 0.559},
+    {"team": "Minnesota Vikings",     "wins": 9,  "losses": 8,  "win_pct": 0.529},
+    {"team": "Detroit Lions",         "wins": 9,  "losses": 8,  "win_pct": 0.529},
+    {"team": "Carolina Panthers",     "wins": 8,  "losses": 9,  "win_pct": 0.471},
+    {"team": "Tampa Bay Buccaneers",  "wins": 8,  "losses": 9,  "win_pct": 0.471},
+    {"team": "Atlanta Falcons",       "wins": 8,  "losses": 9,  "win_pct": 0.471},
+    {"team": "New Orleans Saints",    "wins": 6,  "losses": 11, "win_pct": 0.353},
+    {"team": "Seattle Seahawks",      "wins": 14, "losses": 3,  "win_pct": 0.824},
+    {"team": "Los Angeles Rams",      "wins": 12, "losses": 5,  "win_pct": 0.706},
+    {"team": "San Francisco 49ers",   "wins": 12, "losses": 5,  "win_pct": 0.706},
+    {"team": "Arizona Cardinals",     "wins": 3,  "losses": 14, "win_pct": 0.176},
+]}
+
+
 # ── Baseline scorers ──────────────────────────────────────────────────────────
 
-def compute_baseline_sports(category, data_key, value_key, reverse=True):
+def compute_baseline_sports(category, data_key, value_key, reverse=True, static_data=None):
     picks = DRAFT_PICKS_2026.get(category, {})
-    data = load_data(data_key)
+    data = static_data or load_data(data_key)
 
     raw_values = {}
     for player, team in picks.items():
@@ -411,7 +450,7 @@ def compute_all_scores():
         bonuses = {}
 
     categories = {
-        'NFL':      lambda: compute_baseline_sports('NFL',   'nfl',     'win_pct'),
+        'NFL':      lambda: compute_baseline_sports('NFL',   'nfl',     'win_pct', static_data=NFL_2025_STANDINGS),
         'NBA':      lambda: compute_baseline_sports('NBA',   'nba',     'win_pct'),
         'MLB':      lambda: compute_baseline_sports('MLB',   'mlb',     'win_pct'),
         'NHL':      lambda: compute_baseline_sports('NHL',   'nhl',     'points_pct'),
