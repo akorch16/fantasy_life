@@ -404,7 +404,11 @@ def compute_all_scores():
         print(f'  ✗ get_all_standings failed: {e}')
         _bulk_standings = {}
 
-    bonuses = load_bonuses()
+    try:
+        bonuses = load_bonuses()
+    except Exception as e:
+        print(f'  ✗ load_bonuses failed: {e}')
+        bonuses = {}
 
     categories = {
         'NFL':      lambda: compute_baseline_sports('NFL',   'nfl',     'win_pct'),
