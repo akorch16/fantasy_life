@@ -21,6 +21,16 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Check env + imports
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          python -V
+          python -c "import scrapers; print('scrapers import OK')"
+          python -c "import scoring;  print('scoring  import OK')"
+          echo "SUPABASE_URL set: ${{ secrets.SUPABASE_URL != '' }}"
+
       - name: Scrape all data sources → Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
