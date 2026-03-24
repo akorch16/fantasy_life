@@ -963,8 +963,8 @@ function renderTable() {
       if (bIsTodd) return -1;
       const apts = ((a.categories || {})[currentFilter] || {});
       const bpts = ((b.categories || {})[currentFilter] || {});
-      const atot = (apts.points || 0) + (apts.bonus || 0);
-      const btot = (bpts.points || 0) + (bpts.bonus || 0);
+      const atot = (apts.baseline_pts || 0) + (apts.bonus_pts || 0);
+      const btot = (bpts.baseline_pts || 0) + (bpts.bonus_pts || 0);
       return btot - atot;
     });
   }
@@ -1037,7 +1037,12 @@ function renderTable() {
       td.colSpan = currentFilter === 'all' ? 4 : 7;
 
       const cats = player.categories || {};
-      const items = window.CATEGORIES.map(cat => {
+      const sortedCats = [...window.CATEGORIES].sort((a, b) => {
+        const aP = (cats[a] || {}).baseline_pts ?? -Infinity;
+        const bP = (cats[b] || {}).baseline_pts ?? -Infinity;
+        return bP - aP;
+      });
+      const items = sortedCats.map(cat => {
         const c = cats[cat] || {};
         const pts = c.baseline_pts !== undefined ? c.baseline_pts : null;
         const ptsDisplay = pts !== null ? pts.toFixed(1) : '–';
