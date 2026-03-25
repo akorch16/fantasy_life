@@ -268,9 +268,37 @@ def compute_baseline_tennis():
     return result
 
 
+# OWGR as of March 22, 2026 (static fallback — ESPN API broken)
+GOLF_2026_OWGR_STATIC = {"rankings": [
+    {"player": "Scottie Scheffler",   "rank": 1},
+    {"player": "Rory McIlroy",        "rank": 2},
+    {"player": "Cameron Young",       "rank": 3},
+    {"player": "Tommy Fleetwood",     "rank": 4},
+    {"player": "Xander Schauffele",   "rank": 5},
+    {"player": "Matt Fitzpatrick",    "rank": 6},
+    {"player": "Justin Rose",         "rank": 7},
+    {"player": "Collin Morikawa",     "rank": 8},
+    {"player": "Russell Henley",      "rank": 9},
+    {"player": "Chris Gotterup",      "rank": 10},
+    {"player": "Robert MacIntyre",    "rank": 11},
+    {"player": "Sepp Straka",         "rank": 12},
+    {"player": "J.J. Spaun",          "rank": 13},
+    {"player": "Hideki Matsuyama",    "rank": 14},
+    {"player": "Justin Thomas",       "rank": 15},
+    {"player": "Ben Griffin",         "rank": 16},
+    {"player": "Jacob Bridgeman",     "rank": 17},
+    {"player": "Ludvig Aberg",        "rank": 18},
+    {"player": "Alex Noren",          "rank": 19},
+    {"player": "Harris English",      "rank": 20},
+    {"player": "Viktor Hovland",      "rank": 21},
+    {"player": "Bryson DeChambeau",   "rank": 24},
+    {"player": "Jon Rahm",            "rank": 28},
+    {"player": "Patrick Cantlay",     "rank": 34},
+]}
+
 def compute_baseline_golf():
     picks = DRAFT_PICKS_2026.get('Golf', {})
-    data = load_data('golf')
+    data = load_data('golf') or GOLF_2026_OWGR_STATIC
 
     raw_values = {}
     for player, name in picks.items():
@@ -296,9 +324,31 @@ def compute_baseline_golf():
     return result
 
 
+# NASCAR Cup standings after Race 6 (Darlington, March 22 2026)
+NASCAR_2026_STANDINGS_STATIC = {"standings": [
+    {"driver": "Tyler Reddick",         "points": 325},
+    {"driver": "Ryan Blaney",           "points": 230},
+    {"driver": "Bubba Wallace",         "points": 205},
+    {"driver": "Denny Hamlin",          "points": 203},
+    {"driver": "Chase Elliott",         "points": 194},
+    {"driver": "William Byron",         "points": 191},
+    {"driver": "Chris Buescher",        "points": 188},
+    {"driver": "Christopher Bell",      "points": 182},
+    {"driver": "Brad Keselowski",       "points": 182},
+    {"driver": "Kyle Larson",           "points": 176},
+    {"driver": "Ty Gibbs",              "points": 173},
+    {"driver": "Ryan Preece",           "points": 154},
+    {"driver": "Carson Hocevar",        "points": 151},
+    {"driver": "Daniel Suarez",         "points": 150},
+    {"driver": "Shane van Gisbergen",   "points": 140},
+    {"driver": "Joey Logano",           "points": 139},
+    {"driver": "Ross Chastain",         "points": 115},
+    {"driver": "Chase Briscoe",         "points": 108},
+]}
+
 def compute_baseline_nascar():
     picks = DRAFT_PICKS_2026.get('NASCAR', {})
-    data = load_data('nascar')
+    data = load_data('nascar') or NASCAR_2026_STANDINGS_STATIC
 
     raw_values = {}
     for player, driver in picks.items():
