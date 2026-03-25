@@ -1014,7 +1014,9 @@ function updateHeader() {
       <th>#</th>
       <th>Player / Pick</th>
       <th class="pts" style="font-size:0.6rem">${statLabel}</th>
-      <th class="pts" style="font-size:0.6rem">Pts</th>
+      <th class="pts" style="font-size:0.6rem">Regular</th>
+      <th class="pts" style="font-size:0.6rem">Bonus Pts</th>
+      <th class="pts" style="font-size:0.6rem">Total</th>
       <th></th>
     `;
   }
@@ -1078,6 +1080,8 @@ function renderTable() {
       const pick = catData.pick || '–';
       const statFmt = CAT_STAT[currentFilter] || {};
       const statVal = statFmt.fmt ? statFmt.fmt(catData) : '–';
+      const regular = catData.baseline_pts !== undefined ? catData.baseline_pts.toFixed(1) : '–';
+      const bonus = catData.bonus_pts !== undefined && catData.bonus_pts > 0 ? '+' + catData.bonus_pts.toFixed(1) : '–';
       const total = catData.baseline_pts !== undefined
         ? (catData.baseline_pts + (catData.bonus_pts || 0)).toFixed(1)
         : '–';
@@ -1089,6 +1093,8 @@ function renderTable() {
           <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${pick}</div>
         </td>
         <td class="stat-col primary">${statVal}</td>
+        <td class="stat-col">${regular}</td>
+        <td class="stat-col bonus-col">${bonus}</td>
         <td class="stat-col total-col">${total}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
       `;
