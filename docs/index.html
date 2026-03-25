@@ -281,9 +281,9 @@
       width: 44px;
     }
 
-    .rank-1 { color: var(--gold) !important; font-weight: 600; }
-    .rank-2 { color: #9ca3af !important; }
-    .rank-3 { color: #b45309 !important; }
+    .rank-1 { }
+    .rank-2 { }
+    .rank-3 { }
 
     .player-name {
       font-size: 0.95rem;
@@ -664,13 +664,13 @@
     /* ─── CATEGORY STAT COLUMNS ─── */
     .stat-col {
       text-align: right;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
       color: var(--muted);
       white-space: nowrap;
     }
-    .stat-col.primary { color: var(--text); font-size: 0.85rem; }
-    .stat-col.bonus-col { color: var(--gold); }
+    .stat-col.primary { color: var(--muted); font-size: 0.78rem; }
+    .stat-col.bonus-col { color: var(--muted); }
     .stat-col.total-col {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 1.4rem;
@@ -959,8 +959,8 @@ function updateHeader() {
       <th>#</th>
       <th>Player / Pick</th>
       <th class="pts" style="font-size:0.6rem">${statLabel}</th>
-      <th class="pts" style="font-size:0.6rem">Regular</th>
-      <th class="pts" style="font-size:0.6rem">Bonus</th>
+      <th class="pts" style="font-size:0.6rem">Regular Pts</th>
+      <th class="pts" style="font-size:0.6rem">Bonus Pts</th>
       <th class="pts" style="font-size:0.6rem">Total</th>
       <th></th>
     `;
