@@ -1054,7 +1054,8 @@ function renderTable() {
     const tr = document.createElement('tr');
     tr.className = 'player-row';
     tr.id = 'row-' + idx;
-    tr.onclick = isTodd ? () => openToddModal() : () => toggleBreakdown(idx);
+    const isBuckley = player.name === 'Buckley';
+    tr.onclick = isTodd ? () => openToddModal() : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
 
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
