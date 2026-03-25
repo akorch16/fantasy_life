@@ -819,7 +819,7 @@
     </tbody>
   </table>
 
-  <div class="last-updated" id="last-updated-text">Loading scores...</div>
+
 </div>
 
 <!-- ─── TODD PAYWALL MODAL ─── -->
@@ -972,11 +972,10 @@ function initDisplay() {
   let updatedStr = 'Updated: —';
   if (window.LAST_UPDATED) {
     try {
-      const d = new Date(window.LAST_UPDATED.replace(' ', 'T') + (window.LAST_UPDATED.includes('UTC') ? '' : 'Z'));
+      const d = new Date(window.LAST_UPDATED.replace(' UTC','Z').replace(' ','T'));
       updatedStr = 'Updated: ' + d.toLocaleString('en-US', ptOpts);
     } catch(e) { updatedStr = 'Updated: ' + window.LAST_UPDATED; }
   }
-  document.getElementById('last-updated-text').textContent = updatedStr;
   const nbEl = document.getElementById('news-bar-updated');
   if (nbEl) nbEl.textContent = updatedStr;
 }
@@ -1273,7 +1272,7 @@ function closeBuckley() {
 
 // INIT — fetch pre-computed scores from GitHub Pages
 // ============================================================
-document.getElementById('last-updated-text').textContent = 'Loading…';
+
 fetch('./scores.json')
   .then(r => r.json())
   .then(data => {
@@ -1283,7 +1282,7 @@ fetch('./scores.json')
     renderTable();
   })
   .catch(() => {
-    document.getElementById('last-updated-text').textContent = 'Error loading scores — try refreshing.';
+
     renderTable(); // render empty state
   });
 </script>
