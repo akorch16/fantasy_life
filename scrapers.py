@@ -245,13 +245,64 @@ def scrape_mls():
     except Exception as e:
         print(f'  ✗ MLS: {e}'); return False
 
-# ── NASCAR (manual) ───────────────────────────────────────────────────────────
+# ── NASCAR (NASCAR.com / motorsport.com scrape) ───────────────────────────────
 
 def scrape_nascar():
     if is_frozen('NASCAR'):
         print('  ⏸ NASCAR is frozen, skipping'); return True
-    print('  ℹ NASCAR: update manually in admin panel')
-    return False
+    try:
+        standings = []
+
+        # Primary: motorsport.com standings page
+        try:
+            soup = fetch_html('https://www.motorsport.com/nascar-cup/standings/')
+            rows = soup.select('table tr, .standings-table tr, .driver-row')
+            for row in rows:
+                cols = row.find_all('td')
+                if len(cols) >= 3:
+                    try:
+                        rank_text = cols[0].get_text(strip=True)
+                        rank = int(''.join(filter(str.isdigit, rank_text)) or '0')
+                        if rank == 0:
+                            continue
+                        driver = cols[1].get_text(strip=True) if len(cols) > 1 else ''
+                        pts_text = cols[-1].get_text(strip=True).replace(',', '')
+                        pts = int(''.join(filter(str.isdigit, pts_text)) or '0')
+                        if driver and pts > 0:
+                            standings.append({'driver': driver, 'points': pts, 'rank': rank})
+                    except (ValueError, AttributeError):
+                        continue
+            if standings:
+                print(f'    ✓ motorsport.com: {len(standings)} NASCAR drivers')
+        except Exception as e:
+            print(f'    ✗ motorsport.com: {e}')
+
+        # Fallback: nascar.com standings
+        if not standings:
+            try:
+                import re
+                soup = fetch_html('https://www.nascar.com/standings/nascar-cup-series/')
+                for row in soup.select('tr'):
+                    cols = row.find_all('td')
+                    if len(cols) >= 3:
+                        try:
+                            rank = int(cols[0].get_text(strip=True))
+                            driver = cols[1].get_text(strip=True)
+                            pts = int(cols[2].get_text(strip=True).replace(',', ''))
+                            if driver and pts > 0:
+                                standings.append({'driver': driver, 'points': pts, 'rank': rank})
+                        except (ValueError, AttributeError):
+                            continue
+                if standings:
+                    print(f'    ✓ nascar.com: {len(standings)} NASCAR drivers')
+            except Exception as e:
+                print(f'    ✗ nascar.com: {e}')
+
+        if standings:
+            return save_standing('NASCAR', {'standings': standings})
+        raise Exception('No NASCAR standings found')
+    except Exception as e:
+        print(f'  ✗ NASCAR: {e}'); return False
 
 # ── Tennis (ESPN) ─────────────────────────────────────────────────────────────
 
