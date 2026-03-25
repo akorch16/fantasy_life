@@ -144,6 +144,35 @@ NFL_2025_STANDINGS = {"standings": [
     {"team": "Arizona Cardinals",     "wins": 3,  "losses": 14, "win_pct": 0.176},
 ]}
 
+# 2025 NCAAF final US LBM Coaches Poll (released Jan 20, 2026, after CFP championship)
+NCAAF_2025_POLL = {"poll": [
+    {"rank": 1,  "team": "Indiana Hoosiers",           "short": "Indiana",      "location": "Indiana"},
+    {"rank": 2,  "team": "Miami Hurricanes",            "short": "Miami",        "location": "Miami"},
+    {"rank": 3,  "team": "Mississippi Rebels",          "short": "Ole Miss",     "location": "Mississippi"},
+    {"rank": 4,  "team": "Oregon Ducks",                "short": "Oregon",       "location": "Oregon"},
+    {"rank": 5,  "team": "Georgia Bulldogs",            "short": "Georgia",      "location": "Georgia"},
+    {"rank": 6,  "team": "Ohio State Buckeyes",         "short": "Ohio State",   "location": "Ohio State"},
+    {"rank": 7,  "team": "Texas Tech Red Raiders",      "short": "Texas Tech",   "location": "Texas Tech"},
+    {"rank": 8,  "team": "Texas A&M Aggies",            "short": "Texas A&M",    "location": "Texas A&M"},
+    {"rank": 9,  "team": "Alabama Crimson Tide",        "short": "Alabama",      "location": "Alabama"},
+    {"rank": 10, "team": "Oklahoma Sooners",            "short": "Oklahoma",     "location": "Oklahoma"},
+    {"rank": 11, "team": "Notre Dame Fighting Irish",   "short": "Notre Dame",   "location": "Notre Dame"},
+    {"rank": 12, "team": "BYU Cougars",                 "short": "BYU",          "location": "BYU"},
+    {"rank": 13, "team": "Texas Longhorns",             "short": "Texas",        "location": "Texas"},
+    {"rank": 14, "team": "Utah Utes",                   "short": "Utah",         "location": "Utah"},
+    {"rank": 15, "team": "Vanderbilt Commodores",       "short": "Vanderbilt",   "location": "Vanderbilt"},
+    {"rank": 16, "team": "Virginia Cavaliers",          "short": "Virginia",     "location": "Virginia"},
+    {"rank": 17, "team": "Iowa Hawkeyes",               "short": "Iowa",         "location": "Iowa"},
+    {"rank": 18, "team": "Tulane Green Wave",           "short": "Tulane",       "location": "Tulane"},
+    {"rank": 19, "team": "Houston Cougars",             "short": "Houston",      "location": "Houston"},
+    {"rank": 20, "team": "James Madison Dukes",         "short": "James Madison","location": "James Madison"},
+    {"rank": 21, "team": "USC Trojans",                 "short": "USC",          "location": "Southern California"},
+    {"rank": 22, "team": "Michigan Wolverines",         "short": "Michigan",     "location": "Michigan"},
+    {"rank": 23, "team": "Navy Midshipmen",             "short": "Navy",         "location": "Navy"},
+    {"rank": 24, "team": "Georgia Tech Yellow Jackets", "short": "Georgia Tech", "location": "Georgia Tech"},
+    {"rank": 25, "team": "Illinois Fighting Illini",    "short": "Illinois",     "location": "Illinois"},
+]}
+
 
 # ── Baseline scorers ──────────────────────────────────────────────────────────
 
@@ -175,9 +204,9 @@ def compute_baseline_sports(category, data_key, value_key, reverse=True, static_
         }
     return result
 
-def compute_baseline_poll(category, data_key, reverse=False):
+def compute_baseline_poll(category, data_key, reverse=False, static_data=None):
     picks = DRAFT_PICKS_2026.get(category, {})
-    data = load_data(data_key)
+    data = static_data or load_data(data_key)
 
     raw_values = {}
     for player, team in picks.items():
@@ -454,7 +483,7 @@ def compute_all_scores():
         'NBA':      lambda: compute_baseline_sports('NBA',   'nba',     'win_pct'),
         'MLB':      lambda: compute_baseline_sports('MLB',   'mlb',     'win_pct'),
         'NHL':      lambda: compute_baseline_sports('NHL',   'nhl',     'points_pct'),
-        'NCAAF':    lambda: compute_baseline_poll('NCAAF',   'ncaaf'),
+        'NCAAF':    lambda: compute_baseline_poll('NCAAF',   'ncaaf',  static_data=NCAAF_2025_POLL),
         'NCAAB':    lambda: compute_baseline_poll('NCAAB',   'ncaab'),
         'Tennis':   compute_baseline_tennis,
         'Golf':     compute_baseline_golf,

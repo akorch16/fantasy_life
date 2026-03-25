@@ -2,7 +2,7 @@
   "players": [
     {
       "name": "Mitchell",
-      "total": 111.0,
+      "total": 112.0,
       "categories": {
         "nfl": {
           "pick": "Los Angeles Rams",
@@ -42,12 +42,12 @@
         },
         "ncaaf": {
           "pick": "Ohio State",
-          "raw_value": null,
+          "raw_value": 6,
           "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
+          "rank": 6.0,
+          "baseline_pts": 8.0,
           "bonus_pts": 4.0,
-          "total_pts": 11.0
+          "total_pts": 12.0
         },
         "ncaab": {
           "pick": "Alabama",
@@ -144,8 +144,151 @@
       "place": 1
     },
     {
+      "name": "Korch",
+      "total": 101.5,
+      "categories": {
+        "nfl": {
+          "pick": "Philadelphia Eagles",
+          "raw_value": 0.647,
+          "raw_display": null,
+          "rank": 7.0,
+          "baseline_pts": 7.0,
+          "bonus_pts": 2.5,
+          "total_pts": 9.5
+        },
+        "nba": {
+          "pick": "Houston Rockets",
+          "raw_value": 0.6056,
+          "raw_display": null,
+          "rank": 9.0,
+          "baseline_pts": 5.0,
+          "bonus_pts": 0,
+          "total_pts": 5.0
+        },
+        "mlb": {
+          "pick": "Toronto Blue Jays",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "nhl": {
+          "pick": "Colorado Avalanche",
+          "raw_value": 0.7391,
+          "raw_display": null,
+          "rank": 1.0,
+          "baseline_pts": 13.0,
+          "bonus_pts": 0,
+          "total_pts": 13.0
+        },
+        "ncaaf": {
+          "pick": "Indiana",
+          "raw_value": 1,
+          "raw_display": null,
+          "rank": 1.0,
+          "baseline_pts": 13.0,
+          "bonus_pts": 13.0,
+          "total_pts": 26.0
+        },
+        "ncaab": {
+          "pick": "Purdue",
+          "raw_value": 23,
+          "raw_display": null,
+          "rank": 6.0,
+          "baseline_pts": 8.0,
+          "bonus_pts": 0,
+          "total_pts": 8.0
+        },
+        "tennis": {
+          "pick": "Jessica Pegula",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": 10.0,
+          "baseline_pts": 4.0,
+          "bonus_pts": 0,
+          "total_pts": 4.0
+        },
+        "golf": {
+          "pick": "Tommy Fleetwood",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": 7.0,
+          "baseline_pts": 7.0,
+          "bonus_pts": 0,
+          "total_pts": 7.0
+        },
+        "nascar": {
+          "pick": "William Byron",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "mls": {
+          "pick": "FC Cincinnati",
+          "raw_value": 6.0,
+          "raw_display": null,
+          "rank": 11.0,
+          "baseline_pts": 3.0,
+          "bonus_pts": 0,
+          "total_pts": 3.0
+        },
+        "actor": {
+          "pick": "Jon Bernthal",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "actress": {
+          "pick": "Anne Hathaway",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "musician": {
+          "pick": "SZA",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 11.0,
+          "total_pts": 11.0
+        },
+        "country": {
+          "pick": "Guyana",
+          "raw_value": 43.82,
+          "raw_display": null,
+          "rank": 1.0,
+          "baseline_pts": 13.0,
+          "bonus_pts": 0,
+          "total_pts": 13.0
+        },
+        "stock": {
+          "pick": "SMCI (Long)",
+          "raw_value": -28.2,
+          "raw_display": "-28.2%",
+          "rank": 12.0,
+          "baseline_pts": 2.0,
+          "bonus_pts": 0,
+          "total_pts": 2.0
+        }
+      },
+      "is_premium": false,
+      "place": 2
+    },
+    {
       "name": "Feder",
-      "total": 102.5,
+      "total": 99.5,
       "categories": {
         "nfl": {
           "pick": "New England Patriots",
@@ -185,12 +328,12 @@
         },
         "ncaaf": {
           "pick": "Notre Dame",
-          "raw_value": null,
+          "raw_value": 11,
           "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
+          "rank": 10.0,
+          "baseline_pts": 4.0,
           "bonus_pts": 0,
-          "total_pts": 7.0
+          "total_pts": 4.0
         },
         "ncaab": {
           "pick": "Kentucky",
@@ -284,149 +427,6 @@
         }
       },
       "is_premium": false,
-      "place": 2
-    },
-    {
-      "name": "Tim",
-      "total": 99.5,
-      "categories": {
-        "nfl": {
-          "pick": "Seattle Seahawks",
-          "raw_value": 0.824,
-          "raw_display": null,
-          "rank": 2.0,
-          "baseline_pts": 12.0,
-          "bonus_pts": 13.0,
-          "total_pts": 25.0
-        },
-        "nba": {
-          "pick": "Denver Nuggets",
-          "raw_value": 0.6111,
-          "raw_display": null,
-          "rank": 7.5,
-          "baseline_pts": 6.5,
-          "bonus_pts": 0,
-          "total_pts": 6.5
-        },
-        "mlb": {
-          "pick": "Chicago Cubs",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "nhl": {
-          "pick": "Vegas Golden Knights",
-          "raw_value": 0.5493,
-          "raw_display": null,
-          "rank": 8.0,
-          "baseline_pts": 6.0,
-          "bonus_pts": 0,
-          "total_pts": 6.0
-        },
-        "ncaaf": {
-          "pick": "BYU",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
-          "bonus_pts": 0,
-          "total_pts": 7.0
-        },
-        "ncaab": {
-          "pick": "St. John's",
-          "raw_value": 10,
-          "raw_display": null,
-          "rank": 5.0,
-          "baseline_pts": 9.0,
-          "bonus_pts": 0,
-          "total_pts": 9.0
-        },
-        "tennis": {
-          "pick": "Madison Keys",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 10.0,
-          "baseline_pts": 4.0,
-          "bonus_pts": 0,
-          "total_pts": 4.0
-        },
-        "golf": {
-          "pick": "Xander Schauffele",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
-          "bonus_pts": 0,
-          "total_pts": 7.0
-        },
-        "nascar": {
-          "pick": "Bubba Wallace",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "mls": {
-          "pick": "Charlotte FC",
-          "raw_value": 8.0,
-          "raw_display": null,
-          "rank": 10.0,
-          "baseline_pts": 4.0,
-          "bonus_pts": 0,
-          "total_pts": 4.0
-        },
-        "actor": {
-          "pick": "Sean Penn",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 9.0,
-          "total_pts": 9.0
-        },
-        "actress": {
-          "pick": "Ariana Grande",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "musician": {
-          "pick": "Kendrick Lamar",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 13.0,
-          "total_pts": 13.0
-        },
-        "country": {
-          "pick": "Netherlands",
-          "raw_value": 1.08,
-          "raw_display": null,
-          "rank": 10.0,
-          "baseline_pts": 4.0,
-          "bonus_pts": 0,
-          "total_pts": 4.0
-        },
-        "stock": {
-          "pick": "COIN (Long)",
-          "raw_value": -23.46,
-          "raw_display": "-23.5%",
-          "rank": 9.0,
-          "baseline_pts": 5.0,
-          "bonus_pts": 0,
-          "total_pts": 5.0
-        }
-      },
-      "is_premium": false,
       "place": 3
     },
     {
@@ -471,7 +471,7 @@
         },
         "ncaaf": {
           "pick": "Texas Tech",
-          "raw_value": null,
+          "raw_value": 7,
           "raw_display": null,
           "rank": 7.0,
           "baseline_pts": 7.0,
@@ -573,29 +573,29 @@
       "place": 4
     },
     {
-      "name": "Korch",
+      "name": "Tim",
       "total": 95.5,
       "categories": {
         "nfl": {
-          "pick": "Philadelphia Eagles",
-          "raw_value": 0.647,
+          "pick": "Seattle Seahawks",
+          "raw_value": 0.824,
           "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
-          "bonus_pts": 2.5,
-          "total_pts": 9.5
+          "rank": 2.0,
+          "baseline_pts": 12.0,
+          "bonus_pts": 13.0,
+          "total_pts": 25.0
         },
         "nba": {
-          "pick": "Houston Rockets",
-          "raw_value": 0.6056,
+          "pick": "Denver Nuggets",
+          "raw_value": 0.6111,
           "raw_display": null,
-          "rank": 9.0,
-          "baseline_pts": 5.0,
+          "rank": 7.5,
+          "baseline_pts": 6.5,
           "bonus_pts": 0,
-          "total_pts": 5.0
+          "total_pts": 6.5
         },
         "mlb": {
-          "pick": "Toronto Blue Jays",
+          "pick": "Chicago Cubs",
           "raw_value": null,
           "raw_display": null,
           "rank": null,
@@ -604,177 +604,34 @@
           "total_pts": 0
         },
         "nhl": {
-          "pick": "Colorado Avalanche",
-          "raw_value": 0.7391,
+          "pick": "Vegas Golden Knights",
+          "raw_value": 0.5493,
           "raw_display": null,
-          "rank": 1.0,
-          "baseline_pts": 13.0,
+          "rank": 8.0,
+          "baseline_pts": 6.0,
           "bonus_pts": 0,
-          "total_pts": 13.0
+          "total_pts": 6.0
         },
         "ncaaf": {
-          "pick": "Indiana",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
-          "bonus_pts": 13.0,
-          "total_pts": 20.0
-        },
-        "ncaab": {
-          "pick": "Purdue",
-          "raw_value": 23,
-          "raw_display": null,
-          "rank": 6.0,
-          "baseline_pts": 8.0,
-          "bonus_pts": 0,
-          "total_pts": 8.0
-        },
-        "tennis": {
-          "pick": "Jessica Pegula",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 10.0,
-          "baseline_pts": 4.0,
-          "bonus_pts": 0,
-          "total_pts": 4.0
-        },
-        "golf": {
-          "pick": "Tommy Fleetwood",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
-          "bonus_pts": 0,
-          "total_pts": 7.0
-        },
-        "nascar": {
-          "pick": "William Byron",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "mls": {
-          "pick": "FC Cincinnati",
-          "raw_value": 6.0,
+          "pick": "BYU",
+          "raw_value": 12,
           "raw_display": null,
           "rank": 11.0,
           "baseline_pts": 3.0,
           "bonus_pts": 0,
           "total_pts": 3.0
         },
-        "actor": {
-          "pick": "Jon Bernthal",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "actress": {
-          "pick": "Anne Hathaway",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "musician": {
-          "pick": "SZA",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 11.0,
-          "total_pts": 11.0
-        },
-        "country": {
-          "pick": "Guyana",
-          "raw_value": 43.82,
-          "raw_display": null,
-          "rank": 1.0,
-          "baseline_pts": 13.0,
-          "bonus_pts": 0,
-          "total_pts": 13.0
-        },
-        "stock": {
-          "pick": "SMCI (Long)",
-          "raw_value": -28.2,
-          "raw_display": "-28.2%",
-          "rank": 12.0,
-          "baseline_pts": 2.0,
-          "bonus_pts": 0,
-          "total_pts": 2.0
-        }
-      },
-      "is_premium": false,
-      "place": 5
-    },
-    {
-      "name": "Fryar",
-      "total": 93.0,
-      "categories": {
-        "nfl": {
-          "pick": "Green Bay Packers",
-          "raw_value": 0.559,
-          "raw_display": null,
-          "rank": 8.0,
-          "baseline_pts": 6.0,
-          "bonus_pts": 4.0,
-          "total_pts": 10.0
-        },
-        "nba": {
-          "pick": "Los Angeles Clippers",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "mlb": {
-          "pick": "Cleveland Guardians",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "nhl": {
-          "pick": "Tampa Bay Lightning",
-          "raw_value": 0.6594,
-          "raw_display": null,
-          "rank": 4.0,
-          "baseline_pts": 10.0,
-          "bonus_pts": 0,
-          "total_pts": 10.0
-        },
-        "ncaaf": {
-          "pick": "Texas A&M",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
-          "bonus_pts": 0,
-          "total_pts": 7.0
-        },
         "ncaab": {
-          "pick": "UConn",
-          "raw_value": 6,
+          "pick": "St. John's",
+          "raw_value": 10,
           "raw_display": null,
-          "rank": 3.0,
-          "baseline_pts": 11.0,
+          "rank": 5.0,
+          "baseline_pts": 9.0,
           "bonus_pts": 0,
-          "total_pts": 11.0
+          "total_pts": 9.0
         },
         "tennis": {
-          "pick": "Aryna Sabalenka",
+          "pick": "Madison Keys",
           "raw_value": null,
           "raw_display": null,
           "rank": 10.0,
@@ -783,7 +640,7 @@
           "total_pts": 4.0
         },
         "golf": {
-          "pick": "Viktor Hovland",
+          "pick": "Xander Schauffele",
           "raw_value": null,
           "raw_display": null,
           "rank": 7.0,
@@ -792,7 +649,7 @@
           "total_pts": 7.0
         },
         "nascar": {
-          "pick": "Ryan Blaney",
+          "pick": "Bubba Wallace",
           "raw_value": null,
           "raw_display": null,
           "rank": null,
@@ -801,25 +658,25 @@
           "total_pts": 0
         },
         "mls": {
-          "pick": "Columbus Crew",
-          "raw_value": 2.0,
+          "pick": "Charlotte FC",
+          "raw_value": 8.0,
           "raw_display": null,
-          "rank": 13.0,
-          "baseline_pts": 1.0,
+          "rank": 10.0,
+          "baseline_pts": 4.0,
           "bonus_pts": 0,
-          "total_pts": 1.0
+          "total_pts": 4.0
         },
         "actor": {
-          "pick": "Chris Hemsworth",
+          "pick": "Sean Penn",
           "raw_value": null,
           "raw_display": null,
           "rank": null,
           "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
+          "bonus_pts": 9.0,
+          "total_pts": 9.0
         },
         "actress": {
-          "pick": "Florence Pugh",
+          "pick": "Ariana Grande",
           "raw_value": null,
           "raw_display": null,
           "rank": null,
@@ -828,39 +685,39 @@
           "total_pts": 0
         },
         "musician": {
-          "pick": "Justin Bieber",
-          "raw_value": 16,
+          "pick": "Kendrick Lamar",
+          "raw_value": null,
           "raw_display": null,
-          "rank": 2.0,
-          "baseline_pts": 12.0,
-          "bonus_pts": 3.0,
-          "total_pts": 15.0
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 13.0,
+          "total_pts": 13.0
         },
         "country": {
-          "pick": "Norway",
-          "raw_value": 2.1,
+          "pick": "Netherlands",
+          "raw_value": 1.08,
           "raw_display": null,
-          "rank": 6.0,
-          "baseline_pts": 8.0,
-          "bonus_pts": 13.0,
-          "total_pts": 21.0
+          "rank": 10.0,
+          "baseline_pts": 4.0,
+          "bonus_pts": 0,
+          "total_pts": 4.0
         },
         "stock": {
-          "pick": "AVGO (Long)",
-          "raw_value": -8.44,
-          "raw_display": "-8.4%",
-          "rank": 7.0,
-          "baseline_pts": 7.0,
+          "pick": "COIN (Long)",
+          "raw_value": -23.46,
+          "raw_display": "-23.5%",
+          "rank": 9.0,
+          "baseline_pts": 5.0,
           "bonus_pts": 0,
-          "total_pts": 7.0
+          "total_pts": 5.0
         }
       },
       "is_premium": false,
-      "place": 6
+      "place": 5
     },
     {
       "name": "Todd",
-      "total": 90.5,
+      "total": 94.5,
       "categories": {
         "nfl": {
           "pick": "San Francisco 49ers",
@@ -900,12 +757,12 @@
         },
         "ncaaf": {
           "pick": "Ole Miss",
-          "raw_value": null,
+          "raw_value": 3,
           "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
+          "rank": 3.0,
+          "baseline_pts": 11.0,
           "bonus_pts": 6.5,
-          "total_pts": 13.5
+          "total_pts": 17.5
         },
         "ncaab": {
           "pick": "UCLA",
@@ -999,32 +856,32 @@
         }
       },
       "is_premium": true,
-      "place": 7
+      "place": 6
     },
     {
-      "name": "Jamzee",
-      "total": 89.0,
+      "name": "Fryar",
+      "total": 92.0,
       "categories": {
         "nfl": {
-          "pick": "Detroit Lions",
-          "raw_value": 0.529,
+          "pick": "Green Bay Packers",
+          "raw_value": 0.559,
           "raw_display": null,
-          "rank": 9.0,
-          "baseline_pts": 5.0,
+          "rank": 8.0,
+          "baseline_pts": 6.0,
           "bonus_pts": 4.0,
-          "total_pts": 9.0
+          "total_pts": 10.0
         },
         "nba": {
-          "pick": "Orlando Magic",
-          "raw_value": 0.5352,
+          "pick": "Los Angeles Clippers",
+          "raw_value": null,
           "raw_display": null,
-          "rank": 10.0,
-          "baseline_pts": 4.0,
+          "rank": null,
+          "baseline_pts": 0,
           "bonus_pts": 0,
-          "total_pts": 4.0
+          "total_pts": 0
         },
         "mlb": {
-          "pick": "Seattle Mariners",
+          "pick": "Cleveland Guardians",
           "raw_value": null,
           "raw_display": null,
           "rank": null,
@@ -1033,34 +890,34 @@
           "total_pts": 0
         },
         "nhl": {
-          "pick": "Carolina Hurricanes",
-          "raw_value": 0.6857,
+          "pick": "Tampa Bay Lightning",
+          "raw_value": 0.6594,
+          "raw_display": null,
+          "rank": 4.0,
+          "baseline_pts": 10.0,
+          "bonus_pts": 0,
+          "total_pts": 10.0
+        },
+        "ncaaf": {
+          "pick": "Texas A&M",
+          "raw_value": 8,
+          "raw_display": null,
+          "rank": 8.0,
+          "baseline_pts": 6.0,
+          "bonus_pts": 0,
+          "total_pts": 6.0
+        },
+        "ncaab": {
+          "pick": "UConn",
+          "raw_value": 6,
           "raw_display": null,
           "rank": 3.0,
           "baseline_pts": 11.0,
           "bonus_pts": 0,
           "total_pts": 11.0
         },
-        "ncaaf": {
-          "pick": "Alabama",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
-          "bonus_pts": 4.0,
-          "total_pts": 11.0
-        },
-        "ncaab": {
-          "pick": "Michigan",
-          "raw_value": 4,
-          "raw_display": null,
-          "rank": 2.0,
-          "baseline_pts": 12.0,
-          "bonus_pts": 0,
-          "total_pts": 12.0
-        },
         "tennis": {
-          "pick": "Amanda Anisimova",
+          "pick": "Aryna Sabalenka",
           "raw_value": null,
           "raw_display": null,
           "rank": 10.0,
@@ -1069,7 +926,7 @@
           "total_pts": 4.0
         },
         "golf": {
-          "pick": "Ludvig Aberg",
+          "pick": "Viktor Hovland",
           "raw_value": null,
           "raw_display": null,
           "rank": 7.0,
@@ -1078,7 +935,7 @@
           "total_pts": 7.0
         },
         "nascar": {
-          "pick": "Joey Logano",
+          "pick": "Ryan Blaney",
           "raw_value": null,
           "raw_display": null,
           "rank": null,
@@ -1087,25 +944,25 @@
           "total_pts": 0
         },
         "mls": {
-          "pick": "Seattle Sounders",
-          "raw_value": 10.0,
+          "pick": "Columbus Crew",
+          "raw_value": 2.0,
           "raw_display": null,
-          "rank": 8.0,
-          "baseline_pts": 6.0,
+          "rank": 13.0,
+          "baseline_pts": 1.0,
           "bonus_pts": 0,
-          "total_pts": 6.0
+          "total_pts": 1.0
         },
         "actor": {
-          "pick": "Timothee Chalamet",
+          "pick": "Chris Hemsworth",
           "raw_value": null,
           "raw_display": null,
           "rank": null,
           "baseline_pts": 0,
-          "bonus_pts": 4.0,
-          "total_pts": 4.0
+          "bonus_pts": 0,
+          "total_pts": 0
         },
         "actress": {
-          "pick": "Emma Stone",
+          "pick": "Florence Pugh",
           "raw_value": null,
           "raw_display": null,
           "rank": null,
@@ -1114,39 +971,39 @@
           "total_pts": 0
         },
         "musician": {
-          "pick": "The Weeknd",
-          "raw_value": null,
+          "pick": "Justin Bieber",
+          "raw_value": 16,
           "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
+          "rank": 2.0,
+          "baseline_pts": 12.0,
+          "bonus_pts": 3.0,
+          "total_pts": 15.0
         },
         "country": {
-          "pick": "Spain",
-          "raw_value": 3.46,
+          "pick": "Norway",
+          "raw_value": 2.1,
           "raw_display": null,
-          "rank": 3.0,
-          "baseline_pts": 11.0,
-          "bonus_pts": 0,
-          "total_pts": 11.0
+          "rank": 6.0,
+          "baseline_pts": 8.0,
+          "bonus_pts": 13.0,
+          "total_pts": 21.0
         },
         "stock": {
-          "pick": "INTC (Long)",
-          "raw_value": 11.88,
-          "raw_display": "+11.9%",
-          "rank": 4.0,
-          "baseline_pts": 10.0,
+          "pick": "AVGO (Long)",
+          "raw_value": -8.44,
+          "raw_display": "-8.4%",
+          "rank": 7.0,
+          "baseline_pts": 7.0,
           "bonus_pts": 0,
-          "total_pts": 10.0
+          "total_pts": 7.0
         }
       },
       "is_premium": false,
-      "place": 8
+      "place": 7
     },
     {
       "name": "Wu",
-      "total": 84.0,
+      "total": 89.0,
       "categories": {
         "nfl": {
           "pick": "Baltimore Ravens",
@@ -1186,12 +1043,12 @@
         },
         "ncaaf": {
           "pick": "Miami",
-          "raw_value": null,
+          "raw_value": 2,
           "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
+          "rank": 2.0,
+          "baseline_pts": 12.0,
           "bonus_pts": 9.0,
-          "total_pts": 16.0
+          "total_pts": 21.0
         },
         "ncaab": {
           "pick": "Florida",
@@ -1285,11 +1142,154 @@
         }
       },
       "is_premium": false,
+      "place": 8
+    },
+    {
+      "name": "Jamzee",
+      "total": 87.0,
+      "categories": {
+        "nfl": {
+          "pick": "Detroit Lions",
+          "raw_value": 0.529,
+          "raw_display": null,
+          "rank": 9.0,
+          "baseline_pts": 5.0,
+          "bonus_pts": 4.0,
+          "total_pts": 9.0
+        },
+        "nba": {
+          "pick": "Orlando Magic",
+          "raw_value": 0.5352,
+          "raw_display": null,
+          "rank": 10.0,
+          "baseline_pts": 4.0,
+          "bonus_pts": 0,
+          "total_pts": 4.0
+        },
+        "mlb": {
+          "pick": "Seattle Mariners",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "nhl": {
+          "pick": "Carolina Hurricanes",
+          "raw_value": 0.6857,
+          "raw_display": null,
+          "rank": 3.0,
+          "baseline_pts": 11.0,
+          "bonus_pts": 0,
+          "total_pts": 11.0
+        },
+        "ncaaf": {
+          "pick": "Alabama",
+          "raw_value": 9,
+          "raw_display": null,
+          "rank": 9.0,
+          "baseline_pts": 5.0,
+          "bonus_pts": 4.0,
+          "total_pts": 9.0
+        },
+        "ncaab": {
+          "pick": "Michigan",
+          "raw_value": 4,
+          "raw_display": null,
+          "rank": 2.0,
+          "baseline_pts": 12.0,
+          "bonus_pts": 0,
+          "total_pts": 12.0
+        },
+        "tennis": {
+          "pick": "Amanda Anisimova",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": 10.0,
+          "baseline_pts": 4.0,
+          "bonus_pts": 0,
+          "total_pts": 4.0
+        },
+        "golf": {
+          "pick": "Ludvig Aberg",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": 7.0,
+          "baseline_pts": 7.0,
+          "bonus_pts": 0,
+          "total_pts": 7.0
+        },
+        "nascar": {
+          "pick": "Joey Logano",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "mls": {
+          "pick": "Seattle Sounders",
+          "raw_value": 10.0,
+          "raw_display": null,
+          "rank": 8.0,
+          "baseline_pts": 6.0,
+          "bonus_pts": 0,
+          "total_pts": 6.0
+        },
+        "actor": {
+          "pick": "Timothee Chalamet",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 4.0,
+          "total_pts": 4.0
+        },
+        "actress": {
+          "pick": "Emma Stone",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "musician": {
+          "pick": "The Weeknd",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "country": {
+          "pick": "Spain",
+          "raw_value": 3.46,
+          "raw_display": null,
+          "rank": 3.0,
+          "baseline_pts": 11.0,
+          "bonus_pts": 0,
+          "total_pts": 11.0
+        },
+        "stock": {
+          "pick": "INTC (Long)",
+          "raw_value": 11.88,
+          "raw_display": "+11.9%",
+          "rank": 4.0,
+          "baseline_pts": 10.0,
+          "bonus_pts": 0,
+          "total_pts": 10.0
+        }
+      },
+      "is_premium": false,
       "place": 9
     },
     {
       "name": "Buckley",
-      "total": 83.0,
+      "total": 86.0,
       "categories": {
         "nfl": {
           "pick": "Tampa Bay Buccaneers",
@@ -1329,12 +1329,12 @@
         },
         "ncaaf": {
           "pick": "Oregon",
-          "raw_value": null,
+          "raw_value": 4,
           "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
+          "rank": 4.0,
+          "baseline_pts": 10.0,
           "bonus_pts": 6.5,
-          "total_pts": 13.5
+          "total_pts": 16.5
         },
         "ncaab": {
           "pick": "Louisville",
@@ -1431,151 +1431,8 @@
       "place": 10
     },
     {
-      "name": "Shep",
-      "total": 82.5,
-      "categories": {
-        "nfl": {
-          "pick": "Kansas City Chiefs",
-          "raw_value": 0.353,
-          "raw_display": null,
-          "rank": 13.0,
-          "baseline_pts": 1.0,
-          "bonus_pts": 2.5,
-          "total_pts": 3.5
-        },
-        "nba": {
-          "pick": "Boston Celtics",
-          "raw_value": 0.662,
-          "raw_display": null,
-          "rank": 3.0,
-          "baseline_pts": 11.0,
-          "bonus_pts": 0,
-          "total_pts": 11.0
-        },
-        "mlb": {
-          "pick": "Houston Astros",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "nhl": {
-          "pick": "Boston Bruins",
-          "raw_value": 0.6143,
-          "raw_display": null,
-          "rank": 5.0,
-          "baseline_pts": 9.0,
-          "bonus_pts": 0,
-          "total_pts": 9.0
-        },
-        "ncaaf": {
-          "pick": "Michigan",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
-          "bonus_pts": 0,
-          "total_pts": 7.0
-        },
-        "ncaab": {
-          "pick": "Kansas",
-          "raw_value": 25,
-          "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
-          "bonus_pts": 0,
-          "total_pts": 7.0
-        },
-        "tennis": {
-          "pick": "Novak Djokovic",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 3.5,
-          "baseline_pts": 10.5,
-          "bonus_pts": 0,
-          "total_pts": 10.5
-        },
-        "golf": {
-          "pick": "Jon Rahm",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
-          "bonus_pts": 0,
-          "total_pts": 7.0
-        },
-        "nascar": {
-          "pick": "Daniel Suarez",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "mls": {
-          "pick": "Orlando City",
-          "raw_value": 13.0,
-          "raw_display": null,
-          "rank": 2.5,
-          "baseline_pts": 11.5,
-          "bonus_pts": 0,
-          "total_pts": 11.5
-        },
-        "actor": {
-          "pick": "Jeremy Allen White",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "actress": {
-          "pick": "Tessa Thompson",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "musician": {
-          "pick": "Drake",
-          "raw_value": null,
-          "raw_display": null,
-          "rank": null,
-          "baseline_pts": 0,
-          "bonus_pts": 0,
-          "total_pts": 0
-        },
-        "country": {
-          "pick": "France",
-          "raw_value": 1.19,
-          "raw_display": null,
-          "rank": 9.0,
-          "baseline_pts": 5.0,
-          "bonus_pts": 0,
-          "total_pts": 5.0
-        },
-        "stock": {
-          "pick": "TSLA (Short)",
-          "raw_value": 12.56,
-          "raw_display": "+12.6%",
-          "rank": 3.0,
-          "baseline_pts": 11.0,
-          "bonus_pts": 0,
-          "total_pts": 11.0
-        }
-      },
-      "is_premium": false,
-      "place": 11
-    },
-    {
       "name": "Theo",
-      "total": 80.5,
+      "total": 82.5,
       "categories": {
         "nfl": {
           "pick": "Indianapolis Colts",
@@ -1615,12 +1472,12 @@
         },
         "ncaaf": {
           "pick": "Georgia",
-          "raw_value": null,
+          "raw_value": 5,
           "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
+          "rank": 5.0,
+          "baseline_pts": 9.0,
           "bonus_pts": 4.0,
-          "total_pts": 11.0
+          "total_pts": 13.0
         },
         "ncaab": {
           "pick": "Houston",
@@ -1714,11 +1571,154 @@
         }
       },
       "is_premium": false,
+      "place": 11
+    },
+    {
+      "name": "Shep",
+      "total": 77.5,
+      "categories": {
+        "nfl": {
+          "pick": "Kansas City Chiefs",
+          "raw_value": 0.353,
+          "raw_display": null,
+          "rank": 13.0,
+          "baseline_pts": 1.0,
+          "bonus_pts": 2.5,
+          "total_pts": 3.5
+        },
+        "nba": {
+          "pick": "Boston Celtics",
+          "raw_value": 0.662,
+          "raw_display": null,
+          "rank": 3.0,
+          "baseline_pts": 11.0,
+          "bonus_pts": 0,
+          "total_pts": 11.0
+        },
+        "mlb": {
+          "pick": "Houston Astros",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "nhl": {
+          "pick": "Boston Bruins",
+          "raw_value": 0.6143,
+          "raw_display": null,
+          "rank": 5.0,
+          "baseline_pts": 9.0,
+          "bonus_pts": 0,
+          "total_pts": 9.0
+        },
+        "ncaaf": {
+          "pick": "Michigan",
+          "raw_value": 22,
+          "raw_display": null,
+          "rank": 12.0,
+          "baseline_pts": 2.0,
+          "bonus_pts": 0,
+          "total_pts": 2.0
+        },
+        "ncaab": {
+          "pick": "Kansas",
+          "raw_value": 25,
+          "raw_display": null,
+          "rank": 7.0,
+          "baseline_pts": 7.0,
+          "bonus_pts": 0,
+          "total_pts": 7.0
+        },
+        "tennis": {
+          "pick": "Novak Djokovic",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": 3.5,
+          "baseline_pts": 10.5,
+          "bonus_pts": 0,
+          "total_pts": 10.5
+        },
+        "golf": {
+          "pick": "Jon Rahm",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": 7.0,
+          "baseline_pts": 7.0,
+          "bonus_pts": 0,
+          "total_pts": 7.0
+        },
+        "nascar": {
+          "pick": "Daniel Suarez",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "mls": {
+          "pick": "Orlando City",
+          "raw_value": 13.0,
+          "raw_display": null,
+          "rank": 2.5,
+          "baseline_pts": 11.5,
+          "bonus_pts": 0,
+          "total_pts": 11.5
+        },
+        "actor": {
+          "pick": "Jeremy Allen White",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "actress": {
+          "pick": "Tessa Thompson",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "musician": {
+          "pick": "Drake",
+          "raw_value": null,
+          "raw_display": null,
+          "rank": null,
+          "baseline_pts": 0,
+          "bonus_pts": 0,
+          "total_pts": 0
+        },
+        "country": {
+          "pick": "France",
+          "raw_value": 1.19,
+          "raw_display": null,
+          "rank": 9.0,
+          "baseline_pts": 5.0,
+          "bonus_pts": 0,
+          "total_pts": 5.0
+        },
+        "stock": {
+          "pick": "TSLA (Short)",
+          "raw_value": 12.56,
+          "raw_display": "+12.6%",
+          "rank": 3.0,
+          "baseline_pts": 11.0,
+          "bonus_pts": 0,
+          "total_pts": 11.0
+        }
+      },
+      "is_premium": false,
       "place": 12
     },
     {
       "name": "Jens",
-      "total": 71.5,
+      "total": 65.5,
       "categories": {
         "nfl": {
           "pick": "Buffalo Bills",
@@ -1758,12 +1758,12 @@
         },
         "ncaaf": {
           "pick": "Georgia Tech",
-          "raw_value": null,
+          "raw_value": 24,
           "raw_display": null,
-          "rank": 7.0,
-          "baseline_pts": 7.0,
+          "rank": 13.0,
+          "baseline_pts": 1.0,
           "bonus_pts": 0,
-          "total_pts": 7.0
+          "total_pts": 1.0
         },
         "ncaab": {
           "pick": "Duke",
