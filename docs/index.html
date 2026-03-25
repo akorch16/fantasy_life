@@ -708,10 +708,9 @@
       padding-right: 12px;
     }
     .news-bar-updated {
-      color: var(--dim);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      font-size: 0.68rem;
       white-space: nowrap;
     }
     .news-bar-label {
@@ -969,12 +968,15 @@ function initDisplay() {
   document.getElementById('weeks-elapsed').textContent = Math.max(0, weeks);
 
   const ptOpts = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Los_Angeles', timeZoneName: 'short' };
-  let updatedStr = '—';
-  if (window.LAST_UPDATED) {
-    try {
-      const d = new Date(window.LAST_UPDATED.replace(' UTC','Z').replace(' ','T'));
-      updatedStr = d.toLocaleString('en-US', ptOpts);
-    } catch(e) { updatedStr = 'Updated: ' + window.LAST_UPDATED; }
+  let updatedStr;
+  try {
+    const raw = window.LAST_UPDATED || '';
+    const d = raw
+      ? new Date(raw.replace(' UTC', 'Z').replace(' ', 'T'))
+      : new Date();
+    updatedStr = d.toLocaleString('en-US', ptOpts);
+  } catch(e) {
+    updatedStr = window.LAST_UPDATED || new Date().toLocaleString('en-US', ptOpts);
   }
   const nbEl = document.getElementById('news-bar-updated');
   if (nbEl) nbEl.textContent = updatedStr;
