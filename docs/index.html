@@ -696,6 +696,39 @@
       font-family: 'DM Mono', monospace;
     }
 
+    /* ─── FOOTER ─── */
+    .site-footer {
+      margin-top: 48px;
+      padding: 24px 16px 32px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .site-footer-copy {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .site-footer-quote {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem;
+      color: var(--dim);
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-style: italic;
+    }
+    .site-footer-quote cite {
+      display: block;
+      margin-top: 6px;
+      font-style: normal;
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
     /* ─── NEWS BAR ─── */
     .news-bar {
       background: #0d1117;
@@ -1300,6 +1333,14 @@ fetch('./scores.json')
     renderTable(); // render empty state
   });
 </script>
+
+  <footer class="site-footer">
+    <div class="site-footer-copy">© Copyright 2011, Ratified 2022</div>
+    <div class="site-footer-quote">
+      "Over time, some rules have stuck, while others have shifted and been adapted either by constitutional change, common sense, or league precedent; the push and pull of the Fantasy river, if you will, shapes the contours of how the FL Constitution is applied year over year."
+      <cite>— Jason Feder, <em>Grover v. Feder</em> Brief</cite>
+    </div>
+  </footer>
 
   <!-- BUCKLEY FAN SITE OVERLAY -->
   <div id="buckley-overlay">
