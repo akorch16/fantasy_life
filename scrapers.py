@@ -146,7 +146,12 @@ def scrape_mlb():
             wins = _espn_stat(e, 'wins') or 0
             losses = _espn_stat(e, 'losses') or 0
             gp = wins + losses
-            standings.append({'team': name, 'win_pct': round(wins / gp, 4) if gp else 0})
+            standings.append({'team': name, 'win_pct': round(wins / gp, 4) if gp else 0, 'gp': gp})
+        # If no team has played a game yet, season hasn't started — save empty
+        total_gp = sum(s['gp'] for s in standings)
+        if total_gp == 0:
+            print('  ⏸ MLB: season not started yet (0 games played)')
+            return save_standing('MLB', {'standings': [], 'pre_season': True})
         standings.sort(key=lambda x: x['win_pct'], reverse=True)
         return save_standing('MLB', {'standings': standings})
     except Exception as e:
