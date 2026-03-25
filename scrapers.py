@@ -262,8 +262,8 @@ def scrape_tennis():
         rankings = []
         # ATP
         try:
-            atp = fetch_json('https://site.web.api.espn.com/apis/v2/sports/tennis/rankings?tour=atp', timeout=15)
-            for entry in atp.get('rankings', []):
+            atp = fetch_json('https://site.api.espn.com/apis/site/v2/sports/tennis/atp/rankings', timeout=15)
+            for entry in atp.get('rankings', [{}])[0].get('ranks', []):
                 rank = entry.get('current') or entry.get('rank')
                 player = entry.get('athlete', {}).get('displayName', '')
                 if player and rank:
@@ -274,8 +274,8 @@ def scrape_tennis():
 
         # WTA
         try:
-            wta = fetch_json('https://site.web.api.espn.com/apis/v2/sports/tennis/rankings?tour=wta', timeout=15)
-            for entry in wta.get('rankings', []):
+            wta = fetch_json('https://site.api.espn.com/apis/site/v2/sports/tennis/wta/rankings', timeout=15)
+            for entry in wta.get('rankings', [{}])[0].get('ranks', []):
                 rank = entry.get('current') or entry.get('rank')
                 player = entry.get('athlete', {}).get('displayName', '')
                 if player and rank:
