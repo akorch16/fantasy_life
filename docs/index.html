@@ -686,6 +686,54 @@
       font-family: 'DM Mono', monospace;
     }
 
+    /* ─── NEWS BAR ─── */
+    .news-bar {
+      background: #0d1117;
+      border-bottom: 1px solid #1e2a1e;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.7rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+    .news-bar-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+      border-right: 1px solid #1e2a1e;
+      padding-right: 12px;
+    }
+    .news-bar-updated {
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.62rem;
+      white-space: nowrap;
+    }
+    .news-bar-label {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+    .news-bar-headline {
+      color: #c9d1d9;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .news-bar-headline em {
+      color: var(--accent);
+      font-style: normal;
+      font-weight: 600;
+    }
+
     /* ─── LAST UPDATED ─── */
     .last-updated {
       text-align: center;
@@ -716,6 +764,16 @@
     <div class="header-meta" id="live-time">2026 SEASON</div>
   </div>
 </header>
+
+<div class="news-bar" id="news-bar">
+  <div class="news-bar-left">
+    <div class="news-bar-label">📡 FL News</div>
+    <div class="news-bar-updated" id="news-bar-updated">Updated —</div>
+  </div>
+  <div class="news-bar-headline" id="news-bar-headline">
+    🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em> — Jamzee's actress pick quietly printing points while everyone sleeps.
+  </div>
+</div>
 
 <div class="page">
 
@@ -910,9 +968,17 @@ function initDisplay() {
   const weeks = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
   document.getElementById('weeks-elapsed').textContent = Math.max(0, weeks);
 
-  const opts = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-  document.getElementById('last-updated-text').textContent =
-    'Last updated: ' + (window.LAST_UPDATED || new Date().toLocaleDateString('en-US', opts));
+  const ptOpts = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Los_Angeles', timeZoneName: 'short' };
+  let updatedStr = 'Updated: —';
+  if (window.LAST_UPDATED) {
+    try {
+      const d = new Date(window.LAST_UPDATED.replace(' ', 'T') + (window.LAST_UPDATED.includes('UTC') ? '' : 'Z'));
+      updatedStr = 'Updated: ' + d.toLocaleString('en-US', ptOpts);
+    } catch(e) { updatedStr = 'Updated: ' + window.LAST_UPDATED; }
+  }
+  document.getElementById('last-updated-text').textContent = updatedStr;
+  const nbEl = document.getElementById('news-bar-updated');
+  if (nbEl) nbEl.textContent = updatedStr;
 }
 
 // Per-category stat label and value formatter
