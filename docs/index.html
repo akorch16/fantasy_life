@@ -238,6 +238,16 @@
     .filter-btn:hover { color: var(--text); background: var(--surface2); }
     .filter-btn.active { background: var(--blue); color: white; }
 
+    .standings-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
     /* ─── TABLE ─── */
     .standings-table {
       width: 100%;
@@ -760,7 +770,7 @@
     <div class="logo">Fantasy<span>Life</span></div>
   </div>
   <div style="display:flex;align-items:center;gap:20px;">
-    <div class="header-meta" id="live-time">2026 SEASON</div>
+
   </div>
 </header>
 
@@ -804,6 +814,7 @@
   </div>
 
   <!-- ─── STANDINGS TABLE ─── -->
+  <h2 class="standings-title">Fantasy Life 2026 Standings</h2>
   <table class="standings-table">
     <thead>
       <tr id="table-header">
