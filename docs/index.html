@@ -692,11 +692,12 @@
       border-bottom: 1px solid #1e2a1e;
       padding: 6px 16px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
       font-size: 0.7rem;
       font-family: 'DM Mono', monospace;
       letter-spacing: 0.04em;
+      flex-wrap: wrap;
     }
     .news-bar-left {
       display: flex;
@@ -724,9 +725,8 @@
     .news-bar-headline {
       color: #c9d1d9;
       flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      word-break: break-word;
     }
     .news-bar-headline em {
       color: var(--accent);
@@ -768,7 +768,7 @@
 <div class="news-bar" id="news-bar">
   <div class="news-bar-left">
     <div class="news-bar-label">📡 FL News</div>
-    <div class="news-bar-updated" id="news-bar-updated">Updated —</div>
+    <div class="news-bar-updated"><span style="opacity:0.5">updated </span><span id="news-bar-updated">loading…</span></div>
   </div>
   <div class="news-bar-headline" id="news-bar-headline">
     🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em> — Jamzee's actress pick quietly printing points while everyone sleeps.
@@ -969,11 +969,11 @@ function initDisplay() {
   document.getElementById('weeks-elapsed').textContent = Math.max(0, weeks);
 
   const ptOpts = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Los_Angeles', timeZoneName: 'short' };
-  let updatedStr = 'Updated: —';
+  let updatedStr = '—';
   if (window.LAST_UPDATED) {
     try {
       const d = new Date(window.LAST_UPDATED.replace(' UTC','Z').replace(' ','T'));
-      updatedStr = 'Updated: ' + d.toLocaleString('en-US', ptOpts);
+      updatedStr = d.toLocaleString('en-US', ptOpts);
     } catch(e) { updatedStr = 'Updated: ' + window.LAST_UPDATED; }
   }
   const nbEl = document.getElementById('news-bar-updated');
