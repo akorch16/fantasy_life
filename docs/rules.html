@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fantasy Life — Rules</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #1c2128;
+      --border:   #21262d;
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --dim:      #484f58;
+      --accent:   #3fb950;
+      --blue:     #1f6feb;
+      --gold:     #f59e0b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+    .back-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .back-link:hover { color: var(--text); }
+
+    /* ── PAGE ── */
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .page-subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 36px;
+    }
+
+    /* ── INTRO QUOTE ── */
+    .intro-quote {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 20px 24px;
+      margin-bottom: 48px;
+    }
+    .intro-quote p {
+      font-size: 0.9rem;
+      color: #c9d1d9;
+      font-style: italic;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+    .intro-quote cite {
+      font-style: normal;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── SECTION ── */
+    .section {
+      margin-bottom: 48px;
+    }
+    .section-title {
+      font-size: 0.65rem;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── HOW IT WORKS ── */
+    .roto-explainer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    .roto-explainer p {
+      font-size: 0.88rem;
+      color: #c9d1d9;
+      margin-bottom: 10px;
+    }
+    .roto-explainer p:last-child { margin-bottom: 0; }
+    .roto-scale {
+      display: flex;
+      gap: 0;
+      margin: 16px 0;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .roto-scale-item {
+      flex: 1;
+      text-align: center;
+      padding: 8px 4px;
+      background: var(--surface2);
+      border-right: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+    }
+    .roto-scale-item:last-child { border-right: none; }
+    .roto-scale-item .rank { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; }
+    .roto-scale-item .pts { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .roto-scale-item.best .pts { color: var(--gold); }
+    .roto-scale-item.worst .pts { color: var(--dim); }
+
+    /* ── CATEGORY CARDS ── */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 560px) { .cat-grid { grid-template-columns: 1fr; } }
+
+    .cat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px 18px;
+    }
+    .cat-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .cat-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 7px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .cat-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .cat-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .cat-desc strong { color: #c9d1d9; font-weight: 500; }
+    .cat-note {
+      margin-top: 8px;
+      font-size: 0.7rem;
+      color: var(--dim);
+      font-family: 'DM Mono', monospace;
+      font-style: italic;
+    }
+
+    /* ── BONUS TABLE ── */
+    .bonus-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .bonus-table th {
+      text-align: left;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 0 12px 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .bonus-table td {
+      padding: 8px 12px 8px 0;
+      color: #c9d1d9;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .bonus-table tr:last-child td { border-bottom: none; }
+    .bonus-table td:last-child { text-align: right; font-family: 'DM Mono', monospace; color: var(--gold); font-weight: 500; }
+    .bonus-table .section-row td {
+      padding-top: 16px;
+      font-size: 0.7rem;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+    }
+    .bonus-note {
+      font-size: 0.7rem;
+      color: var(--dim);
+      font-family: 'DM Mono', monospace;
+      margin-top: 12px;
+      font-style: italic;
+    }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      margin-top: 48px;
+      padding: 24px 16px 32px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .site-footer-copy {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .site-footer-quote {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem;
+      color: var(--dim);
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-style: italic;
+    }
+    .site-footer-quote cite {
+      display: block;
+      margin-top: 6px;
+      font-style: normal;
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="./index.html" class="logo">Fantasy<span>Life</span></a>
+  <a href="./index.html" class="back-link">← Standings</a>
+</header>
+
+<div class="page">
+
+  <div class="page-title">Rules</div>
+  <div class="page-subtitle">FL Constitution · 2026 Season</div>
+
+  <!-- INTRO QUOTE -->
+  <div class="intro-quote">
+    <p>"Over time, some rules have stuck, while others have shifted and been adapted either by constitutional change, common sense, or league precedent; the push and pull of the Fantasy river, if you will, shapes the contours of how the FL Constitution is applied year over year."</p>
+    <cite>— Jason Feder, <em>Grover v. Feder</em> Brief</cite>
+  </div>
+
+  <!-- HOW SCORING WORKS -->
+  <div class="section">
+    <div class="section-title">How Scoring Works</div>
+    <div class="roto-explainer">
+      <p>Fantasy Life uses a <strong>rotisserie (roto) system</strong>. Each player drafts one pick per category. At any point in the season, all 13 players are ranked against each other within each category based on their pick's performance. The best-performing pick earns <strong>13 points</strong>; the worst earns <strong>1 point</strong>.</p>
+      <p>Ties are handled with RANK.AVG — tied players split the available points evenly.</p>
+      <div class="roto-scale">
+        <div class="roto-scale-item best"><div class="rank">1st</div><div class="pts">13</div></div>
+        <div class="roto-scale-item"><div class="rank">2nd</div><div class="pts">12</div></div>
+        <div class="roto-scale-item"><div class="rank">3rd</div><div class="pts">11</div></div>
+        <div class="roto-scale-item"><div class="rank">4th</div><div class="pts">10</div></div>
+        <div class="roto-scale-item"><div class="rank">5th</div><div class="pts">9</div></div>
+        <div class="roto-scale-item"><div class="rank">6th</div><div class="pts">8</div></div>
+        <div class="roto-scale-item"><div class="rank">7th</div><div class="pts">7</div></div>
+        <div class="roto-scale-item"><div class="rank">8th</div><div class="pts">6</div></div>
+        <div class="roto-scale-item"><div class="rank">9th</div><div class="pts">5</div></div>
+        <div class="roto-scale-item"><div class="rank">10th</div><div class="pts">4</div></div>
+        <div class="roto-scale-item"><div class="rank">11th</div><div class="pts">3</div></div>
+        <div class="roto-scale-item"><div class="rank">12th</div><div class="pts">2</div></div>
+        <div class="roto-scale-item worst"><div class="rank">13th</div><div class="pts">1</div></div>
+      </div>
+      <p>On top of baseline roto points, certain categories award <strong>bonus points</strong> for specific achievements — championships, Grand Slam wins, Oscar wins, and so on. Bonus points stack on top of roto points and can significantly swing the leaderboard.</p>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="section">
+    <div class="section-title">Categories</div>
+    <div class="cat-grid">
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">NFL</div>
+          <div class="cat-name">Football</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>2025 regular season win percentage</strong>. The NFL season is complete and frozen — standings will not change. Playoff performance earns bonus points.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">NBA</div>
+          <div class="cat-name">Basketball</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>regular season win percentage</strong>, updated live throughout the season. Playoff performance earns bonus points.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">MLB</div>
+          <div class="cat-name">Baseball</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>regular season win percentage</strong>, updated live throughout the season. Playoff performance earns bonus points.</div>
+        <div class="cat-note">Season begins March 27, 2026.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">NHL</div>
+          <div class="cat-name">Hockey</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>regular season win percentage</strong>, updated live. Playoff performance earns bonus points.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">MLS</div>
+          <div class="cat-name">Soccer</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>regular season win percentage</strong>, updated live throughout the MLS season.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">NCAAF</div>
+          <div class="cat-name">College Football</div>
+        </div>
+        <div class="cat-desc">Ranked by the <strong>final 2025 US LBM Coaches Poll</strong> position (released January 2026 after the CFP Championship). Lower poll rank = better. Championship bonus available.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">NCAAB</div>
+          <div class="cat-name">College Basketball</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>AP Poll position</strong> throughout the season. Lower poll rank = better. March Madness results earn bonus points.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">Tennis</div>
+          <div class="cat-name">Tennis</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>Official World Ranking (ATP/WTA)</strong>. Men's and women's picks compete together; women's picks receive a <strong>+0.5 handicap</strong> on their world ranking to account for separate tours. Lower rank = better. Grand Slam results earn bonus points.</div>
+        <div class="cat-note">Amendment 7.20: women's major win bonus disputed but upheld.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">Golf</div>
+          <div class="cat-name">Golf</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>Official World Golf Ranking (OWGR)</strong>, updated weekly. Lower rank = better. Major championship results earn bonus points.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">NASCAR</div>
+          <div class="cat-name">NASCAR</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>Cup Series championship points</strong> standings throughout the season. Higher points = better. Race wins and top finishes earn bonus points.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">Actor</div>
+          <div class="cat-name">Actor</div>
+        </div>
+        <div class="cat-desc">Ranked by a <strong>composite score</strong> based on award nominations and wins across major ceremonies. Oscar wins earn significant bonus points.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">Actress</div>
+          <div class="cat-name">Actress</div>
+        </div>
+        <div class="cat-desc">Ranked by a <strong>composite score</strong> based on award nominations and wins across major ceremonies. Oscar wins earn significant bonus points.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">Musician</div>
+          <div class="cat-name">Musician</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>Grammy performance</strong>. Wins and nominations accumulate through the awards cycle. Points are capped at 13 per Amendment 7.14.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">Country</div>
+          <div class="cat-name">Country Music</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>Billboard Hot Country Songs chart position</strong>. Roto ranking among peers plus bonus points for charting in the top 5.</div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-card-header">
+          <div class="cat-tag">Stock</div>
+          <div class="cat-name">Stock</div>
+        </div>
+        <div class="cat-desc">Ranked by <strong>year-to-date percentage change</strong> of the picked stock or ETF. Updated throughout the year. Higher YTD gain = better.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BONUS POINTS -->
+  <div class="section">
+    <div class="section-title">Bonus Points</div>
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:20px;">Bonus points are awarded on top of roto baseline points for specific achievements. They are tracked separately and added to the total.</p>
+    <table class="bonus-table">
+      <thead>
+        <tr>
+          <th>Achievement</th>
+          <th style="text-align:right">Pts</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="section-row"><td colspan="2">Sports Championships (NFL, NBA, MLB, NHL, NCAAF, NCAAB)</td></tr>
+        <tr><td>Champion / Winner</td><td>+13</td></tr>
+        <tr><td>Runner-up / Finals loser</td><td>+9</td></tr>
+        <tr><td>Semifinal exit</td><td>+6.5</td></tr>
+        <tr><td>Quarterfinal exit</td><td>+4</td></tr>
+        <tr><td>Round of 16 exit</td><td>+2.5</td></tr>
+
+        <tr class="section-row"><td colspan="2">Tennis — Grand Slams</td></tr>
+        <tr><td>Men's major win</td><td>+4</td></tr>
+        <tr><td>Men's major runner-up</td><td>+2.5</td></tr>
+        <tr><td>Women's major win</td><td>+4</td></tr>
+        <tr><td>Women's major runner-up</td><td>+2.5</td></tr>
+
+        <tr class="section-row"><td colspan="2">Golf — Majors (Masters, US Open, The Open, PGA Championship)</td></tr>
+        <tr><td>Major win</td><td>+6</td></tr>
+        <tr><td>Major runner-up</td><td>+2.5</td></tr>
+
+        <tr class="section-row"><td colspan="2">Oscars (Actor / Actress)</td></tr>
+        <tr><td>Lead role win</td><td>+13</td></tr>
+        <tr><td>Supporting role win</td><td>+9</td></tr>
+        <tr><td>Lead role nomination</td><td>+4</td></tr>
+        <tr><td>Supporting role nomination</td><td>+2.5</td></tr>
+
+        <tr class="section-row"><td colspan="2">Grammy Awards (Musician)</td></tr>
+        <tr><td>Best Song / Album / Record of the Year</td><td>+7</td></tr>
+        <tr><td>Any other Grammy win</td><td>+3</td></tr>
+        <tr><td>Grammy nomination</td><td>+1</td></tr>
+        <tr><td style="color:var(--muted);font-style:italic">Bonus points cap (per Amendment 7.14)</td><td style="color:var(--muted)">13 max</td></tr>
+
+        <tr class="section-row"><td colspan="2">Country Music — Chart Bonus</td></tr>
+        <tr><td>1st on chart</td><td>+13</td></tr>
+        <tr><td>2nd on chart</td><td>+9</td></tr>
+        <tr><td>3rd on chart</td><td>+6.5</td></tr>
+        <tr><td>4th on chart</td><td>+4</td></tr>
+        <tr><td>5th on chart</td><td>+2.5</td></tr>
+
+        <tr class="section-row"><td colspan="2">NASCAR — Race Wins & Finishes</td></tr>
+        <tr><td>Race win</td><td>+13</td></tr>
+        <tr><td>2nd place</td><td>+9</td></tr>
+        <tr><td>3rd place</td><td>+6.5</td></tr>
+        <tr><td>4th place</td><td>+4</td></tr>
+        <tr><td>5th place</td><td>+2.5</td></tr>
+      </tbody>
+    </table>
+    <div class="bonus-note">Per Amendment 7.14 (13-member inflation adjustment). Bonus points are cumulative across events unless otherwise noted.</div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="site-footer-copy">© Copyright 2011, Ratified 2022</div>
+  <div class="site-footer-quote">
+    "Over time, some rules have stuck, while others have shifted and been adapted either by constitutional change, common sense, or league precedent; the push and pull of the Fantasy river, if you will, shapes the contours of how the FL Constitution is applied year over year."
+    <cite>— Jason Feder, <em>Grover v. Feder</em> Brief</cite>
+  </div>
+</footer>
+
+</body>
+</html>
