@@ -311,55 +311,66 @@ def scrape_tennis():
     except Exception as e:
         print(f'  ✗ Tennis: {e}'); return False
 
-# ── Golf (ESPN OWGR) ──────────────────────────────────────────────────────────
+# ── Golf (OWGR via lasvegassun / ESPN fallback) ───────────────────────────────
 def scrape_golf():
     if is_frozen('Golf'):
         print('  ⏸ Golf is frozen, skipping'); return True
     try:
         rankings = []
-        # Try ESPN golf world rankings
-        for url in [
-            'https://site.web.api.espn.com/apis/v2/sports/golf/owgr/rankings',
-            'https://site.web.api.espn.com/apis/v2/sports/golf/pga/rankings',
-            'https://site.web.api.espn.com/apis/v2/sports/golf/rankings?tour=pga',
-        ]:
-            try:
-                data = fetch_json(url, timeout=15)
-                print(f'    Golf URL {url} keys: {list(data.keys())}')
-                for entry in data.get('rankings', []):
-                    rank = entry.get('current') or entry.get('rank')
-                    player = entry.get('athlete', {}).get('displayName', '')
-                    if player and rank:
-                        rankings.append({'player': player, 'rank': int(rank)})
-                if rankings:
-                    print(f'    ✓ Got {len(rankings)} golf rankings')
-                    break
-            except Exception as e:
-                print(f'    ✗ {url}: {e}')
 
-        if rankings:
-            return save_standing('Golf', {'rankings': rankings})
-
-        # Fallback: OWGR with improved parsing
-        soup = fetch_html('https://www.owgr.com/ranking')
-        for row in soup.select('table tr')[1:60]:
-            cols = row.find_all('td')
-            if len(cols) >= 3:
+        # Primary: Las Vegas Sun publishes a clean OWGR table weekly
+        try:
+            import datetime, re
+            today = datetime.date.today()
+            # Try today and up to 7 days back to find the latest publish
+            for delta in range(8):
+                d = today - datetime.timedelta(days=delta)
+                url = f'https://lasvegassun.com/news/{d.year}/{d.month:02d}/{d.day:02d}/world-golf-ranking/'
                 try:
-                    rank = int(cols[0].text.strip())
-                    player = ''
-                    for idx in [2, 3, 1]:
-                        candidate = cols[idx].text.strip() if len(cols) > idx else ''
-                        if candidate and not candidate.replace(',','').replace('.','').isdigit():
-                            player = candidate
-                            break
-                    if player:
-                        rankings.append({'player': player, 'rank': rank})
-                except (ValueError, AttributeError):
+                    soup = fetch_html(url)
+                    for row in soup.select('table tr')[1:]:
+                        cols = row.find_all('td')
+                        if len(cols) >= 2:
+                            rank_text = cols[0].text.strip()
+                            name_text = re.sub(r'\s+', ' ', cols[1].text.strip())
+                            if rank_text.isdigit() and name_text:
+                                rankings.append({'player': name_text, 'rank': int(rank_text)})
+                    if rankings:
+                        print(f'    ✓ Las Vegas Sun {d}: {len(rankings)} golfers')
+                        break
+                except Exception:
                     continue
+        except Exception as e:
+            print(f'    ✗ Las Vegas Sun: {e}')
+
         if rankings:
             return save_standing('Golf', {'rankings': rankings})
-        raise Exception('No rankings found')
+
+        # Fallback: OWGR.com table scrape
+        try:
+            soup = fetch_html('https://www.owgr.com/current-world-ranking')
+            for row in soup.select('table tr, tbody tr')[1:100]:
+                cols = row.find_all('td')
+                if len(cols) >= 3:
+                    try:
+                        rank = int(cols[0].text.strip().split()[0])
+                        player = ''
+                        for idx in [2, 3, 1]:
+                            candidate = cols[idx].text.strip() if len(cols) > idx else ''
+                            if candidate and not candidate.replace(',', '').replace('.', '').isdigit():
+                                player = candidate
+                                break
+                        if player:
+                            rankings.append({'player': player, 'rank': rank})
+                    except (ValueError, AttributeError):
+                        continue
+            if rankings:
+                print(f'    ✓ OWGR.com: {len(rankings)} golfers')
+                return save_standing('Golf', {'rankings': rankings})
+        except Exception as e:
+            print(f'    ✗ OWGR.com: {e}')
+
+        raise Exception('No golf rankings found from any source')
     except Exception as e:
         print(f'  ✗ Golf: {e}'); return False
 
