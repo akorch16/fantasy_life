@@ -1045,7 +1045,7 @@ const CAT_STAT = {
   mls:     { label: 'Points',    fmt: c => c.raw_value != null ? c.raw_value : '–' },
   actor:   { label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
   actress: { label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
-  musician:{ label: 'Wks Top10', fmt: c => c.raw_value != null ? c.raw_value : '–' },
+  musician:{ label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value : '–' },
   country: { label: 'GDP Chg%',  fmt: c => c.raw_value != null ? c.raw_value.toFixed(2) + '%' : '–' },
   stock:   { label: 'YTD Chg',   fmt: c => c.raw_display != null ? c.raw_display : (c.raw_value != null ? c.raw_value.toFixed(1) + '%' : '–') },
 };
@@ -1061,9 +1061,12 @@ function updateHeader() {
     header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th></th>`;
   } else {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
+    const extraCol = currentFilter === 'musician'
+      ? `<th class="pts" style="font-size:0.6rem">#1 Wks</th>` : '';
     header.innerHTML = `
       <th>#</th>
       <th>Player / Pick</th>
+      ${extraCol}
       <th class="pts" style="font-size:0.6rem">${statLabel}</th>
       <th class="pts" style="font-size:0.6rem">Regular</th>
       <th class="pts" style="font-size:0.6rem">Bonus Pts</th>
@@ -1109,7 +1112,9 @@ function renderTable() {
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
     if (isTodd) {
-      const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '';
+      const extraCols = currentFilter !== 'all'
+        ? (currentFilter === 'musician' ? `<td></td><td></td><td></td><td></td>` : `<td></td><td></td><td></td>`)
+        : '';
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
@@ -1138,12 +1143,16 @@ function renderTable() {
         ? (catData.baseline_pts + (catData.bonus_pts || 0)).toFixed(1)
         : '–';
 
+      const num1Col = currentFilter === 'musician'
+        ? `<td class="stat-col">${catData.raw_display != null ? catData.raw_display : '–'}</td>` : '';
+
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
           <div class="player-name">${player.name}</div>
           <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${pick}</div>
         </td>
+        ${num1Col}
         <td class="stat-col primary">${statVal}</td>
         <td class="stat-col">${regular}</td>
         <td class="stat-col bonus-col">${bonus}</td>
@@ -1162,7 +1171,7 @@ function renderTable() {
 
       const td = document.createElement('td');
       td.className = 'breakdown-cell';
-      td.colSpan = currentFilter === 'all' ? 4 : 7;
+      td.colSpan = currentFilter === 'all' ? 4 : (currentFilter === 'musician' ? 8 : 7);
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {

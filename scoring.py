@@ -458,9 +458,11 @@ def compute_baseline_musician():
         raw = raw_values[player]
         rank = ranks.get(player)
         pts = rank_to_points(rank) if rank is not None else 0
+        n1 = num1_map[player]
         result[player] = {
             'pick': name, 'raw_value': raw if raw >= 0 else None,
-            'num1_weeks': num1_map[player],
+            'raw_display': n1 if n1 is not None else None,  # #1 weeks for frontend column
+            'num1_weeks': n1,
             'rank': rank, 'baseline_pts': pts, 'bonus_pts': 0,
         }
     return result
