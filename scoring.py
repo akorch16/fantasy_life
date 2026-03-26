@@ -215,8 +215,8 @@ def compute_baseline_sports(category, data_key, value_key, reverse=True, static_
                     break
         raw_values[player] = raw if raw is not None else -1
 
-    valid = {p: v for p, v in raw_values.items() if v >= 0}
-    ranks = rank_avg(valid, reverse=reverse) if valid else {}
+    valid = {p: (v if v >= 0 else 0) for p, v in raw_values.items()}
+    ranks = rank_avg(valid, reverse=reverse)
 
     result = {}
     for player, team in picks.items():
@@ -387,8 +387,8 @@ def compute_baseline_nascar():
                     break
         raw_values[player] = raw if raw is not None else -1
 
-    valid = {p: v for p, v in raw_values.items() if v >= 0}
-    ranks = rank_avg(valid, reverse=True) if valid else {}
+    valid = {p: (v if v >= 0 else 0) for p, v in raw_values.items()}
+    ranks = rank_avg(valid, reverse=True)
 
     result = {}
     for player, driver in picks.items():
@@ -416,8 +416,8 @@ def compute_baseline_actor_actress(category):
                     break
         raw_values[player] = composite if composite is not None else -1
 
-    valid = {p: v for p, v in raw_values.items() if v >= 0}
-    ranks = rank_avg(valid, reverse=True) if valid else {}
+    valid = {p: (v if v >= 0 else 0) for p, v in raw_values.items()}
+    ranks = rank_avg(valid, reverse=True)
 
     result = {}
     for player, name in picks.items():
@@ -447,8 +447,8 @@ def compute_baseline_musician():
                     break
         raw_values[player] = score if score is not None else -1
 
-    valid = {p: v for p, v in raw_values.items() if v >= 0}
-    ranks = rank_avg(valid, reverse=True) if valid else {}
+    valid = {p: (v if v >= 0 else 0) for p, v in raw_values.items()}
+    ranks = rank_avg(valid, reverse=True)
 
     result = {}
     for player, name in picks.items():
@@ -497,8 +497,8 @@ def compute_baseline_country():
                     break
         raw_values[player] = gdp if gdp is not None else -999
 
-    valid = {p: v for p, v in raw_values.items() if v > -999}
-    ranks = rank_avg(valid, reverse=True) if valid else {}
+    valid = {p: (v if v > -999 else 0) for p, v in raw_values.items()}
+    ranks = rank_avg(valid, reverse=True)
 
     result = {}
     for player, country in picks.items():
@@ -532,8 +532,8 @@ def compute_baseline_stock():
                     break
         raw_values[player] = pct_change if pct_change is not None else -999
 
-    valid = {p: v for p, v in raw_values.items() if v > -999}
-    ranks = rank_avg(valid, reverse=True) if valid else {}
+    valid = {p: (v if v > -999 else 0) for p, v in raw_values.items()}
+    ranks = rank_avg(valid, reverse=True)
 
     result = {}
     for player, info in picks.items():
