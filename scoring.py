@@ -50,9 +50,34 @@ def load_data(category_key):
     return data if data else None
 
 
+# Bonuses that can't yet be entered via admin panel — merged on top of Supabase
+HARDCODED_BONUSES = {
+    'Tennis': {
+        'Todd':  4.0,   # Alcaraz — 2026 Australian Open champion
+        'Shep':  2.5,   # Djokovic — 2026 Australian Open runner-up
+        'Fryar': 2.5,   # Sabalenka — 2026 Australian Open women's runner-up
+    },
+    'NCAAB': {
+        'Tim':     2.5,  # St. John's — Sweet 16
+        'Jens':    2.5,  # Duke — Sweet 16
+        'Mitchell':2.5,  # Alabama — Sweet 16
+        'Theo':    2.5,  # Houston — Sweet 16
+        'Fryar':   2.5,  # UConn — Sweet 16
+        'Korch':   2.5,  # Purdue — Sweet 16
+        'Jamzee':  2.5,  # Michigan — Sweet 16
+    },
+}
+
 def load_bonuses():
-    """Load bonus points from Supabase."""
-    return get_all_bonuses()
+    """Load bonus points from Supabase, merged with hardcoded bonuses."""
+    bonuses = get_all_bonuses()
+    for cat, players in HARDCODED_BONUSES.items():
+        if cat not in bonuses:
+            bonuses[cat] = {}
+        for player, pts in players.items():
+            existing = bonuses[cat].get(player, 0)
+            bonuses[cat][player] = round(existing + pts, 2)
+    return bonuses
 
 
 def get_last_updated():
