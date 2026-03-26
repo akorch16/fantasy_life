@@ -446,6 +446,44 @@
       .roast-score-display { font-size: 2rem; }
     }
 
+    /* ─── MOBILE RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      /* Header */
+      header { padding: 0 12px; }
+      .header-meta { display: none; }
+      .header-stats { gap: 10px; }
+      .header-stat-num { font-size: 1rem; }
+      .header-stat-label { font-size: 0.48rem; }
+
+      /* Page */
+      .page { padding: 20px 12px 60px; }
+
+      /* Season hero */
+      .season-hero { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 24px; }
+      .season-title { white-space: normal; }
+      .season-stats { gap: 16px; }
+      .stat-num { font-size: 1.7rem; }
+      .todd-hero { display: none; }
+
+      /* Filter */
+      .filter-group { flex-wrap: wrap; }
+      .filter-btn { padding: 5px 9px; font-size: 0.68rem; }
+
+      /* Table */
+      .standings-table thead th { padding: 6px 6px; font-size: 0.58rem; }
+      .player-row td { padding: 10px 6px; }
+      .player-name { font-size: 0.85rem; }
+      .score-cell { font-size: 1.1rem; }
+      .stat-col { font-size: 0.72rem; }
+      .stat-col.primary { font-size: 0.78rem; }
+      .stat-col.total-col { font-size: 1.1rem; }
+      .stat-col.bonus-col { display: none; }
+      .standings-table thead th.bonus-col { display: none; }
+      .todd-teaser { font-size: 0.62rem; }
+      .rank-cell { width: 32px; font-size: 0.72rem; }
+      .standings-table thead th:first-child { width: 32px; }
+    }
+
     .modal-close {
       position: absolute;
       top: 16px; right: 16px;
@@ -990,7 +1028,7 @@ function updateHeader() {
       <th class="pts" style="font-size:0.6rem">${statLabel}</th>
       ${extraHeader}
       <th class="pts" style="font-size:0.6rem">Regular</th>
-      <th class="pts" style="font-size:0.6rem">Bonus</th>
+      <th class="pts bonus-col" style="font-size:0.6rem">Bonus</th>
       <th class="pts" style="font-size:0.6rem">Total</th>
       <th></th>
     `;
