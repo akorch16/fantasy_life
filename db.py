@@ -25,39 +25,56 @@ def _headers():
 # ── Standings ────────────────────────────────────────────────────────────────
 
 def get_standing(category: str) -> dict:
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/standings',
-        headers=_headers(),
-        params={'category': f'eq.{category}', 'select': 'data,frozen'},
-        timeout=_TIMEOUT,
-    )
-    rows = r.json()
-    if not isinstance(rows, list) or not rows:
-        print(f'  ✗ get_standing({category}): unexpected response: {rows}')
+    if not SUPABASE_URL or not SUPABASE_KEY:
         return {}
-    return rows[0]['data'] or {}
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/standings',
+            headers=_headers(),
+            params={'category': f'eq.{category}', 'select': 'data,frozen'},
+            timeout=_TIMEOUT,
+        )
+        rows = r.json()
+        if not isinstance(rows, list) or not rows:
+            print(f'  ✗ get_standing({category}): unexpected response: {rows}')
+            return {}
+        return rows[0]['data'] or {}
+    except Exception as e:
+        print(f'  ✗ get_standing({category}): {e}')
+        return {}
 
 def get_all_standings() -> dict:
     """Return {category: data} for all categories."""
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/standings',
-        headers=_headers(),
-        params={'select': 'category,data,frozen'},
-        timeout=_TIMEOUT,
-    )
-    return {row['category']: row['data'] for row in r.json()}
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return {}
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/standings',
+            headers=_headers(),
+            params={'select': 'category,data,frozen'},
+            timeout=_TIMEOUT,
+        )
+        return {row['category']: row['data'] for row in r.json()}
+    except Exception as e:
+        print(f'  ✗ get_all_standings(): {e}')
+        return {}
 
 def is_frozen(category: str) -> bool:
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/standings',
-        headers=_headers(),
-        params={'category': f'eq.{category}', 'select': 'frozen'},
-        timeout=_TIMEOUT,
-    )
-    rows = r.json()
-    if not isinstance(rows, list) or not rows:
+    if not SUPABASE_URL or not SUPABASE_KEY:
         return False
-    return rows[0].get('frozen', False)
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/standings',
+            headers=_headers(),
+            params={'category': f'eq.{category}', 'select': 'frozen'},
+            timeout=_TIMEOUT,
+        )
+        rows = r.json()
+        if not isinstance(rows, list) or not rows:
+            return False
+        return rows[0].get('frozen', False)
+    except Exception:
+        return False
 
 def save_standing(category: str, data: dict, frozen: bool = None) -> bool:
     """Upsert standings data for a category. Pass frozen=True/False to change freeze state."""
@@ -107,23 +124,29 @@ def unfreeze_category(category: str) -> bool:
 # ── Bonuses ──────────────────────────────────────────────────────────────────
 
 def get_all_bonuses() -> dict:
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/bonuses',
-        headers=_headers(),
-        params={'select': 'category,player,points,reason'},
-        timeout=_TIMEOUT,
-    )
-    rows = r.json()
-    if not isinstance(rows, list):
-        print(f'  ✗ get_all_bonuses(): unexpected response: {rows}')
+    if not SUPABASE_URL or not SUPABASE_KEY:
         return {}
-    result = {}
-    for row in rows:
-        cat, player, pts = row['category'], row['player'], float(row['points'])
-        if cat not in result:
-            result[cat] = {}
-        result[cat][player] = pts
-    return result
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/bonuses',
+            headers=_headers(),
+            params={'select': 'category,player,points,reason'},
+            timeout=_TIMEOUT,
+        )
+        rows = r.json()
+        if not isinstance(rows, list):
+            print(f'  ✗ get_all_bonuses(): unexpected response: {rows}')
+            return {}
+        result = {}
+        for row in rows:
+            cat, player, pts = row['category'], row['player'], float(row['points'])
+            if cat not in result:
+                result[cat] = {}
+            result[cat][player] = pts
+        return result
+    except Exception as e:
+        print(f'  ✗ get_all_bonuses(): {e}')
+        return {}
 
 def add_bonus(category: str, player: str, points: float, reason: str = '') -> bool:
     """Add points to a player's bonus for a category (accumulates)."""

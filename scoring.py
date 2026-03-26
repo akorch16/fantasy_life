@@ -298,7 +298,8 @@ GOLF_2026_OWGR_STATIC = {"rankings": [
 
 def compute_baseline_golf():
     picks = DRAFT_PICKS_2026.get('Golf', {})
-    data = load_data('golf') or GOLF_2026_OWGR_STATIC
+    _d = load_data('golf')
+    data = _d if (_d and _d.get('rankings')) else GOLF_2026_OWGR_STATIC
 
     raw_values = {}
     for player, name in picks.items():
@@ -348,7 +349,8 @@ NASCAR_2026_STANDINGS_STATIC = {"standings": [
 
 def compute_baseline_nascar():
     picks = DRAFT_PICKS_2026.get('NASCAR', {})
-    data = load_data('nascar') or NASCAR_2026_STANDINGS_STATIC
+    _d = load_data('nascar')
+    data = _d if (_d and _d.get('standings')) else NASCAR_2026_STANDINGS_STATIC
 
     raw_values = {}
     for player, driver in picks.items():
