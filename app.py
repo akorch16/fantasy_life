@@ -53,6 +53,10 @@ def api_scores():
 def admin():
     return render_template('admin.html')
 
+@app.route('/calendar')
+def calendar():
+    return render_template('calendar.html')
+
 @app.route('/api/bonuses', methods=['GET'])
 def api_bonuses_get():
     return jsonify(get_all_bonuses())
