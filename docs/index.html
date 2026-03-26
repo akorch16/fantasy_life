@@ -816,7 +816,7 @@
     <div class="news-bar-updated"><span style="opacity:0.5">updated </span><span id="news-bar-updated">loading…</span></div>
   </div>
   <div class="news-bar-headline" id="news-bar-headline">
-    🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em> — Jamzee's actress pick quietly printing points while everyone sleeps.
+    <span id="news-bar-last-updated" style="opacity:0.5;margin-right:10px;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.03em;">Last updated: loading…</span>🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em> — Jamzee's actress pick quietly printing points while everyone sleeps.
   </div>
 </div>
 
@@ -1027,6 +1027,8 @@ function initDisplay() {
   }
   const nbEl = document.getElementById('news-bar-updated');
   if (nbEl) nbEl.textContent = updatedStr;
+  const luEl = document.getElementById('news-bar-last-updated');
+  if (luEl) luEl.textContent = 'Last updated: ' + updatedStr;
 }
 
 // Per-category stat label and value formatter
