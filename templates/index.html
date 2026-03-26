@@ -983,10 +983,12 @@ function updateHeader() {
     header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th></th>`;
   } else {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
+    const extraHeader = currentFilter === 'musician' ? `<th class="pts" style="font-size:0.6rem">#1 Wks</th>` : '';
     header.innerHTML = `
       <th>#</th>
       <th>Player / Pick</th>
       <th class="pts" style="font-size:0.6rem">${statLabel}</th>
+      ${extraHeader}
       <th class="pts" style="font-size:0.6rem">Regular</th>
       <th class="pts" style="font-size:0.6rem">Bonus</th>
       <th class="pts" style="font-size:0.6rem">Total</th>
@@ -1030,7 +1032,7 @@ function renderTable() {
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
     if (isTodd) {
-      const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '';
+      const extraCols = currentFilter !== 'all' ? `<td></td>${currentFilter === 'musician' ? '<td></td>' : ''}<td></td><td></td><td></td>` : '';
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
@@ -1059,6 +1061,10 @@ function renderTable() {
         ? (catData.baseline_pts + (catData.bonus_pts || 0)).toFixed(1)
         : '–';
 
+      const num1Cell = currentFilter === 'musician'
+        ? `<td class="stat-col">${catData.num1_weeks != null ? catData.num1_weeks : '–'}</td>`
+        : '';
+
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
@@ -1066,6 +1072,7 @@ function renderTable() {
           <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${pick}</div>
         </td>
         <td class="stat-col primary">${statVal}</td>
+        ${num1Cell}
         <td class="stat-col">${regular}</td>
         <td class="stat-col bonus-col">${bonus}</td>
         <td class="stat-col total-col">${total}</td>
