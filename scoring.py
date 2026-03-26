@@ -407,14 +407,18 @@ def compute_baseline_actor_actress(category):
     data = load_data(category.lower())
 
     raw_values = {}
+    movies_map = {}
     for player, name in picks.items():
         composite = None
+        movies = []
         if data:
             for entry in data.get('scores', []):
                 if name_matches(name, entry.get('name', '')):
                     composite = entry.get('composite_score')
+                    movies = entry.get('movies', [])
                     break
         raw_values[player] = composite if composite is not None else -1
+        movies_map[player] = movies
 
     valid = {p: (v if v >= 0 else 0) for p, v in raw_values.items()}
     ranks = rank_avg(valid, reverse=True)
@@ -424,8 +428,11 @@ def compute_baseline_actor_actress(category):
         raw = raw_values[player]
         rank = ranks.get(player)
         pts = rank_to_points(rank) if rank is not None else 0
+        movies = movies_map[player]
+        film_count = len([m for m in movies if m.get('composite') is not None])
         result[player] = {
             'pick': name, 'raw_value': round(raw, 2) if raw >= 0 else None,
+            'film_count': film_count, 'movies': movies,
             'rank': rank, 'baseline_pts': pts, 'bonus_pts': 0,
         }
     return result

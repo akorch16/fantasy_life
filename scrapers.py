@@ -581,6 +581,128 @@ def scrape_billboard():
     except Exception as e:
         print(f'  ✗ Musician/Wikipedia: {e}'); return False
 
+
+# ── Actor / Actress (TMDB + OMDB) ────────────────────────────────────────────
+
+TMDB_API_KEY = os.environ.get('TMDB_API_KEY', '')
+OMDB_API_KEY = os.environ.get('OMDB_API_KEY', '')
+_TMDB_BASE   = 'https://api.themoviedb.org/3'
+_OMDB_BASE   = 'http://www.omdbapi.com/'
+
+
+def _tmdb_search_person(name):
+    if not TMDB_API_KEY:
+        return None
+    try:
+        r = fetch_json(f'{_TMDB_BASE}/search/person',
+                       params={'api_key': TMDB_API_KEY, 'query': name})
+        results = r.get('results', [])
+        return results[0]['id'] if results else None
+    except Exception as e:
+        print(f'    ✗ TMDB person search ({name}): {e}')
+        return None
+
+
+def _tmdb_person_movies_2026(person_id):
+    if not TMDB_API_KEY:
+        return []
+    try:
+        from datetime import date
+        today = date.today().isoformat()
+        r = fetch_json(f'{_TMDB_BASE}/person/{person_id}/movie_credits',
+                       params={'api_key': TMDB_API_KEY})
+        movies = []
+        for m in r.get('cast', []):
+            release = m.get('release_date', '')
+            if release.startswith('2026') and release <= today:
+                movies.append({
+                    'title':        m.get('title', ''),
+                    'tmdb_id':      m.get('id'),
+                    'release_date': release,
+                })
+        return movies
+    except Exception as e:
+        print(f'    ✗ TMDB credits (id={person_id}): {e}')
+        return []
+
+
+def _omdb_movie_data(title, year=None):
+    if not OMDB_API_KEY:
+        return {}
+    params = {'apikey': OMDB_API_KEY, 't': title}
+    if year:
+        params['y'] = year
+    try:
+        r = fetch_json(_OMDB_BASE, params=params)
+        if r.get('Response') != 'True':
+            # fallback: retry without year constraint
+            if year:
+                return _omdb_movie_data(title, year=None)
+            return {}
+        bo_raw = r.get('BoxOffice', 'N/A')
+        box_office = None
+        if bo_raw and bo_raw != 'N/A':
+            try:
+                box_office = int(bo_raw.replace('$', '').replace(',', ''))
+            except ValueError:
+                pass
+        rt_score = None
+        for rating in r.get('Ratings', []):
+            if rating.get('Source') == 'Rotten Tomatoes':
+                try:
+                    rt_score = int(rating['Value'].replace('%', ''))
+                except ValueError:
+                    pass
+        return {'box_office': box_office, 'rt_score': rt_score}
+    except Exception as e:
+        print(f'    ✗ OMDB ({title}): {e}')
+        return {}
+
+
+def scrape_actor_actress(category='Actor'):
+    if is_frozen(category):
+        print(f'  ⏸ {category} is frozen, skipping'); return True
+    if not TMDB_API_KEY:
+        print(f'  ✗ TMDB_API_KEY not set — skipping {category}'); return False
+    if not OMDB_API_KEY:
+        print(f'  ✗ OMDB_API_KEY not set — skipping {category}'); return False
+
+    from draft_picks_2026 import DRAFT_PICKS_2026
+    picks = DRAFT_PICKS_2026.get(category, {})
+    scores = []
+
+    for _player, name in picks.items():
+        print(f'    {name}...')
+        person_id = _tmdb_search_person(name)
+        if not person_id:
+            print(f'      not found on TMDB')
+            scores.append({'name': name, 'movies': [], 'composite_score': 0.0})
+            continue
+
+        raw_movies = _tmdb_person_movies_2026(person_id)
+        print(f'      {len(raw_movies)} released 2026 film(s) found')
+
+        movies = []
+        for m in raw_movies:
+            omdb = _omdb_movie_data(m['title'], year='2026')
+            bo   = omdb.get('box_office')
+            rt   = omdb.get('rt_score')
+            comp = round((bo / 1_000_000) * (rt / 100), 2) if (bo and rt) else None
+            movies.append({
+                'title':        m['title'],
+                'release_date': m['release_date'],
+                'box_office':   bo,
+                'rt_score':     rt,
+                'composite':    comp,
+            })
+
+        composite_score = round(sum(m['composite'] for m in movies if m['composite']), 2)
+        scores.append({'name': name, 'movies': movies, 'composite_score': composite_score})
+
+    save_standing(category, {'scores': scores})
+    return True
+
+
 # ── Refresh All ───────────────────────────────────────────────────────────────
 
 def refresh_all():
@@ -600,6 +722,8 @@ def refresh_all():
         ('NCAAB', scrape_ncaab), ('Tennis', scrape_tennis), ('Golf', scrape_golf),
         ('NASCAR', scrape_nascar), ('MLS', scrape_mls), ('Stock', scrape_stock),
         ('Country', scrape_country_gdp), ('Musician', scrape_billboard),
+        ('Actor',   lambda: scrape_actor_actress('Actor')),
+        ('Actress', lambda: scrape_actor_actress('Actress')),
     ]
     for name, fn in all_scrapers:
         print(f'Scraping {name}...')
