@@ -454,12 +454,13 @@ def scrape_stock():
     except Exception as e:
         print(f'  ✗ Stock: {e}'); return False
 
-# ── Country GDP (World Bank) ──────────────────────────────────────────────────
+# ── Country GDP (IMF DataMapper) ─────────────────────────────────────────────
 def scrape_country_gdp():
     if is_frozen('Country'):
         print('  ⏸ Country is frozen, skipping'); return True
     try:
         from draft_picks_2026 import DRAFT_PICKS_2026
+        # IMF WEO ISO-3 codes (same as ISO 3166-1 alpha-3)
         ISO_MAP = {
             'Netherlands': 'NLD', 'United States': 'USA', 'Germany': 'DEU',
             'Guinea': 'GIN', 'South Sudan': 'SSD', 'France': 'FRA',
@@ -468,35 +469,32 @@ def scrape_country_gdp():
         }
         countries = list(DRAFT_PICKS_2026['Country'].values())
         codes = [ISO_MAP[c] for c in countries if c in ISO_MAP]
-        
-        # Batch all countries in ONE request
+
+        # IMF DataMapper API — NGDP_RPCH = Real GDP growth (annual %)
         codes_str = ';'.join(codes)
-        url = f'https://api.worldbank.org/v2/country/{codes_str}/indicator/NY.GDP.MKTP.KD.ZG?format=json&mrv=5&per_page=100'
-        r = requests.get(url, headers=HEADERS, timeout=10)
+        url = (f'https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH/'
+               f'{codes_str}?periods=2025')
+        r = requests.get(url, headers=HEADERS, timeout=15)
         r.raise_for_status()
-        data = r.json()
-        records = data[1] if isinstance(data, list) and len(data) > 1 else []
-        
-        # Build lookup: iso_code -> gdp_growth
-        gdp_lookup = {}
-        for rec in records:
-            code = rec.get('countryiso3code') or rec.get('country', {}).get('id', '')
-            val = rec.get('value')
-            if code and val is not None and code not in gdp_lookup:
-                gdp_lookup[code] = round(float(val), 2)
-        
+        api_data = r.json()
+
+        # Response shape: {"values": {"NGDP_RPCH": {"NLD": {"2025": 1.4}, ...}}}
+        country_data = api_data.get('values', {}).get('NGDP_RPCH', {})
+
         gdp = []
-        for country in countries:
-            code = ISO_MAP.get(country)
-            if code and code in gdp_lookup:
-                gdp.append({'country': country, 'gdp_growth_pct': gdp_lookup[code]})
-                print(f'    {country} ({code}): {gdp_lookup[code]}%')
+        reverse_iso = {v: k for k, v in ISO_MAP.items()}
+        for code, years in country_data.items():
+            val = years.get('2025')
+            country_name = reverse_iso.get(code)
+            if country_name and val is not None:
+                gdp.append({'country': country_name, 'gdp_growth_pct': round(float(val), 2)})
+                print(f'    {country_name} ({code}): {val}%')
             else:
-                print(f'    ✗ No data for {country}')
-        
+                print(f'    ✗ No 2025 data for {code}')
+
         if gdp:
             return save_standing('Country', {'gdp': gdp})
-        raise Exception('No GDP data found')
+        raise Exception('No GDP data found from IMF')
     except Exception as e:
         print(f'  ✗ Country: {e}'); return False
 

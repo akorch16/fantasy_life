@@ -462,9 +462,29 @@ def compute_baseline_musician():
     return result
 
 
+# IMF WEO April 2025 real GDP growth (%) — used as fallback if scraper fails
+# Source: IMF DataMapper API NGDP_RPCH, retrieved March 2026
+COUNTRY_GDP_IMF_STATIC = {"gdp": [
+    {"country": "Netherlands",   "gdp_growth_pct": 1.4},
+    {"country": "United States", "gdp_growth_pct": 2.0},
+    {"country": "Germany",       "gdp_growth_pct": 0.2},
+    {"country": "Guinea",        "gdp_growth_pct": 7.2},
+    {"country": "South Sudan",   "gdp_growth_pct": 24.3},
+    {"country": "France",        "gdp_growth_pct": 0.7},
+    {"country": "Switzerland",   "gdp_growth_pct": 0.9},
+    {"country": "Brazil",        "gdp_growth_pct": 2.4},
+    {"country": "Norway",        "gdp_growth_pct": 1.2},
+    {"country": "Guyana",        "gdp_growth_pct": 10.3},
+    {"country": "Argentina",     "gdp_growth_pct": 4.5},
+    {"country": "Spain",         "gdp_growth_pct": 2.9},
+    {"country": "Canada",        "gdp_growth_pct": 1.2},
+]}
+
+
 def compute_baseline_country():
     picks = DRAFT_PICKS_2026.get('Country', {})
-    data = load_data('country')
+    _d = load_data('country')
+    data = _d if (_d and _d.get('gdp')) else COUNTRY_GDP_IMF_STATIC
 
     raw_values = {}
     for player, country in picks.items():
