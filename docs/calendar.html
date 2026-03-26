@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fantasy Life 2026 — Calendar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161d;
+      --surface2: #1a1e28;
+      --border: #232733;
+      --blue: #2d7dd2;
+      --blue-dim: #1a4a82;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --dim: #3a3f50;
+      --green: #22c55e;
+      --red: #ef4444;
+      --gold: #f59e0b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--blue); }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.65rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.08em;
+      transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-link.active { color: var(--blue); }
+
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .page-title span { color: var(--blue); }
+
+    .page-subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 48px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* Month section */
+    .month-section {
+      margin-bottom: 40px;
+    }
+
+    .month-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .month-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.1em;
+      color: var(--text);
+    }
+
+    .month-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .month-past .month-name { color: var(--muted); }
+
+    /* Event card */
+    .events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .event-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      border-left: 3px solid var(--border);
+      transition: border-color 0.15s;
+    }
+
+    .event-card.status-past {
+      opacity: 0.55;
+      border-left-color: var(--dim);
+    }
+
+    .event-card.status-live {
+      border-left-color: var(--green);
+      background: #0b1f10;
+    }
+
+    .event-card.status-upcoming {
+      border-left-color: var(--blue);
+    }
+
+    .event-cat-badge {
+      font-size: 0.55rem;
+      font-family: 'DM Mono', monospace;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 3px 7px;
+      border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Category badge colors */
+    .cat-nfl      { background: #1a2a14; color: #4ade80; }
+    .cat-nba      { background: #1a1400; color: #f59e0b; }
+    .cat-mlb      { background: #1a0d00; color: #fb923c; }
+    .cat-nhl      { background: #0d1a2a; color: #60a5fa; }
+    .cat-ncaaf    { background: #1a0d1a; color: #c084fc; }
+    .cat-ncaab    { background: #1a1400; color: #fbbf24; }
+    .cat-tennis   { background: #1a1a0d; color: #d9f99d; }
+    .cat-golf     { background: #0d1a12; color: #6ee7b7; }
+    .cat-nascar   { background: #1a0d0d; color: #fca5a5; }
+    .cat-mls      { background: #0d1a1a; color: #67e8f9; }
+    .cat-actor    { background: #1a0d1a; color: #e879f9; }
+    .cat-actress  { background: #1a0d1a; color: #f0abfc; }
+    .cat-musician { background: #0d0d1a; color: #a5b4fc; }
+    .cat-stock    { background: #0d1a0d; color: #86efac; }
+    .cat-country  { background: #1a1200; color: #fde68a; }
+    .cat-multi    { background: #1a1414; color: #d1d5db; }
+
+    .event-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-card.status-past .event-name { color: var(--muted); }
+
+    .event-detail {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 2px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .event-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-past .status-dot    { background: var(--dim); }
+    .status-live .status-dot    { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.5s ease-in-out infinite; }
+    .status-upcoming .status-dot { background: var(--blue); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .legend {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .legend-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 0 12px; }
+      .page { padding: 24px 12px 60px; }
+      .event-card { gap: 10px; padding: 10px 12px; }
+      .event-cat-badge { display: none; }
+      .event-name { font-size: 0.82rem; white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="./index.html" class="logo">Fantasy<span>Life</span></a>
+  <div class="header-links">
+    <a href="./rules.html" class="nav-link">RULES</a>
+    <a href="./calendar.html" class="nav-link active">CALENDAR</a>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="page-title">2026 <span>Calendar</span></div>
+  <div class="page-subtitle">Notable events across all Fantasy Life categories</div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--dim)"></div>Completed</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green);box-shadow:0 0 5px var(--green)"></div>Live / In Progress</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Upcoming</div>
+  </div>
+
+  <!-- ── JANUARY ── -->
+  <div class="month-section month-past">
+    <div class="month-header">
+      <div class="month-name">January</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-multi">Awards</div>
+        <div class="event-info">
+          <div class="event-name">Golden Globe Awards</div>
+          <div class="event-detail">Film & TV awards — Beverly Hilton</div>
+        </div>
+        <div class="event-date">Jan 5</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-ncaaf">NCAAF</div>
+        <div class="event-info">
+          <div class="event-name">CFP National Championship</div>
+          <div class="event-detail">College Football Playoff final</div>
+        </div>
+        <div class="event-date">Jan 19</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-tennis">Tennis</div>
+        <div class="event-info">
+          <div class="event-name">Australian Open</div>
+          <div class="event-detail">Grand Slam — Melbourne</div>
+        </div>
+        <div class="event-date">Jan 12–25</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nfl">NFL</div>
+        <div class="event-info">
+          <div class="event-name">NFL Conference Championships</div>
+          <div class="event-detail">AFC & NFC title games</div>
+        </div>
+        <div class="event-date">Jan 25</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FEBRUARY ── -->
+  <div class="month-section month-past">
+    <div class="month-header">
+      <div class="month-name">February</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-musician">Music</div>
+        <div class="event-info">
+          <div class="event-name">Grammy Awards</div>
+          <div class="event-detail">68th Annual Grammy Awards — Crypto.com Arena, LA</div>
+        </div>
+        <div class="event-date">Feb 2</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nascar">NASCAR</div>
+        <div class="event-info">
+          <div class="event-name">Daytona 500</div>
+          <div class="event-detail">Great American Race — Daytona International Speedway</div>
+        </div>
+        <div class="event-date">Feb 15</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nba">NBA</div>
+        <div class="event-info">
+          <div class="event-name">NBA All-Star Weekend</div>
+          <div class="event-detail">Skills Challenge, Dunk Contest, All-Star Game</div>
+        </div>
+        <div class="event-date">Feb 13–15</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nfl">NFL</div>
+        <div class="event-info">
+          <div class="event-name">Super Bowl LX</div>
+          <div class="event-detail">NFL Championship — New Orleans</div>
+        </div>
+        <div class="event-date">Feb 8</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-multi">Awards</div>
+        <div class="event-info">
+          <div class="event-name">SAG Awards</div>
+          <div class="event-detail">Screen Actors Guild Awards</div>
+        </div>
+        <div class="event-date">Feb 22</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MARCH ── -->
+  <div class="month-section">
+    <div class="month-header">
+      <div class="month-name">March</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-multi">Awards</div>
+        <div class="event-info">
+          <div class="event-name">Academy Awards (Oscars)</div>
+          <div class="event-detail">98th Oscars — Dolby Theatre, Los Angeles</div>
+        </div>
+        <div class="event-date">Mar 2</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-mlb">MLB</div>
+        <div class="event-info">
+          <div class="event-name">MLB Opening Day</div>
+          <div class="event-detail">2026 regular season begins</div>
+        </div>
+        <div class="event-date">Mar 26</div>
+      </div>
+      <div class="event-card status-live">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-ncaab">NCAAB</div>
+        <div class="event-info">
+          <div class="event-name">NCAA Tournament — March Madness</div>
+          <div class="event-detail">First & Second Rounds</div>
+        </div>
+        <div class="event-date">Mar 19–22</div>
+      </div>
+      <div class="event-card status-live">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-mls">MLS</div>
+        <div class="event-info">
+          <div class="event-name">MLS Season Opens</div>
+          <div class="event-detail">2026 MLS regular season underway</div>
+        </div>
+        <div class="event-date">Mar 1 →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── APRIL ── -->
+  <div class="month-section">
+    <div class="month-header">
+      <div class="month-name">April</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-ncaab">NCAAB</div>
+        <div class="event-info">
+          <div class="event-name">NCAA Championship — Final Four</div>
+          <div class="event-detail">National Semifinals &amp; Championship Game</div>
+        </div>
+        <div class="event-date">Apr 4–6</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-golf">Golf</div>
+        <div class="event-info">
+          <div class="event-name">The Masters</div>
+          <div class="event-detail">Major — Augusta National Golf Club</div>
+        </div>
+        <div class="event-date">Apr 9–12</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nba">NBA</div>
+        <div class="event-info">
+          <div class="event-name">NBA Playoffs Begin</div>
+          <div class="event-detail">First round tips off</div>
+        </div>
+        <div class="event-date">Apr 18</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nhl">NHL</div>
+        <div class="event-info">
+          <div class="event-name">NHL Playoffs Begin</div>
+          <div class="event-detail">Stanley Cup Playoffs first round</div>
+        </div>
+        <div class="event-date">Apr 19</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nfl">NFL</div>
+        <div class="event-info">
+          <div class="event-name">NFL Draft</div>
+          <div class="event-detail">Green Bay, Wisconsin</div>
+        </div>
+        <div class="event-date">Apr 23–25</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-country">Country</div>
+        <div class="event-info">
+          <div class="event-name">IMF World Economic Outlook</div>
+          <div class="event-detail">Spring GDP growth forecasts published</div>
+        </div>
+        <div class="event-date">Apr (mid)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAY ── -->
+  <div class="month-section">
+    <div class="month-header">
+      <div class="month-name">May</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-golf">Golf</div>
+        <div class="event-info">
+          <div class="event-name">PGA Championship</div>
+          <div class="event-detail">Major — Quail Hollow Club, Charlotte NC</div>
+        </div>
+        <div class="event-date">May 21–24</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-tennis">Tennis</div>
+        <div class="event-info">
+          <div class="event-name">French Open (Roland Garros)</div>
+          <div class="event-detail">Grand Slam — Paris</div>
+        </div>
+        <div class="event-date">May 24 – Jun 7</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-multi">Awards</div>
+        <div class="event-info">
+          <div class="event-name">Billboard Music Awards</div>
+          <div class="event-detail">Annual music awards ceremony</div>
+        </div>
+        <div class="event-date">May (TBD)</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-multi">Awards</div>
+        <div class="event-info">
+          <div class="event-name">Cannes Film Festival</div>
+          <div class="event-detail">International film competition — Cannes, France</div>
+        </div>
+        <div class="event-date">May 13–24</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── JUNE ── -->
+  <div class="month-section">
+    <div class="month-header">
+      <div class="month-name">June</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-golf">Golf</div>
+        <div class="event-info">
+          <div class="event-name">US Open (Golf)</div>
+          <div class="event-detail">Major — Oakmont Country Club, PA</div>
+        </div>
+        <div class="event-date">Jun 18–21</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nba">NBA</div>
+        <div class="event-info">
+          <div class="event-name">NBA Finals</div>
+          <div class="event-detail">Championship series begins</div>
+        </div>
+        <div class="event-date">Jun (TBD)</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nhl">NHL</div>
+        <div class="event-info">
+          <div class="event-name">Stanley Cup Finals</div>
+          <div class="event-detail">NHL Championship series</div>
+        </div>
+        <div class="event-date">Jun (TBD)</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nba">NBA</div>
+        <div class="event-info">
+          <div class="event-name">NBA Draft</div>
+          <div class="event-detail">Barclays Center, Brooklyn</div>
+        </div>
+        <div class="event-date">Jun 25–26</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-tennis">Tennis</div>
+        <div class="event-info">
+          <div class="event-name">Wimbledon</div>
+          <div class="event-detail">Grand Slam — All England Club, London</div>
+        </div>
+        <div class="event-date">Jun 29 – Jul 12</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── JULY ── -->
+  <div class="month-section">
+    <div class="month-header">
+      <div class="month-name">July</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-golf">Golf</div>
+        <div class="event-info">
+          <div class="event-name">The Open Championship</div>
+          <div class="event-detail">Major (British Open) — Royal Portrush, N. Ireland</div>
+        </div>
+        <div class="event-date">Jul 16–19</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-mlb">MLB</div>
+        <div class="event-info">
+          <div class="event-name">MLB All-Star Game</div>
+          <div class="event-detail">Midsummer Classic</div>
+        </div>
+        <div class="event-date">Jul 14</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nascar">NASCAR</div>
+        <div class="event-info">
+          <div class="event-name">Brickyard 400</div>
+          <div class="event-detail">Cup Series — Indianapolis Motor Speedway</div>
+        </div>
+        <div class="event-date">Jul (TBD)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AUGUST ── -->
+  <div class="month-section">
+    <div class="month-header">
+      <div class="month-name">August</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-tennis">Tennis</div>
+        <div class="event-info">
+          <div class="event-name">US Open Tennis Begins</div>
+          <div class="event-detail">Grand Slam — USTA Billie Jean King National Tennis Center, NY</div>
+        </div>
+        <div class="event-date">Aug 31</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-ncaaf">NCAAF</div>
+        <div class="event-info">
+          <div class="event-name">College Football Season Opens</div>
+          <div class="event-detail">2026 FBS regular season kicks off</div>
+        </div>
+        <div class="event-date">Aug 29</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-multi">Awards</div>
+        <div class="event-info">
+          <div class="event-name">MTV Video Music Awards</div>
+          <div class="event-detail">Annual VMAs ceremony</div>
+        </div>
+        <div class="event-date">Aug (TBD)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SEPTEMBER ── -->
+  <div class="month-section">
+    <div class="month-header">
+      <div class="month-name">September</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-tennis">Tennis</div>
+        <div class="event-info">
+          <div class="event-name">US Open Finals</div>
+          <div class="event-detail">Grand Slam concludes — Flushing, NY</div>
+        </div>
+        <div class="event-date">Sep 13</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nfl">NFL</div>
+        <div class="event-info">
+          <div class="event-name">NFL Season Begins</div>
+          <div class="event-detail">2026 regular season kicks off</div>
+        </div>
+        <div class="event-date">Sep 10</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nascar">NASCAR</div>
+        <div class="event-info">
+          <div class="event-name">NASCAR Cup Playoffs Begin</div>
+          <div class="event-detail">16-driver playoff field set; elimination rounds start</div>
+        </div>
+        <div class="event-date">Sep (TBD)</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-mlb">MLB</div>
+        <div class="event-info">
+          <div class="event-name">MLB Wild Card / Playoffs Begin</div>
+          <div class="event-detail">Postseason opens</div>
+        </div>
+        <div class="event-date">Sep 30</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-multi">Awards</div>
+        <div class="event-info">
+          <div class="event-name">Emmy Awards</div>
+          <div class="event-detail">78th Primetime Emmy Awards — Los Angeles</div>
+        </div>
+        <div class="event-date">Sep (TBD)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── OCTOBER ── -->
+  <div class="month-section">
+    <div class="month-header">
+      <div class="month-name">October</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-mlb">MLB</div>
+        <div class="event-info">
+          <div class="event-name">MLB World Series</div>
+          <div class="event-detail">Fall Classic — best-of-7 championship</div>
+        </div>
+        <div class="event-date">Oct (late)</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nba">NBA</div>
+        <div class="event-info">
+          <div class="event-name">NBA Season Opens</div>
+          <div class="event-detail">2026–27 regular season begins</div>
+        </div>
+        <div class="event-date">Oct 22</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nhl">NHL</div>
+        <div class="event-info">
+          <div class="event-name">NHL Season Opens</div>
+          <div class="event-detail">2026–27 regular season begins</div>
+        </div>
+        <div class="event-date">Oct 7</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NOVEMBER ── -->
+  <div class="month-section">
+    <div class="month-header">
+      <div class="month-name">November</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nascar">NASCAR</div>
+        <div class="event-info">
+          <div class="event-name">NASCAR Cup Championship</div>
+          <div class="event-detail">Championship 4 finale — Phoenix Raceway</div>
+        </div>
+        <div class="event-date">Nov 8</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-mls">MLS</div>
+        <div class="event-info">
+          <div class="event-name">MLS Cup Playoffs</div>
+          <div class="event-detail">Eastern & Western Conference playoffs</div>
+        </div>
+        <div class="event-date">Nov (TBD)</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-multi">Awards</div>
+        <div class="event-info">
+          <div class="event-name">CMA Awards</div>
+          <div class="event-detail">Country Music Association Awards — Nashville</div>
+        </div>
+        <div class="event-date">Nov (TBD)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DECEMBER ── -->
+  <div class="month-section">
+    <div class="month-header">
+      <div class="month-name">December</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-mls">MLS</div>
+        <div class="event-info">
+          <div class="event-name">MLS Cup</div>
+          <div class="event-detail">MLS Championship Final</div>
+        </div>
+        <div class="event-date">Dec (TBD)</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-ncaaf">NCAAF</div>
+        <div class="event-info">
+          <div class="event-name">College Football Playoff — First Round</div>
+          <div class="event-detail">CFP quarterfinals at campus sites</div>
+        </div>
+        <div class="event-date">Dec 20</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-stock">Stock</div>
+        <div class="event-info">
+          <div class="event-name">Stock Market Year-End Close</div>
+          <div class="event-detail">Final YTD % change locked in for scoring</div>
+        </div>
+        <div class="event-date">Dec 31</div>
+      </div>
+      <div class="event-card status-upcoming">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-country">Country</div>
+        <div class="event-info">
+          <div class="event-name">IMF World Economic Outlook Update</div>
+          <div class="event-detail">Final annual GDP growth figures</div>
+        </div>
+        <div class="event-date">Dec (TBD)</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
