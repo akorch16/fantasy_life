@@ -1028,7 +1028,7 @@ function updateHeader() {
     header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th></th>`;
   } else {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
-    const extraHeader = currentFilter === 'musician' ? `<th class="pts" style="font-size:0.6rem">#1 Wks</th>` : '';
+    const extraHeader = currentFilter === 'musician' ? `<th class="pts" style="font-size:0.6rem">#1 Wks</th><th class="pts" style="font-size:0.6rem">Top 10 Wks</th>` : '';
     header.innerHTML = `
       <th>#</th>
       <th>Player / Pick</th>
@@ -1077,7 +1077,7 @@ function renderTable() {
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
     if (isTodd) {
-      const extraCols = currentFilter !== 'all' ? `<td></td>${currentFilter === 'musician' ? '<td></td>' : ''}<td></td><td></td><td></td>` : '';
+      const extraCols = currentFilter !== 'all' ? `<td></td>${currentFilter === 'musician' ? '<td></td><td></td>' : ''}<td></td><td></td><td></td>` : '';
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
@@ -1107,7 +1107,7 @@ function renderTable() {
         : '–';
 
       const num1Cell = currentFilter === 'musician'
-        ? `<td class="stat-col">${catData.num1_weeks != null ? catData.num1_weeks : '–'}</td>`
+        ? `<td class="stat-col">${catData.num1_weeks != null ? catData.num1_weeks : '–'}</td><td class="stat-col">${catData.hot100_weeks != null ? catData.hot100_weeks : '–'}</td>`
         : '';
 
       tr.innerHTML = `
@@ -1135,7 +1135,7 @@ function renderTable() {
 
       const td = document.createElement('td');
       td.className = 'breakdown-cell';
-      td.colSpan = currentFilter === 'all' ? 4 : 7;
+      td.colSpan = currentFilter === 'all' ? 4 : (currentFilter === 'musician' ? 9 : 7);
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {

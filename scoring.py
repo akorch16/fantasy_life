@@ -444,7 +444,7 @@ def compute_baseline_musician():
 
     raw_values = {}
     num1_map = {}
-    for player, name in picks.items():
+    hot100_map = {}    for player, name in picks.items():
         score = None
         num1 = None
         if data:
@@ -456,6 +456,7 @@ def compute_baseline_musician():
                     break
         raw_values[player] = score if score is not None else -1
         num1_map[player] = num1
+        hot100_map[player] = hot100 if score is not None else None
 
     valid = {p: (v if v >= 0 else 0) for p, v in raw_values.items()}
     ranks = rank_avg(valid, reverse=True)
@@ -466,10 +467,12 @@ def compute_baseline_musician():
         rank = ranks.get(player)
         pts = rank_to_points(rank) if rank is not None else 0
         n1 = num1_map[player]
+        h100 = hot100_map[player]
         result[player] = {
             'pick': name, 'raw_value': raw if raw >= 0 else None,
             'raw_display': n1 if n1 is not None else None,  # #1 weeks for frontend column
             'num1_weeks': n1,
+            'hot100_weeks': h100,
             'rank': rank, 'baseline_pts': pts, 'bonus_pts': 0,
         }
     return result
@@ -631,6 +634,7 @@ def compute_all_scores():
                 'bonus_pts':    round(bonus, 2),
                 'total_pts':    round(cat_total, 2),
                 'num1_weeks':   p_data.get('num1_weeks'),
+                'hot100_weeks': p_data.get('hot100_weeks'),
             }
         player_totals[player] = {
             'name':       player,
