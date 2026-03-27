@@ -444,7 +444,8 @@ def compute_baseline_musician():
 
     raw_values = {}
     num1_map = {}
-    hot100_map = {}    for player, name in picks.items():
+    hot100_map = {}
+    for player, name in picks.items():
         score = None
         num1 = None
         if data:
