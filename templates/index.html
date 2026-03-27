@@ -1146,7 +1146,8 @@ function renderTable() {
       const items = sortedCats.map(cat => {
         const c = cats[cat] || {};
         const pts = c.baseline_pts !== undefined ? c.baseline_pts : null;
-        const ptsDisplay = pts !== null ? pts.toFixed(1) : '–';
+        const total = pts !== null ? pts + (c.bonus_pts || 0) : null;
+        const totalDisplay = total !== null ? total.toFixed(1) : '–';
         const pick = c.pick || '–';
         const bonus = c.bonus_pts ? `<span class="bonus-pts"> +${c.bonus_pts}✦</span>` : '';
         let tierClass = '';
@@ -1156,6 +1157,15 @@ function renderTable() {
           else if (pts >= 6) { tierClass = 'tier-mid'; ptsColorClass = 'pts-mid'; }
           else { tierClass = 'tier-low'; ptsColorClass = 'pts-low'; }
         }
+        if (currentFilter === 'all') {
+          return `
+            <div class="cat-item ${tierClass}">
+              <span class="cat-name">${CAT_LABELS[cat]}</span>
+              <span class="cat-pts ${ptsColorClass}">${totalDisplay}${bonus}</span>
+            </div>
+          `;
+        }
+        const ptsDisplay = pts !== null ? pts.toFixed(1) : '–';
         return `
           <div class="cat-item ${tierClass}">
             <span class="cat-name">${CAT_LABELS[cat]}</span>
