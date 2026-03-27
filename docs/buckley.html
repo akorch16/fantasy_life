@@ -115,7 +115,7 @@ body {
 .gallery-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:8px; }
 .gallery-item { position:relative; border:3px solid #ff69b4; overflow:hidden; cursor:pointer; transition:all 0.2s; }
 .gallery-item:hover { border-color:#ffff00; transform:scale(1.05); z-index:10; }
-.gallery-item img { width:100%; height:120px; object-fit:cover; display:block; }
+.gallery-item img { width:100%; height:auto; object-fit:contain; display:block; background:#000; }
 .gal-caption { position:absolute; bottom:0;left:0;right:0; background:rgba(0,0,0,.75); color:#ffff00; font-size:9px; padding:2px 4px; text-align:center; }
 
 .stats-table { width:100%; border-collapse:collapse; font-size:11px; }
@@ -203,7 +203,7 @@ a:hover { color:#ffff00; }
 
 <div class="ticker-wrap">
   <span class="ticker-text">
-    WELCOME 2 THE OFFICIAL SCOTT BUCKLEY FAN SITE &nbsp;&nbsp;&nbsp; HE WENT 2 HARVARD (HE WILL TELL U) &nbsp;&nbsp;&nbsp; NEVER WON FANTASY LIFE NOT EVEN ONCE &nbsp;&nbsp;&nbsp; GO BRUINS (but also played football... poorly) &nbsp;&nbsp;&nbsp; SECTION H REPRESENT &nbsp;&nbsp;&nbsp; THE MOST INTERESTING MAN IN SAN RAMON &nbsp;&nbsp;&nbsp; VISITOR COUNT: 69,420 &nbsp;&nbsp;&nbsp; BEST VIEWED IN INTERNET EXPLORER 6.0 &nbsp;&nbsp;&nbsp;
+    WELCOME 2 THE OFFICIAL SCOTT BUCKLEY FAN SITE &nbsp;&nbsp;&nbsp; HE WENT 2 HARVARD (HE WILL TELL U) &nbsp;&nbsp;&nbsp; 0.38 ON A BREATHALYZER AND STILL TALKING &nbsp;&nbsp;&nbsp; GO BRUINS &nbsp;&nbsp;&nbsp; STUDIED BIOENGINEERING, BITCH &nbsp;&nbsp;&nbsp; SOLVANG ENTHUSIAST &nbsp;&nbsp;&nbsp; FORMER NORM'S EMPLOYEE &nbsp;&nbsp;&nbsp; THE MOST INTERESTING MAN IN SAN RAMON &nbsp;&nbsp;&nbsp; VISITOR COUNT: 69,420 &nbsp;&nbsp;&nbsp; BEST VIEWED IN INTERNET EXPLORER 6.0 &nbsp;&nbsp;&nbsp;
   </span>
 </div>
 
@@ -235,11 +235,12 @@ a:hover { color:#ffff00; }
           <tr><td>School:</td><td>UCLA (fine)<br>HBS Section H (omg)</td></tr>
           <tr><td>Job:</td><td>"strategy" at a startup<br><span style="font-size:9px;color:#667788;">(vibes-based biz intel)</span></td></tr>
           <tr><td>Status:</td><td>Married (she is amazing, idk how)</td></tr>
-          <tr><td>Fantasy Wins:</td><td style="color:#ff0000;font-weight:bold;">0</td></tr>
-          <tr><td>Fantasy Podiums:</td><td style="color:#ff0000;font-weight:bold;">0</td></tr>
-          <tr><td>Fantasy Hope:</td><td style="color:#ff0000;font-weight:bold;">diminishing</td></tr>
-          <tr><td>Beer:</td><td>yes. always.</td></tr>
-          <tr><td>Stubbornness:</td><td>clinically concerning</td></tr>
+          <tr><td>Fantasy Wins:</td><td style="color:#00ff00;font-weight:bold;">1 👑</td></tr>
+          <tr><td>Fantasy Hope:</td><td style="color:#ffff00;font-weight:bold;">delusional (in a good way)</td></tr>
+          <tr><td>Beer:</td><td>yes. always. BAC: unknown</td></tr>
+          <tr><td>Breathalyzer:</td><td style="color:#ff69b4;font-weight:bold;">0.38 (legend)</td></tr>
+          <tr><td>Pants:</td><td>has peed in them. multiple times.</td></tr>
+          <tr><td>Hobbies:</td><td>chopping wood, Solvang trips</td></tr>
         </table>
       </div>
     </div>
@@ -261,7 +262,7 @@ a:hover { color:#ffff00; }
       <div class="panel-body">
         <div class="mood-display">
           <div class="mood-icon">&#127866;</div>
-          <div><div class="mood-label">Current Mood:</div><div class="mood-text">Stubborn &amp; hydrated (with beer)</div></div>
+          <div><div class="mood-label">Current Mood:</div><div class="mood-text">Hydrated (with beer). Always beer.</div></div>
         </div>
         <div class="mood-display">
           <div class="mood-icon">&#128226;</div>
@@ -269,7 +270,7 @@ a:hover { color:#ffff00; }
         </div>
         <div class="mood-display">
           <div class="mood-icon">&#127944;</div>
-          <div><div class="mood-label">Fantasy Status:</div><div class="mood-text">Losing (as always)</div></div>
+          <div><div class="mood-label">Fantasy Status:</div><div class="mood-text">Defending champion. Telling everyone about it.</div></div>
         </div>
       </div>
     </div>
@@ -286,16 +287,16 @@ a:hover { color:#ffff00; }
           <div class="progress-bar"><div class="progress-fill blue" style="width:97%"></div></div>
         </div>
         <div class="progress-wrap">
-          <div class="progress-label">Being Stubborn</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+          <div class="progress-label">Chopping Wood</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:91%"></div></div>
         </div>
         <div class="progress-wrap">
-          <div class="progress-label">Work Strategy (reportedly)</div>
-          <div class="progress-bar"><div class="progress-fill yellow" style="width:80%"></div></div>
+          <div class="progress-label">Peeing in Correct Location</div>
+          <div class="progress-bar"><div class="progress-fill yellow" style="width:18%"></div></div>
         </div>
         <div class="progress-wrap">
           <div class="progress-label">Winning Fantasy Life</div>
-          <div class="progress-bar"><div class="progress-fill green" style="width:2%"></div></div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:7%"></div></div>
         </div>
         <div class="progress-wrap">
           <div class="progress-label">HS Football (San Ramon)</div>
@@ -316,30 +317,57 @@ a:hover { color:#ffff00; }
     <div class="about-box">
       <div class="about-header">ABOUT SCOTT BUCKLEY</div>
       <div class="about-body">
-        <p>OMG hi welcome 2 my site!!!! This is the <span class="hot-pink">OFFICIAL</span> fan page of <span class="glitter">SCOTT BUCKLEY</span>, who is without question one of the most impressive guys I know... considering absolutely everything working against him.</p>
+        <p>OMG hi welcome 2 my site!!!! This is the <span class="hot-pink">OFFICIAL</span> fan page of <span class="glitter">SCOTT BUCKLEY</span>, who is without question one of the most interesting people I know. Beer in hand. Axe nearby. Possibly on his way to Solvang.</p>
         <hr class="fancy">
-        <p>Scott grew up in <span class="yellow">San Ramon, California</span> where he bravely suited up for high school football at San Ramon Valley. Like, BRAVELY. He wore #55. He showed up. The scoreboard had other opinions. To be completely fair, suiting up and playing is 100% more than most people do, which is why we must honor his journey while also absolutely clowning on it.</p>
+        <p>Scott grew up in <span class="yellow">San Ramon, California</span> where he bravely suited up for high school football at San Ramon Valley. He wore #55. He showed up. The scoreboard had other opinions. To be completely fair, suiting up and playing is 100% more than most people do, which is why we must honor his journey while also absolutely clowning on it.</p>
         <hr class="fancy">
-        <p>After surviving high school football with his pride mostly intact, Scott headed to <span class="yellow">UCLA</span> where he joined a fraternity and, by all accounts, treated the beer supply like a senior thesis. Years of dedicated field research. Peer-reviewed by his liver. Published nowhere because what happens in the frat house stays in the frat house.</p>
+        <p>After surviving high school football with his pride mostly intact, Scott headed to <span class="yellow">UCLA</span> where he studied <span class="hot-pink">bioengineering, bitch</span>. Not the easiest major. He also joined a fraternity and treated the beer supply like a senior thesis. At some point he worked at <span class="cyan">Norm's</span>, which is either deeply impressive or extremely chaotic depending on how you order your eggs.</p>
+        <div style="text-align:center;margin:10px 0;">
+          <img id="inline-img9-ref" src="" style="max-width:65%;border:3px solid #00ffff;display:block;margin:0 auto;">
+          <div style="font-size:10px;color:#ffff00;font-style:italic;margin-top:4px;">the man himself. doing bits.</div>
+        </div>
         <hr class="fancy">
-        <p>Then -- <span class="fire-text">AND THIS IS WHERE IT GETS WILD</span> -- Scott got into <span class="glitter">HARVARD BUSINESS SCHOOL</span>. Section H. Which, if you do not know what that is, Scott will explain it to you. Give him a moment. He will find a way to work it in. He always does. He is very patient about this.</p>
+        <div style="text-align:center;margin:10px 0;">
+          <img id="inline-img9-ref" src="" style="max-width:60%;border:3px solid #ff69b4;display:block;margin:0 auto;" onerror="this.style.display='none'">
+        </div>
+        <p>There is a documented incident involving <span class="fire-text">Napster</span>. Scott allegedly got into legal trouble for music piracy in the Napster era. In his defense: everyone was doing it. In the prosecution's defense: not everyone got caught. This is the origin story of a man who would later study strategy professionally. The pipeline makes sense in retrospect.</p>
         <hr class="fancy">
-        <p>Today Scott does <span class="cyan">"strategy"</span> at a tech startup. He is, infuriatingly, good at it. This removes a significant portion of available roast material and we are all less rich for it. The man pivoted from bench-warmer to Harvard MBA to startup strategist with the confidence of someone who has never once second-guessed themselves. Stubborn? Yes. Effective? Somehow also yes. We hate it.</p>
+        <p>Then -- <span class="fire-text">AND THIS IS WHERE IT GETS WILD</span> -- Scott got into <span class="glitter">HARVARD BUSINESS SCHOOL</span>. Section H. Which, if you do not know what that is, Scott will explain it to you. He will find a way to work it in. He always does.</p>
         <hr class="fancy">
-        <p>He is also <span class="hot-pink">married</span> which again: impressive. She is lovely. He somehow closed that deal with the same energy he applies to his Fantasy Life draft -- all confidence, great pitch -- except unlike Fantasy Life, this one actually worked out.</p>
+        <p>On the subject of beer: Scott once registered a <span class="hot-pink">0.38 on a breathalyzer</span>. For context, 0.08 is the legal limit. 0.30 is considered potentially fatal. Scott was <span class="yellow">talking</span>. He has also peed his pants on multiple documented occasions. His wife, a woman of extraordinary patience and vision, addressed his bathroom accuracy issues by training him to <span class="cyan">pee in the shower</span>. An elegant solution to an inelegant problem.</p>
+        <div style="text-align:center;margin:10px 0;">
+          <img id="inline-img4-ref" src="" style="max-width:65%;border:3px solid #ff69b4;display:block;margin:0 auto;">
+          <div style="font-size:10px;color:#ffff00;font-style:italic;margin-top:4px;">actual documentation of behavior</div>
+        </div>
+        <hr class="fancy">
+        <p>Off-season, Scott enjoys <span class="yellow">chopping wood</span> with the energy of a man proving something to the universe, and making pilgrimages to <span class="hot-pink">Solvang</span>, the Danish-American village that Scott has decided is his place. One time he fell into a <span class="cyan">rosebush</span>. This is not directly related to Solvang but it feels thematically consistent.</p>
+        <div style="text-align:center;margin:10px 0;">
+          <img id="inline-img10-ref" src="" style="max-width:65%;border:3px solid #ffff00;display:block;margin:0 auto;">
+          <div style="font-size:10px;color:#ffff00;font-style:italic;margin-top:4px;">he is proving something to the universe</div>
+        </div>
+        <hr class="fancy">
+        <p>He is also <span class="hot-pink">married</span> which again: impressive. She is lovely. She trained him to use the shower. He would be lost without her in every measurable sense.</p>
       </div>
     </div>
 
     <div class="shame-box">
-      <div class="shame-header">FANTASY LIFE HALL OF SHAME</div>
+      <div class="shame-header">FANTASY LIFE HALL OF LEGENDS</div>
       <div class="shame-body">
-        <p style="text-align:center;font-size:32px;margin-bottom:8px;letter-spacing:8px;">0</p>
-        <p style="text-align:center;font-size:11px;color:#ff6666;margin-bottom:12px;">CHAMPIONSHIPS. ZERO. NIL. NADA. NONE.</p>
-        <p>In a league where victory is available to everyone, Scott has managed to make it personally unavailable to himself. Year after year, armed with a Harvard MBA, a background in strategy, and genuine opinions about literally everything, Scott assembles his roster, talks his talk, and then watches the season unfold in the wrong direction.</p>
+        <p style="text-align:center;font-size:32px;margin-bottom:8px;letter-spacing:8px;">🏆</p>
+        <p style="text-align:center;font-size:11px;color:#ffcc00;margin-bottom:12px;">HE DID IT. ONE CHAMPIONSHIP. IT HAPPENED.</p>
+        <p>Scott Buckley, armed with opinions nobody asked for, a frat house education in fluid dynamics, and an HBS degree he will mention, won a Fantasy Life championship. It was real. It was documented. It cannot be taken away from him no matter how many beers he drinks or rosebushes he falls into.</p>
         <br>
-        <p>It is not for lack of confidence. It is not for lack of words. Scott has <span class="hot-pink">many, many words</span> about his team. He will explain at length why his picks make sense. His picks do not make sense. This is the paradox of Scott Buckley: brilliant man, tragic fantasy manager. Harvard could not teach him this. Nothing can.</p>
+        <p>Scott has <span class="hot-pink">many, many words</span> about his team. He will explain at length why his picks make sense. Sometimes, improbably, <span class="yellow">the picks do make sense</span>. This is the paradox of Scott Buckley: a man who once blew a 0.38 on a breathalyzer and still had opinions, who fell into a rosebush and got back up, who peed his pants on multiple occasions and kept going. Champion material? Apparently yes.</p>
         <br>
-        <p style="text-align:center;font-size:13px;color:#ff9999;font-style:italic;">"Any year now." -- Scott Buckley, every single year, no exceptions</p>
+        <p style="text-align:center;font-size:13px;color:#ffcc00;font-style:italic;">"Told you." -- Scott Buckley, the one year it finally worked out</p>
+        <div style="text-align:center;margin:10px 0;">
+          <img id="inline-img12-ref" src="" style="max-width:70%;border:3px solid #ffcc00;display:block;margin:0 auto;">
+          <div style="font-size:10px;color:#ffcc00;font-style:italic;margin-top:4px;">champion behavior. look at him go.</div>
+        </div>
+        <div style="text-align:center;margin:10px 0;">
+          <img id="inline-img13-ref" src="" style="max-width:90%;border:3px solid #ff69b4;display:block;margin:0 auto;">
+          <div style="font-size:10px;color:#ffff00;font-style:italic;margin-top:4px;">the whole squad. deep in Texas. legends all.</div>
+        </div>
       </div>
     </div>
 
@@ -407,7 +435,7 @@ a:hover { color:#ffff00; }
     </div>
 
     <div class="under-construction">
-      UNDER CONSTRUCTION -- This page will be complete when Scott wins Fantasy Life. So: never.
+      UNDER CONSTRUCTION -- This page will be complete when Scott wins Fantasy Life again. Soon probably. He has opinions about it.
     </div>
 
     <div class="quiz-box">
@@ -430,15 +458,15 @@ a:hover { color:#ffff00; }
     <div class="panel red-border">
       <div class="panel-header red">LATEST UPDATES</div>
       <div class="panel-body" style="font-size:11px;">
-        <p><span class="yellow">TODAY:</span> Scott formed an opinion nobody asked for. Shared it anyway. Stood by it.</p>
+        <p><span class="yellow">TODAY:</span> Drank a beer. Formed an opinion. Chopped some wood. In that order.</p>
         <hr class="fancy">
-        <p><span class="yellow">YESTERDAY:</span> Mentioned Harvard Business School while discussing what to have for lunch.</p>
+        <p><span class="yellow">YESTERDAY:</span> Brought up Solvang unprompted. Nobody was surprised.</p>
         <hr class="fancy">
-        <p><span class="yellow">THIS WEEK:</span> Lost in Fantasy Life. "Next year is MY year."</p>
+        <p><span class="yellow">THIS WEEK:</span> Peed in the shower (wife's orders). No further questions.</p>
         <hr class="fancy">
-        <p><span class="yellow">THIS MONTH:</span> Drank beer. Was stubborn about something specific. Killed it at work (ugh).</p>
+        <p><span class="yellow">THIS MONTH:</span> Drank beer. Lots of it. The breathalyzer shuddered in anticipation.</p>
         <hr class="fancy">
-        <p><span class="yellow">THIS YEAR:</span> No Fantasy Life trophy. As is tradition. As is destiny.</p>
+        <p><span class="yellow">THIS YEAR:</span> Defending Fantasy Life champion. Yes really. It happened.</p>
       </div>
     </div>
 
@@ -447,23 +475,23 @@ a:hover { color:#ffff00; }
       <div class="panel-body">
         <div class="guestbook-entry">
           <div class="gb-name">xXFantasyQueenXx</div>
-          <div class="gb-text">omg scott ur so brave for entering the league every year knowing whats gonna happen. icon.</div>
+          <div class="gb-text">omg scott won?? SCOTT WON?? we are all living in his world now.</div>
         </div>
         <div class="guestbook-entry">
           <div class="gb-name">HBSsection_H_fan</div>
           <div class="gb-text">great site!! did u know scott went to harvard? he told me. twice. in one breath.</div>
         </div>
         <div class="guestbook-entry">
-          <div class="gb-name">SanRamonSports</div>
-          <div class="gb-text">#55 was... present. on the field. we remember him being there. the stats are blurry but the memory is vivid.</div>
+          <div class="gb-name">SolvangVisitorCenter</div>
+          <div class="gb-text">scott has been here more times than we can count. we have reserved a danish for him.</div>
         </div>
         <div class="guestbook-entry">
           <div class="gb-name">ScottsBeer</div>
-          <div class="gb-text">he treats me well. no complaints from my end. 10/10 customer.</div>
+          <div class="gb-text">0.38. still standing. still talking. i am in awe of this man.</div>
         </div>
         <div class="guestbook-entry">
-          <div class="gb-name">StrategyConsultant99</div>
-          <div class="gb-text">his actual work strategy is annoyingly good though so IDK what to do with this information.</div>
+          <div class="gb-name">NapsterLegalDept</div>
+          <div class="gb-text">we remember him. unfortunately.</div>
         </div>
         <div style="margin-top:6px;font-size:10px;text-align:center;color:#556677;"><a href="#">sign the guestbook!!</a></div>
       </div>
@@ -476,30 +504,36 @@ a:hover { color:#ffff00; }
         <br>
         <p><span class="hot-pink">HS:</span> San Ramon football. Wore #55. Showed up. Honorable.</p>
         <br>
-        <p><span class="hot-pink">UCLA:</span> Studied. Pledged. Drank beer as a lifestyle choice.</p>
+        <p><span class="hot-pink">UCLA:</span> Bioengineering, bitch. Also beer. Also Norm's.</p>
+        <br>
+        <p><span class="hot-pink">Napster:</span> Got in legal trouble. Learned nothing. No regrets.</p>
         <br>
         <p><span class="hot-pink">HBS:</span> Section H. He earned it. He will tell you.</p>
         <br>
-        <p><span class="hot-pink">Startup:</span> "Strategy." Irritatingly effective.</p>
+        <p><span class="hot-pink">Rosebush:</span> Fell into one. Got up. Kept going.</p>
         <br>
-        <p><span class="hot-pink">Marriage:</span> Somehow. Congratulations to him.</p>
+        <p><span class="hot-pink">Marriage:</span> She trained him to use the shower. A love story.</p>
         <br>
-        <p><span class="hot-pink">Fantasy Life:</span> Entered. Lost. Entered again. Lost again. Ongoing.</p>
+        <p><span class="hot-pink">Fantasy Life:</span> Entered. Lost many times. Then WON. 🏆</p>
       </div>
     </div>
 
     <div class="panel yellow-border">
       <div class="panel-header yellow">FUN FACTS!!</div>
       <div class="panel-body" style="font-size:11px;line-height:1.9;">
-        <p>Wore a football uniform in high school (participation trophy in the mail)</p>
-        <p>Harvard MBA -- the conversation piece that keeps giving</p>
-        <p>Beer is a food group AND a personality trait for Scott</p>
-        <p>Has never in recorded history not had an opinion ready</p>
-        <p>Rode a mechanical bull, survived, will mention it</p>
-        <p>0 Fantasy Life championships but 10/10 pre-draft confidence</p>
+        <p>Wore a football uniform in high school (showed up, that counts)</p>
+        <p>Beer is a food group AND a personality trait</p>
+        <p>Blew a 0.38 on a breathalyzer. Was still talking.</p>
+        <p>Has peed his pants. Multiple times. Documented.</p>
+        <p>Studied "bioengineering, bitch" at UCLA</p>
+        <p>Worked at Norm's. The diner. Yes really.</p>
+        <p>Fell into a rosebush. Got back up.</p>
+        <p>Big fan of Solvang. This is non-negotiable.</p>
+        <p>Loves chopping wood. Deeply.</p>
+        <p>Got in legal trouble for Napster piracy</p>
         <p>Can actually wakeboard (irritating)</p>
-        <p>Married up, per all available evidence</p>
-        <p>A wildcard in the truest sense: nobody knows what he does next</p>
+        <p>Wife trained him to pee in the shower (long story)</p>
+        <p>Fantasy Life champion 🏆 (it happened)</p>
       </div>
     </div>
 
@@ -508,9 +542,9 @@ a:hover { color:#ffff00; }
       <div class="panel-body" style="font-size:11px;">
         <p><a href="#">Harvard Business School</a><br><span style="color:#556677;font-size:9px;">(as if u needed another reminder)</span></p>
         <br>
-        <p><a href="#">UCLA Bruins</a><br><span style="color:#556677;font-size:9px;">(the undergrad. also impressive. less mentioned.)</span></p>
+        <p><a href="#">Visit Solvang</a><br><span style="color:#556677;font-size:9px;">(scott's spiritual home. danes welcome.)</span></p>
         <br>
-        <p><a href="#">Fantasy Life</a><br><span style="color:#556677;font-size:9px;">(where Scott consistently does not win)</span></p>
+        <p><a href="#">Fantasy Life</a><br><span style="color:#556677;font-size:9px;">(where Scott is the reigning champion)</span></p>
         <br>
         <p><a href="#">San Ramon Valley Football</a><br><span style="color:#556677;font-size:9px;">(RIP #55's highlight reel)</span></p>
       </div>
@@ -526,11 +560,11 @@ a:hover { color:#ffff00; }
     <div class="badge" style="background:#000080;border-color:#ffff00;color:#ffff00;">BEST ON IE 6.0</div>
     <div class="badge" style="background:#000;border-color:#00ff00;color:#00ff00;">800x600</div>
     <div class="badge" style="background:#ff0000;border-color:#ffff00;color:#ffff00;">UNDER CONSTRUCTION</div>
-    <div class="badge" style="background:#003300;border-color:#00ff00;color:#00ff00;">NO FANTASY WINS</div>
+    <div class="badge" style="background:#003300;border-color:#ffff00;color:#ffff00;">FANTASY CHAMPION</div>
   </div>
   <p style="margin-top:8px;">Best viewed in Internet Explorer 6.0 at 800x600 resolution</p>
-  <p style="margin-top:5px;color:#667788;">copyright 2002-2025 ScottBuckley4Ever.net | Est. before he went to Harvard (he will bring it up now) | Fantasy Wins: 0 | Beer Consumed: incalculable</p>
-  <p style="margin-top:5px;font-size:10px;color:#445566;">made with love and beer | not affiliated with Harvard Business School | Scott has read none of this and we prefer it that way</p>
+  <p style="margin-top:5px;color:#667788;">copyright 2002-2025 ScottBuckley4Ever.net | Est. before he went to Harvard (he will bring it up now) | Fantasy Wins: 1 | Beer Consumed: incalculable | Pants Peed: several</p>
+  <p style="margin-top:5px;font-size:10px;color:#445566;">made with love and beer | powered by Solvang energy | Scott has read none of this and we prefer it that way</p>
 </div>
 
 <script>
@@ -561,14 +595,30 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLight
 
 // Quiz
 const quizAnswers={
-  'A':'You are the BEER ERA. Classic Buckley foundation. The UCLA years never really ended and honestly we respect the commitment.',
-  'B':'You are the OPINION ERA. He has entered the room and he has THOUGHTS. Pull up a chair. This will take a while. He went to Harvard, you know.',
-  'C':'You are the HBS ERA. Section H. The most efficient conversational pivot in recorded history. Bravo.',
-  'D':'You are ALL ERAS SIMULTANEOUSLY. This is the true Scott Buckley Experience. Beer in hand, opinion forming, Harvard looming, Fantasy team losing in the background. Perfect.'
+  'A':'You are the BEER ERA. Classic Buckley foundation. The bioengineering degree (bitch) led directly to this can of Coors. The pipeline was always clear.',
+  'B':'You are the SOLVANG ERA. You have discovered the Danish windmills. You are at peace. You are telling everyone about Solvang. No one asked. You do not care.',
+  'C':'You are the BREATHALYZER ERA. 0.38. There is nothing more to say. The number speaks. The pants do not.',
+  'D':'You are ALL ERAS SIMULTANEOUSLY. This is the true Scott Buckley Experience. Beer in hand, opinion forming, 0.38 on the breathalyzer, chopping wood in the backyard, Fantasy championship banner in the background. Perfect.'
 };
 function quizAnswer(ans){
   document.getElementById('quiz-result').textContent='Result: '+quizAnswers[ans];
 }
+
+// Copy base64 srcs to inline image placeholders
+(function(){
+  var map = {
+    'inline-img9-ref':'img9',
+    'inline-img4-ref':'img4',
+    'inline-img10-ref':'img10',
+    'inline-img12-ref':'img12',
+    'inline-img13-ref':'img13'
+  };
+  for(var id in map){
+    var src = document.getElementById(map[id]);
+    var dest = document.getElementById(id);
+    if(src && dest) dest.src = src.src;
+  }
+})();
 
 // Visitor counter easter egg
 let clicks=0;
