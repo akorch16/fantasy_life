@@ -1041,7 +1041,7 @@ const CAT_STAT = {
   ncaab:   { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
   tennis:  { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
   golf:    { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
-  nascar:  { label: 'Points',    fmt: c => c.raw_value != null ? c.raw_value : '–' },
+  nascar:  { label: 'Sprint Cup', fmt: c => c.raw_value != null ? c.raw_value : '–' },
   mls:     { label: 'Points',    fmt: c => c.raw_value != null ? c.raw_value : '–' },
   actor:   { label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
   actress: { label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
@@ -1068,7 +1068,7 @@ function updateHeader() {
       <th>Player / Pick</th>
       ${extraCol}
       <th class="pts" style="font-size:0.6rem">${statLabel}</th>
-      <th class="pts" style="font-size:0.6rem">Regular</th>
+      <th class="pts" style="font-size:0.6rem">Points</th>
       <th class="pts" style="font-size:0.6rem">Bonus Pts</th>
       <th class="pts" style="font-size:0.6rem">Total</th>
       <th></th>
