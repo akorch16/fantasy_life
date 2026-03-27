@@ -630,6 +630,7 @@ def compute_all_scores():
                 'baseline_pts': round(base, 2),
                 'bonus_pts':    round(bonus, 2),
                 'total_pts':    round(cat_total, 2),
+                'num1_weeks':   p_data.get('num1_weeks'),
             }
         player_totals[player] = {
             'name':       player,
