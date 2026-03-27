@@ -51,19 +51,23 @@
       text-decoration: none;
     }
     .logo span { color: var(--blue); }
-
-    .header-links {
-      display: flex;
-      align-items: center;
-      gap: 20px;
+    .header-logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center top;
+      background-image: url('./todd.jpg');
     }
-
     .nav-link {
       color: var(--muted);
       text-decoration: none;
       font-size: 0.65rem;
       font-family: 'DM Mono', monospace;
       letter-spacing: 0.08em;
+      text-transform: uppercase;
       transition: color 0.15s;
     }
     .nav-link:hover { color: var(--text); }
@@ -260,10 +264,13 @@
 <body>
 
 <header>
-  <a href="./index.html" class="logo">Fantasy<span>Life</span></a>
-  <div class="header-links">
-    <a href="./rules.html" class="nav-link">RULES</a>
-    <a href="./calendar.html" class="nav-link active">CALENDAR</a>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="./index.html" class="header-logo-img"></a>
+    <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <a href="./rules.html" class="nav-link">Rules</a>
+    <a href="./calendar.html" class="nav-link active">Calendar</a>
   </div>
 </header>
 

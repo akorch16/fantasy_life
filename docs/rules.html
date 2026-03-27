@@ -54,7 +54,17 @@
       text-decoration: none;
     }
     .logo span { color: var(--blue); }
-    .back-link {
+    .header-logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center top;
+      background-image: url('./todd.jpg');
+    }
+    .nav-link {
       font-family: 'DM Mono', monospace;
       font-size: 0.65rem;
       color: var(--muted);
@@ -63,7 +73,8 @@
       text-transform: uppercase;
       transition: color 0.15s;
     }
-    .back-link:hover { color: var(--text); }
+    .nav-link:hover { color: var(--text); }
+    .nav-link.active { color: var(--blue); }
 
     /* ── PAGE ── */
     .page {
@@ -296,8 +307,14 @@
 <body>
 
 <header>
-  <a href="./index.html" class="logo">Fantasy<span>Life</span></a>
-  <a href="./index.html" class="back-link">← Standings</a>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="./index.html" class="header-logo-img"></a>
+    <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <a href="./rules.html" class="nav-link active">Rules</a>
+    <a href="./calendar.html" class="nav-link">Calendar</a>
+  </div>
 </header>
 
 <div class="page">
