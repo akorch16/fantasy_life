@@ -485,7 +485,7 @@ COUNTRY_GDP_IMF_STATIC = {"gdp": [
     {"country": "United States", "gdp_growth_pct": 2.0},
     {"country": "Germany",       "gdp_growth_pct": 0.2},
     {"country": "Guinea",        "gdp_growth_pct": 7.2},
-    {"country": "South Sudan",   "gdp_growth_pct": 24.3},
+    {"country": "South Sudan",   "gdp_growth_pct": 22.4},
     {"country": "France",        "gdp_growth_pct": 0.7},
     {"country": "Switzerland",   "gdp_growth_pct": 0.9},
     {"country": "Brazil",        "gdp_growth_pct": 2.4},
