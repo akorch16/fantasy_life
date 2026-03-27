@@ -473,7 +473,7 @@ def scrape_country_gdp():
         # IMF DataMapper API — NGDP_RPCH = Real GDP growth (annual %)
         codes_str = ';'.join(codes)
         url = (f'https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH/'
-               f'{codes_str}?periods=2025')
+               f'{codes_str}?periods=2026')
         r = requests.get(url, headers=HEADERS, timeout=15)
         r.raise_for_status()
         api_data = r.json()
@@ -484,7 +484,7 @@ def scrape_country_gdp():
         gdp = []
         reverse_iso = {v: k for k, v in ISO_MAP.items()}
         for code, years in country_data.items():
-            val = years.get('2025')
+            val = years.get('2026')
             country_name = reverse_iso.get(code)
             if country_name and val is not None:
                 gdp.append({'country': country_name, 'gdp_growth_pct': round(float(val), 2)})
@@ -707,7 +707,12 @@ def scrape_actor_actress(category='Actor'):
             omdb = _omdb_movie_data(m['title'], year='2026')
             bo   = omdb.get('box_office')
             rt   = omdb.get('rt_score')
-            comp = round((bo / 1_000_000) * (rt / 100), 2) if (bo and rt) else None
+            if bo and rt:
+                comp = round((bo / 1_000_000) * (rt / 100), 2)
+            elif rt:  # box office not yet reported — use RT score alone as proxy
+                comp = round(rt / 100, 2)
+            else:
+                comp = None
             movies.append({
                 'title':        m['title'],
                 'release_date': m['release_date'],

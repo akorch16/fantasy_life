@@ -501,17 +501,26 @@ COUNTRY_GDP_IMF_STATIC = {"gdp": [
 def compute_baseline_country():
     picks = DRAFT_PICKS_2026.get('Country', {})
     _d = load_data('country')
-    data = _d if (_d and _d.get('gdp')) else COUNTRY_GDP_IMF_STATIC
+    live_data = _d if (_d and _d.get('gdp')) else None
+
+    # Build per-country lookup from static fallback
+    static_lookup = {e['country']: e['gdp_growth_pct'] for e in COUNTRY_GDP_IMF_STATIC.get('gdp', [])}
+
+    def _find_gdp(country, data):
+        if not data:
+            return None
+        for entry in data.get('gdp', []):
+            if country.lower() in entry.get('country', '').lower() or \
+               entry.get('country', '').lower() in country.lower():
+                return entry.get('gdp_growth_pct')
+        return None
 
     raw_values = {}
     for player, country in picks.items():
-        gdp = None
-        if data:
-            for entry in data.get('gdp', []):
-                if country.lower() in entry.get('country', '').lower() or \
-                   entry.get('country', '').lower() in country.lower():
-                    gdp = entry.get('gdp_growth_pct')
-                    break
+        gdp = _find_gdp(country, live_data)
+        # Per-country fallback: if live data missing this country, use static
+        if gdp is None:
+            gdp = static_lookup.get(country)
         raw_values[player] = gdp if gdp is not None else -999
 
     valid = {p: (v if v > -999 else 0) for p, v in raw_values.items()}
