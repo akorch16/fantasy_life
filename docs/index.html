@@ -1012,7 +1012,8 @@ function initDisplay() {
   const start = new Date('2026-01-01');
   const now = new Date();
   const weeks = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
-  document.getElementById('weeks-elapsed').textContent = Math.max(0, weeks);
+  const weEl = document.getElementById('weeks-elapsed');
+  if (weEl) weEl.textContent = Math.max(0, weeks);
 
   const ptOpts = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Los_Angeles', timeZoneName: 'short' };
   let updatedStr;
