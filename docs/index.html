@@ -1187,28 +1187,27 @@ function renderTable() {
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {
-        const aP = (cats[a] || {}).baseline_pts ?? -Infinity;
-        const bP = (cats[b] || {}).baseline_pts ?? -Infinity;
+        const aP = (cats[a] || {}).baseline_pts !== undefined ? ((cats[a].baseline_pts || 0) + (cats[a].bonus_pts || 0)) : -Infinity;
+        const bP = (cats[b] || {}).baseline_pts !== undefined ? ((cats[b].baseline_pts || 0) + (cats[b].bonus_pts || 0)) : -Infinity;
         return bP - aP;
       });
       const items = sortedCats.map(cat => {
         const c = cats[cat] || {};
-        const pts = c.baseline_pts !== undefined ? c.baseline_pts : null;
-        const ptsDisplay = pts !== null ? pts.toFixed(1) : '–';
+        const total = c.baseline_pts !== undefined ? (c.baseline_pts + (c.bonus_pts || 0)) : null;
+        const ptsDisplay = total !== null ? total.toFixed(1) : '–';
         const pick = c.pick || '–';
-        const bonus = c.bonus_pts ? `<span class="bonus-pts"> +${c.bonus_pts}✦</span>` : '';
         let tierClass = '';
         let ptsColorClass = '';
-        if (pts !== null) {
-          if (pts >= 10) { tierClass = 'tier-high'; ptsColorClass = 'pts-high'; }
-          else if (pts >= 6) { tierClass = 'tier-mid'; ptsColorClass = 'pts-mid'; }
+        if (total !== null) {
+          if (total >= 10) { tierClass = 'tier-high'; ptsColorClass = 'pts-high'; }
+          else if (total >= 6) { tierClass = 'tier-mid'; ptsColorClass = 'pts-mid'; }
           else { tierClass = 'tier-low'; ptsColorClass = 'pts-low'; }
         }
         return `
           <div class="cat-item ${tierClass}">
             <span class="cat-name">${CAT_LABELS[cat]}</span>
             <span class="cat-pick">${pick}</span>
-            <span class="cat-pts ${ptsColorClass}">${ptsDisplay}${bonus}</span>
+            <span class="cat-pts ${ptsColorClass}">${ptsDisplay}</span>
           </div>
         `;
       }).join('');
