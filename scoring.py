@@ -588,15 +588,16 @@ def apply_bonuses(category_scores, bonuses, category):
 # ── Live news headline ────────────────────────────────────────────────────────
 
 def generate_news_headline(draft_picks):
-    """Call Claude with web search to generate a live <30-word FL News headline."""
+    """Call Gemini with Google Search grounding to generate a live FL News headline."""
     try:
-        import anthropic
-        api_key = os.environ.get('ANTHROPIC_API_KEY', '')
+        from google import genai
+        from google.genai import types
+        api_key = os.environ.get('GEMINI_API_KEY', '')
         if not api_key:
-            print('  ✗ ANTHROPIC_API_KEY not set — skipping headline')
+            print('  ✗ GEMINI_API_KEY not set — skipping headline')
             return None
 
-        client = anthropic.Anthropic(api_key=api_key)
+        client = genai.Client(api_key=api_key)
 
         picks_lines = []
         for cat, players in draft_picks.items():
@@ -606,7 +607,7 @@ def generate_news_headline(draft_picks):
         prompt = (
             'You write the news ticker for a fantasy sports & pop-culture league.\n\n'
             'League picks (for context):\n' + '\n'.join(picks_lines) + '\n\n'
-            'Use web search to find ONE notable real piece of news from the last 24 hours '
+            'Use Google Search to find ONE notable real piece of news from the last 24 hours '
             'from any sport, team, category, or entertainment — not limited to the picks above. '
             'Write a single headline that:\n'
             '- Is under 40 words\n'
@@ -616,17 +617,17 @@ def generate_news_headline(draft_picks):
             'Reply with ONLY the headline text — no preamble, no quotes.'
         )
 
-        response = client.messages.create(
-            model='claude-haiku-4-5-20251001',
-            max_tokens=160,
-            tools=[{'type': 'web_search_20250305', 'name': 'web_search'}],
-            messages=[{'role': 'user', 'content': prompt}],
+        response = client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                tools=[types.Tool(google_search=types.GoogleSearch())],
+                max_output_tokens=160,
+            ),
         )
 
-        for block in response.content:
-            if hasattr(block, 'text') and block.text.strip():
-                return block.text.strip()
-        return None
+        text = response.text.strip() if response.text else None
+        return text or None
     except Exception as e:
         print(f'  ✗ Headline generation failed: {e}')
         return None
