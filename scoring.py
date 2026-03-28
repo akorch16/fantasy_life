@@ -585,6 +585,52 @@ def apply_bonuses(category_scores, bonuses, category):
     return category_scores
 
 
+# ── Live news headline ────────────────────────────────────────────────────────
+
+def generate_news_headline(draft_picks):
+    """Call Claude with web search to generate a live <30-word FL News headline."""
+    try:
+        import anthropic
+        api_key = os.environ.get('ANTHROPIC_API_KEY', '')
+        if not api_key:
+            print('  ✗ ANTHROPIC_API_KEY not set — skipping headline')
+            return None
+
+        client = anthropic.Anthropic(api_key=api_key)
+
+        picks_lines = []
+        for cat, players in draft_picks.items():
+            for player, pick in players.items():
+                picks_lines.append(f'{pick} ({cat}, picked by {player})')
+
+        prompt = (
+            'You write the news ticker for a fantasy sports & pop-culture league.\n\n'
+            'League picks:\n' + '\n'.join(picks_lines) + '\n\n'
+            'Use web search to find ONE real piece of news from the last 24 hours that '
+            'directly involves at least one of the picks above. Write a single headline that:\n'
+            '- Is under 30 words\n'
+            '- Is based on a real event (verified via search)\n'
+            '- Reads like a punchy sports ticker\n'
+            '- May use <em> tags to italicize proper names\n\n'
+            'Reply with ONLY the headline text — no preamble, no quotes.'
+        )
+
+        response = client.messages.create(
+            model='claude-haiku-4-5-20251001',
+            max_tokens=120,
+            tools=[{'type': 'web_search_20250305', 'name': 'web_search'}],
+            messages=[{'role': 'user', 'content': prompt}],
+        )
+
+        for block in response.content:
+            if hasattr(block, 'text') and block.text.strip():
+                return block.text.strip()
+        return None
+    except Exception as e:
+        print(f'  ✗ Headline generation failed: {e}')
+        return None
+
+
 # ── Main scorer ───────────────────────────────────────────────────────────────
 
 def compute_all_scores():
@@ -657,10 +703,15 @@ def compute_all_scores():
     for i, p in enumerate(sorted_players):
         p['place'] = i + 1
 
+    print('Generating news headline...')
+    headline = generate_news_headline(DRAFT_PICKS_2026)
+    print(f'  Headline: {headline}')
+
     return {
         'players':      sorted_players,
         'last_updated': get_last_updated(),
         'season':       2026,
+        'headline':     headline,
     }
 
 

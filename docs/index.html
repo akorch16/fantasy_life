@@ -1005,6 +1005,7 @@
 // ============================================================
 window.SCORES_DATA = [];
 window.LAST_UPDATED = '';
+window.FL_HEADLINE = null;
 window.CATEGORIES = ["nfl","nba","mlb","nhl","ncaaf","ncaab","tennis","golf","nascar","mls","actor","actress","musician","country","stock"];
 
 // Category display names
@@ -1348,10 +1349,18 @@ function closeBuckley() {
 fetch('./scores.json')
   .then(r => r.json())
   .then(data => {
-    window.SCORES_DATA = data.players || [];
-    window.LAST_UPDATED = data.last_updated || '';
+    window.SCORES_DATA  = data.players      || [];
+    window.LAST_UPDATED = data.last_updated  || '';
+    window.FL_HEADLINE  = data.headline      || null;
     initDisplay();
     renderTable();
+    if (window.FL_HEADLINE) {
+      const headlineEl = document.getElementById('news-bar-headline');
+      const luEl       = document.getElementById('news-bar-last-updated');
+      if (headlineEl && luEl) {
+        headlineEl.innerHTML = luEl.outerHTML + window.FL_HEADLINE;
+      }
+    }
   })
   .catch(() => {
 
