@@ -1584,32 +1584,14 @@ fetch('./scores.json')
   .then(data => {
     window.SCORES_DATA  = data.players      || [];
     window.LAST_UPDATED = data.last_updated  || '';
-    window.FL_HEADLINE  = data.headline      || null;
     initDisplay();
     renderTable();
-    startNewsTicker(data.headlines || []);
+    const tickerEl = document.getElementById('news-ticker-text');
+    if (tickerEl) tickerEl.textContent = data.headline || '';
   })
   .catch(() => {
     renderTable(); // render empty state
   });
-
-// ── News Ticker ─────────────────────────────────────────────────────────────
-function startNewsTicker(headlines) {
-  const el = document.getElementById('news-ticker-text');
-  if (!el || !headlines.length) return;
-  let idx = 0;
-  function showNext() {
-    el.style.opacity = '0';
-    setTimeout(() => {
-      el.textContent = headlines[idx % headlines.length];
-      el.style.transition = 'opacity 0.6s';
-      el.style.opacity = '1';
-      idx++;
-    }, 400);
-  }
-  showNext();
-  setInterval(showNext, 7000);
-}
 </script>
 
   <div style="text-align:center; padding: 1.5rem 1rem; color: var(--muted); font-size: 0.85rem;">

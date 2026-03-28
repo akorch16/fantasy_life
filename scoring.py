@@ -637,17 +637,26 @@ def generate_news_headline(draft_picks):
             for player, pick in players.items():
                 picks_lines.append(f'{pick} ({cat}, picked by {player})')
 
+        from datetime import date, timedelta
+        today = date.today()
+        three_days_ago = today - timedelta(days=3)
+
         prompt = (
-            'You write the news ticker for a fantasy sports & pop-culture league.\n\n'
-            'League picks (for context):\n' + '\n'.join(picks_lines) + '\n\n'
-            'Use Google Search to find ONE notable real piece of news from the last 24 hours '
-            'from any sport, team, category, or entertainment — not limited to the picks above. '
-            'Write a single headline that:\n'
-            '- Is under 40 words\n'
-            '- Is based on a real event (verified via search)\n'
-            '- Reads like a punchy sports/entertainment ticker\n'
-            '- May use <em> tags to italicize proper names\n\n'
-            'Reply with ONLY the headline text — no preamble, no quotes.'
+            f'Today is {today.strftime("%B %d, %Y")}.\n\n'
+            'You write the news bar for a fantasy sports & pop-culture league called Fantasy Life.\n\n'
+            'Drafted picks:\n' + '\n'.join(picks_lines) + '\n\n'
+            f'Use Google Search to find the most notable real news from {three_days_ago.strftime("%B %d")} through today '
+            'that involves ANY of the teams or people listed above. '
+            'Examples: a team advancing in a tournament, a player winning an award, a musician releasing a song, a stock moving.\n\n'
+            'Write a SINGLE update that:\n'
+            '- Is strictly under 50 words\n'
+            '- Covers only events within the last 3 days\n'
+            '- Covers only people or teams from the list above\n'
+            '- Is factually verified via search (do not invent events)\n'
+            '- Reads as a short punchy news update, not a headline\n'
+            '- Uses plain text only — no markdown, no bullet points, no quotes\n\n'
+            'If nothing notable happened in the last 3 days for any pick, reply with exactly: NO_NEWS\n\n'
+            'Reply with ONLY the update text (or NO_NEWS) — no preamble.'
         )
 
         # Try models in order — free tier availability varies by project
@@ -768,94 +777,18 @@ def compute_all_scores():
     for i, p in enumerate(sorted_players):
         p['place'] = i + 1
 
-    headlines = generate_headlines(sorted_players)
-
     print('Generating live news headline via Gemini...')
-    live_headline = generate_news_headline(DRAFT_PICKS_2026)
-    print(f'  Headline: {live_headline}')
-    if live_headline:
-        headlines.insert(0, f'📰 {live_headline}')
+    headline = generate_news_headline(DRAFT_PICKS_2026)
+    if headline == 'NO_NEWS':
+        headline = None
+    print(f'  Headline: {headline}')
 
     return {
         'players':      sorted_players,
-        'headlines':    headlines,
+        'headline':     headline,
         'last_updated': get_last_updated(),
         'season':       2026,
     }
-
-
-def generate_headlines(sorted_players):
-    """Generate a list of news headline strings from current standings data."""
-    headlines = []
-    cat_label = {
-        'nfl': 'NFL', 'nba': 'NBA', 'mlb': 'MLB', 'nhl': 'NHL',
-        'ncaaf': 'NCAAF', 'ncaab': 'NCAAB', 'tennis': 'Tennis',
-        'golf': 'Golf', 'nascar': 'NASCAR', 'mls': 'MLS',
-        'actor': 'Actor', 'actress': 'Actress', 'musician': 'Musician',
-        'country': 'Country GDP', 'stock': 'Stock',
-    }
-
-    if not sorted_players:
-        return headlines
-
-    # Standings summary: top 3
-    top3 = sorted_players[:3]
-    standings_str = '  |  '.join(
-        f"#{p['place']} {p['name']} ({p['total']} pts)" for p in top3
-    )
-    headlines.append(f"🏆 STANDINGS — {standings_str}")
-
-    # Gap between 1st and 2nd
-    if len(sorted_players) >= 2:
-        gap = round(sorted_players[0]['total'] - sorted_players[1]['total'], 1)
-        headlines.append(
-            f"📊 {sorted_players[0]['name']} leads by {gap} pts over {sorted_players[1]['name']}"
-        )
-
-    # Category leaders (rank 1)
-    cat_leaders = {}  # cat -> list of (player, pick, pts)
-    for p in sorted_players:
-        for cat, c in p['categories'].items():
-            rank = c.get('rank')
-            if rank is not None and rank == 1.0:
-                cat_leaders.setdefault(cat, []).append((p['name'], c.get('pick', '?'), (c.get('baseline_pts') or 0) + (c.get('bonus_pts') or 0)))
-
-    for cat, leaders in cat_leaders.items():
-        for player, pick, pts in leaders:
-            label = cat_label.get(cat, cat.upper())
-            headlines.append(f"🥇 {label}: {pick} is ranked #1 — {player} earns {pts:.1f} pts")
-
-    # Musician: #1 weeks
-    for p in sorted_players:
-        c = p['categories'].get('musician', {})
-        n1 = c.get('num1_weeks')
-        if n1 and n1 > 0:
-            headlines.append(
-                f"🎵 {c.get('pick', '?')} has spent {n1} week{'s' if n1 != 1 else ''} at #1 — {p['name']}'s pick is delivering"
-            )
-
-    # Players with bonus points
-    for p in sorted_players:
-        bonus_cats = [
-            (cat_label.get(cat, cat), c['bonus_pts'])
-            for cat, c in p['categories'].items()
-            if (c.get('bonus_pts') or 0) > 0
-        ]
-        if bonus_cats:
-            bonus_str = ', '.join(f"+{pts:.1f} {cat}" for cat, pts in bonus_cats)
-            headlines.append(f"⭐ {p['name']} has bonus pts: {bonus_str}")
-
-    # Last place
-    last = sorted_players[-1]
-    headlines.append(
-        f"📉 {last['name']} sits in last place with {last['total']} pts — still mathematically alive"
-    )
-
-    # Points gap: first to last
-    spread = round(sorted_players[0]['total'] - sorted_players[-1]['total'], 1)
-    headlines.append(f"📐 {spread} pts separate 1st and last place in Fantasy Life 2026")
-
-    return headlines
 
 
 # ── Fuzzy matching ────────────────────────────────────────────────────────────
