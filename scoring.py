@@ -605,19 +605,20 @@ def generate_news_headline(draft_picks):
 
         prompt = (
             'You write the news ticker for a fantasy sports & pop-culture league.\n\n'
-            'League picks:\n' + '\n'.join(picks_lines) + '\n\n'
-            'Use web search to find ONE real piece of news from the last 24 hours that '
-            'directly involves at least one of the picks above. Write a single headline that:\n'
-            '- Is under 30 words\n'
+            'League picks (for context):\n' + '\n'.join(picks_lines) + '\n\n'
+            'Use web search to find ONE notable real piece of news from the last 24 hours '
+            'from any sport, team, category, or entertainment — not limited to the picks above. '
+            'Write a single headline that:\n'
+            '- Is under 40 words\n'
             '- Is based on a real event (verified via search)\n'
-            '- Reads like a punchy sports ticker\n'
+            '- Reads like a punchy sports/entertainment ticker\n'
             '- May use <em> tags to italicize proper names\n\n'
             'Reply with ONLY the headline text — no preamble, no quotes.'
         )
 
         response = client.messages.create(
             model='claude-haiku-4-5-20251001',
-            max_tokens=120,
+            max_tokens=160,
             tools=[{'type': 'web_search_20250305', 'name': 'web_search'}],
             messages=[{'role': 'user', 'content': prompt}],
         )
