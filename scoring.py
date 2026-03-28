@@ -597,6 +597,7 @@ def generate_news_headline(draft_picks):
             print('  ✗ GEMINI_API_KEY not set — skipping headline')
             return None
 
+        print(f'  Gemini: key present ({len(api_key)} chars), calling API...')
         client = genai.Client(api_key=api_key)
 
         picks_lines = []
@@ -626,10 +627,26 @@ def generate_news_headline(draft_picks):
             ),
         )
 
-        text = response.text.strip() if response.text else None
+        # Try response.text shortcut first
+        text = None
+        if hasattr(response, 'text') and response.text:
+            text = response.text.strip()
+        # Fall back to iterating candidates/parts
+        if not text and hasattr(response, 'candidates'):
+            for candidate in response.candidates:
+                for part in candidate.content.parts:
+                    if hasattr(part, 'text') and part.text and part.text.strip():
+                        text = part.text.strip()
+                        break
+                if text:
+                    break
+
+        print(f'  Gemini response text: {repr(text)}')
         return text or None
     except Exception as e:
+        import traceback
         print(f'  ✗ Headline generation failed: {e}')
+        print(traceback.format_exc())
         return None
 
 
