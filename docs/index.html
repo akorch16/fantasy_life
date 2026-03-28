@@ -911,7 +911,7 @@
     <div class="news-bar-label">📡 FL News</div>
   </div>
   <div class="news-bar-headline" id="news-bar-headline">
-    <span id="news-bar-last-updated" style="opacity:0.5;margin-right:10px;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.03em;">Last updated: loading…</span>🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em>.
+    <span id="news-bar-last-updated" style="opacity:0.5;margin-right:10px;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.03em;">Last updated: loading…</span><span id="news-ticker-text">Loading FL News…</span>
   </div>
 </div>
 
@@ -1587,18 +1587,29 @@ fetch('./scores.json')
     window.FL_HEADLINE  = data.headline      || null;
     initDisplay();
     renderTable();
-    if (window.FL_HEADLINE) {
-      const headlineEl = document.getElementById('news-bar-headline');
-      const luEl       = document.getElementById('news-bar-last-updated');
-      if (headlineEl && luEl) {
-        headlineEl.innerHTML = luEl.outerHTML + window.FL_HEADLINE;
-      }
-    }
+    startNewsTicker(data.headlines || []);
   })
   .catch(() => {
-
     renderTable(); // render empty state
   });
+
+// ── News Ticker ─────────────────────────────────────────────────────────────
+function startNewsTicker(headlines) {
+  const el = document.getElementById('news-ticker-text');
+  if (!el || !headlines.length) return;
+  let idx = 0;
+  function showNext() {
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.textContent = headlines[idx % headlines.length];
+      el.style.transition = 'opacity 0.6s';
+      el.style.opacity = '1';
+      idx++;
+    }, 400);
+  }
+  showNext();
+  setInterval(showNext, 7000);
+}
 </script>
 
   <div style="text-align:center; padding: 1.5rem 1rem; color: var(--muted); font-size: 0.85rem;">
