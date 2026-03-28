@@ -61,9 +61,9 @@ HARDCODED_BONUSES = {
         'Tim':     2.5,  # St. John's — eliminated Sweet 16
         'Jens':    4.0,  # Duke — Elite 8 (beat St. John's 80-75)
         'Mitchell':2.5,  # Alabama — eliminated Sweet 16
-        'Theo':    2.5,  # Houston — Sweet 16
+        'Theo':    2.5,  # Houston — eliminated Sweet 16
         'Fryar':   4.0,  # UConn — Elite 8 (beat Michigan State 67-63)
-        'Korch':   2.5,  # Purdue — Sweet 16 (plays Arizona tonight Mar 28)
+        'Korch':   4.0,  # Purdue — Elite 8 (beat Arizona Mar 28)
         'Jamzee':  4.0,  # Michigan — Elite 8 (beat Alabama 90-77)
     },
 }
