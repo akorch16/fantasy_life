@@ -331,6 +331,10 @@
       color: var(--muted);
     }
 
+    .score-cell.feder-score {
+      color: #8db600;
+    }
+
     .expand-cell {
       width: 32px;
       text-align: center;
@@ -1358,10 +1362,11 @@ function renderTable() {
         <td class="expand-cell">$</td>
       `;
     } else if (currentFilter === 'all') {
+      const isFeder = player.name === 'Feder';
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td><div class="player-name">${player.name}</div></td>
-        <td class="score-cell">${(player.total || 0).toFixed(1)}</td>
+        <td class="score-cell${isFeder ? ' feder-score' : ''}">${(player.total || 0).toFixed(1)}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
       `;
     } else {
