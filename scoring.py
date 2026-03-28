@@ -846,9 +846,24 @@ if __name__ == '__main__':
     import json, os
     out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'docs')
     os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, 'scores.json')
+
+    # Preserve existing headline if Gemini fails to produce one
+    existing_headline = None
+    if os.path.exists(out_path):
+        try:
+            with open(out_path) as f:
+                existing_headline = json.load(f).get('headline')
+        except Exception:
+            pass
+
     print('Computing scores...')
     data = compute_all_scores()
-    out_path = os.path.join(out_dir, 'scores.json')
+
+    if not data.get('headline') and existing_headline:
+        print(f'  Gemini produced no headline — preserving existing: {existing_headline[:60]}...')
+        data['headline'] = existing_headline
+
     with open(out_path, 'w') as f:
         json.dump(data, f)
     n = len(data.get('players', []))
