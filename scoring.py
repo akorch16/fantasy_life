@@ -57,6 +57,10 @@ HARDCODED_BONUSES = {
         'Shep':  2.5,   # Djokovic — 2026 Australian Open runner-up
         'Fryar': 2.5,   # Sabalenka — 2026 Australian Open women's runner-up
     },
+    'Actress': {
+        'Jamzee': 4.0,   # Emma Stone — Best Actress nomination (Bugonia, 98th Oscars)
+        'Theo':  -4.0,   # Correction: Sydney Sweeney was NOT nominated (Supabase had wrong 4.0)
+    },
     'NCAAB': {
         'Tim':     2.5,  # St. John's — eliminated Sweet 16
         'Jens':    4.0,  # Duke — Elite 8 (beat St. John's 80-75)
