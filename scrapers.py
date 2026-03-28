@@ -507,48 +507,58 @@ def scrape_billboard():
         import re
         scores_map = {}
 
+        def _ensure(artist, song=None):
+            if artist not in scores_map:
+                scores_map[artist] = {'artist': artist, 'num1_weeks': 0, 'hot100_weeks': 0, 'songs': {}}
+            if song and song not in scores_map[artist]['songs']:
+                scores_map[artist]['songs'][song] = {'num1_weeks': 0, 'hot100_weeks': 0}
+
         # ── Page 1: #1 weeks ─────────────────────────────────────────────
         # Wikipedia tables use rowspan for multi-week runs: only the first
         # week has all columns; continuation rows have just a date cell.
-        # We track current_artists so continuation rows still get counted.
+        # We track current_artists/current_song so continuation rows count.
         try:
             soup1 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number_ones_of_2026', timeout=15)
             for table in soup1.select('table.wikitable'):
                 current_artists = []
+                current_song = None
                 for row in table.select('tr'):
                     cols = row.find_all(['td', 'th'])
                     if not cols:
                         continue
 
-                    # Detect header rows
                     if all(c.name == 'th' for c in cols):
                         current_artists = []
+                        current_song = None
                         continue
 
-                    # Full row: has enough columns to read artist
-                    # Try col index 3 first (No | Date | Song | Artist), then 2 (Date | Song | Artist)
                     artist_text = None
+                    song_text = None
                     for artist_col in (3, 2):
                         if len(cols) > artist_col:
                             candidate = cols[artist_col].get_text(separator=' ', strip=True)
                             if candidate.lower() not in ('artist', 'artist(s)', 'ref.', 'notes', ''):
                                 artist_text = candidate
+                                song_col = artist_col - 1
+                                if len(cols) > song_col:
+                                    song_text = cols[song_col].get_text(separator=' ', strip=True).strip('"').strip()
                                 break
 
                     if artist_text:
                         current_artists = []
+                        current_song = song_text
                         for a in re.split(r'\s*[,&]\s*|\s+feat\.\s+|\s+and\s+', artist_text, flags=re.IGNORECASE):
                             a = a.strip().strip('"').strip()
                             if a and len(a) >= 2:
                                 current_artists.append(a)
-                                if a not in scores_map:
-                                    scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0}
-                        # Fall through to count this week below
+                                _ensure(a, current_song)
 
-                    # Count this week (new or continuation) for all current artists
                     for a in current_artists:
                         scores_map[a]['num1_weeks'] += 1
                         scores_map[a]['hot100_weeks'] += 1  # #1 also counts as top-10
+                        if current_song:
+                            scores_map[a]['songs'][current_song]['num1_weeks'] += 1
+                            scores_map[a]['songs'][current_song]['hot100_weeks'] += 1
 
             print(f'    #1 page: {len(scores_map)} artists found')
         except Exception as e:
@@ -563,6 +573,7 @@ def scrape_billboard():
                     if len(cols) < 6:
                         continue
                     # Table: Date | Single | Artist(s) | Peak | Peak date | Weeks in top ten | Ref.
+                    song_text   = cols[1].get_text(separator=' ', strip=True).strip('"').strip()
                     artist_text = cols[2].get_text(separator=' ', strip=True)
                     weeks_text  = cols[5].get_text(strip=True).replace('*', '').strip()
 
@@ -578,21 +589,27 @@ def scrape_billboard():
                         a = a.strip().strip('"').strip()
                         if not a or len(a) < 2:
                             continue
-                        if a not in scores_map:
-                            scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0}
+                        _ensure(a, song_text)
                         scores_map[a]['hot100_weeks'] += weeks
+                        scores_map[a]['songs'][song_text]['hot100_weeks'] += weeks
             print(f'    Top-10 page: {len(scores_map)} total artists found')
         except Exception as e:
             print(f'    ✗ Top-10 page: {e}')
 
         if scores_map:
-            # Log picks that matched
+            # Convert per-song dicts to sorted lists for storage
+            for entry in scores_map.values():
+                entry['songs'] = sorted(
+                    [{'title': t, 'num1_weeks': d['num1_weeks'], 'hot100_weeks': d['hot100_weeks']}
+                     for t, d in entry['songs'].items()],
+                    key=lambda x: (x['num1_weeks'], x['hot100_weeks']), reverse=True
+                )
             from draft_picks_2026 import DRAFT_PICKS_2026
             picks = list(DRAFT_PICKS_2026.get('Musician', {}).values())
             for pick in picks:
                 match = next((v for k, v in scores_map.items() if name_matches(pick, k)), None)
                 if match:
-                    print(f'    ✓ {pick}: {match["num1_weeks"]} #1 wks, {match["hot100_weeks"]} top-10 wks')
+                    print(f'    ✓ {pick}: {match["num1_weeks"]} #1 wks, {match["hot100_weeks"]} top-10 wks, {len(match["songs"])} songs')
                 else:
                     print(f'    – {pick}: no chart data')
             return save_standing('Musician', {'scores': list(scores_map.values())})
