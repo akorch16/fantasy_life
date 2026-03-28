@@ -357,6 +357,56 @@
       border: 1px solid var(--border);
     }
 
+    /* ─── FILM BREAKDOWN ─── */
+    .film-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .film-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 0 10px 8px 0;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .film-table td {
+      padding: 8px 10px 8px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .film-table tr:last-child td { border-bottom: none; }
+    .film-title-cell { font-weight: 500; }
+    .film-bo-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); }
+    .rt-score-badge { font-family: 'DM Mono', monospace; font-weight: 600; font-size: 0.82rem; }
+    .rt-fresh  { color: #4ade80; }
+    .rt-mixed  { color: #fbbf24; }
+    .rt-rotten { color: #f87171; }
+    .film-no-releases { font-size: 0.82rem; color: var(--dim); font-style: italic; padding: 4px 0 8px; }
+    .awards-section-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--blue);
+      margin: 14px 0 6px;
+    }
+    .award-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .award-item:last-child { border-bottom: none; }
+    .award-win-label  { color: var(--gold); font-weight: 600; }
+    .award-nom-label  { color: var(--muted); }
+
     .breakdown-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -1067,6 +1117,100 @@ const CAT_STAT = {
 };
 
 // ============================================================
+// ACTOR / ACTRESS FILMOGRAPHY DATA
+// ============================================================
+
+// Known 2026 theatrical releases (static fallback when scraper data unavailable)
+const FILMOGRAPHY_2026 = {
+  'Actor': {
+    'Chris Hemsworth':   [{title:'Crime 101',  release:'Feb 13, 2026', bo:'$72M',      rt:88}],
+    'Robert Pattinson':  [{title:'The Bride!', release:'Mar 6, 2026',  bo:'$23M',      rt:59}],
+    'Matt Damon':        [{title:'The Rip',    release:'Jan 16, 2026', bo:'Streaming', rt:79}],
+  },
+  'Actress': {
+    'Jessie Buckley':    [{title:'The Bride!', release:'Mar 6, 2026',  bo:'$23M',      rt:59}],
+  },
+};
+
+// 98th Academy Awards (March 2, 2026) — noms/wins for 2025 films
+const OSCAR_AWARDS = {
+  'Actor': {
+    'Sean Penn':          [{result:'Won',       category:'Best Supporting Actor', film:'One Battle After Another'}],
+    'Wagner Moura':       [{result:'Nominated', category:'Best Actor',            film:'The Secret Agent'}],
+    'Leonardo DiCaprio':  [{result:'Nominated', category:'Best Actor',            film:'One Battle After Another'}],
+    'Timothee Chalamet':  [{result:'Nominated', category:'Best Actor',            film:'Marty Supreme'}],
+  },
+  'Actress': {
+    'Jessie Buckley':     [{result:'Won',       category:'Best Actress',           film:'Hamnet'}],
+    'Cynthia Erivo':      [{result:'Nominated', category:'Best Actress',           film:'Wicked: For Good'}],
+    'Sydney Sweeney':     [{result:'Nominated', category:'Best Actress',           film:'The Housemaid'}],
+    'Ariana Grande':      [{result:'Nominated', category:'Best Supporting Actress',film:'Wicked: For Good'}],
+    'Teyana Taylor':      [{result:'Nominated', category:'Best Supporting Actress',film:'One Battle After Another'}],
+  },
+};
+
+function buildFilmographyBreakdown(pickName, scraperMovies, catType) {
+  // Prefer scraper data; fall back to static if scraper returned nothing
+  const staticFilms = (FILMOGRAPHY_2026[catType] || {})[pickName] || [];
+  const scraperFilms = (scraperMovies || []).filter(m => m.title);
+
+  // Build display rows from scraper data (has live BO/RT), else static
+  let filmRows = '';
+  const films = scraperFilms.length ? scraperFilms : staticFilms;
+
+  if (!films.length) {
+    filmRows = `<div class="film-no-releases">No 2026 theatrical releases yet.</div>`;
+  } else {
+    const rows = films.map(f => {
+      // Scraper format: {title, release_date, box_office (int), rt_score (int)}
+      // Static format:  {title, release (string), bo (string), rt (int)}
+      const title   = f.title;
+      const release = f.release || (f.release_date
+        ? new Date(f.release_date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})
+        : '–');
+      const boRaw   = f.box_office;
+      const boStr   = f.bo || (boRaw ? '$' + (boRaw / 1e6).toFixed(0) + 'M' : '–');
+      const rt      = f.rt != null ? f.rt : f.rt_score;
+      const rtClass = rt >= 60 ? 'rt-fresh' : rt >= 40 ? 'rt-mixed' : rt != null ? 'rt-rotten' : '';
+      const rtStr   = rt != null ? rt + '%' : '–';
+      return `<tr>
+        <td class="film-title-cell">${title}</td>
+        <td style="color:var(--muted);font-size:0.78rem;font-family:'DM Mono',monospace">${release}</td>
+        <td class="film-bo-cell">${boStr}</td>
+        <td><span class="rt-score-badge ${rtClass}">${rtStr}</span></td>
+      </tr>`;
+    }).join('');
+
+    filmRows = `<table class="film-table">
+      <thead><tr>
+        <th>Film</th><th>Released</th><th>Domestic BO</th><th>RT</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  // Oscar section
+  const awards = (OSCAR_AWARDS[catType] || {})[pickName] || [];
+  let awardsHtml = '';
+  if (awards.length) {
+    const items = awards.map(a => {
+      const isWin = a.result === 'Won';
+      return `<div class="award-item">
+        <span>${isWin ? '🏆' : '🎬'}</span>
+        <div>
+          <span class="${isWin ? 'award-win-label' : 'award-nom-label'}">${a.result}</span>
+          <span style="color:var(--muted)"> · ${a.category}</span>
+          <div style="font-size:0.75rem;color:var(--dim);margin-top:2px;font-style:italic">${a.film}</div>
+        </div>
+      </div>`;
+    }).join('');
+    awardsHtml = `<div class="awards-section-title">98th Academy Awards (2026)</div>${items}`;
+  }
+
+  return `<div class="breakdown-inner">${filmRows}${awardsHtml}</div>`;
+}
+
+// ============================================================
 // RENDER TABLE
 // ============================================================
 let currentFilter = 'all';
@@ -1216,7 +1360,13 @@ function renderTable() {
         `;
       }).join('');
 
-      td.innerHTML = `<div class="breakdown-inner"><div class="breakdown-grid">${items}</div></div>`;
+      if (currentFilter === 'actor' || currentFilter === 'actress') {
+        const catData = (player.categories || {})[currentFilter] || {};
+        const catType = currentFilter === 'actor' ? 'Actor' : 'Actress';
+        td.innerHTML = buildFilmographyBreakdown(catData.pick, catData.movies, catType);
+      } else {
+        td.innerHTML = `<div class="breakdown-inner"><div class="breakdown-grid">${items}</div></div>`;
+      }
       br.appendChild(td);
       tbody.appendChild(br);
     }

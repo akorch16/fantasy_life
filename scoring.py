@@ -741,6 +741,7 @@ def compute_all_scores():
                 'total_pts':    round(cat_total, 2),
                 'num1_weeks':   p_data.get('num1_weeks'),
                 'hot100_weeks': p_data.get('hot100_weeks'),
+                'movies':       p_data.get('movies') if cat in ('Actor', 'Actress') else None,
             }
         player_totals[player] = {
             'name':       player,
