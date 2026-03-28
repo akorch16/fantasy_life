@@ -618,14 +618,26 @@ def generate_news_headline(draft_picks):
             'Reply with ONLY the headline text — no preamble, no quotes.'
         )
 
-        response = client.models.generate_content(
-            model='gemini-1.5-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                tools=[types.Tool(google_search=types.GoogleSearch())],
-                max_output_tokens=160,
-            ),
-        )
+        # Try models in order — free tier availability varies by project
+        models_to_try = ['gemini-1.5-flash-latest', 'gemini-1.5-flash-8b', 'gemini-1.5-pro-latest']
+        response = None
+        for model_name in models_to_try:
+            try:
+                print(f'  Trying model: {model_name}')
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        tools=[types.Tool(google_search=types.GoogleSearch())],
+                        max_output_tokens=160,
+                    ),
+                )
+                break
+            except Exception as model_err:
+                print(f'  ✗ {model_name}: {model_err}')
+                response = None
+        if response is None:
+            return None
 
         # Try response.text shortcut first
         text = None
