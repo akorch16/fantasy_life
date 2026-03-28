@@ -1202,8 +1202,11 @@ const OSCAR_AWARDS = {
 };
 
 function buildMusicianBreakdown(pickName, songs) {
+  const artistImg = pickName === 'FKA Twigs'
+    ? `<img src="fka-twigs.png" alt="FKA Twigs" style="width:200px;height:200px;object-fit:cover;border-radius:8px;display:block;margin-bottom:12px;">`
+    : '';
   if (!songs || !songs.length) {
-    return `<div class="breakdown-inner"><div class="song-no-data">No song chart data available yet.</div></div>`;
+    return `<div class="breakdown-inner">${artistImg}<div class="song-no-data">No song chart data available yet.</div></div>`;
   }
   const rows = songs.map(s => {
     const num1 = s.num1_weeks > 0 ? `<span style="color:var(--gold);font-weight:600">${s.num1_weeks}</span>` : '—';
@@ -1215,6 +1218,7 @@ function buildMusicianBreakdown(pickName, songs) {
     </tr>`;
   }).join('');
   return `<div class="breakdown-inner">
+    ${artistImg}
     <table class="song-table">
       <thead><tr>
         <th>Song</th>
