@@ -402,9 +402,22 @@ def compute_baseline_nascar():
     return result
 
 
+# Static composite fallback for films OMDB/TMDB haven't fully indexed yet.
+# composite = rt_score / 100 when no box office data available.
+ACTOR_ACTRESS_STATIC = {
+    'Actor': {
+        'Robert Pattinson': 0.59,   # The Bride! (2026-03-06, RT 59%)
+    },
+    'Actress': {
+        'Jessie Buckley':   0.59,   # The Bride! (2026-03-06, RT 59%)
+    },
+}
+
+
 def compute_baseline_actor_actress(category):
     picks = DRAFT_PICKS_2026.get(category, {})
     data = load_data(category.lower())
+    static_lookup = ACTOR_ACTRESS_STATIC.get(category, {})
 
     raw_values = {}
     movies_map = {}
@@ -417,6 +430,12 @@ def compute_baseline_actor_actress(category):
                     composite = entry.get('composite_score')
                     movies = entry.get('movies', [])
                     break
+        # Fall back to static when scraper returned nothing or zero
+        if not composite:
+            static = static_lookup.get(name)
+            if static is not None:
+                composite = static
+                print(f'  ↩ {name}: using static composite {composite}')
         raw_values[player] = composite if composite is not None else -1
         movies_map[player] = movies
 

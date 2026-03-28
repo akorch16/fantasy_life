@@ -655,9 +655,13 @@ def _omdb_movie_data(title, year=None):
     try:
         r = fetch_json(_OMDB_BASE, params=params)
         if r.get('Response') != 'True':
-            # fallback: retry without year constraint
+            # fallback 1: retry without year constraint
             if year:
                 return _omdb_movie_data(title, year=None)
+            # fallback 2: strip trailing punctuation (e.g. "The Bride!" → "The Bride")
+            clean = title.rstrip('!?.')
+            if clean != title:
+                return _omdb_movie_data(clean, year=year)
             return {}
         bo_raw = r.get('BoxOffice', 'N/A')
         box_office = None
