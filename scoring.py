@@ -58,13 +58,13 @@ HARDCODED_BONUSES = {
         'Fryar': 2.5,   # Sabalenka — 2026 Australian Open women's runner-up
     },
     'NCAAB': {
-        'Tim':     2.5,  # St. John's — Sweet 16
-        'Jens':    2.5,  # Duke — Sweet 16
-        'Mitchell':2.5,  # Alabama — Sweet 16
+        'Tim':     2.5,  # St. John's — eliminated Sweet 16
+        'Jens':    4.0,  # Duke — Elite 8 (beat St. John's 80-75)
+        'Mitchell':2.5,  # Alabama — eliminated Sweet 16
         'Theo':    2.5,  # Houston — Sweet 16
-        'Fryar':   2.5,  # UConn — Sweet 16
-        'Korch':   2.5,  # Purdue — Sweet 16
-        'Jamzee':  2.5,  # Michigan — Sweet 16
+        'Fryar':   4.0,  # UConn — Elite 8 (beat Michigan State 67-63)
+        'Korch':   2.5,  # Purdue — Sweet 16 (plays Arizona tonight Mar 28)
+        'Jamzee':  4.0,  # Michigan — Elite 8 (beat Alabama 90-77)
     },
 }
 
