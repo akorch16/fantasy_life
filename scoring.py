@@ -485,6 +485,14 @@ def compute_baseline_musician():
     valid = {p: (v if v >= 0 else 0) for p, v in raw_values.items()}
     ranks = rank_avg(valid, reverse=True)
 
+    songs_map = {}
+    for player, name in picks.items():
+        if data:
+            for entry in data.get('scores', []):
+                if name_matches(name, entry.get('artist', '')):
+                    songs_map[player] = entry.get('songs', [])
+                    break
+
     result = {}
     for player, name in picks.items():
         raw = raw_values[player]
@@ -498,6 +506,7 @@ def compute_baseline_musician():
             'num1_weeks': n1,
             'hot100_weeks': h100,
             'rank': rank, 'baseline_pts': pts, 'bonus_pts': 0,
+            'songs': songs_map.get(player, []),
         }
     return result
 
@@ -746,6 +755,7 @@ def compute_all_scores():
                 'num1_weeks':   p_data.get('num1_weeks'),
                 'hot100_weeks': p_data.get('hot100_weeks'),
                 'movies':       p_data.get('movies') if cat in ('Actor', 'Actress') else None,
+                'songs':        p_data.get('songs')  if cat == 'Musician' else None,
             }
         player_totals[player] = {
             'name':       player,

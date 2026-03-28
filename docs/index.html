@@ -407,6 +407,33 @@
     .award-win-label  { color: var(--gold); font-weight: 600; }
     .award-nom-label  { color: var(--muted); }
 
+    /* ─── MUSICIAN SONG BREAKDOWN ─── */
+    .song-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .song-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      padding: 0 10px 6px 0;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .song-table td {
+      padding: 8px 10px 8px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .song-table tr:last-child td { border-bottom: none; }
+    .song-title-cell { font-weight: 500; }
+    .song-weeks-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); text-align: center; padding-right: 4px; }
+    .song-no-data { font-size: 0.82rem; color: var(--dim); font-style: italic; padding: 4px 0 8px; }
+
     .breakdown-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -1170,6 +1197,31 @@ const OSCAR_AWARDS = {
   },
 };
 
+function buildMusicianBreakdown(pickName, songs) {
+  if (!songs || !songs.length) {
+    return `<div class="breakdown-inner"><div class="song-no-data">No song chart data available yet.</div></div>`;
+  }
+  const rows = songs.map(s => {
+    const num1 = s.num1_weeks > 0 ? `<span style="color:var(--gold);font-weight:600">${s.num1_weeks}</span>` : '—';
+    const top10 = s.hot100_weeks > 0 ? s.hot100_weeks : '—';
+    return `<tr>
+      <td class="song-title-cell">${s.title}</td>
+      <td class="song-weeks-cell">${num1}</td>
+      <td class="song-weeks-cell">${top10}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="breakdown-inner">
+    <table class="song-table">
+      <thead><tr>
+        <th>Song</th>
+        <th style="text-align:center">#1 Wks</th>
+        <th style="text-align:center">Top 10 Wks</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
 function buildFilmographyBreakdown(pickName, scraperMovies, catType) {
   const staticFilms = (FILMOGRAPHY_2026[catType] || {})[pickName] || [];
 
@@ -1384,6 +1436,9 @@ function renderTable() {
         const catData = (player.categories || {})[currentFilter] || {};
         const catType = currentFilter === 'actor' ? 'Actor' : 'Actress';
         td.innerHTML = buildFilmographyBreakdown(catData.pick, catData.movies, catType);
+      } else if (currentFilter === 'musician') {
+        const catData = (player.categories || {})['musician'] || {};
+        td.innerHTML = buildMusicianBreakdown(catData.pick, catData.songs);
       } else {
         td.innerHTML = `<div class="breakdown-inner"><div class="breakdown-grid">${items}</div></div>`;
       }
