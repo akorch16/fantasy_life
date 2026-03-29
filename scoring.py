@@ -685,28 +685,32 @@ def generate_news_headline(draft_picks):
 
         from datetime import date, timedelta
         today = date.today()
-        three_days_ago = today - timedelta(days=3)
+        five_days_ago = today - timedelta(days=5)
 
         prompt = (
             f'Today is {today.strftime("%B %d, %Y")}.\n\n'
             'You write the news bar for a fantasy sports & pop-culture league called Fantasy Life.\n\n'
             'Drafted picks:\n' + '\n'.join(picks_lines) + '\n\n'
-            f'Use Google Search to find the most notable real news from {three_days_ago.strftime("%B %d")} through today '
+            f'Use Google Search to find the most notable real news from {five_days_ago.strftime("%B %d")} through today '
             'that involves ANY of the teams or people listed above. '
-            'Examples: a team advancing in a tournament, a player winning an award, a musician releasing a song, a stock moving.\n\n'
+            'Priority: tournament results (NCAA, tennis, golf), award wins, chart milestones, notable game outcomes.\n\n'
             'Write a SINGLE update that:\n'
-            '- Is strictly under 50 words\n'
-            '- Covers only events within the last 3 days\n'
+            '- Is strictly under 60 words\n'
+            '- Covers only events within the last 5 days\n'
             '- Covers only people or teams from the list above\n'
             '- Is factually verified via search (do not invent events)\n'
             '- Reads as a short punchy news update, not a headline\n'
             '- Uses plain text only — no markdown, no bullet points, no quotes\n\n'
-            'If nothing notable happened in the last 3 days for any pick, reply with exactly: NO_NEWS\n\n'
+            'If nothing notable happened in the last 5 days for any pick, reply with exactly: NO_NEWS\n\n'
             'Reply with ONLY the update text (or NO_NEWS) — no preamble.'
         )
 
-        # Try models in order — free tier availability varies by project
-        models_to_try = ['gemini-1.5-flash-latest', 'gemini-1.5-flash-8b', 'gemini-1.5-pro-latest']
+        # Try models in order — 2.0-flash has the best Search grounding support
+        models_to_try = [
+            'gemini-2.0-flash',
+            'gemini-2.0-flash-lite',
+            'gemini-1.5-flash-latest',
+        ]
         response = None
         for model_name in models_to_try:
             try:
@@ -716,12 +720,13 @@ def generate_news_headline(draft_picks):
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         tools=[types.Tool(google_search=types.GoogleSearch())],
-                        max_output_tokens=160,
+                        max_output_tokens=200,
                     ),
                 )
+                print(f'  ✓ {model_name}: got response')
                 break
             except Exception as model_err:
-                print(f'  ✗ {model_name}: {model_err}')
+                print(f'  ✗ {model_name} failed: {type(model_err).__name__}: {model_err}')
                 response = None
         if response is None:
             return None
