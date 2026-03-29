@@ -178,7 +178,7 @@ NFL_2025_STANDINGS = {"standings": [
 NCAAF_2025_POLL = {"poll": [
     {"rank": 1,  "team": "Indiana Hoosiers",           "short": "Indiana",      "location": "Indiana"},
     {"rank": 2,  "team": "Ohio State Buckeyes",         "short": "Ohio State",   "location": "Ohio State"},
-    {"rank": 3,  "team": "Georgia Bulldogs",            "short": "Georgia",      "location": "Georgia"},
+    {"rank": 3,  "team": "Georgia Bulldogs",            "short": "Georgia Bulldogs","location": "Georgia Bulldogs"},
     {"rank": 4,  "team": "Texas Tech Red Raiders",      "short": "Texas Tech",   "location": "Texas Tech"},
     {"rank": 5,  "team": "Oregon Ducks",                "short": "Oregon",       "location": "Oregon"},
     {"rank": 6,  "team": "Mississippi Rebels",          "short": "Ole Miss",     "location": "Mississippi"},
