@@ -1368,14 +1368,12 @@ function renderTable() {
     tr.className = 'player-row';
     tr.id = 'row-' + idx;
     const isBuckley = player.name === 'Buckley';
-    tr.onclick = isTodd ? () => openToddModal() : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
+    const toddPaywalled = isTodd && currentFilter === 'all';
+    tr.onclick = toddPaywalled ? () => openToddModal() : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
 
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
-    if (isTodd) {
-      const extraCols = currentFilter !== 'all'
-        ? (currentFilter === 'musician' ? `<td></td><td></td><td></td><td></td><td></td>` : `<td></td><td></td><td></td>`)
-        : '';
+    if (toddPaywalled) {
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
@@ -1383,7 +1381,6 @@ function renderTable() {
           <div class="todd-teaser">Score hidden — premium subscription required</div>
         </td>
         <td class="score-cell todd-score">??</td>
-        ${extraCols}
         <td class="expand-cell">$</td>
       `;
     } else if (currentFilter === 'all') {
@@ -1425,8 +1422,8 @@ function renderTable() {
 
     tbody.appendChild(tr);
 
-    // Breakdown row (non-Todd only)
-    if (!isTodd) {
+    // Breakdown row (non-Todd, or Todd on category tabs)
+    if (!toddPaywalled) {
       const br = document.createElement('tr');
       br.className = 'breakdown-row';
       br.id = 'breakdown-' + idx;
