@@ -61,6 +61,9 @@ HARDCODED_BONUSES = {
         'Jamzee': 4.0,   # Emma Stone — Best Actress nomination (Bugonia, 98th Oscars)
         'Theo':  -4.0,   # Correction: Sydney Sweeney was NOT nominated (Supabase had wrong 4.0)
     },
+    'NCAAF': {
+        'Fryar': 2.5,  # Texas A&M — made CFP playoff (Round of 16 exit)
+    },
     'NCAAB': {
         'Tim':     2.5,  # St. John's — eliminated Sweet 16
         'Jens':    4.0,  # Duke — Elite 8 (beat St. John's 80-75)
