@@ -67,6 +67,11 @@ HARDCODED_BONUSES = {
     'NCAAF': {
         'Fryar': 2.5,  # Texas A&M — made CFP playoff (Round of 16 exit)
     },
+    'Musician': {
+        'Fryar': 4.0,   # Justin Bieber
+        'Korch': 13.0,  # SZA
+        'Wu':    3.0,   # FKA Twigs
+    },
     'NCAAB': {
         'Tim':     2.5,  # St. John's — eliminated Sweet 16
         'Jens':    4.0,  # Duke — Elite 8 (beat St. John's 80-75)
