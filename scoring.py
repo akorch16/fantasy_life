@@ -68,10 +68,12 @@ HARDCODED_BONUSES = {
         'Fryar': 2.5,  # Texas A&M — made CFP playoff (Round of 16 exit)
     },
     'Musician': {
-        'Fryar': 4.0,   # Justin Bieber
-        'Korch': 13.0,  # SZA
-        'Wu':    3.0,   # FKA Twigs
-        'Jens':  6.0,   # Sabrina Carpenter
+        # Supabase already has partial bonuses; these values offset to reach the correct totals:
+        # target total = Supabase existing + hardcoded adjustment
+        'Fryar':  1.0,   # Justin Bieber:      Supabase=3  + 1  = 4 total
+        'Korch':  2.0,   # SZA:                Supabase=11 + 2  = 13 total
+        'Wu':    -1.0,   # FKA Twigs:          Supabase=4  + -1 = 3 total
+        'Jens':   3.0,   # Sabrina Carpenter:  Supabase=3  + 3  = 6 total
     },
     'NCAAB': {
         'Tim':     2.5,  # St. John's — eliminated Sweet 16
