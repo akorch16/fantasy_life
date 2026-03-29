@@ -564,7 +564,31 @@ def scrape_billboard():
         except Exception as e:
             print(f'    ✗ #1 page: {e}')
 
-        # ── Page 2: top-10 weeks ──────────────────────────────────────────
+        # ── Page 2a: 2025 top-10 weeks (for carryover subtraction) ───────────
+        # The 2026 top-10 page shows CUMULATIVE all-time weeks, not just 2026.
+        # We subtract the 2025 page count for each song to isolate 2026 weeks.
+        weeks_2025_map = {}
+        try:
+            soup25 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2025', timeout=15)
+            for table in soup25.select('table.wikitable'):
+                for row in table.select('tr'):
+                    cols = row.find_all(['td', 'th'])
+                    if len(cols) < 6:
+                        continue
+                    song_text  = cols[1].get_text(separator=' ', strip=True).strip('"').strip()
+                    artist_text = cols[2].get_text(separator=' ', strip=True)
+                    weeks_text  = cols[5].get_text(strip=True).replace('*', '').strip()
+                    if not weeks_text or artist_text.lower() in ('artist', 'artist(s)'):
+                        continue
+                    try:
+                        weeks_2025_map[song_text] = int(weeks_text.split()[0])
+                    except ValueError:
+                        continue
+            print(f'    2025 top-10 page: {len(weeks_2025_map)} songs for carryover subtraction')
+        except Exception as e:
+            print(f'    ✗ 2025 top-10 page: {e}')
+
+        # ── Page 2b: top-10 weeks ─────────────────────────────────────────────
         try:
             soup2 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2026', timeout=15)
             for table in soup2.select('table.wikitable'):
@@ -580,8 +604,15 @@ def scrape_billboard():
                     if not weeks_text or artist_text.lower() in ('artist', 'artist(s)'):
                         continue
                     try:
-                        weeks = int(weeks_text.split()[0])
+                        total_weeks = int(weeks_text.split()[0])
                     except ValueError:
+                        continue
+
+                    # Subtract carryover weeks from 2025 to get 2026-only weeks
+                    weeks_2025 = weeks_2025_map.get(song_text, 0)
+                    weeks = max(0, total_weeks - weeks_2025)
+
+                    if weeks == 0:
                         continue
 
                     artists = re.split(r'\s*[,&]\s*|\s+feat\.\s+|\s+and\s+', artist_text, flags=re.IGNORECASE)
