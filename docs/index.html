@@ -929,6 +929,7 @@
 <div class="news-bar" id="news-bar">
   <div class="news-bar-left">
     <div class="news-bar-label">📡 FL News</div>
+    <div class="news-bar-updated" id="news-bar-updated"></div>
   </div>
   <div class="news-bar-headline" id="news-bar-headline">
     <span id="news-bar-last-updated" style="opacity:0.5;margin-right:10px;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.03em;">Last updated: loading…</span><span id="news-ticker-text">Loading FL News…</span>
@@ -1131,21 +1132,21 @@ function initDisplay() {
   const weEl = document.getElementById('weeks-elapsed');
   if (weEl) weEl.textContent = Math.max(0, weeks);
 
-  const ptOpts = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Los_Angeles', timeZoneName: 'short' };
-  let updatedStr;
+  const dateOpts = { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Los_Angeles' };
+  let dateStr;
   try {
     const raw = window.LAST_UPDATED || '';
     const d = raw
       ? new Date(raw.replace(' UTC', 'Z').replace(' ', 'T'))
       : new Date();
-    updatedStr = d.toLocaleString('en-US', ptOpts);
+    dateStr = d.toLocaleDateString('en-US', dateOpts);
   } catch(e) {
-    updatedStr = window.LAST_UPDATED || new Date().toLocaleString('en-US', ptOpts);
+    dateStr = '';
   }
   const nbEl = document.getElementById('news-bar-updated');
-  if (nbEl) nbEl.textContent = updatedStr;
+  if (nbEl) nbEl.textContent = dateStr;
   const luEl = document.getElementById('news-bar-last-updated');
-  if (luEl) luEl.textContent = 'Last updated: ' + updatedStr;
+  if (luEl) luEl.textContent = dateStr ? 'Updated: ' + dateStr : '';
 }
 
 // Per-category stat label and value formatter
