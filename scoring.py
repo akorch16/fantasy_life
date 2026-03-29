@@ -52,6 +52,9 @@ def load_data(category_key):
 
 # Bonuses that can't yet be entered via admin panel — merged on top of Supabase
 HARDCODED_BONUSES = {
+    'NCAAF': {
+        'Fryar': 4.0,   # Texas A&M — won first round (Kyle Field), lost in QF (Cotton Bowl vs Miami 31-3)
+    },
     'Tennis': {
         'Todd':  4.0,   # Alcaraz — 2026 Australian Open champion
         'Shep':  2.5,   # Djokovic — 2026 Australian Open runner-up
