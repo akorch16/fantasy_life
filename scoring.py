@@ -71,6 +71,7 @@ HARDCODED_BONUSES = {
         'Fryar': 4.0,   # Justin Bieber
         'Korch': 13.0,  # SZA
         'Wu':    3.0,   # FKA Twigs
+        'Jens':  6.0,   # Sabrina Carpenter
     },
     'NCAAB': {
         'Tim':     2.5,  # St. John's — eliminated Sweet 16
