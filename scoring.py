@@ -42,12 +42,28 @@ _KEY_MAP = {
 _bulk_standings: dict = {}
 
 def load_data(category_key):
-    """Load category data from Supabase. Returns the data dict or None."""
+    """Load category data from Supabase, falling back to local data/ JSON files."""
+    import json as _json
     key = _KEY_MAP.get(category_key.lower(), category_key)
+    supabase_data = None
     if _bulk_standings:
-        return _bulk_standings.get(key) or None
-    data = get_standing(key)
-    return data if data else None
+        supabase_data = _bulk_standings.get(key) or None
+    else:
+        supabase_data = get_standing(key) or None
+
+    # If Supabase returned nothing, use local file entirely
+    if not supabase_data:
+        local_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', f'{category_key.lower()}.json')
+        if os.path.exists(local_path):
+            try:
+                with open(local_path) as f:
+                    supabase_data = _json.load(f)
+                print(f'  ⚠ {key}: using local fallback file (Supabase empty)')
+            except Exception:
+                pass
+        return supabase_data
+
+    return supabase_data
 
 
 # Bonuses that can't yet be entered via admin panel — merged on top of Supabase
@@ -907,6 +923,10 @@ def team_matches(pick_name, data_name):
         'bucks': 'milwaukee bucks', 'magic': 'orlando magic',
         'knicks': 'new york knicks', 'lafc': 'los angeles fc',
         'la galaxy': 'los angeles galaxy',
+        'la clippers': 'los angeles clippers',
+        'la lakers': 'los angeles lakers',
+        'la rams': 'los angeles rams',
+        'la chargers': 'los angeles chargers',
     }
     pick_norm = NICKNAMES.get(pick, pick)
     data_norm = NICKNAMES.get(data, data)
