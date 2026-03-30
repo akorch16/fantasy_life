@@ -1369,7 +1369,7 @@ function renderTable() {
     tr.className = 'player-row';
     tr.id = 'row-' + idx;
     const isBuckley = player.name === 'Buckley';
-    const toddPaywalled = isTodd && currentFilter === 'all';
+    const toddPaywalled = isTodd;
     tr.onclick = toddPaywalled ? () => openToddModal() : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
 
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
