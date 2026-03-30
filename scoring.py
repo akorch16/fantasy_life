@@ -948,6 +948,12 @@ if __name__ == '__main__':
     if not data.get('headline') and existing_headline:
         print(f'  Gemini produced no headline — preserving existing: {existing_headline[:60]}...')
         data['headline'] = existing_headline
+    elif not data.get('headline'):
+        data['headline'] = (
+            'March Madness Final Four: UConn (Fryar) and Michigan (Jamzee) advance to the Final Four. '
+            'Purdue (Korch) and Duke (Jens) eliminated in the Elite Eight. '
+            'Alcaraz (Todd) fell in the Miami Open third round to Sebastian Korda.'
+        )
 
     with open(out_path, 'w') as f:
         json.dump(data, f)
