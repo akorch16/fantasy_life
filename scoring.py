@@ -52,9 +52,6 @@ def load_data(category_key):
 
 # Bonuses that can't yet be entered via admin panel — merged on top of Supabase
 HARDCODED_BONUSES = {
-    'NCAAF': {
-        'Fryar': 4.0,   # Texas A&M — won first round (Kyle Field), lost in QF (Cotton Bowl vs Miami 31-3)
-    },
     'Tennis': {
         'Todd':  4.0,   # Alcaraz — 2026 Australian Open champion
         'Shep':  2.5,   # Djokovic — 2026 Australian Open runner-up
@@ -80,9 +77,9 @@ HARDCODED_BONUSES = {
         'Jens':    4.0,  # Duke — Elite 8 (beat St. John's 80-75)
         'Mitchell':2.5,  # Alabama — eliminated Sweet 16
         'Theo':    2.5,  # Houston — eliminated Sweet 16
-        'Fryar':   4.0,  # UConn — Elite 8 (beat Michigan State 67-63)
+        'Fryar':   6.5,  # UConn — Final Four
         'Korch':   4.0,  # Purdue — Elite 8 (beat Arizona Mar 28)
-        'Jamzee':  4.0,  # Michigan — Elite 8 (beat Alabama 90-77)
+        'Jamzee':  6.5,  # Michigan — Final Four
     },
 }
 
@@ -731,19 +728,57 @@ def generate_news_headline(draft_picks):
         if response is None:
             return None
 
-        # Try response.text shortcut first
+        # Extract text — response.text can raise ValueError with grounding responses
         text = None
-        if hasattr(response, 'text') and response.text:
-            text = response.text.strip()
+        try:
+            if hasattr(response, 'text') and response.text:
+                text = response.text.strip()
+        except Exception as text_err:
+            print(f'  response.text raised {type(text_err).__name__}: {text_err}')
+
         # Fall back to iterating candidates/parts
         if not text and hasattr(response, 'candidates'):
             for candidate in response.candidates:
-                for part in candidate.content.parts:
-                    if hasattr(part, 'text') and part.text and part.text.strip():
-                        text = part.text.strip()
+                finish = getattr(candidate, 'finish_reason', None)
+                parts = getattr(getattr(candidate, 'content', None), 'parts', None) or []
+                print(f'  candidate finish_reason={finish}, parts={len(parts)}')
+                for part in parts:
+                    part_text = getattr(part, 'text', None)
+                    print(f'    part type={type(part).__name__} text={repr(part_text[:80]) if part_text else None}')
+                    if part_text and part_text.strip():
+                        text = part_text.strip()
                         break
                 if text:
                     break
+
+        # If grounded response still yields no text, retry without grounding tool
+        if not text:
+            print('  Grounded response had no text — retrying without grounding tool')
+            for model_name in models_to_try:
+                try:
+                    resp2 = client.models.generate_content(
+                        model=model_name,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(max_output_tokens=200),
+                    )
+                    try:
+                        text = resp2.text.strip() if resp2.text else None
+                    except Exception:
+                        pass
+                    if not text and hasattr(resp2, 'candidates'):
+                        for candidate in resp2.candidates:
+                            for part in (getattr(getattr(candidate, 'content', None), 'parts', None) or []):
+                                pt = getattr(part, 'text', None)
+                                if pt and pt.strip():
+                                    text = pt.strip()
+                                    break
+                            if text:
+                                break
+                    if text:
+                        print(f'  ✓ No-grounding retry succeeded with {model_name}')
+                        break
+                except Exception as retry_err:
+                    print(f'  ✗ No-grounding retry {model_name} failed: {retry_err}')
 
         print(f'  Gemini response text: {repr(text)}')
         return text or None
