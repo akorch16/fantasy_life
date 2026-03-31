@@ -679,17 +679,16 @@ def apply_bonuses(category_scores, bonuses, category):
 # ── Live news headline ────────────────────────────────────────────────────────
 
 def generate_news_headline(draft_picks):
-    """Call Gemini with Google Search grounding to generate a live FL News headline."""
+    """Call Claude (Anthropic) with web search to generate a live FL News headline."""
     try:
-        from google import genai
-        from google.genai import types
-        api_key = os.environ.get('GEMINI_API_KEY', '')
+        import anthropic
+        api_key = os.environ.get('ANTHROPIC_API_KEY', '')
         if not api_key:
-            print('  ✗ GEMINI_API_KEY not set — skipping headline')
+            print('  ✗ ANTHROPIC_API_KEY not set — skipping headline')
             return None
 
-        print(f'  Gemini: key present ({len(api_key)} chars), calling API...')
-        client = genai.Client(api_key=api_key)
+        print(f'  Anthropic: key present ({len(api_key)} chars), calling API...')
+        client = anthropic.Anthropic(api_key=api_key)
 
         picks_lines = []
         for cat, players in draft_picks.items():
@@ -704,7 +703,7 @@ def generate_news_headline(draft_picks):
             f'Today is {today.strftime("%B %d, %Y")}.\n\n'
             'You write the news bar for a fantasy sports & pop-culture league called Fantasy Life.\n\n'
             'Drafted picks:\n' + '\n'.join(picks_lines) + '\n\n'
-            f'Use Google Search to find the most notable real news from {five_days_ago.strftime("%B %d")} through today '
+            f'Use web search to find the most notable real news from {five_days_ago.strftime("%B %d")} through today '
             'that involves ANY of the teams or people listed above. '
             'Priority: tournament results (NCAA, tennis, golf), award wins, chart milestones, notable game outcomes.\n\n'
             'Write a SINGLE update that:\n'
@@ -718,86 +717,20 @@ def generate_news_headline(draft_picks):
             'Reply with ONLY the update text (or NO_NEWS) — no preamble.'
         )
 
-        # Try models in order — 2.0-flash has the best Search grounding support
-        models_to_try = [
-            'gemini-2.0-flash',
-            'gemini-2.0-flash-lite',
-            'gemini-1.5-flash',
-            'gemini-1.5-pro',
-        ]
-        response = None
-        for model_name in models_to_try:
-            try:
-                print(f'  Trying model: {model_name}')
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        tools=[types.Tool(google_search=types.GoogleSearch())],
-                        max_output_tokens=200,
-                    ),
-                )
-                print(f'  ✓ {model_name}: got response')
-                break
-            except Exception as model_err:
-                print(f'  ✗ {model_name} failed: {type(model_err).__name__}: {model_err}')
-                response = None
-        if response is None:
-            return None
+        response = client.messages.create(
+            model='claude-haiku-4-5-20251001',
+            max_tokens=200,
+            tools=[{'type': 'web_search_20250305', 'name': 'web_search'}],
+            messages=[{'role': 'user', 'content': prompt}],
+        )
 
-        # Extract text — response.text can raise ValueError with grounding responses
         text = None
-        try:
-            if hasattr(response, 'text') and response.text:
-                text = response.text.strip()
-        except Exception as text_err:
-            print(f'  response.text raised {type(text_err).__name__}: {text_err}')
+        for block in response.content:
+            if hasattr(block, 'text') and block.text and block.text.strip():
+                text = block.text.strip()
+                break
 
-        # Fall back to iterating candidates/parts
-        if not text and hasattr(response, 'candidates'):
-            for candidate in response.candidates:
-                finish = getattr(candidate, 'finish_reason', None)
-                parts = getattr(getattr(candidate, 'content', None), 'parts', None) or []
-                print(f'  candidate finish_reason={finish}, parts={len(parts)}')
-                for part in parts:
-                    part_text = getattr(part, 'text', None)
-                    print(f'    part type={type(part).__name__} text={repr(part_text[:80]) if part_text else None}')
-                    if part_text and part_text.strip():
-                        text = part_text.strip()
-                        break
-                if text:
-                    break
-
-        # If grounded response still yields no text, retry without grounding tool
-        if not text:
-            print('  Grounded response had no text — retrying without grounding tool')
-            for model_name in models_to_try:
-                try:
-                    resp2 = client.models.generate_content(
-                        model=model_name,
-                        contents=prompt,
-                        config=types.GenerateContentConfig(max_output_tokens=200),
-                    )
-                    try:
-                        text = resp2.text.strip() if resp2.text else None
-                    except Exception:
-                        pass
-                    if not text and hasattr(resp2, 'candidates'):
-                        for candidate in resp2.candidates:
-                            for part in (getattr(getattr(candidate, 'content', None), 'parts', None) or []):
-                                pt = getattr(part, 'text', None)
-                                if pt and pt.strip():
-                                    text = pt.strip()
-                                    break
-                            if text:
-                                break
-                    if text:
-                        print(f'  ✓ No-grounding retry succeeded with {model_name}')
-                        break
-                except Exception as retry_err:
-                    print(f'  ✗ No-grounding retry {model_name} failed: {retry_err}')
-
-        print(f'  Gemini response text: {repr(text)}')
+        print(f'  Anthropic response text: {repr(text)}')
         return text or None
     except Exception as e:
         import traceback
