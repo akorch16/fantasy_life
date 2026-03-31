@@ -971,9 +971,9 @@ if __name__ == '__main__':
         data['headline'] = existing_headline
     elif not data.get('headline'):
         data['headline'] = (
-            'March Madness Final Four: UConn (Fryar) and Michigan (Jamzee) advance to the Final Four. '
-            'Purdue (Korch) and Duke (Jens) eliminated in the Elite Eight. '
-            'Alcaraz (Todd) fell in the Miami Open third round to Sebastian Korda.'
+            'UConn (Fryar) stunned No. 1 Duke (Jens) 73-72, erasing a 19-point deficit on a buzzer-beater to reach the Final Four. '
+            'Michigan (Jamzee) cruised past Tennessee 95-62 to join them. '
+            'Purdue (Korch) fell to Arizona. Alcaraz (Todd) exited the Miami Open in the third round.'
         )
 
     with open(out_path, 'w') as f:
