@@ -723,7 +723,7 @@ def generate_news_headline(draft_picks):
 
         response = client.messages.create(
             model='claude-haiku-4-5-20251001',
-            max_tokens=300,
+            max_tokens=2000,
             tools=tools,
             messages=messages,
         )
@@ -738,7 +738,7 @@ def generate_news_headline(draft_picks):
                 continue
             t = t.strip()
             # Skip blocks that are clearly analysis/preamble
-            if re.match(r'(?i)^(based on|according to|here are|i found|my search|let me|\d+\.)', t):
+            if re.match(r"(?i)^(based on|according to|here are|i found|my search|let me|i'll|i will|i'l|\d+\.)", t):
                 continue
             if len(t) > 10:
                 text = t
