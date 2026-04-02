@@ -705,52 +705,53 @@ def generate_news_headline(draft_picks):
             'Draft picks:\n'
             + '\n'.join(picks_lines) + '\n\n'
             f'Search for news from {three_days_ago.strftime("%B %d")} through today involving any pick above.\n\n'
-            'Write a single sentence update, max 50 words, covering the 3-5 most notable results. Rules:\n'
-            '- Name format: "UConn (Fryar)" or "Alcaraz (Todd)" — nothing else\n'
-            '- Only include scores/facts confirmed by search results\n'
-            '- Plain text only, no markdown\n'
-            '- Start directly with the news — no preamble, no "Based on..." or "According to..."\n\n'
-            'If nothing notable happened, reply with exactly: NO_NEWS\n\n'
-            'Reply with ONLY the news text (or NO_NEWS).'
+            'IMPORTANT: Only cover high-impact events: tournament results, playoff wins/eliminations, '
+            'championships, major upsets. Ignore contract extensions, injuries, roster moves, trades.\n\n'
+            'Output format — one line, max 50 words total:\n'
+            'Person/Team (FantasyPlayer) did X. Person/Team (FantasyPlayer) did Y. etc.\n\n'
+            'Example: UConn (Fryar) beat Duke 73-72 to reach the Final Four. '
+            'Michigan (Jamzee) crushed Tennessee 95-62. Alcaraz (Todd) lost to Korda in the Miami Open third round.\n\n'
+            'Rules:\n'
+            '- Output ONLY the final sentence(s) — no analysis, no "Based on", no numbered lists\n'
+            '- Do not invent scores or events not found in search\n'
+            '- Plain text only\n\n'
+            'If nothing notable happened, reply: NO_NEWS'
         )
 
         messages = [{'role': 'user', 'content': prompt}]
         tools = [{'type': 'web_search_20250305', 'name': 'web_search'}]
 
-        # Single call — web_search_20250305 is server-side, stop_reason is end_turn
         response = client.messages.create(
             model='claude-haiku-4-5-20251001',
-            max_tokens=500,
+            max_tokens=300,
             tools=tools,
             messages=messages,
         )
         print(f'  stop_reason={response.stop_reason}, blocks={[type(b).__name__ for b in response.content]}')
 
-        # Concatenate all text blocks that appear AFTER the first search result block
-        # (skipping the preamble "I'll search..." text that comes before)
-        found_results = False
-        parts = []
-        for block in response.content:
-            btype = type(block).__name__
-            if 'ToolResult' in btype or 'SearchToolResult' in btype:
-                found_results = True
-            if found_results and hasattr(block, 'text') and block.text and block.text.strip():
-                parts.append(block.text.strip())
+        # Take the LAST substantive text block — that's the final answer after search/analysis
+        import re
+        text = None
+        for block in reversed(response.content):
+            t = getattr(block, 'text', None)
+            if not t:
+                continue
+            t = t.strip()
+            # Skip blocks that are clearly analysis/preamble
+            if re.match(r'(?i)^(based on|according to|here are|i found|my search|let me|\d+\.)', t):
+                continue
+            if len(t) > 10:
+                text = t
+                break
 
-        # If no search results found in response, fall back to any text block
-        if not parts:
-            for block in response.content:
-                if hasattr(block, 'text') and block.text and block.text.strip():
-                    parts.append(block.text.strip())
-
-        text = ' '.join(parts).strip() if parts else None
-
-        # Clean up: remove leading punctuation artifacts, collapse whitespace
         if text:
-            import re
+            # Strip any leading punctuation artifacts
             text = re.sub(r'^[\s\.\,\n]+', '', text)
             text = re.sub(r'\s+', ' ', text).strip()
-            # If the model ended up just saying NO_NEWS, return None
+            # Enforce 50-word limit
+            words = text.split()
+            if len(words) > 50:
+                text = ' '.join(words[:50])
             if text.upper() == 'NO_NEWS':
                 text = None
 
