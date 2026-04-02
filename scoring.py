@@ -717,15 +717,40 @@ def generate_news_headline(draft_picks):
             'Reply with ONLY the update text (or NO_NEWS) — no preamble.'
         )
 
-        response = client.messages.create(
-            model='claude-haiku-4-5-20251001',
-            max_tokens=200,
-            tools=[{'type': 'web_search_20250305', 'name': 'web_search'}],
-            messages=[{'role': 'user', 'content': prompt}],
-        )
+        messages = [{'role': 'user', 'content': prompt}]
+        tools = [{'type': 'web_search_20250305', 'name': 'web_search'}]
 
+        # Tool use loop — keep going until stop_reason is 'end_turn'
+        for _ in range(5):
+            response = client.messages.create(
+                model='claude-haiku-4-5-20251001',
+                max_tokens=500,
+                tools=tools,
+                messages=messages,
+            )
+            print(f'  stop_reason={response.stop_reason}, blocks={[type(b).__name__ for b in response.content]}')
+
+            if response.stop_reason == 'end_turn':
+                break
+
+            # Append assistant turn and handle tool_use blocks
+            messages.append({'role': 'assistant', 'content': response.content})
+            tool_results = []
+            for block in response.content:
+                if block.type == 'tool_use':
+                    # web_search is server-side; result is already in the response
+                    tool_results.append({
+                        'type': 'tool_result',
+                        'tool_use_id': block.id,
+                        'content': '',
+                    })
+            if not tool_results:
+                break
+            messages.append({'role': 'user', 'content': tool_results})
+
+        # Take the last non-empty text block (the actual answer, not preamble)
         text = None
-        for block in response.content:
+        for block in reversed(response.content):
             if hasattr(block, 'text') and block.text and block.text.strip():
                 text = block.text.strip()
                 break
