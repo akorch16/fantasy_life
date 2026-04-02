@@ -701,59 +701,60 @@ def generate_news_headline(draft_picks):
 
         prompt = (
             f'Today is {today.strftime("%B %d, %Y")}.\n\n'
-            'You write the news bar for a fantasy sports & pop-culture league called Fantasy Life.\n\n'
-            'Drafted picks:\n' + '\n'.join(picks_lines) + '\n\n'
-            f'Use web search to find the most notable real news from {five_days_ago.strftime("%B %d")} through today '
-            'that involves ANY of the teams or people listed above. '
-            'Priority: tournament results (NCAA, tennis, golf), award wins, chart milestones, notable game outcomes.\n\n'
-            'Write a SINGLE update that:\n'
-            '- Is strictly under 60 words\n'
-            '- Covers only events within the last 5 days\n'
-            '- Covers only people or teams from the list above\n'
-            '- Is factually verified via search (do not invent events)\n'
-            '- Reads as a short punchy news update, not a headline\n'
-            '- Uses plain text only — no markdown, no bullet points, no quotes\n\n'
-            'If nothing notable happened in the last 5 days for any pick, reply with exactly: NO_NEWS\n\n'
-            'Reply with ONLY the update text (or NO_NEWS) — no preamble.'
+            'You write the news ticker for Fantasy Life, a fantasy sports & pop-culture league.\n\n'
+            'Draft picks (person in parentheses is the fantasy player who picked them):\n'
+            + '\n'.join(picks_lines) + '\n\n'
+            f'Search for real news from {five_days_ago.strftime("%B %d")} through today '
+            'involving any of the above. Priority: tournament/playoff results, award wins, chart milestones.\n\n'
+            'Write ONE punchy update under 60 words. Rules:\n'
+            '- Only reference picks from the list above\n'
+            '- Format names as "Team/Person (FantasyPlayer)" e.g. "UConn (Fryar)" or "Alcaraz (Todd)"\n'
+            '- Only include events you confirmed via search — do not guess or invent scores\n'
+            '- Plain text only, no markdown, no bullet points\n'
+            '- Do NOT include phrases like "NCAAB pick" or "picked by" — just the short name tag\n\n'
+            'If nothing notable happened, reply with exactly: NO_NEWS\n\n'
+            'Reply with ONLY the update text (or NO_NEWS).'
         )
 
         messages = [{'role': 'user', 'content': prompt}]
         tools = [{'type': 'web_search_20250305', 'name': 'web_search'}]
 
-        # Tool use loop — keep going until stop_reason is 'end_turn'
-        for _ in range(5):
-            response = client.messages.create(
-                model='claude-haiku-4-5-20251001',
-                max_tokens=500,
-                tools=tools,
-                messages=messages,
-            )
-            print(f'  stop_reason={response.stop_reason}, blocks={[type(b).__name__ for b in response.content]}')
+        # Single call — web_search_20250305 is server-side, stop_reason is end_turn
+        response = client.messages.create(
+            model='claude-haiku-4-5-20251001',
+            max_tokens=500,
+            tools=tools,
+            messages=messages,
+        )
+        print(f'  stop_reason={response.stop_reason}, blocks={[type(b).__name__ for b in response.content]}')
 
-            if response.stop_reason == 'end_turn':
-                break
+        # Concatenate all text blocks that appear AFTER the first search result block
+        # (skipping the preamble "I'll search..." text that comes before)
+        found_results = False
+        parts = []
+        for block in response.content:
+            btype = type(block).__name__
+            if 'ToolResult' in btype or 'SearchToolResult' in btype:
+                found_results = True
+            if found_results and hasattr(block, 'text') and block.text and block.text.strip():
+                parts.append(block.text.strip())
 
-            # Append assistant turn and handle tool_use blocks
-            messages.append({'role': 'assistant', 'content': response.content})
-            tool_results = []
+        # If no search results found in response, fall back to any text block
+        if not parts:
             for block in response.content:
-                if block.type == 'tool_use':
-                    # web_search is server-side; result is already in the response
-                    tool_results.append({
-                        'type': 'tool_result',
-                        'tool_use_id': block.id,
-                        'content': '',
-                    })
-            if not tool_results:
-                break
-            messages.append({'role': 'user', 'content': tool_results})
+                if hasattr(block, 'text') and block.text and block.text.strip():
+                    parts.append(block.text.strip())
 
-        # Take the last non-empty text block (the actual answer, not preamble)
-        text = None
-        for block in reversed(response.content):
-            if hasattr(block, 'text') and block.text and block.text.strip():
-                text = block.text.strip()
-                break
+        text = ' '.join(parts).strip() if parts else None
+
+        # Clean up: remove leading punctuation artifacts, collapse whitespace
+        if text:
+            import re
+            text = re.sub(r'^[\s\.\,\n]+', '', text)
+            text = re.sub(r'\s+', ' ', text).strip()
+            # If the model ended up just saying NO_NEWS, return None
+            if text.upper() == 'NO_NEWS':
+                text = None
 
         print(f'  Anthropic response text: {repr(text)}')
         return text or None
