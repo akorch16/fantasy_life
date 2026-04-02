@@ -697,23 +697,21 @@ def generate_news_headline(draft_picks):
 
         from datetime import date, timedelta
         today = date.today()
-        five_days_ago = today - timedelta(days=5)
+        three_days_ago = today - timedelta(days=3)
 
         prompt = (
             f'Today is {today.strftime("%B %d, %Y")}.\n\n'
-            'You write the news ticker for Fantasy Life, a fantasy sports & pop-culture league.\n\n'
-            'Draft picks (person in parentheses is the fantasy player who picked them):\n'
+            'You write the news ticker for Fantasy Life, a fantasy sports league.\n\n'
+            'Draft picks:\n'
             + '\n'.join(picks_lines) + '\n\n'
-            f'Search for real news from {five_days_ago.strftime("%B %d")} through today '
-            'involving any of the above. Priority: tournament/playoff results, award wins, chart milestones.\n\n'
-            'Write ONE punchy update under 60 words. Rules:\n'
-            '- Only reference picks from the list above\n'
-            '- Format names as "Team/Person (FantasyPlayer)" e.g. "UConn (Fryar)" or "Alcaraz (Todd)"\n'
-            '- Only include events you confirmed via search — do not guess or invent scores\n'
-            '- Plain text only, no markdown, no bullet points\n'
-            '- Do NOT include phrases like "NCAAB pick" or "picked by" — just the short name tag\n\n'
+            f'Search for news from {three_days_ago.strftime("%B %d")} through today involving any pick above.\n\n'
+            'Write a single sentence update, max 50 words, covering the 3-5 most notable results. Rules:\n'
+            '- Name format: "UConn (Fryar)" or "Alcaraz (Todd)" — nothing else\n'
+            '- Only include scores/facts confirmed by search results\n'
+            '- Plain text only, no markdown\n'
+            '- Start directly with the news — no preamble, no "Based on..." or "According to..."\n\n'
             'If nothing notable happened, reply with exactly: NO_NEWS\n\n'
-            'Reply with ONLY the update text (or NO_NEWS).'
+            'Reply with ONLY the news text (or NO_NEWS).'
         )
 
         messages = [{'role': 'user', 'content': prompt}]
