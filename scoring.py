@@ -759,6 +759,8 @@ def generate_news_headline(draft_picks):
         if text:
             text = re.sub(r'^[\s\.\,\n]+', '', text)
             text = re.sub(r'\s+', ' ', text).strip()
+            # Fix spacing before punctuation (e.g. " . " → ". ")
+            text = re.sub(r'\s+([.,;])', r'\1', text)
             # Enforce 50-word hard limit
             words = text.split()
             if len(words) > 50:
