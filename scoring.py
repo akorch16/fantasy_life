@@ -904,9 +904,9 @@ if __name__ == '__main__':
         data['headline'] = existing_headline
     elif not data.get('headline'):
         data['headline'] = (
-            'Final Four set for Saturday: UConn (Fryar) takes on Illinois and Michigan (Jamzee) battles Arizona in Indianapolis. '
-            'OKC Thunder (Feder) leads the NBA at 60-16 as the regular season winds down. '
-            'Tommy Fleetwood (Korch) tees off at the Valero Texas Open this week.'
+            'Final Four Saturday: UConn (Fryar) vs Illinois, Michigan (Jamzee) vs Arizona in Indianapolis. '
+            'Tommy Fleetwood (Korch) tees off as favorite at the Valero Texas Open today. '
+            'Colorado Avalanche (Korch) were first to clinch an NHL playoff spot. Alcaraz (Todd) eyes Monte Carlo next week.'
         )
 
     with open(out_path, 'w') as f:
