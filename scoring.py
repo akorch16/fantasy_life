@@ -729,26 +729,37 @@ def generate_news_headline(draft_picks):
         )
         print(f'  stop_reason={response.stop_reason}, blocks={[type(b).__name__ for b in response.content]}')
 
-        # Take the LAST substantive text block — that's the final answer after search/analysis
+        # Collect text blocks that appear AFTER the last search result block
         import re
-        text = None
-        for block in reversed(response.content):
+        last_result_idx = -1
+        for i, block in enumerate(response.content):
+            if 'ToolResult' in type(block).__name__ or 'SearchToolResult' in type(block).__name__:
+                last_result_idx = i
+
+        post_search_texts = []
+        for block in response.content[last_result_idx + 1:]:
             t = getattr(block, 'text', None)
-            if not t:
+            if not t or not t.strip():
                 continue
             t = t.strip()
             # Skip blocks that are clearly analysis/preamble
-            if re.match(r"(?i)^(based on|according to|here are|i found|my search|let me|i'll|i will|i'l|\d+\.)", t):
+            if re.match(r"(?i)^(based on|according to|here are|i found|my search|let me|i'll|i will|\d+\.)", t):
                 continue
-            if len(t) > 10:
-                text = t
-                break
+            post_search_texts.append(t)
+
+        # Fall back to any text block if nothing found after search
+        if not post_search_texts:
+            for block in response.content:
+                t = getattr(block, 'text', None)
+                if t and t.strip() and len(t.strip()) > 20:
+                    post_search_texts.append(t.strip())
+
+        text = ' '.join(post_search_texts).strip() if post_search_texts else None
 
         if text:
-            # Strip any leading punctuation artifacts
             text = re.sub(r'^[\s\.\,\n]+', '', text)
             text = re.sub(r'\s+', ' ', text).strip()
-            # Enforce 50-word limit
+            # Enforce 50-word hard limit
             words = text.split()
             if len(words) > 50:
                 text = ' '.join(words[:50])
