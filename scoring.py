@@ -906,7 +906,7 @@ def team_matches(pick_name, data_name):
     for word in ['fc', 'sc', 'city', 'united', 'the', 'de', 'af', 'afc']:
         pick = pick.replace(word, '').strip()
         data = data.replace(word, '').strip()
-    if pick and data and (pick in data or data in pick):
+    if pick and data and len(pick) >= 4 and len(data) >= 4 and (pick in data or data in pick):
         return True
     NICKNAMES = {
         'seahawks': 'seattle seahawks', 'ravens': 'baltimore ravens',
@@ -931,7 +931,7 @@ def team_matches(pick_name, data_name):
     }
     pick_norm = NICKNAMES.get(pick, pick)
     data_norm = NICKNAMES.get(data, data)
-    return pick_norm in data_norm or data_norm in pick_norm
+    return len(pick_norm) >= 4 and len(data_norm) >= 4 and (pick_norm in data_norm or data_norm in pick_norm)
 
 
 def name_matches(pick_name, data_name):
