@@ -679,7 +679,7 @@ def apply_bonuses(category_scores, bonuses, category):
 # ── Live news headline ────────────────────────────────────────────────────────
 
 def generate_news_headline(draft_picks):
-    """Call Claude (Anthropic) with web search to generate a live FL News headline."""
+    """Generate FL News headline: search each active category, filter for high-impact events, write ≤50-word ticker."""
     try:
         import anthropic
         api_key = os.environ.get('ANTHROPIC_API_KEY', '')
@@ -701,28 +701,29 @@ def generate_news_headline(draft_picks):
 
         prompt = (
             f'Today is {today.strftime("%B %d, %Y")}.\n\n'
-            'You write the news ticker for Fantasy Life, a fantasy sports league.\n\n'
-            'Draft picks:\n'
-            + '\n'.join(picks_lines) + '\n\n'
-            f'Search for news from {three_days_ago.strftime("%B %d")} through today involving any pick above.\n\n'
-            'IMPORTANT: Only cover high-impact events: tournament results, playoff wins/eliminations, '
-            'championships, major upsets. Ignore contract extensions, injuries, roster moves, trades.\n\n'
-            'Output format — one line, max 50 words total:\n'
-            'Person/Team (FantasyPlayer) did X. Person/Team (FantasyPlayer) did Y. etc.\n\n'
-            'Example: UConn (Fryar) beat Duke 73-72 to reach the Final Four. '
-            'Michigan (Jamzee) crushed Tennessee 95-62. Alcaraz (Todd) lost to Korda in the Miami Open third round.\n\n'
-            'Rules:\n'
-            '- Output ONLY the final sentence(s) — no analysis, no "Based on", no numbered lists\n'
-            '- Do not invent scores or events not found in search\n'
-            '- Plain text only\n\n'
-            'If nothing notable happened, reply: NO_NEWS'
+            'You write the news ticker for Fantasy Life, a fantasy sports league. '
+            'Follow this exact process:\n\n'
+            '1. SEARCH: Run web searches for each active category below — focus on NCAA tournament, '
+            'tennis grand slams/masters, golf tournaments, NHL/NBA playoff races.\n'
+            '2. FILTER: Keep only high-impact events (tournament wins/losses, playoff clinches, '
+            'championship results, major upsets). Discard contract extensions, injuries, trades, '
+            'regular-season games that did not change standings or eliminate/advance a team.\n'
+            '3. VERIFY: Only include scores and facts confirmed by your search results. '
+            'Do not guess or invent anything.\n'
+            '4. WRITE: One block of plain text, max 50 words. Format each item as '
+            '"Team/Person (FantasyPlayer) result." — e.g. "UConn (Fryar) beat Duke 73-72 to reach '
+            'the Final Four. Alcaraz (Todd) lost to Korda in the Miami Open third round."\n\n'
+            'Draft picks:\n' + '\n'.join(picks_lines) + '\n\n'
+            f'Search window: {three_days_ago.strftime("%B %d")} – {today.strftime("%B %d, %Y")}.\n\n'
+            'Output ONLY the final ticker text (or NO_NEWS if nothing notable). '
+            'No preamble, no analysis, no bullet points, no "Based on my search".'
         )
 
         messages = [{'role': 'user', 'content': prompt}]
         tools = [{'type': 'web_search_20250305', 'name': 'web_search'}]
 
         response = client.messages.create(
-            model='claude-haiku-4-5-20251001',
+            model='claude-sonnet-4-6',
             max_tokens=2000,
             tools=tools,
             messages=messages,
