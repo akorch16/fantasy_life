@@ -9,49 +9,65 @@
       "rank": 2
     },
     {
-      "player": "Xander Schauffele",
+      "player": "Tommy Fleetwood",
       "rank": 3
     },
     {
-      "player": "Collin Morikawa",
+      "player": "Cameron Young",
       "rank": 4
     },
     {
-      "player": "Ludvig Aberg",
+      "player": "Justin Rose",
       "rank": 5
     },
     {
-      "player": "Bryson DeChambeau",
+      "player": "Collin Morikawa",
       "rank": 6
     },
     {
-      "player": "Tommy Fleetwood",
+      "player": "Xander Schauffele",
       "rank": 7
     },
     {
-      "player": "Viktor Hovland",
+      "player": "Russell Henley",
       "rank": 8
     },
     {
-      "player": "Jon Rahm",
+      "player": "Robert MacIntyre",
       "rank": 9
     },
     {
-      "player": "Patrick Cantlay",
-      "rank": 12
+      "player": "Chris Gotterup",
+      "rank": 10
+    },
+    {
+      "player": "J.J. Spaun",
+      "rank": 13
     },
     {
       "player": "Justin Thomas",
       "rank": 15
     },
     {
-      "player": "Russell Henley",
-      "rank": 22
+      "player": "Ludvig Aberg",
+      "rank": 18
     },
     {
-      "player": "J.J. Spaun",
-      "rank": 45
+      "player": "Viktor Hovland",
+      "rank": 21
+    },
+    {
+      "player": "Bryson DeChambeau",
+      "rank": 24
+    },
+    {
+      "player": "Patrick Cantlay",
+      "rank": 34
+    },
+    {
+      "player": "Jon Rahm",
+      "rank": 34
     }
   ],
-  "_updated": "2026-03-06T23:14:42.786476"
+  "_updated": "2026-04-05"
 }

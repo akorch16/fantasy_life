@@ -355,32 +355,26 @@ def compute_baseline_tennis():
     return result
 
 
-# OWGR as of March 22, 2026 (static fallback — ESPN API broken)
+# OWGR as of April 5, 2026 (static fallback — scraper unreliable)
 GOLF_2026_OWGR_STATIC = {"rankings": [
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
-    {"player": "Cameron Young",       "rank": 3},
-    {"player": "Tommy Fleetwood",     "rank": 4},
-    {"player": "Xander Schauffele",   "rank": 5},
-    {"player": "Matt Fitzpatrick",    "rank": 6},
-    {"player": "Justin Rose",         "rank": 7},
-    {"player": "Collin Morikawa",     "rank": 8},
-    {"player": "Russell Henley",      "rank": 9},
+    {"player": "Tommy Fleetwood",     "rank": 3},
+    {"player": "Cameron Young",       "rank": 4},
+    {"player": "Justin Rose",         "rank": 5},
+    {"player": "Collin Morikawa",     "rank": 6},
+    {"player": "Xander Schauffele",   "rank": 7},
+    {"player": "Russell Henley",      "rank": 8},
+    {"player": "Robert MacIntyre",    "rank": 9},
     {"player": "Chris Gotterup",      "rank": 10},
-    {"player": "Robert MacIntyre",    "rank": 11},
-    {"player": "Sepp Straka",         "rank": 12},
+    {"player": "Min Woo Lee",         "rank": 23},
     {"player": "J.J. Spaun",          "rank": 13},
-    {"player": "Hideki Matsuyama",    "rank": 14},
     {"player": "Justin Thomas",       "rank": 15},
-    {"player": "Ben Griffin",         "rank": 16},
-    {"player": "Jacob Bridgeman",     "rank": 17},
     {"player": "Ludvig Aberg",        "rank": 18},
-    {"player": "Alex Noren",          "rank": 19},
-    {"player": "Harris English",      "rank": 20},
     {"player": "Viktor Hovland",      "rank": 21},
     {"player": "Bryson DeChambeau",   "rank": 24},
-    {"player": "Jon Rahm",            "rank": 28},
     {"player": "Patrick Cantlay",     "rank": 34},
+    {"player": "Jon Rahm",            "rank": 34},
 ]}
 
 def compute_baseline_golf():
