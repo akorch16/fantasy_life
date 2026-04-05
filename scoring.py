@@ -200,6 +200,40 @@ NFL_2025_STANDINGS = {"standings": [
     {"team": "Arizona Cardinals",     "wins": 3,  "losses": 14, "win_pct": 0.176},
 ]}
 
+# 2026 MLS standings — week of Apr 5, 2026 (~6 games played). Locked because ESPN scraper returns stale data.
+MLS_2026_STANDINGS = {"standings": [
+    {"team": "LAFC",                   "points": 16},
+    {"team": "Vancouver Whitecaps",    "points": 15},
+    {"team": "San Jose Earthquakes",   "points": 15},
+    {"team": "Real Salt Lake",         "points": 13},
+    {"team": "Seattle Sounders",       "points": 13},
+    {"team": "Nashville SC",           "points": 13},
+    {"team": "FC Dallas",              "points": 11},
+    {"team": "San Diego FC",           "points": 11},
+    {"team": "New York City FC",       "points": 11},
+    {"team": "Charlotte FC",           "points": 11},
+    {"team": "Inter Miami",            "points": 11},
+    {"team": "Chicago Fire",           "points": 10},
+    {"team": "Toronto FC",             "points": 10},
+    {"team": "New York Red Bulls",     "points": 10},
+    {"team": "Colorado Rapids",        "points": 9},
+    {"team": "Minnesota United",       "points": 8},
+    {"team": "DC United",              "points": 7},
+    {"team": "Houston Dynamo",         "points": 6},
+    {"team": "Austin FC",              "points": 6},
+    {"team": "New England Revolution", "points": 6},
+    {"team": "FC Cincinnati",          "points": 6},
+    {"team": "LA Galaxy",              "points": 5},
+    {"team": "St. Louis City",         "points": 5},
+    {"team": "Columbus Crew",          "points": 5},
+    {"team": "Portland Timbers",       "points": 4},
+    {"team": "Sporting Kansas City",   "points": 4},
+    {"team": "Atlanta United",         "points": 4},
+    {"team": "CF Montreal",            "points": 3},
+    {"team": "Orlando City",           "points": 3},
+    {"team": "Philadelphia Union",     "points": 0},
+]}
+
 # 2025 NCAAF CFP Committee Final Rankings (Dec 7, 2025) — the last rankings BEFORE the CFP playoff
 # Used for roto scoring per rules: standings locked at week before college playoffs begin
 NCAAF_2025_POLL = {"poll": [
@@ -798,7 +832,7 @@ def compute_all_scores():
         'Tennis':   compute_baseline_tennis,
         'Golf':     compute_baseline_golf,
         'NASCAR':   compute_baseline_nascar,
-        'MLS':      lambda: compute_baseline_sports('MLS',   'mls',     'points', reverse=True),
+        'MLS':      lambda: compute_baseline_sports('MLS',   'mls',     'points', reverse=True, static_data=MLS_2026_STANDINGS),
         'Actor':    lambda: compute_baseline_actor_actress('Actor'),
         'Actress':  lambda: compute_baseline_actor_actress('Actress'),
         'Musician': compute_baseline_musician,
