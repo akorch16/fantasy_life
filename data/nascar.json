@@ -25,32 +25,32 @@
       "points": 212
     },
     {
+      "driver": "Bubba Wallace",
+      "points": 206
+    },
+    {
       "driver": "Kyle Larson",
       "points": 206
     },
     {
       "driver": "Joey Logano",
-      "points": 195
-    },
-    {
-      "driver": "Ross Chastain",
       "points": 185
     },
     {
-      "driver": "Bubba Wallace",
-      "points": 160
+      "driver": "Shane van Gisbergen",
+      "points": 174
     },
     {
       "driver": "Daniel Suarez",
-      "points": 150
+      "points": 167
     },
     {
-      "driver": "Shane van Gisbergen",
-      "points": 120
+      "driver": "Ross Chastain",
+      "points": 136
     },
     {
       "driver": "Chase Briscoe",
-      "points": 45
+      "points": 131
     }
   ],
   "_updated": "2026-04-05"
