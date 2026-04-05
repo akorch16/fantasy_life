@@ -1,57 +1,57 @@
 {
   "standings": [
     {
-      "driver": "Kyle Larson",
-      "points": 782
-    },
-    {
-      "driver": "Christopher Bell",
-      "points": 750
-    },
-    {
-      "driver": "William Byron",
-      "points": 731
-    },
-    {
-      "driver": "Denny Hamlin",
-      "points": 718
-    },
-    {
-      "driver": "Chase Elliott",
-      "points": 705
+      "driver": "Tyler Reddick",
+      "points": 353
     },
     {
       "driver": "Ryan Blaney",
-      "points": 698
+      "points": 271
     },
     {
-      "driver": "Tyler Reddick",
-      "points": 682
+      "driver": "Denny Hamlin",
+      "points": 259
     },
     {
-      "driver": "Ross Chastain",
-      "points": 655
+      "driver": "Chase Elliott",
+      "points": 249
+    },
+    {
+      "driver": "William Byron",
+      "points": 238
+    },
+    {
+      "driver": "Christopher Bell",
+      "points": 212
+    },
+    {
+      "driver": "Kyle Larson",
+      "points": 206
     },
     {
       "driver": "Joey Logano",
-      "points": 641
+      "points": 195
     },
     {
-      "driver": "Daniel Suarez",
-      "points": 598
-    },
-    {
-      "driver": "Chase Briscoe",
-      "points": 572
-    },
-    {
-      "driver": "Shane van Gisbergen",
-      "points": 543
+      "driver": "Ross Chastain",
+      "points": 185
     },
     {
       "driver": "Bubba Wallace",
-      "points": 490
+      "points": 160
+    },
+    {
+      "driver": "Daniel Suarez",
+      "points": 150
+    },
+    {
+      "driver": "Shane van Gisbergen",
+      "points": 120
+    },
+    {
+      "driver": "Chase Briscoe",
+      "points": 45
     }
   ],
-  "_updated": "2026-03-06T23:14:42.786602"
+  "_updated": "2026-04-05"
 }
