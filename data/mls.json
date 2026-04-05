@@ -2,6 +2,18 @@
   "standings": [
     {
       "team": "LAFC",
+      "points": 16
+    },
+    {
+      "team": "Vancouver Whitecaps",
+      "points": 15
+    },
+    {
+      "team": "San Jose Earthquakes",
+      "points": 15
+    },
+    {
+      "team": "Real Salt Lake",
       "points": 13
     },
     {
@@ -9,23 +21,79 @@
       "points": 13
     },
     {
-      "team": "Vancouver Whitecaps",
+      "team": "FC Dallas",
+      "points": 11
+    },
+    {
+      "team": "San Diego FC",
+      "points": 11
+    },
+    {
+      "team": "Colorado Rapids",
+      "points": 9
+    },
+    {
+      "team": "Minnesota United",
+      "points": 8
+    },
+    {
+      "team": "Houston Dynamo",
+      "points": 6
+    },
+    {
+      "team": "Austin FC",
+      "points": 6
+    },
+    {
+      "team": "LA Galaxy",
+      "points": 5
+    },
+    {
+      "team": "St. Louis City",
+      "points": 5
+    },
+    {
+      "team": "Portland Timbers",
+      "points": 4
+    },
+    {
+      "team": "Sporting Kansas City",
+      "points": 4
+    },
+    {
+      "team": "Nashville SC",
+      "points": 13
+    },
+    {
+      "team": "New York City FC",
+      "points": 11
+    },
+    {
+      "team": "Charlotte FC",
+      "points": 11
+    },
+    {
+      "team": "Inter Miami",
+      "points": 11
+    },
+    {
+      "team": "Chicago Fire",
+      "points": 10
+    },
+    {
+      "team": "Toronto FC",
       "points": 10
     },
     {
       "team": "New York Red Bulls",
-      "points": 9
+      "points": 10
     },
     {
-      "team": "LA Galaxy",
-      "points": 9
-    },
-    {
-      "team": "Charlotte FC",
+      "team": "DC United",
       "points": 7
     },
     {
-      "team": "Inter Miami",
+      "team": "New England Revolution",
       "points": 6
     },
     {
@@ -33,20 +101,20 @@
       "points": 6
     },
     {
-      "team": "San Diego FC",
-      "points": 6
+      "team": "Columbus Crew",
+      "points": 5
     },
     {
-      "team": "Minnesota United",
+      "team": "Atlanta United",
       "points": 4
+    },
+    {
+      "team": "CF Montreal",
+      "points": 3
     },
     {
       "team": "Orlando City",
       "points": 3
-    },
-    {
-      "team": "Columbus Crew",
-      "points": 2
     },
     {
       "team": "Philadelphia Union",
