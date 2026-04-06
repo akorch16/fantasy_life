@@ -707,9 +707,9 @@ def apply_bonuses(category_scores, bonuses, category):
 # ── Live news headline ────────────────────────────────────────────────────────
 
 def generate_news_headline(draft_picks):
-    """Generate FL News headline: search each active category, filter for high-impact events, write ≤50-word ticker."""
+    """Generate FL News headline via two-turn Anthropic call: search turn, then write-only turn."""
     try:
-        import anthropic
+        import anthropic, re
         api_key = os.environ.get('ANTHROPIC_API_KEY', '')
         if not api_key:
             print('  ✗ ANTHROPIC_API_KEY not set — skipping headline')
@@ -727,75 +727,68 @@ def generate_news_headline(draft_picks):
         today = date.today()
         three_days_ago = today - timedelta(days=3)
 
-        prompt = (
-            f'Today is {today.strftime("%B %d, %Y")}.\n\n'
-            'You write the news ticker for Fantasy Life, a fantasy sports league. '
-            'Follow this exact process:\n\n'
-            '1. SEARCH: Run web searches for each active category below — focus on NCAA tournament, '
-            'tennis grand slams/masters, golf tournaments, NHL/NBA playoff races.\n'
-            '2. FILTER: Keep only high-impact events (tournament wins/losses, playoff clinches, '
-            'championship results, major upsets). Discard contract extensions, injuries, trades, '
-            'regular-season games that did not change standings or eliminate/advance a team.\n'
-            '3. VERIFY: Only include scores and facts confirmed by your search results. '
-            'Do not guess or invent anything.\n'
-            '4. WRITE: One block of plain text, max 50 words. Format each item as '
-            '"Team/Person (FantasyPlayer) result." — e.g. "UConn (Fryar) beat Duke 73-72 to reach '
-            'the Final Four. Alcaraz (Todd) lost to Korda in the Miami Open third round."\n\n'
-            'Draft picks:\n' + '\n'.join(picks_lines) + '\n\n'
-            f'Search window: {three_days_ago.strftime("%B %d")} – {today.strftime("%B %d, %Y")}.\n\n'
-            'Output ONLY the final ticker text (or NO_NEWS if nothing notable). '
-            'No preamble, no analysis, no bullet points, no "Based on my search".'
+        # ── Turn 1: Search ──────────────────────────────────────────────────
+        search_prompt = (
+            f'Today is {today.strftime("%B %d, %Y")}. '
+            f'Search for high-impact sports results from {three_days_ago.strftime("%B %d")}–{today.strftime("%B %d")} '
+            'for these Fantasy Life draft picks. Focus on: NCAA tournament results, '
+            'tennis/golf major results, NHL/NBA playoff clinches or eliminations, NASCAR race wins. '
+            'Ignore injuries, trades, contract news, and regular-season games with no standings impact.\n\n'
+            'Draft picks:\n' + '\n'.join(picks_lines)
         )
 
-        messages = [{'role': 'user', 'content': prompt}]
+        messages = [{'role': 'user', 'content': search_prompt}]
         tools = [{'type': 'web_search_20250305', 'name': 'web_search'}]
 
-        response = client.messages.create(
+        r1 = client.messages.create(
             model='claude-sonnet-4-6',
             max_tokens=2000,
             tools=tools,
             messages=messages,
         )
-        print(f'  stop_reason={response.stop_reason}, blocks={[type(b).__name__ for b in response.content]}')
+        print(f'  turn1 stop_reason={r1.stop_reason}, blocks={[type(b).__name__ for b in r1.content]}')
 
-        # Collect text blocks that appear AFTER the last search result block
-        import re
-        last_result_idx = -1
-        for i, block in enumerate(response.content):
-            if 'ToolResult' in type(block).__name__ or 'SearchToolResult' in type(block).__name__:
-                last_result_idx = i
+        # ── Turn 2: Write only ───────────────────────────────────────────────
+        messages.append({'role': 'assistant', 'content': r1.content})
+        messages.append({'role': 'user', 'content': (
+            'Output ONLY the news ticker text — nothing else. '
+            'Plain text, complete sentences, max 50 words total. '
+            'Format each item as "Team/Person (FantasyPlayer) result." '
+            'No preamble, no analysis, no headers, no bullet points. '
+            'If nothing notable happened, output exactly: NO_NEWS'
+        )})
 
-        post_search_texts = []
-        for block in response.content[last_result_idx + 1:]:
-            t = getattr(block, 'text', None)
-            if not t or not t.strip():
-                continue
-            t = t.strip()
-            # Skip blocks that are clearly analysis/preamble
-            if re.match(r"(?i)^(based on|according to|here are|i found|my search|let me|i'll|i will|\d+\.)", t):
-                continue
-            post_search_texts.append(t)
+        r2 = client.messages.create(
+            model='claude-sonnet-4-6',
+            max_tokens=300,
+            messages=messages,  # no tools — forces pure text output
+        )
+        print(f'  turn2 stop_reason={r2.stop_reason}, blocks={[type(b).__name__ for b in r2.content]}')
 
-        # Fall back to any text block if nothing found after search
-        if not post_search_texts:
-            for block in response.content:
-                t = getattr(block, 'text', None)
-                if t and t.strip() and len(t.strip()) > 20:
-                    post_search_texts.append(t.strip())
+        # Extract text from turn 2
+        text = ' '.join(
+            getattr(b, 'text', '').strip()
+            for b in r2.content
+            if getattr(b, 'text', '').strip()
+        ).strip()
 
-        text = ' '.join(post_search_texts).strip() if post_search_texts else None
+        if not text or text.upper() == 'NO_NEWS':
+            return None
 
-        if text:
-            text = re.sub(r'^[\s\.\,\n]+', '', text)
-            text = re.sub(r'\s+', ' ', text).strip()
-            # Fix spacing before punctuation (e.g. " . " → ". ")
-            text = re.sub(r'\s+([.,;])', r'\1', text)
-            # Enforce 50-word hard limit
-            words = text.split()
-            if len(words) > 50:
-                text = ' '.join(words[:50])
-            if text.upper() == 'NO_NEWS':
-                text = None
+        # Clean up markdown artifacts
+        text = re.sub(r'\*\*|\*|__', '', text)
+        text = re.sub(r'\s+', ' ', text).strip()
+        text = re.sub(r'\s+([.,;])', r'\1', text)
+
+        # Enforce 50-word limit — truncate at last complete sentence
+        words = text.split()
+        if len(words) > 50:
+            truncated = ' '.join(words[:50])
+            last_end = max(truncated.rfind('. '), truncated.rfind('! '), truncated.rfind('? '))
+            if last_end > 10:
+                text = truncated[:last_end + 1].strip()
+            else:
+                text = truncated.rstrip('.,;') + '.'
 
         print(f'  Anthropic response text: {repr(text)}')
         return text or None
