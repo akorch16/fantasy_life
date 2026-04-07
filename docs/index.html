@@ -1332,7 +1332,10 @@ function updateHeader() {
   } else {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
     const extraCol = currentFilter === 'musician'
-      ? `<th class="pts" style="font-size:0.6rem">#1 Wks</th><th class="pts" style="font-size:0.6rem">Top 10 Wks</th>` : '';
+      ? `<th class="pts" style="font-size:0.6rem">#1 Wks</th><th class="pts" style="font-size:0.6rem">Top 10 Wks</th>`
+      : currentFilter === 'ncaab'
+      ? `<th class="pts" style="font-size:0.6rem">Bracket</th>`
+      : '';
     header.innerHTML = `
       <th>#</th>
       <th>Player / Pick</th>
@@ -1407,12 +1410,16 @@ function renderTable() {
       const statVal = statFmt.fmt ? statFmt.fmt(catData) : '–';
       const regular = catData.baseline_pts !== undefined ? catData.baseline_pts.toFixed(1) : '–';
       const bonus = catData.bonus_pts !== undefined && catData.bonus_pts > 0 ? '+' + catData.bonus_pts.toFixed(1) : '–';
+      const bracketPts = catData.bracket_win_pts != null && catData.bracket_win_pts > 0 ? catData.bracket_win_pts : null;
       const total = catData.baseline_pts !== undefined
-        ? (catData.baseline_pts + (catData.bonus_pts || 0)).toFixed(1)
+        ? (catData.baseline_pts + (catData.bonus_pts || 0) + (catData.bracket_win_pts || 0)).toFixed(1)
         : '–';
 
       const num1Col = currentFilter === 'musician'
-        ? `<td class="stat-col">${catData.num1_weeks != null ? catData.num1_weeks : '–'}</td><td class="stat-col">${catData.hot100_weeks != null ? catData.hot100_weeks : '–'}</td>` : '';
+        ? `<td class="stat-col">${catData.num1_weeks != null ? catData.num1_weeks : '–'}</td><td class="stat-col">${catData.hot100_weeks != null ? catData.hot100_weeks : '–'}</td>`
+        : currentFilter === 'ncaab'
+        ? `<td class="stat-col">${bracketPts != null ? '+' + bracketPts.toFixed(1) : '–'}</td>`
+        : '';
 
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>

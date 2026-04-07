@@ -95,7 +95,7 @@ HARDCODED_BONUSES = {
         'Theo':    2.5,  # Houston — eliminated Sweet 16
         'Fryar':   9.0,  # UConn — National Championship game
         'Korch':   4.0,  # Purdue — Elite 8 (beat Arizona Mar 28)
-        'Jamzee':  9.0,  # Michigan — National Championship game
+        'Jamzee': 13.0,  # Michigan — National Champions 🏆
     },
 }
 
@@ -294,6 +294,12 @@ NCAAB_2026_PRE_TOURNAMENT_POLL = {"poll": [
     {"rank": 25, "team": "Miami Hurricanes",            "short": "Miami",        "location": "Miami"},
 ]}
 
+
+# 2026 NCAAB bracket bonus — awarded for correct bracket prediction (championship winner)
+NCAAB_BRACKET_BONUS = {
+    'Wu':    2.5,  # Bracket win
+    'Korch': 2.5,  # Bracket win
+}
 
 # ── Baseline scorers ──────────────────────────────────────────────────────────
 
@@ -847,20 +853,22 @@ def compute_all_scores():
             p_data    = scores.get(player, {})
             base      = p_data.get('baseline_pts', 0) or 0
             bonus     = p_data.get('bonus_pts', 0) or 0
-            cat_total = base + bonus
+            bracket   = NCAAB_BRACKET_BONUS.get(player, 0) if cat == 'NCAAB' else 0
+            cat_total = base + bonus + bracket
             total    += cat_total
             cat_breakdown[cat] = {
-                'pick':         p_data.get('pick', '—'),
-                'raw_value':    p_data.get('raw_value'),
-                'raw_display':  p_data.get('raw_display'),
-                'rank':         p_data.get('rank'),
-                'baseline_pts': round(base, 2),
-                'bonus_pts':    round(bonus, 2),
-                'total_pts':    round(cat_total, 2),
-                'num1_weeks':   p_data.get('num1_weeks'),
-                'hot100_weeks': p_data.get('hot100_weeks'),
-                'movies':       p_data.get('movies') if cat in ('Actor', 'Actress') else None,
-                'songs':        p_data.get('songs')  if cat == 'Musician' else None,
+                'pick':             p_data.get('pick', '—'),
+                'raw_value':        p_data.get('raw_value'),
+                'raw_display':      p_data.get('raw_display'),
+                'rank':             p_data.get('rank'),
+                'baseline_pts':     round(base, 2),
+                'bonus_pts':        round(bonus, 2),
+                'bracket_win_pts':  round(bracket, 2) if cat == 'NCAAB' else None,
+                'total_pts':        round(cat_total, 2),
+                'num1_weeks':       p_data.get('num1_weeks'),
+                'hot100_weeks':     p_data.get('hot100_weeks'),
+                'movies':           p_data.get('movies') if cat in ('Actor', 'Actress') else None,
+                'songs':            p_data.get('songs')  if cat == 'Musician' else None,
             }
         player_totals[player] = {
             'name':       player,
