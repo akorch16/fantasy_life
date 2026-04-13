@@ -958,10 +958,13 @@ if __name__ == '__main__':
 
     # Preserve existing headline if Gemini fails to produce one
     existing_headline = None
+    existing_snapshot = None
     if os.path.exists(out_path):
         try:
             with open(out_path) as f:
-                existing_headline = json.load(f).get('headline')
+                existing = json.load(f)
+                existing_headline = existing.get('headline')
+                existing_snapshot = existing.get('prev_snapshot')
         except Exception:
             pass
 
@@ -977,6 +980,23 @@ if __name__ == '__main__':
             'Tommy Fleetwood (Korch) tees off as favorite at the Valero Texas Open today. '
             'Colorado Avalanche (Korch) were first to clinch an NHL playoff spot. Alcaraz (Todd) eyes Monte Carlo next week.'
         )
+
+    # Snapshot rotation: keep prev_snapshot for 7 days, then rotate
+    from datetime import date as _date
+    today_str = _date.today().isoformat()
+    snap = existing_snapshot or {}
+    snap_date = snap.get('date')
+    if snap_date:
+        days_old = (_date.today() - _date.fromisoformat(snap_date)).days
+        if days_old >= 7:
+            snap = None  # will be replaced with current data below
+    if not snap:
+        snap = {
+            'date':   today_str,
+            'ranks':  {p['name']: p['place'] for p in data.get('players', [])},
+            'totals': {p['name']: round(p['total'], 2) for p in data.get('players', [])},
+        }
+    data['prev_snapshot'] = snap
 
     with open(out_path, 'w') as f:
         json.dump(data, f)

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1')location.replace('https:'+location.href.slice(5));</script>
   <title>Fantasy Life - Sports, Pop Culture, Geopolitics, and More</title>
   <!-- Social / OG meta -->
   <meta property="og:title" content="Fantasy Life - Sports, Pop Culture, Geopolitics, and More" />
@@ -342,6 +343,17 @@
       background-clip: text;
       font-weight: 700;
     }
+
+    .delta-badge {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      margin-left: 4px;
+      opacity: 0.85;
+    }
+    .delta-up   { color: #22c55e; }
+    .delta-down { color: #ef4444; }
+    .delta-same { color: var(--muted); }
 
     .expand-cell {
       width: 32px;
@@ -1397,10 +1409,24 @@ function renderTable() {
         <td class="expand-cell">$</td>
       `;
     } else if (currentFilter === 'all') {
+      const snap = window.PREV_SNAPSHOT || {};
+      const prevRank  = (snap.ranks  || {})[player.name];
+      const prevTotal = (snap.totals || {})[player.name];
+      const rankDelta  = (prevRank  != null) ? prevRank  - rank                      : null;
+      const scoreDelta = (prevTotal != null) ? (player.total || 0) - prevTotal        : null;
+      const rankBadge = rankDelta == null || rankDelta === 0
+        ? `<span class="delta-badge delta-same">—</span>`
+        : rankDelta > 0
+          ? `<span class="delta-badge delta-up">▲${rankDelta}</span>`
+          : `<span class="delta-badge delta-down">▼${Math.abs(rankDelta)}</span>`;
+      const scoreBadge = scoreDelta == null || Math.abs(scoreDelta) < 0.05 ? ''
+        : scoreDelta > 0
+          ? `<span class="delta-badge delta-up">+${scoreDelta.toFixed(1)}</span>`
+          : `<span class="delta-badge delta-down">${scoreDelta.toFixed(1)}</span>`;
       tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}</td>
+        <td class="rank-cell ${rankClass}">${rank}${rankBadge}</td>
         <td><div class="player-name${isFeder ? ' feder-name' : ''}">${player.name}</div></td>
-        <td class="score-cell${isFeder ? ' feder-score' : ''}">${(player.total || 0).toFixed(1)}</td>
+        <td class="score-cell${isFeder ? ' feder-score' : ''}">${(player.total || 0).toFixed(1)}${scoreBadge}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
       `;
     } else {
@@ -1620,8 +1646,9 @@ function closeBuckley() {
 fetch('./scores.json')
   .then(r => r.json())
   .then(data => {
-    window.SCORES_DATA  = data.players      || [];
-    window.LAST_UPDATED = data.last_updated  || '';
+    window.SCORES_DATA   = data.players       || [];
+    window.LAST_UPDATED  = data.last_updated  || '';
+    window.PREV_SNAPSHOT = data.prev_snapshot || {};
     initDisplay();
     renderTable();
     const tickerEl = document.getElementById('news-ticker-text');

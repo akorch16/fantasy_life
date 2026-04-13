@@ -3009,5 +3009,38 @@
   ],
   "headline": "McIlroy (Molmen) won back-to-back Masters titles, beating Scheffler (Wu) by one shot. Henley (Jens) T3. Alcaraz (Todd) vs Sinner (Buckley) in the Monte Carlo final today. NHL playoffs begin Wednesday \u2014 Avalanche (Korch), Lightning (Fryar), and Golden Knights (Tim) all in.",
   "last_updated": "2026-04-13 11:50 UTC",
-  "season": 2026
+  "season": 2026,
+  "prev_snapshot": {
+    "date": "2026-04-06",
+    "ranks": {
+      "Fryar": 1,
+      "Korch": 2,
+      "Wu": 3,
+      "Jamzee": 4,
+      "Mitchell": 5,
+      "Tim": 6,
+      "Feder": 7,
+      "Molmen": 8,
+      "Theo": 9,
+      "Todd": 10,
+      "Buckley": 11,
+      "Jens": 12,
+      "Shep": 13
+    },
+    "totals": {
+      "Fryar": 159.0,
+      "Korch": 152.0,
+      "Wu": 146.0,
+      "Jamzee": 138.0,
+      "Mitchell": 132.0,
+      "Tim": 129.0,
+      "Feder": 128.5,
+      "Molmen": 127.5,
+      "Theo": 127.0,
+      "Todd": 126.5,
+      "Buckley": 121.5,
+      "Jens": 97.0,
+      "Shep": 83.0
+    }
+  }
 }
