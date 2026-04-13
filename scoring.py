@@ -97,6 +97,10 @@ HARDCODED_BONUSES = {
         'Korch':   4.0,  # Purdue — Elite 8 (beat Arizona Mar 28)
         'Jamzee': 13.0,  # Michigan — National Champions 🏆
     },
+    'Golf': {
+        'Molmen': 6.0,  # McIlroy — 2026 Masters champion (back-to-back)
+        'Wu':     2.5,  # Scheffler — 2026 Masters runner-up
+    },
 }
 
 def load_bonuses():
@@ -399,22 +403,19 @@ def compute_baseline_tennis():
 GOLF_2026_OWGR_STATIC = {"rankings": [
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
-    {"player": "Tommy Fleetwood",     "rank": 3},
-    {"player": "Cameron Young",       "rank": 4},
+    {"player": "Cameron Young",       "rank": 3},
+    {"player": "Tommy Fleetwood",     "rank": 4},
     {"player": "Justin Rose",         "rank": 5},
     {"player": "Collin Morikawa",     "rank": 6},
     {"player": "Xander Schauffele",   "rank": 7},
     {"player": "Russell Henley",      "rank": 8},
-    {"player": "Robert MacIntyre",    "rank": 9},
-    {"player": "Chris Gotterup",      "rank": 10},
-    {"player": "Min Woo Lee",         "rank": 23},
-    {"player": "J.J. Spaun",          "rank": 13},
-    {"player": "Justin Thomas",       "rank": 15},
-    {"player": "Ludvig Aberg",        "rank": 18},
-    {"player": "Viktor Hovland",      "rank": 21},
+    {"player": "J.J. Spaun",          "rank": 11},
+    {"player": "Justin Thomas",       "rank": 13},
+    {"player": "Ludvig Aberg",        "rank": 14},
+    {"player": "Viktor Hovland",      "rank": 16},
     {"player": "Bryson DeChambeau",   "rank": 24},
     {"player": "Patrick Cantlay",     "rank": 34},
-    {"player": "Jon Rahm",            "rank": 34},
+    {"player": "Jon Rahm",            "rank": 36},
 ]}
 
 def compute_baseline_golf():
