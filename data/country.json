@@ -22,11 +22,11 @@
     },
     {
       "country": "Spain",
-      "gdp_growth_pct": 2.1
+      "gdp_growth_pct": 2.3
     },
     {
       "country": "United States",
-      "gdp_growth_pct": 2.3
+      "gdp_growth_pct": 2.4
     },
     {
       "country": "Brazil",
@@ -50,11 +50,11 @@
     },
     {
       "country": "France",
-      "gdp_growth_pct": 0.9
+      "gdp_growth_pct": 1.0
     },
     {
       "country": "Germany",
-      "gdp_growth_pct": 0.8
+      "gdp_growth_pct": 1.1
     }
   ],
   "_updated": "2026-04-14",
