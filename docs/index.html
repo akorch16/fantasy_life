@@ -297,12 +297,20 @@
       vertical-align: middle;
     }
 
+    @media (max-width: 480px) {
+      .player-row td { padding: 10px 6px; }
+      .rank-cell { width: 36px; min-width: 36px; }
+      .change-cell { width: 44px; min-width: 44px; font-size: 0.78rem; }
+    }
+
     .rank-cell {
       text-align: center;
       font-family: 'DM Mono', monospace;
       font-size: 0.8rem;
       color: var(--muted);
-      width: 44px;
+      width: 48px;
+      min-width: 48px;
+      white-space: nowrap;
     }
 
     .rank-1 { }
@@ -344,16 +352,25 @@
       font-weight: 700;
     }
 
-    .delta-badge {
-      font-size: 0.62rem;
+    .rank-delta {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-top: 2px;
+    }
+    .change-cell {
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
       font-weight: 600;
-      letter-spacing: 0.01em;
-      margin-left: 4px;
-      opacity: 0.85;
+      width: 56px;
+      min-width: 56px;
+      white-space: nowrap;
     }
     .delta-up   { color: #22c55e; }
     .delta-down { color: #ef4444; }
-    .delta-same { color: var(--muted); }
+    .delta-same { color: var(--muted); opacity: 0.5; }
 
     .expand-cell {
       width: 32px;
@@ -1340,7 +1357,7 @@ let currentFilter = 'all';
 function updateHeader() {
   const header = document.getElementById('table-header');
   if (currentFilter === 'all') {
-    header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th></th>`;
+    header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th class="pts" style="font-size:0.6rem">Change</th><th></th>`;
   } else {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
     const extraCol = currentFilter === 'musician'
@@ -1399,13 +1416,15 @@ function renderTable() {
     const isFeder = player.name === 'Feder';
 
     if (toddPaywalled) {
+      const toddChangeCel = currentFilter === 'all' ? `<td class="change-cell delta-same">??</td>` : '';
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
           <div class="player-name todd-name"><span class="todd-lock-icon">🔒</span> Todd</div>
-          <div class="todd-teaser">Score hidden — premium subscription required</div>
+          <div class="todd-teaser">Premium subscription required</div>
         </td>
         <td class="score-cell todd-score">??</td>
+        ${toddChangeCel}
         <td class="expand-cell">$</td>
       `;
     } else if (currentFilter === 'all') {
@@ -1414,19 +1433,17 @@ function renderTable() {
       const prevTotal = (snap.totals || {})[player.name];
       const rankDelta  = (prevRank  != null) ? prevRank  - rank                      : null;
       const scoreDelta = (prevTotal != null) ? (player.total || 0) - prevTotal        : null;
-      const rankBadge = rankDelta == null || rankDelta === 0
-        ? `<span class="delta-badge delta-same">—</span>`
-        : rankDelta > 0
-          ? `<span class="delta-badge delta-up">▲${rankDelta}</span>`
-          : `<span class="delta-badge delta-down">▼${Math.abs(rankDelta)}</span>`;
-      const scoreBadge = scoreDelta == null || Math.abs(scoreDelta) < 0.05 ? ''
-        : scoreDelta > 0
-          ? `<span class="delta-badge delta-up">+${scoreDelta.toFixed(1)}</span>`
-          : `<span class="delta-badge delta-down">${scoreDelta.toFixed(1)}</span>`;
+      const rdClass = rankDelta == null ? 'delta-same' : rankDelta > 0 ? 'delta-up' : rankDelta < 0 ? 'delta-down' : 'delta-same';
+      const rdText  = rankDelta == null ? '—' : rankDelta > 0 ? `▲${rankDelta}` : rankDelta < 0 ? `▼${Math.abs(rankDelta)}` : '—';
+      const rankDeltaSpan = `<span class="rank-delta ${rdClass}">${rdText}</span>`;
+      const scClass = scoreDelta == null || Math.abs(scoreDelta) < 0.05 ? 'delta-same' : scoreDelta > 0 ? 'delta-up' : 'delta-down';
+      const scText  = scoreDelta == null || Math.abs(scoreDelta) < 0.05 ? '—'
+        : scoreDelta > 0 ? `+${scoreDelta.toFixed(1)}` : `${scoreDelta.toFixed(1)}`;
       tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}${rankBadge}</td>
+        <td class="rank-cell ${rankClass}">${rank}${rankDeltaSpan}</td>
         <td><div class="player-name${isFeder ? ' feder-name' : ''}">${player.name}</div></td>
-        <td class="score-cell${isFeder ? ' feder-score' : ''}">${(player.total || 0).toFixed(1)}${scoreBadge}</td>
+        <td class="score-cell${isFeder ? ' feder-score' : ''}">${(player.total || 0).toFixed(1)}</td>
+        <td class="change-cell ${scClass}">${scText}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
       `;
     } else {
@@ -1472,7 +1489,7 @@ function renderTable() {
 
       const td = document.createElement('td');
       td.className = 'breakdown-cell';
-      td.colSpan = currentFilter === 'all' ? 4 : (currentFilter === 'musician' ? 9 : 7);
+      td.colSpan = currentFilter === 'all' ? 5 : (currentFilter === 'musician' ? 9 : 7);
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {
