@@ -101,6 +101,20 @@ HARDCODED_BONUSES = {
         'Molmen': 6.0,  # McIlroy — 2026 Masters champion (back-to-back)
         'Wu':     2.5,  # Scheffler — 2026 Masters runner-up
     },
+    'NBA': {
+        # 2.5 pts each for teams that made the 2026 playoffs (not play-in losers)
+        # Warriors (Mitchell), Clippers (Fryar), Bucks (Molmen) did NOT make playoffs
+        'Tim':    2.5,  # Denver Nuggets
+        'Wu':     2.5,  # San Antonio Spurs
+        'Jens':   2.5,  # Cleveland Cavaliers
+        'Todd':   2.5,  # Minnesota Timberwolves
+        'Shep':   2.5,  # Boston Celtics
+        'Theo':   2.5,  # Los Angeles Lakers
+        'Feder':  2.5,  # Oklahoma City Thunder
+        'Korch':  2.5,  # Houston Rockets
+        'Jamzee': 2.5,  # Orlando Magic (won play-in)
+        'Buckley':2.5,  # New York Knicks
+    },
 }
 
 def load_bonuses():
