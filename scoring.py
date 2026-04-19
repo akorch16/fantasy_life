@@ -752,8 +752,22 @@ COUNTRY_GDP_IMF_STATIC = {"gdp": [
 
 def compute_baseline_country():
     picks = DRAFT_PICKS_2026.get('Country', {})
-    _d = load_data('country')
-    live_data = _d if (_d and _d.get('gdp')) else None
+    # Load from local country.json first (we maintain this with current IMF data),
+    # falling back to Supabase only if the file is missing/empty.
+    import json as _json
+    _local_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'country.json')
+    _local = None
+    if os.path.exists(_local_path):
+        try:
+            with open(_local_path) as _f:
+                _local = _json.load(_f)
+        except Exception:
+            pass
+    if _local and _local.get('gdp'):
+        live_data = _local
+    else:
+        _d = load_data('country')
+        live_data = _d if (_d and _d.get('gdp')) else None
 
     # Build per-country lookup from static fallback
     static_lookup = {e['country']: e['gdp_growth_pct'] for e in COUNTRY_GDP_IMF_STATIC.get('gdp', [])}
