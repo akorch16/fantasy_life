@@ -22,7 +22,10 @@
     },
     {
       "name": "Robert Pattinson",
-      "composite_score": 241.7
+      "composite_score": 269.42,
+      "movies": [
+        { "title": "The Drama", "box_office": 36, "rt_score": 77, "composite": 27.72 }
+      ]
     },
     {
       "name": "Matt Damon",
@@ -53,5 +56,5 @@
       "composite_score": 48.3
     }
   ],
-  "_updated": "2026-03-06T23:14:42.786857"
+  "_updated": "2026-04-19"
 }
