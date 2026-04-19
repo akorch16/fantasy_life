@@ -1357,7 +1357,7 @@ let currentFilter = 'all';
 function updateHeader() {
   const header = document.getElementById('table-header');
   if (currentFilter === 'all') {
-    header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th class="pts" style="font-size:0.6rem">Change</th><th></th>`;
+    header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th class="pts" style="font-size:0.6rem">Week +/-</th><th></th>`;
   } else {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
     const extraCol = currentFilter === 'musician'
