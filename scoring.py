@@ -413,7 +413,100 @@ def compute_baseline_tennis():
     return result
 
 
-# OWGR as of April 5, 2026 (static fallback — scraper unreliable)
+def fetch_owgr_live():
+    """Scrape current OWGR rankings from owgr.com. Returns {rankings:[{player,rank}]} or None."""
+    try:
+        from bs4 import BeautifulSoup
+        url = 'https://www.owgr.com/ranking?pageNo=1&pageSize=200&country=All'
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                          '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml',
+        }
+        resp = requests.get(url, headers=headers, timeout=20)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, 'html.parser')
+
+        table = soup.find('table')
+        if not table:
+            print('  ✗ OWGR: no table found')
+            return None
+
+        # Identify which column indices hold rank and name
+        headers_row = table.find('thead')
+        col_rank, col_name = 0, 2  # sensible defaults
+        if headers_row:
+            ths = [th.get_text(strip=True).lower() for th in headers_row.find_all('th')]
+            for i, h in enumerate(ths):
+                if 'this week' in h or h == 'pos':
+                    col_rank = i
+                if h == 'name' or 'player' in h:
+                    col_name = i
+
+        tbody = table.find('tbody') or table
+        rankings = []
+        for row in tbody.find_all('tr'):
+            cells = row.find_all('td')
+            if len(cells) <= max(col_rank, col_name):
+                continue
+            try:
+                rank = int(cells[col_rank].get_text(strip=True).lstrip('=').strip())
+                name = cells[col_name].get_text(strip=True)
+                if name and rank:
+                    rankings.append({'player': name, 'rank': rank})
+            except (ValueError, IndexError):
+                continue
+
+        if len(rankings) >= 10:
+            print(f'  ✓ OWGR live: {len(rankings)} players fetched')
+            return {'rankings': rankings}
+        print(f'  ✗ OWGR: too few rows ({len(rankings)})')
+        return None
+    except Exception as e:
+        print(f'  ✗ OWGR live fetch failed: {e}')
+        return None
+
+
+def fetch_nascar_espn_live():
+    """Fetch NASCAR Cup standings from ESPN public API. Returns {standings:[{driver,points}]} or None."""
+    try:
+        url = 'https://site.api.espn.com/apis/site/v2/sports/racing/nascar-premier/standings'
+        resp = requests.get(url, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
+        resp.raise_for_status()
+        data = resp.json()
+
+        entries = []
+        for child in data.get('children', []):
+            child_entries = child.get('standings', {}).get('entries', [])
+            if not child_entries:
+                continue
+            for entry in child_entries:
+                name = entry.get('athlete', {}).get('displayName', '')
+                pts = None
+                for stat in entry.get('stats', []):
+                    if stat.get('name') == 'points':
+                        try:
+                            pts = int(float(stat.get('value', 0)))
+                        except (TypeError, ValueError):
+                            pass
+                        break
+                if name and pts is not None:
+                    entries.append({'driver': name, 'points': pts})
+            if entries:
+                break  # first child with entries is driver standings
+
+        if len(entries) >= 5:
+            standings = sorted(entries, key=lambda x: -x['points'])
+            print(f'  ✓ NASCAR ESPN live: {len(standings)} drivers fetched')
+            return {'standings': standings}
+        print(f'  ✗ NASCAR ESPN: too few entries ({len(entries)})')
+        return None
+    except Exception as e:
+        print(f'  ✗ NASCAR ESPN live fetch failed: {e}')
+        return None
+
+
+# OWGR static fallback (post-Masters April 2026)
 GOLF_2026_OWGR_STATIC = {"rankings": [
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
@@ -435,7 +528,10 @@ GOLF_2026_OWGR_STATIC = {"rankings": [
 def compute_baseline_golf():
     picks = DRAFT_PICKS_2026.get('Golf', {})
     _d = load_data('golf')
-    data = _d if (_d and _d.get('rankings')) else GOLF_2026_OWGR_STATIC
+    if _d and _d.get('rankings'):
+        data = _d
+    else:
+        data = fetch_owgr_live() or GOLF_2026_OWGR_STATIC
 
     raw_values = {}
     for player, name in picks.items():
@@ -486,7 +582,10 @@ NASCAR_2026_STANDINGS_STATIC = {"standings": [
 def compute_baseline_nascar():
     picks = DRAFT_PICKS_2026.get('NASCAR', {})
     _d = load_data('nascar')
-    data = _d if (_d and _d.get('standings')) else NASCAR_2026_STANDINGS_STATIC
+    if _d and _d.get('standings'):
+        data = _d
+    else:
+        data = fetch_nascar_espn_live() or NASCAR_2026_STANDINGS_STATIC
 
     raw_values = {}
     for player, driver in picks.items():
