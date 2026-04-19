@@ -527,11 +527,12 @@ GOLF_2026_OWGR_STATIC = {"rankings": [
 
 def compute_baseline_golf():
     picks = DRAFT_PICKS_2026.get('Golf', {})
-    _d = load_data('golf')
-    if _d and _d.get('rankings'):
-        data = _d
-    else:
-        data = fetch_owgr_live() or GOLF_2026_OWGR_STATIC
+    # Priority: 1) live OWGR  2) known-good static  3) local JSON fallback
+    data = fetch_owgr_live() or GOLF_2026_OWGR_STATIC
+    if not data.get('rankings'):
+        _d = load_data('golf')
+        if _d and _d.get('rankings'):
+            data = _d
 
     raw_values = {}
     for player, name in picks.items():
