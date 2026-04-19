@@ -101,6 +101,18 @@ HARDCODED_BONUSES = {
         'Molmen': 6.0,  # McIlroy — 2026 Masters champion (back-to-back)
         'Wu':     2.5,  # Scheffler — 2026 Masters runner-up
     },
+    'NHL': {
+        # 2.5 pts each for teams that made the 2026 Stanley Cup Playoffs
+        # Devils (Wu), Maple Leafs (Jens), Panthers (Todd), Red Wings (Theo),
+        # Capitals (Feder), Rangers (Molmen) did NOT make playoffs
+        'Shep':   2.5,  # Boston Bruins
+        'Fryar':  2.5,  # Tampa Bay Lightning
+        'Jamzee': 2.5,  # Carolina Hurricanes
+        'Tim':    2.5,  # Vegas Golden Knights
+        'Mitchell':2.5, # Dallas Stars
+        'Korch':  2.5,  # Colorado Avalanche
+        'Buckley':2.5,  # Edmonton Oilers
+    },
     'NBA': {
         # 2.5 pts each for teams that made the 2026 playoffs (not play-in losers)
         # Warriors (Mitchell), Clippers (Fryar), Bucks (Molmen) did NOT make playoffs
@@ -511,12 +523,12 @@ GOLF_2026_OWGR_STATIC = {"rankings": [
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
     {"player": "Cameron Young",       "rank": 3},
-    {"player": "Tommy Fleetwood",     "rank": 4},
-    {"player": "Justin Rose",         "rank": 5},
-    {"player": "Collin Morikawa",     "rank": 6},
-    {"player": "Xander Schauffele",   "rank": 7},
-    {"player": "Russell Henley",      "rank": 8},
-    {"player": "J.J. Spaun",          "rank": 11},
+    {"player": "Xander Schauffele",   "rank": 4},
+    {"player": "Russell Henley",      "rank": 5},
+    {"player": "J.J. Spaun",          "rank": 6},
+    {"player": "Justin Rose",         "rank": 8},
+    {"player": "Collin Morikawa",     "rank": 9},
+    {"player": "Tommy Fleetwood",     "rank": 11},
     {"player": "Justin Thomas",       "rank": 13},
     {"player": "Ludvig Aberg",        "rank": 14},
     {"player": "Viktor Hovland",      "rank": 16},

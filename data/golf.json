@@ -1,69 +1,20 @@
 {
   "rankings": [
-    {
-      "player": "Scottie Scheffler",
-      "rank": 1
-    },
-    {
-      "player": "Rory McIlroy",
-      "rank": 2
-    },
-    {
-      "player": "Cameron Young",
-      "rank": 3
-    },
-    {
-      "player": "Justin Rose",
-      "rank": 5
-    },
-    {
-      "player": "Collin Morikawa",
-      "rank": 6
-    },
-    {
-      "player": "Xander Schauffele",
-      "rank": 7
-    },
-    {
-      "player": "Russell Henley",
-      "rank": 8
-    },
-    {
-      "player": "Robert MacIntyre",
-      "rank": 9
-    },
-    {
-      "player": "Chris Gotterup",
-      "rank": 10
-    },
-    {
-      "player": "J.J. Spaun",
-      "rank": 13
-    },
-    {
-      "player": "Justin Thomas",
-      "rank": 15
-    },
-    {
-      "player": "Ludvig Aberg",
-      "rank": 18
-    },
-    {
-      "player": "Viktor Hovland",
-      "rank": 21
-    },
-    {
-      "player": "Bryson DeChambeau",
-      "rank": 24
-    },
-    {
-      "player": "Patrick Cantlay",
-      "rank": 34
-    },
-    {
-      "player": "Jon Rahm",
-      "rank": 34
-    }
+    { "player": "Scottie Scheffler",  "rank": 1 },
+    { "player": "Rory McIlroy",       "rank": 2 },
+    { "player": "Cameron Young",      "rank": 3 },
+    { "player": "Xander Schauffele",  "rank": 4 },
+    { "player": "Russell Henley",     "rank": 5 },
+    { "player": "J.J. Spaun",         "rank": 6 },
+    { "player": "Justin Rose",        "rank": 8 },
+    { "player": "Collin Morikawa",    "rank": 9 },
+    { "player": "Tommy Fleetwood",    "rank": 11 },
+    { "player": "Justin Thomas",      "rank": 13 },
+    { "player": "Ludvig Aberg",       "rank": 14 },
+    { "player": "Viktor Hovland",     "rank": 16 },
+    { "player": "Bryson DeChambeau",  "rank": 24 },
+    { "player": "Patrick Cantlay",    "rank": 34 },
+    { "player": "Jon Rahm",           "rank": 36 }
   ],
-  "_updated": "2026-04-14"
+  "_updated": "2026-04-19"
 }
