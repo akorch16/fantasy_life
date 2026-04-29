@@ -731,6 +731,13 @@ def _omdb_movie_data(title, year=None):
         return {}
 
 
+# Manual box office / RT overrides for films OMDB hasn't fully indexed yet.
+# Values here are used when OMDB returns null for that field.
+_MOVIE_OVERRIDES = {
+    'The Drama': {'box_office': 36_000_000, 'rt_score': 77},
+}
+
+
 def scrape_actor_actress(category='Actor'):
     if is_frozen(category):
         print(f'  ⏸ {category} is frozen, skipping'); return True
@@ -757,8 +764,9 @@ def scrape_actor_actress(category='Actor'):
         movies = []
         for m in raw_movies:
             omdb = _omdb_movie_data(m['title'], year='2026')
-            bo   = omdb.get('box_office')
-            rt   = omdb.get('rt_score')
+            override = _MOVIE_OVERRIDES.get(m['title'], {})
+            bo   = omdb.get('box_office') or (override.get('box_office'))
+            rt   = omdb.get('rt_score')   or (override.get('rt_score'))
             if bo and rt:
                 comp = round((bo / 1_000_000) * (rt / 100), 2)
             elif rt:  # box office not yet reported — use RT score alone as proxy
