@@ -183,7 +183,7 @@
 
     .trip-row {
       display: grid;
-      grid-template-columns: 60px 1fr 1fr;
+      grid-template-columns: 60px 1fr;
       align-items: center;
       gap: 16px;
       padding: 12px 18px;
@@ -191,6 +191,11 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       transition: border-color 0.15s;
+    }
+    .trip-winner-location {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
     .trip-row:hover { border-color: #3a4255; }
     .trip-row.latest {
@@ -269,8 +274,7 @@
       .page { padding: 24px 12px 60px; }
       header { padding: 0 16px; }
       .map-wrap { height: 300px; }
-      .trip-row { grid-template-columns: 52px 1fr; }
-      .trip-location { display: none; }
+      .trip-row { grid-template-columns: 52px 1fr; padding: 10px 14px; }
       .wins-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
@@ -305,80 +309,106 @@
 
     <div class="trip-row latest">
       <div class="trip-year">2024</div>
-      <div class="trip-winner">Alex Korchinski <span class="trip-winner-badge">Latest</span></div>
-      <div class="trip-location">Calgary, AB</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Alex Korchinski <span class="trip-winner-badge">Latest</span></div>
+        <div class="trip-location">Calgary, AB</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2023</div>
-      <div class="trip-winner">Ryan James</div>
-      <div class="trip-location">Rogue River, OR</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Ryan James</div>
+        <div class="trip-location">Rogue River, OR</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2022</div>
-      <div class="trip-winner">Scott Mitchell</div>
-      <div class="trip-location">Coeur d'Alene, ID</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Scott Mitchell</div>
+        <div class="trip-location">Coeur d'Alene, ID</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2021</div>
-      <div class="trip-winner">Anthony Fryar</div>
-      <div class="trip-location">Denver, CO</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Anthony Fryar</div>
+        <div class="trip-location">Denver, CO</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2020</div>
-      <div class="trip-winner">Jason Feder</div>
-      <div class="trip-location">Mexico City, MX</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Jason Feder</div>
+        <div class="trip-location">Mexico City, MX</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2019</div>
-      <div class="trip-winner">Todd Grover</div>
-      <div class="trip-location tbd">Location TBD</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Todd Grover</div>
+        <div class="trip-location tbd">Location TBD</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2018</div>
-      <div class="trip-winner">Anthony Fryar</div>
-      <div class="trip-location">Austin, TX</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Anthony Fryar</div>
+        <div class="trip-location">Austin, TX</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2017</div>
-      <div class="trip-winner">Alex Korchinski</div>
-      <div class="trip-location">Vancouver, BC</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Alex Korchinski</div>
+        <div class="trip-location">Vancouver, BC</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2016</div>
-      <div class="trip-winner">Scott Mitchell</div>
-      <div class="trip-location tbd">Location TBD</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Scott Mitchell</div>
+        <div class="trip-location tbd">Location TBD</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2015</div>
-      <div class="trip-winner">Theo Lee</div>
-      <div class="trip-location">Lake Tahoe, NV</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Theo Lee</div>
+        <div class="trip-location">Lake Tahoe, NV</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2014</div>
-      <div class="trip-winner">Todd Grover</div>
-      <div class="trip-location">New Orleans, LA</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Todd Grover</div>
+        <div class="trip-location">New Orleans, LA</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2013</div>
-      <div class="trip-winner">Anthony Fryar</div>
-      <div class="trip-location">Nashville, TN</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Anthony Fryar</div>
+        <div class="trip-location">Nashville, TN</div>
+      </div>
     </div>
 
     <div class="trip-row">
       <div class="trip-year">2012</div>
-      <div class="trip-winner">Tim Marcroft</div>
-      <div class="trip-location">Las Vegas, NV</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Tim Marcroft</div>
+        <div class="trip-location">Las Vegas, NV</div>
+      </div>
     </div>
 
   </div>
