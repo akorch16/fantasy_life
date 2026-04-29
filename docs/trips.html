@@ -439,8 +439,6 @@
   ];
 
   const map = L.map('trips-map', {
-    center: [40, -100],
-    zoom: 4,
     zoomControl: true,
     scrollWheelZoom: false,
   });
@@ -481,6 +479,7 @@
     });
   }
 
+  const bounds = [];
   trips.forEach(t => {
     const cityName = t.location.split(',')[0];
     const marker = L.marker([t.lat, t.lng], { icon: makeIcon(t.latest, cityName) }).addTo(map);
@@ -491,7 +490,9 @@
       <div class="popup-location">${t.location}</div>
       ${latestBadge}
     `);
+    bounds.push([t.lat, t.lng]);
   });
+  map.fitBounds(bounds, { padding: [40, 60] });
 </script>
 
 </body>
