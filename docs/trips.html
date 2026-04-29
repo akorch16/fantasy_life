@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fantasy Life — Trips</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0f14;
+      --surface:  #13161d;
+      --surface2: #1a1e28;
+      --border:   #232733;
+      --text:     #f0f2f8;
+      --muted:    #9aa3b5;
+      --dim:      #6b7280;
+      --blue:     #2d7dd2;
+      --blue-dim: #1a4a82;
+      --green:    #22c55e;
+      --red:      #ef4444;
+      --gold:     #f59e0b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.75;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--blue); }
+    .header-logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center top;
+      background-image: url('./todd.jpg');
+    }
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-link.active { color: var(--blue); }
+
+    /* ── PAGE ── */
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .page-title span { color: var(--blue); }
+    .page-subtitle {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 36px;
+    }
+
+    /* ── MAP ── */
+    .map-wrap {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 40px;
+      height: 420px;
+    }
+    #trips-map {
+      height: 100%;
+      width: 100%;
+      background: #0d0f14;
+    }
+
+    /* Leaflet popup dark styling */
+    .leaflet-popup-content-wrapper {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .leaflet-popup-tip { background: var(--surface2); }
+    .leaflet-popup-content { margin: 12px 16px; }
+    .popup-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      color: var(--blue);
+      line-height: 1.1;
+    }
+    .popup-winner {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .popup-location {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+    .popup-latest {
+      display: inline-block;
+      margin-top: 6px;
+      background: var(--gold);
+      color: #000;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-title {
+      font-size: 0.72rem;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--blue);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── TRIP LIST ── */
+    .trips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+
+    .trip-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 1fr;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: border-color 0.15s;
+    }
+    .trip-row:hover { border-color: #3a4255; }
+    .trip-row.latest {
+      border-color: var(--gold);
+      background: #1a1600;
+    }
+    .trip-row.latest:hover { border-color: #d4870a; }
+
+    .trip-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.06em;
+      color: var(--blue);
+    }
+    .trip-row.latest .trip-year { color: var(--gold); }
+
+    .trip-winner {
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .trip-winner-badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-left: 6px;
+      background: rgba(245,158,11,0.15);
+      color: var(--gold);
+      vertical-align: middle;
+    }
+
+    .trip-location {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .trip-location.tbd { color: var(--dim); font-style: italic; }
+
+    /* ── LEADERBOARD ── */
+    .wins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .wins-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .wins-count {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      line-height: 1;
+      color: var(--blue);
+      min-width: 32px;
+      text-align: center;
+    }
+    .wins-count.top { color: var(--gold); }
+    .wins-name {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    @media (max-width: 600px) {
+      .page { padding: 24px 12px 60px; }
+      header { padding: 0 16px; }
+      .map-wrap { height: 300px; }
+      .trip-row { grid-template-columns: 52px 1fr; }
+      .trip-location { display: none; }
+      .wins-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="./index.html" class="header-logo-img"></a>
+    <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <a href="./rules.html" class="nav-link">Rules</a>
+    <a href="./calendar.html" class="nav-link">Calendar</a>
+    <a href="./trips.html" class="nav-link active">Trips</a>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="page-title">FL <span>Trips</span></div>
+  <div class="page-subtitle">Annual winner's trip · 2012 — present</div>
+
+  <!-- MAP -->
+  <div class="map-wrap">
+    <div id="trips-map"></div>
+  </div>
+
+  <!-- TRIP LIST -->
+  <div class="section-title">All Trips</div>
+  <div class="trips-list">
+
+    <div class="trip-row latest">
+      <div class="trip-year">2024</div>
+      <div class="trip-winner">Alex Korchinski <span class="trip-winner-badge">Latest</span></div>
+      <div class="trip-location">Calgary, AB</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2023</div>
+      <div class="trip-winner">Ryan James</div>
+      <div class="trip-location">Rogue River, OR</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2022</div>
+      <div class="trip-winner">Scott Mitchell</div>
+      <div class="trip-location">Coeur d'Alene, ID</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2021</div>
+      <div class="trip-winner">Anthony Fryar</div>
+      <div class="trip-location">Denver, CO</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2020</div>
+      <div class="trip-winner">Jason Feder</div>
+      <div class="trip-location">Mexico City, MX</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2019</div>
+      <div class="trip-winner">Todd Grover</div>
+      <div class="trip-location tbd">Location TBD</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2018</div>
+      <div class="trip-winner">Anthony Fryar</div>
+      <div class="trip-location">Austin, TX</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2017</div>
+      <div class="trip-winner">Alex Korchinski</div>
+      <div class="trip-location">Vancouver, BC</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2016</div>
+      <div class="trip-winner">Scott Mitchell</div>
+      <div class="trip-location tbd">Location TBD</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2015</div>
+      <div class="trip-winner">Theo Lee</div>
+      <div class="trip-location">Lake Tahoe, NV</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2014</div>
+      <div class="trip-winner">Todd Grover</div>
+      <div class="trip-location">New Orleans, LA</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2013</div>
+      <div class="trip-winner">Anthony Fryar</div>
+      <div class="trip-location">Nashville, TN</div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2012</div>
+      <div class="trip-winner">Tim Marcroft</div>
+      <div class="trip-location">Las Vegas, NV</div>
+    </div>
+
+  </div>
+
+  <!-- WINS LEADERBOARD -->
+  <div class="section-title">Trip Wins</div>
+  <div class="wins-grid">
+    <div class="wins-card">
+      <div class="wins-count top">3</div>
+      <div class="wins-name">Anthony Fryar</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">2</div>
+      <div class="wins-name">Todd Grover</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">2</div>
+      <div class="wins-name">Scott Mitchell</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">2</div>
+      <div class="wins-name">Alex Korchinski</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">1</div>
+      <div class="wins-name">Tim Marcroft</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">1</div>
+      <div class="wins-name">Theo Lee</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">1</div>
+      <div class="wins-name">Jason Feder</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">1</div>
+      <div class="wins-name">Ryan James</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const trips = [
+    { year: 2024, winner: 'Alex Korchinski', location: 'Calgary, AB',       lat: 51.0447,  lng: -114.0719, latest: true  },
+    { year: 2023, winner: 'Ryan James',       location: 'Rogue River, OR',   lat: 42.4351,  lng: -123.1768 },
+    { year: 2022, winner: 'Scott Mitchell',   location: "Coeur d'Alene, ID", lat: 47.6777,  lng: -116.7805 },
+    { year: 2021, winner: 'Anthony Fryar',    location: 'Denver, CO',        lat: 39.7392,  lng: -104.9903 },
+    { year: 2020, winner: 'Jason Feder',      location: 'Mexico City, MX',   lat: 19.4326,  lng:  -99.1332 },
+    { year: 2018, winner: 'Anthony Fryar',    location: 'Austin, TX',        lat: 30.2672,  lng:  -97.7431 },
+    { year: 2017, winner: 'Alex Korchinski',  location: 'Vancouver, BC',     lat: 49.2827,  lng: -123.1207 },
+    { year: 2015, winner: 'Theo Lee',         location: 'Lake Tahoe, NV',    lat: 39.0968,  lng: -120.0324 },
+    { year: 2014, winner: 'Todd Grover',      location: 'New Orleans, LA',   lat: 29.9511,  lng:  -90.0715 },
+    { year: 2013, winner: 'Anthony Fryar',    location: 'Nashville, TN',     lat: 36.1627,  lng:  -86.7816 },
+    { year: 2012, winner: 'Tim Marcroft',     location: 'Las Vegas, NV',     lat: 36.1699,  lng: -115.1398 },
+  ];
+
+  const map = L.map('trips-map', {
+    center: [40, -100],
+    zoom: 4,
+    zoomControl: true,
+    scrollWheelZoom: false,
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19,
+  }).addTo(map);
+
+  function makeIcon(latest) {
+    const color = latest ? '#f59e0b' : '#2d7dd2';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+      <path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z" fill="${color}"/>
+      <circle cx="14" cy="14" r="6" fill="#0d0f14"/>
+    </svg>`;
+    return L.divIcon({
+      html: svg,
+      iconSize: [28, 36],
+      iconAnchor: [14, 36],
+      popupAnchor: [0, -36],
+      className: '',
+    });
+  }
+
+  trips.forEach(t => {
+    const marker = L.marker([t.lat, t.lng], { icon: makeIcon(t.latest) }).addTo(map);
+    const latestBadge = t.latest ? '<div class="popup-latest">Most Recent</div>' : '';
+    marker.bindPopup(`
+      <div class="popup-year">${t.year}</div>
+      <div class="popup-winner">${t.winner}</div>
+      <div class="popup-location">${t.location}</div>
+      ${latestBadge}
+    `);
+  });
+</script>
+
+</body>
+</html>
