@@ -296,7 +296,7 @@
 <div class="page">
 
   <div class="page-title">FL <span>Trips</span></div>
-  <div class="page-subtitle">Annual winner's trip · 2012 — present</div>
+  <div class="page-subtitle">Annual winner's trip · 2012 — 2025</div>
 
   <!-- MAP -->
   <div class="map-wrap">
@@ -308,9 +308,17 @@
   <div class="trips-list">
 
     <div class="trip-row latest">
+      <div class="trip-year">2025</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Scott Buckley <span class="trip-winner-badge">Latest</span></div>
+        <div class="trip-location">Charleston, SC</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
       <div class="trip-year">2024</div>
       <div class="trip-winner-location">
-        <div class="trip-winner">Alex Korchinski <span class="trip-winner-badge">Latest</span></div>
+        <div class="trip-winner">Alex Korchinski</div>
         <div class="trip-location">Calgary, AB</div>
       </div>
     </div>
@@ -448,6 +456,10 @@
       <div class="wins-count">1</div>
       <div class="wins-name">Ryan James</div>
     </div>
+    <div class="wins-card">
+      <div class="wins-count">1</div>
+      <div class="wins-name">Scott Buckley</div>
+    </div>
   </div>
 
 </div>
@@ -455,7 +467,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   const trips = [
-    { year: 2024, winner: 'Alex Korchinski', location: 'Calgary, AB',       lat: 51.0447,  lng: -114.0719, latest: true  },
+    { year: 2025, winner: 'Scott Buckley',   location: 'Charleston, SC',    lat: 32.7765,  lng:  -79.9311, latest: true  },
+    { year: 2024, winner: 'Alex Korchinski', location: 'Calgary, AB',       lat: 51.0447,  lng: -114.0719 },
     { year: 2023, winner: 'Ryan James',       location: 'Rogue River, OR',   lat: 42.4351,  lng: -123.1768 },
     { year: 2022, winner: 'Scott Mitchell',   location: "Coeur d'Alene, ID", lat: 47.6777,  lng: -116.7805 },
     { year: 2021, winner: 'Anthony Fryar',    location: 'Denver, CO',        lat: 39.7392,  lng: -104.9903 },
