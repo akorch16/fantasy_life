@@ -439,6 +439,8 @@
   ];
 
   const map = L.map('trips-map', {
+    center: [38, -103],
+    zoom: 3,
     zoomControl: true,
     scrollWheelZoom: false,
   });
@@ -490,9 +492,7 @@
       <div class="popup-location">${t.location}</div>
       ${latestBadge}
     `);
-    bounds.push([t.lat, t.lng]);
   });
-  map.fitBounds(bounds, { padding: [40, 60] });
 </script>
 
 </body>
