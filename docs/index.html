@@ -1399,7 +1399,7 @@ function renderTable() {
     const tr = document.createElement('tr');
     tr.className = 'player-row';
     tr.id = 'row-' + idx;
-    const isBuckley = player.name === 'Buckley';
+    const isBuckley = false; // temporarily disabled 2026-04-29
     const toddPaywalled = isTodd;
     tr.onclick = toddPaywalled ? () => openToddModal() : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
 
