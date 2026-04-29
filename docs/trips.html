@@ -451,23 +451,39 @@
     maxZoom: 19,
   }).addTo(map);
 
-  function makeIcon(latest) {
+  function makeIcon(latest, cityName) {
     const color = latest ? '#f59e0b' : '#2d7dd2';
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
       <path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z" fill="${color}"/>
       <circle cx="14" cy="14" r="6" fill="#0d0f14"/>
     </svg>`;
+    const label = `<div style="
+      position:absolute;
+      top:38px;
+      left:50%;
+      transform:translateX(-50%);
+      white-space:nowrap;
+      font-family:'DM Mono',monospace;
+      font-size:10px;
+      font-weight:500;
+      color:${color};
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      text-shadow:0 1px 3px #000,0 0 6px #000;
+      pointer-events:none;
+    ">${cityName}</div>`;
     return L.divIcon({
-      html: svg,
+      html: `<div style="position:relative;">${svg}${label}</div>`,
       iconSize: [28, 36],
       iconAnchor: [14, 36],
-      popupAnchor: [0, -36],
+      popupAnchor: [0, -38],
       className: '',
     });
   }
 
   trips.forEach(t => {
-    const marker = L.marker([t.lat, t.lng], { icon: makeIcon(t.latest) }).addTo(map);
+    const cityName = t.location.split(',')[0];
+    const marker = L.marker([t.lat, t.lng], { icon: makeIcon(t.latest, cityName) }).addTo(map);
     const latestBadge = t.latest ? '<div class="popup-latest">Most Recent</div>' : '';
     marker.bindPopup(`
       <div class="popup-year">${t.year}</div>
