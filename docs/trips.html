@@ -161,6 +161,29 @@
       border-radius: 3px;
     }
 
+    /* ── INTRO QUOTE ── */
+    .intro-quote {
+      background: var(--surface);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 6px 6px 0;
+      padding: 20px 24px;
+      margin-bottom: 48px;
+    }
+    .intro-quote p {
+      font-size: 1rem;
+      color: var(--text);
+      font-style: italic;
+      line-height: 1.75;
+      margin-bottom: 10px;
+    }
+    .intro-quote cite {
+      font-style: normal;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+
     /* ── SECTION HEADER ── */
     .section-title {
       font-size: 0.72rem;
@@ -426,7 +449,12 @@
 <div class="page">
 
   <div class="page-title">FL <span>Trips</span></div>
-  <div class="page-subtitle">Annual winner's trip · 2013 — 2026</div>
+  <div class="page-subtitle">Annual winner's trip</div>
+
+  <div class="intro-quote">
+    <p>"Since year one, the winner has picked a trip and had their trip paid for by the other 12. The group pays for airfare, lodging, and one nice dinner."</p>
+    <cite>— Amendment 7.18, FL Constitution</cite>
+  </div>
 
   <!-- MAP -->
   <div class="map-wrap">
