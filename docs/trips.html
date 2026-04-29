@@ -239,6 +239,136 @@
     }
     .trip-location.tbd { color: var(--dim); font-style: italic; }
 
+    /* ── NEXT TRIP ── */
+    .next-trip-card {
+      background: var(--surface);
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+    .next-trip-header {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 4px;
+    }
+    .next-trip-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 0.06em;
+      color: var(--blue);
+      line-height: 1;
+    }
+    .next-trip-city {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.06em;
+      color: var(--text);
+    }
+    .next-trip-dates {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
+    .next-trip-section {
+      margin-top: 20px;
+    }
+    .next-trip-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .flight-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .flight-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .flight-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .airbnb-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      background: #ff385c22;
+      border: 1px solid #ff385c55;
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #ff385c;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: background 0.15s;
+    }
+    .airbnb-btn:hover { background: #ff385c33; }
+    .activity-list, .restaurant-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .activity-item, .restaurant-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+    }
+    .activity-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .activity-name {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    .activity-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.5;
+    }
+    .activity-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--blue);
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .activity-link:hover { text-decoration: underline; }
+    .next-trip-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
     /* ── LEADERBOARD ── */
     .wins-grid {
       display: grid;
@@ -296,7 +426,101 @@
 <div class="page">
 
   <div class="page-title">FL <span>Trips</span></div>
-  <div class="page-subtitle">Annual winner's trip · 2012 — 2025</div>
+  <div class="page-subtitle">Annual winner's trip · 2012 — present</div>
+
+  <!-- 2026 NEXT TRIP -->
+  <div class="section-title">2026 Trip — Upcoming</div>
+  <div class="next-trip-card">
+    <div class="next-trip-header">
+      <div class="next-trip-year">2026</div>
+      <div class="next-trip-city">Charleston, SC</div>
+    </div>
+    <div class="next-trip-dates">Oct 22 – 25, 2026 · 13 guys</div>
+
+    <!-- FLIGHTS -->
+    <div class="next-trip-section">
+      <div class="next-trip-label">✈ Flights</div>
+      <div class="flight-links">
+        <a class="flight-btn" href="https://www.google.com/flights?hl=en#flt=SFO.CHS.2026-10-22*CHS.SFO.2026-10-25" target="_blank">San Francisco → CHS</a>
+        <a class="flight-btn" href="https://www.google.com/flights?hl=en#flt=PDX.CHS.2026-10-22*CHS.PDX.2026-10-25" target="_blank">Portland → CHS</a>
+        <a class="flight-btn" href="https://www.google.com/flights?hl=en#flt=LAX.CHS.2026-10-22*CHS.LAX.2026-10-25" target="_blank">Los Angeles → CHS</a>
+        <a class="flight-btn" href="https://www.google.com/flights?hl=en#flt=JFK.CHS.2026-10-22*CHS.JFK.2026-10-25" target="_blank">New York → CHS</a>
+      </div>
+    </div>
+
+    <!-- AIRBNB -->
+    <div class="next-trip-section">
+      <div class="next-trip-label">🏠 Stay</div>
+      <a class="airbnb-btn" href="https://www.airbnb.com/rooms/735571599452521278?adults=14&check_in=2026-10-22&check_out=2026-10-25&guests=14&location=Charleston%2C%20SC&search_mode=regular_search&source_impression_id=p3_1776539722_P3Uszv7rTDyAm5w4&previous_page_section_name=1001&federated_search_id=be2c4ea0-" target="_blank">
+        View Airbnb — 14 guests · Oct 22–25
+      </a>
+    </div>
+
+    <div class="next-trip-divider"></div>
+
+    <!-- ACTIVITIES -->
+    <div class="next-trip-section">
+      <div class="next-trip-label">🎯 Activities</div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon">🚤</div>
+          <div>
+            <div class="activity-name">Boat Clay Pigeon Shooting</div>
+            <div class="activity-desc">Shoot sporting clays off the deck of a boat on Charleston Harbor — guided group outing, gear provided. One of the most unique group activities in the Lowcountry.</div>
+            <a class="activity-link" href="https://andareincentives.com/activity/osprey-boat-skeet-shooting/" target="_blank">andareincentives.com →</a>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">⚓</div>
+          <div>
+            <div class="activity-name">USS Yorktown & Patriots Point</div>
+            <div class="activity-desc">Behind-the-scenes tour of a WWII aircraft carrier with exclusive access to areas not open to the public. Flight simulators, flight deck, and combat ship tours included.</div>
+            <a class="activity-link" href="https://www.patriotspoint.org/" target="_blank">patriotspoint.org →</a>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">🍺</div>
+          <div>
+            <div class="activity-name">Charleston Brewery Crawl</div>
+            <div class="activity-desc">Charleston's craft beer scene is one of the best in the South. Hit Edmund's Oast, Revelry Brewing, and Holy City Brewing — all walkable from downtown.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="next-trip-divider"></div>
+
+    <!-- RESTAURANTS -->
+    <div class="next-trip-section">
+      <div class="next-trip-label">🍽 Restaurants</div>
+      <div class="restaurant-list">
+        <div class="restaurant-item">
+          <div class="activity-icon">🦪</div>
+          <div>
+            <div class="activity-name">Leon's Oyster Shop</div>
+            <div class="activity-desc">Casual, loud, and perfect for a big group. Fried chicken, raw bar, and cold beer on the back patio. Groups 12+ get a preset family-style menu — email events@leonsoystershop.com to book.</div>
+            <a class="activity-link" href="https://www.leonsoystershop.com/" target="_blank">leonsoystershop.com →</a>
+          </div>
+        </div>
+        <div class="restaurant-item">
+          <div class="activity-icon">🥩</div>
+          <div>
+            <div class="activity-name">The Macintosh</div>
+            <div class="activity-desc">Upscale American with a killer cocktail program. Private outdoor courtyard holds up to 30 — perfect for a private buyout. Family-style shareable plates and a serious bourbon list.</div>
+            <a class="activity-link" href="https://www.themacintoshcharleston.com/" target="_blank">themacintoshcharleston.com →</a>
+          </div>
+        </div>
+        <div class="restaurant-item">
+          <div class="activity-icon">🍋</div>
+          <div>
+            <div class="activity-name">Indaco</div>
+            <div class="activity-desc">Italian on King Street with an enclosed patio that fits 11–50. Wood-fired pizzas, handmade pasta, and a great wine list. One of the best atmospheres in Charleston for a late dinner.</div>
+            <a class="activity-link" href="https://www.indacocharleston.com/" target="_blank">indacocharleston.com →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- MAP -->
   <div class="map-wrap">
