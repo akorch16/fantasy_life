@@ -341,17 +341,6 @@
       color: var(--muted);
     }
 
-    .score-cell.feder-score {
-      color: #8db600;
-    }
-
-    .feder-name {
-      background: linear-gradient(to right, #ff0000, #ff7700, #ffdd00, #00cc00, #0055ff, #8800cc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-weight: 700;
-    }
 
     .rank-delta {
       display: block;
@@ -1415,7 +1404,6 @@ function renderTable() {
     tr.onclick = toddPaywalled ? () => openToddModal() : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
 
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
-    const isFeder = player.name === 'Feder';
 
     if (toddPaywalled) {
       const toddChangeCel = currentFilter === 'all' ? `<td class="change-cell delta-same">??</td>` : '';
@@ -1443,8 +1431,8 @@ function renderTable() {
         : scoreDelta > 0 ? `+${scoreDelta.toFixed(1)}` : `${scoreDelta.toFixed(1)}`;
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}${rankDeltaSpan}</td>
-        <td><div class="player-name${isFeder ? ' feder-name' : ''}">${player.name}</div></td>
-        <td class="score-cell${isFeder ? ' feder-score' : ''}">${(player.total || 0).toFixed(1)}</td>
+        <td><div class="player-name">${player.name}</div></td>
+        <td class="score-cell">${(player.total || 0).toFixed(1)}</td>
         <td class="change-cell ${scClass}">${scText}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
       `;
@@ -1469,7 +1457,7 @@ function renderTable() {
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
-          <div class="player-name${isFeder ? ' feder-name' : ''}">${player.name}</div>
+          <div class="player-name">${player.name}</div>
           <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${pick}</div>
         </td>
         ${num1Col}
