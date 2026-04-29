@@ -640,7 +640,17 @@ ACTOR_ACTRESS_STATIC = {
 
 def compute_baseline_actor_actress(category):
     picks = DRAFT_PICKS_2026.get(category, {})
-    data = load_data(category.lower())
+    # Prefer local JSON (we manually maintain movie data); fall back to Supabase
+    import json as _json
+    _local_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', f'{category.lower()}.json')
+    _local = None
+    if os.path.exists(_local_path):
+        try:
+            with open(_local_path) as _f:
+                _local = _json.load(_f)
+        except Exception:
+            pass
+    data = _local if (_local and _local.get('scores')) else load_data(category.lower())
     static_lookup = ACTOR_ACTRESS_STATIC.get(category, {})
 
     raw_values = {}
