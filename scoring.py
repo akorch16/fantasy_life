@@ -426,53 +426,33 @@ def compute_baseline_tennis():
 
 
 def fetch_owgr_live():
-    """Scrape current OWGR rankings from owgr.com. Returns {rankings:[{player,rank}]} or None."""
+    """Fetch OWGR rankings from owgr.com internal JSON API. Returns {rankings:[{player,rank}]} or None."""
     try:
-        from bs4 import BeautifulSoup
-        url = 'https://www.owgr.com/ranking?pageNo=1&pageSize=200&country=All'
+        url = 'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200&country=All&playerName='
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
                           '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml',
+            'Accept': 'application/json',
+            'Referer': 'https://www.owgr.com/ranking',
         }
         resp = requests.get(url, headers=headers, timeout=20)
         resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, 'html.parser')
-
-        table = soup.find('table')
-        if not table:
-            print('  ✗ OWGR: no table found')
-            return None
-
-        # Identify which column indices hold rank and name
-        headers_row = table.find('thead')
-        col_rank, col_name = 0, 2  # sensible defaults
-        if headers_row:
-            ths = [th.get_text(strip=True).lower() for th in headers_row.find_all('th')]
-            for i, h in enumerate(ths):
-                if 'this week' in h or h == 'pos':
-                    col_rank = i
-                if h == 'name' or 'player' in h:
-                    col_name = i
-
-        tbody = table.find('tbody') or table
+        data = resp.json()
+        # Response is either a list or {"rankingsList": [...]}
+        rows = data if isinstance(data, list) else data.get('rankingsList') or data.get('rankings') or []
         rankings = []
-        for row in tbody.find_all('tr'):
-            cells = row.find_all('td')
-            if len(cells) <= max(col_rank, col_name):
-                continue
-            try:
-                rank = int(cells[col_rank].get_text(strip=True).lstrip('=').strip())
-                name = cells[col_name].get_text(strip=True)
-                if name and rank:
-                    rankings.append({'player': name, 'rank': rank})
-            except (ValueError, IndexError):
-                continue
-
+        for row in rows:
+            rank = row.get('thisWeek') or row.get('rank') or row.get('position')
+            name = row.get('fullName') or row.get('name') or row.get('playerName')
+            if rank and name:
+                try:
+                    rankings.append({'player': name, 'rank': int(rank)})
+                except (ValueError, TypeError):
+                    continue
         if len(rankings) >= 10:
             print(f'  ✓ OWGR live: {len(rankings)} players fetched')
             return {'rankings': rankings}
-        print(f'  ✗ OWGR: too few rows ({len(rankings)})')
+        print(f'  ✗ OWGR JSON API: too few rows ({len(rankings)})')
         return None
     except Exception as e:
         print(f'  ✗ OWGR live fetch failed: {e}')
