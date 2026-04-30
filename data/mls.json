@@ -1,125 +1,18 @@
 {
   "standings": [
-    {
-      "team": "LAFC",
-      "points": 16
-    },
-    {
-      "team": "Vancouver Whitecaps",
-      "points": 15
-    },
-    {
-      "team": "San Jose Earthquakes",
-      "points": 15
-    },
-    {
-      "team": "Real Salt Lake",
-      "points": 13
-    },
-    {
-      "team": "Seattle Sounders",
-      "points": 13
-    },
-    {
-      "team": "FC Dallas",
-      "points": 11
-    },
-    {
-      "team": "San Diego FC",
-      "points": 11
-    },
-    {
-      "team": "Colorado Rapids",
-      "points": 9
-    },
-    {
-      "team": "Minnesota United",
-      "points": 8
-    },
-    {
-      "team": "Houston Dynamo",
-      "points": 6
-    },
-    {
-      "team": "Austin FC",
-      "points": 6
-    },
-    {
-      "team": "LA Galaxy",
-      "points": 5
-    },
-    {
-      "team": "St. Louis City",
-      "points": 5
-    },
-    {
-      "team": "Portland Timbers",
-      "points": 4
-    },
-    {
-      "team": "Sporting Kansas City",
-      "points": 4
-    },
-    {
-      "team": "Nashville SC",
-      "points": 13
-    },
-    {
-      "team": "New York City FC",
-      "points": 11
-    },
-    {
-      "team": "Charlotte FC",
-      "points": 11
-    },
-    {
-      "team": "Inter Miami",
-      "points": 11
-    },
-    {
-      "team": "Chicago Fire",
-      "points": 10
-    },
-    {
-      "team": "Toronto FC",
-      "points": 10
-    },
-    {
-      "team": "New York Red Bulls",
-      "points": 10
-    },
-    {
-      "team": "DC United",
-      "points": 7
-    },
-    {
-      "team": "New England Revolution",
-      "points": 6
-    },
-    {
-      "team": "FC Cincinnati",
-      "points": 6
-    },
-    {
-      "team": "Columbus Crew",
-      "points": 5
-    },
-    {
-      "team": "Atlanta United",
-      "points": 4
-    },
-    {
-      "team": "CF Montreal",
-      "points": 3
-    },
-    {
-      "team": "Orlando City",
-      "points": 3
-    },
-    {
-      "team": "Philadelphia Union",
-      "points": 0
-    }
+    {"team": "Vancouver Whitecaps",  "points": 24},
+    {"team": "LAFC",                 "points": 20},
+    {"team": "Inter Miami",          "points": 19},
+    {"team": "Seattle Sounders",     "points": 19},
+    {"team": "Minnesota United",     "points": 17},
+    {"team": "Charlotte FC",         "points": 14},
+    {"team": "New York Red Bulls",   "points": 12},
+    {"team": "Columbus Crew",        "points": 12},
+    {"team": "FC Cincinnati",        "points": 12},
+    {"team": "LA Galaxy",            "points": 12},
+    {"team": "San Diego FC",         "points": 11},
+    {"team": "Orlando City",         "points": 7},
+    {"team": "Philadelphia Union",   "points": 5}
   ],
-  "_updated": "2026-04-05"
+  "_updated": "2026-04-30"
 }
