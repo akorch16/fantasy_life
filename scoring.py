@@ -425,20 +425,47 @@ def compute_baseline_tennis():
     return result
 
 
+def _parse_owgr_espn(data):
+    """Parse OWGR rankings from ESPN golf rankings API response."""
+    rankings = []
+    for entry in data.get('rankings', []):
+        rank = entry.get('rank')
+        athlete = entry.get('athlete', {})
+        name = athlete.get('displayName') or athlete.get('fullName')
+        if rank and name:
+            try:
+                rankings.append({'player': name, 'rank': int(rank)})
+            except (ValueError, TypeError):
+                continue
+    return rankings
+
+
 def fetch_owgr_live():
-    """Fetch OWGR rankings from owgr.com internal JSON API. Returns {rankings:[{player,rank}]} or None."""
+    """Fetch OWGR rankings, trying ESPN then owgr.com JSON API."""
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                             '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'}
+
+    # 1. Try ESPN golf rankings API (same domain as working NASCAR endpoint)
     try:
-        url = 'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200&country=All&playerName='
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-                          '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            'Accept': 'application/json',
-            'Referer': 'https://www.owgr.com/ranking',
-        }
-        resp = requests.get(url, headers=headers, timeout=20)
+        url = 'https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings'
+        resp = requests.get(url, headers=headers, timeout=15)
         resp.raise_for_status()
         data = resp.json()
-        # Response is either a list or {"rankingsList": [...]}
+        rankings = _parse_owgr_espn(data)
+        if len(rankings) >= 10:
+            print(f'  ✓ OWGR ESPN: {len(rankings)} players fetched')
+            return {'rankings': rankings}
+        print(f'  ✗ OWGR ESPN: too few rows ({len(rankings)}), trying owgr.com')
+    except Exception as e:
+        print(f'  ✗ OWGR ESPN failed: {e}')
+
+    # 2. Fall back to owgr.com internal JSON API
+    try:
+        url = 'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200&country=All&playerName='
+        resp = requests.get(url, headers={**headers, 'Accept': 'application/json',
+                                          'Referer': 'https://www.owgr.com/ranking'}, timeout=20)
+        resp.raise_for_status()
+        data = resp.json()
         rows = data if isinstance(data, list) else data.get('rankingsList') or data.get('rankings') or []
         rankings = []
         for row in rows:
@@ -450,13 +477,13 @@ def fetch_owgr_live():
                 except (ValueError, TypeError):
                     continue
         if len(rankings) >= 10:
-            print(f'  ✓ OWGR live: {len(rankings)} players fetched')
+            print(f'  ✓ OWGR owgr.com: {len(rankings)} players fetched')
             return {'rankings': rankings}
-        print(f'  ✗ OWGR JSON API: too few rows ({len(rankings)})')
-        return None
+        print(f'  ✗ OWGR owgr.com: too few rows ({len(rankings)})')
     except Exception as e:
-        print(f'  ✗ OWGR live fetch failed: {e}')
-        return None
+        print(f'  ✗ OWGR owgr.com failed: {e}')
+
+    return None
 
 
 def fetch_nascar_espn_live():
