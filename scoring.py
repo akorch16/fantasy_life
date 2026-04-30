@@ -350,6 +350,33 @@ def compute_baseline_golf():
     return result
 
 
+# MLS 2026 standings as of Apr 30 2026 (week ~10)
+MLS_2026_STANDINGS_STATIC = {"standings": [
+    {"team": "Vancouver Whitecaps",  "points": 24},
+    {"team": "LAFC",                 "points": 20},
+    {"team": "Inter Miami",          "points": 19},
+    {"team": "Seattle Sounders",     "points": 19},
+    {"team": "Minnesota United",     "points": 17},
+    {"team": "Charlotte FC",         "points": 14},
+    {"team": "New York Red Bulls",   "points": 12},
+    {"team": "Columbus Crew",        "points": 12},
+    {"team": "FC Cincinnati",        "points": 12},
+    {"team": "LA Galaxy",            "points": 12},
+    {"team": "San Diego FC",         "points": 11},
+    {"team": "Orlando City",         "points": 7},
+    {"team": "Philadelphia Union",   "points": 5},
+]}
+
+def compute_baseline_mls():
+    picks = DRAFT_PICKS_2026.get('MLS', {})
+    _d = load_data('mls')
+    # If the local file has stale end-of-season data (>50 pts), ignore it
+    if _d and _d.get('standings') and max((e.get('points', 0) for e in _d['standings']), default=0) > 50:
+        _d = None
+    data = _d if (_d and _d.get('standings')) else MLS_2026_STANDINGS_STATIC
+    return compute_baseline_sports('MLS', 'mls', 'points', reverse=True, static_data=data)
+
+
 # NASCAR Cup standings after Race 6 (Darlington, March 22 2026)
 NASCAR_2026_STANDINGS_STATIC = {"standings": [
     {"driver": "Tyler Reddick",         "points": 325},
@@ -565,7 +592,7 @@ def compute_all_scores():
         'Tennis':   compute_baseline_tennis,
         'Golf':     compute_baseline_golf,
         'NASCAR':   compute_baseline_nascar,
-        'MLS':      lambda: compute_baseline_sports('MLS',   'mls',     'points', reverse=True),
+        'MLS':      compute_baseline_mls,
         'Actor':    lambda: compute_baseline_actor_actress('Actor'),
         'Actress':  lambda: compute_baseline_actor_actress('Actress'),
         'Musician': compute_baseline_musician,
@@ -621,15 +648,6 @@ def compute_all_scores():
 def team_matches(pick_name, data_name):
     if not pick_name or not data_name:
         return False
-    pick = pick_name.lower().strip()
-    data = data_name.lower().strip()
-    if pick in data or data in pick:
-        return True
-    for word in ['fc', 'sc', 'city', 'united', 'the', 'de', 'af', 'afc']:
-        pick = pick.replace(word, '').strip()
-        data = data.replace(word, '').strip()
-    if pick and data and (pick in data or data in pick):
-        return True
     NICKNAMES = {
         'seahawks': 'seattle seahawks', 'ravens': 'baltimore ravens',
         'bills': 'buffalo bills', '49ers': 'san francisco 49ers',
@@ -644,12 +662,33 @@ def team_matches(pick_name, data_name):
         'lakers': 'los angeles lakers', 'okc': 'oklahoma city thunder',
         'clippers': 'los angeles clippers', 'rockets': 'houston rockets',
         'bucks': 'milwaukee bucks', 'magic': 'orlando magic',
-        'knicks': 'new york knicks', 'lafc': 'los angeles fc',
-        'la galaxy': 'los angeles galaxy',
+        'knicks': 'new york knicks',
+        'lafc': 'lafc', 'los angeles fc': 'lafc',
+        'la galaxy': 'la galaxy', 'los angeles galaxy': 'la galaxy',
+        'seattle sounders fc': 'seattle sounders',
+        'inter miami cf': 'inter miami',
+        'columbus crew sc': 'columbus crew',
+        'minnesota united fc': 'minnesota united',
     }
+    pick = pick_name.lower().strip()
+    data = data_name.lower().strip()
+    if pick == data:
+        return True
+    # Normalize via NICKNAMES on original names first
     pick_norm = NICKNAMES.get(pick, pick)
     data_norm = NICKNAMES.get(data, data)
-    return pick_norm in data_norm or data_norm in pick_norm
+    if pick_norm == data_norm:
+        return True
+    if len(pick_norm) >= 4 and len(data_norm) >= 4:
+        if pick_norm in data_norm or data_norm in pick_norm:
+            return True
+    # Strip common suffixes/words and try again
+    for word in ['fc', 'sc', 'city', 'united', 'the', 'de', 'af', 'afc']:
+        pick = pick.replace(word, '').strip()
+        data = data.replace(word, '').strip()
+    if pick and data and len(pick) >= 4 and len(data) >= 4 and (pick in data or data in pick):
+        return True
+    return False
 
 
 def name_matches(pick_name, data_name):

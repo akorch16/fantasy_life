@@ -224,24 +224,58 @@ def scrape_ncaab():
 
 # ── MLS (ESPN) ────────────────────────────────────────────────────────────────
 
+def _espn_standings_mls(year=2026):
+    """Fetch MLS standings for a specific season year to avoid defaulting to prior completed season."""
+    import datetime
+    yr = year or datetime.date.today().year
+    urls = [
+        f'https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/standings?season={yr}',
+        f'https://site.web.api.espn.com/apis/v2/sports/soccer/usa.1/standings?season={yr}&seasontype=2',
+        f'https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/standings',
+    ]
+    for url in urls:
+        try:
+            data = fetch_json(url, timeout=15)
+            entries = []
+            for conf in data.get('children', []):
+                for div in conf.get('children', [conf]):
+                    for entry in div.get('standings', {}).get('entries', []):
+                        entries.append(entry)
+                for entry in conf.get('standings', {}).get('entries', []):
+                    if entry not in entries:
+                        entries.append(entry)
+            if not entries:
+                for entry in data.get('standings', {}).get('entries', []):
+                    entries.append(entry)
+            if entries:
+                print(f'    ✓ MLS entries from {url[:70]}')
+                return entries
+        except Exception as e:
+            print(f'    ✗ MLS {url[:60]}: {e}')
+    return []
+
 def scrape_mls():
     if is_frozen('MLS'):
         print('  ⏸ MLS is frozen, skipping'); return True
     try:
-        # Try multiple MLS slugs
-        for slug in ['usa.1', 'mls', 'soccer.usa.1']:
-            entries = _espn_standings('soccer', slug)
-            if entries:
-                standings = []
-                for e in entries:
-                    name = e.get('team', {}).get('displayName', '')
-                    pts = _espn_stat(e, 'points') or _espn_stat(e, 'pts') or 0
-                    standings.append({'team': name, 'points': pts})
-                if standings:
+        import datetime
+        entries = _espn_standings_mls(year=datetime.date.today().year)
+        if entries:
+            standings = []
+            for e in entries:
+                name = e.get('team', {}).get('displayName', '')
+                pts = _espn_stat(e, 'points') or _espn_stat(e, 'pts') or 0
+                if name:
+                    standings.append({'team': name, 'points': int(pts or 0)})
+            if standings:
+                # Sanity-check: if max points > 50, likely prior completed season — skip
+                if max(s['points'] for s in standings) > 50:
+                    print(f'    ✗ MLS data looks like prior season (max pts {max(s["points"] for s in standings)}), skipping')
+                else:
                     standings.sort(key=lambda x: x['points'], reverse=True)
-                    print(f'    ✓ Got {len(standings)} MLS teams from slug {slug}')
+                    print(f'    ✓ Got {len(standings)} MLS teams')
                     return save_standing('MLS', {'standings': standings})
-        raise Exception('No MLS data from any slug')
+        raise Exception('No MLS data found')
     except Exception as e:
         print(f'  ✗ MLS: {e}'); return False
 
