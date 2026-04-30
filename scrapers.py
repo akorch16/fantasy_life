@@ -245,7 +245,7 @@ def scrape_mls():
     except Exception as e:
         print(f'  ✗ MLS: {e}'); return False
 
-# ── NASCAR (NASCAR.com / motorsport.com scrape) ───────────────────────────────
+# ── NASCAR (ESPN JSON API) ────────────────────────────────────────────────────
 
 def scrape_nascar():
     if is_frozen('NASCAR'):
@@ -253,50 +253,33 @@ def scrape_nascar():
     try:
         standings = []
 
-        # Primary: motorsport.com standings page
+        # Primary: ESPN JSON API (same endpoint used by scoring.py)
         try:
-            soup = fetch_html('https://www.motorsport.com/nascar-cup/standings/')
-            rows = soup.select('table tr, .standings-table tr, .driver-row')
-            for row in rows:
-                cols = row.find_all('td')
-                if len(cols) >= 3:
-                    try:
-                        rank_text = cols[0].get_text(strip=True)
-                        rank = int(''.join(filter(str.isdigit, rank_text)) or '0')
-                        if rank == 0:
-                            continue
-                        driver = cols[1].get_text(strip=True) if len(cols) > 1 else ''
-                        pts_text = cols[-1].get_text(strip=True).replace(',', '')
-                        pts = int(''.join(filter(str.isdigit, pts_text)) or '0')
-                        if driver and pts > 0:
-                            standings.append({'driver': driver, 'points': pts, 'rank': rank})
-                    except (ValueError, AttributeError):
-                        continue
-            if standings:
-                print(f'    ✓ motorsport.com: {len(standings)} NASCAR drivers')
+            data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/racing/nascar-premier/standings')
+            entries = []
+            for child in data.get('children', []):
+                child_entries = child.get('standings', {}).get('entries', [])
+                if not child_entries:
+                    continue
+                for entry in child_entries:
+                    name = entry.get('athlete', {}).get('displayName', '')
+                    pts = None
+                    for stat in entry.get('stats', []):
+                        if stat.get('name') == 'points':
+                            try:
+                                pts = int(float(stat.get('value', 0)))
+                            except (TypeError, ValueError):
+                                pass
+                            break
+                    if name and pts is not None:
+                        entries.append({'driver': name, 'points': pts})
+                if entries:
+                    break
+            if entries:
+                standings = sorted(entries, key=lambda x: -x['points'])
+                print(f'    ✓ ESPN NASCAR API: {len(standings)} drivers')
         except Exception as e:
-            print(f'    ✗ motorsport.com: {e}')
-
-        # Fallback: nascar.com standings
-        if not standings:
-            try:
-                import re
-                soup = fetch_html('https://www.nascar.com/standings/nascar-cup-series/')
-                for row in soup.select('tr'):
-                    cols = row.find_all('td')
-                    if len(cols) >= 3:
-                        try:
-                            rank = int(cols[0].get_text(strip=True))
-                            driver = cols[1].get_text(strip=True)
-                            pts = int(cols[2].get_text(strip=True).replace(',', ''))
-                            if driver and pts > 0:
-                                standings.append({'driver': driver, 'points': pts, 'rank': rank})
-                        except (ValueError, AttributeError):
-                            continue
-                if standings:
-                    print(f'    ✓ nascar.com: {len(standings)} NASCAR drivers')
-            except Exception as e:
-                print(f'    ✗ nascar.com: {e}')
+            print(f'    ✗ ESPN NASCAR API: {e}')
 
         if standings:
             return save_standing('NASCAR', {'standings': standings})
@@ -362,65 +345,52 @@ def scrape_tennis():
     except Exception as e:
         print(f'  ✗ Tennis: {e}'); return False
 
-# ── Golf (OWGR via lasvegassun / ESPN fallback) ───────────────────────────────
+# ── Golf (ESPN JSON API / owgr.com JSON fallback) ────────────────────────────
+
+def _parse_owgr_espn(data):
+    rankings = []
+    for group in data.get('rankings', []):
+        for entry in group.get('ranks', []):
+            rank = entry.get('current') or entry.get('rank')
+            player = entry.get('athlete', {}).get('displayName', '')
+            if player and rank:
+                rankings.append({'player': player, 'rank': int(rank)})
+    return rankings
+
 def scrape_golf():
     if is_frozen('Golf'):
         print('  ⏸ Golf is frozen, skipping'); return True
     try:
         rankings = []
 
-        # Primary: Las Vegas Sun publishes a clean OWGR table weekly
+        # Primary: ESPN golf rankings API
         try:
-            import datetime, re
-            today = datetime.date.today()
-            # Try today and up to 7 days back to find the latest publish
-            for delta in range(8):
-                d = today - datetime.timedelta(days=delta)
-                url = f'https://lasvegassun.com/news/{d.year}/{d.month:02d}/{d.day:02d}/world-golf-ranking/'
-                try:
-                    soup = fetch_html(url)
-                    for row in soup.select('table tr')[1:]:
-                        cols = row.find_all('td')
-                        if len(cols) >= 2:
-                            rank_text = cols[0].text.strip()
-                            name_text = re.sub(r'\s+', ' ', cols[1].text.strip())
-                            if rank_text.isdigit() and name_text:
-                                rankings.append({'player': name_text, 'rank': int(rank_text)})
-                    if rankings:
-                        print(f'    ✓ Las Vegas Sun {d}: {len(rankings)} golfers')
-                        break
-                except Exception:
-                    continue
+            data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings')
+            rankings = _parse_owgr_espn(data)
+            if rankings:
+                print(f'    ✓ ESPN Golf API: {len(rankings)} players')
         except Exception as e:
-            print(f'    ✗ Las Vegas Sun: {e}')
+            print(f'    ✗ ESPN Golf API: {e}')
+
+        # Fallback: owgr.com internal JSON API
+        if not rankings:
+            try:
+                data = fetch_json(
+                    'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200&country=All&playerName=',
+                    headers={'Referer': 'https://www.owgr.com/', 'Accept': 'application/json'}
+                )
+                for item in data.get('rankings', data if isinstance(data, list) else []):
+                    rank = item.get('rank') or item.get('position')
+                    player = item.get('name') or item.get('playerName') or item.get('fullName', '')
+                    if player and rank:
+                        rankings.append({'player': player, 'rank': int(rank)})
+                if rankings:
+                    print(f'    ✓ OWGR.com JSON API: {len(rankings)} players')
+            except Exception as e:
+                print(f'    ✗ OWGR.com JSON API: {e}')
 
         if rankings:
             return save_standing('Golf', {'rankings': rankings})
-
-        # Fallback: OWGR.com table scrape
-        try:
-            soup = fetch_html('https://www.owgr.com/current-world-ranking')
-            for row in soup.select('table tr, tbody tr')[1:100]:
-                cols = row.find_all('td')
-                if len(cols) >= 3:
-                    try:
-                        rank = int(cols[0].text.strip().split()[0])
-                        player = ''
-                        for idx in [2, 3, 1]:
-                            candidate = cols[idx].text.strip() if len(cols) > idx else ''
-                            if candidate and not candidate.replace(',', '').replace('.', '').isdigit():
-                                player = candidate
-                                break
-                        if player:
-                            rankings.append({'player': player, 'rank': rank})
-                    except (ValueError, AttributeError):
-                        continue
-            if rankings:
-                print(f'    ✓ OWGR.com: {len(rankings)} golfers')
-                return save_standing('Golf', {'rankings': rankings})
-        except Exception as e:
-            print(f'    ✗ OWGR.com: {e}')
-
         raise Exception('No golf rankings found from any source')
     except Exception as e:
         print(f'  ✗ Golf: {e}'); return False
