@@ -518,23 +518,21 @@ def fetch_nascar_espn_live():
         return None
 
 
-# OWGR static fallback (post-Masters April 2026)
+# OWGR static fallback (post-RBC Heritage, week 17, April 28 2026)
 GOLF_2026_OWGR_STATIC = {"rankings": [
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
-    {"player": "Cameron Young",       "rank": 3},
+    {"player": "Tommy Fleetwood",     "rank": 3},
     {"player": "Xander Schauffele",   "rank": 4},
     {"player": "Russell Henley",      "rank": 5},
     {"player": "J.J. Spaun",          "rank": 6},
-    {"player": "Justin Rose",         "rank": 8},
-    {"player": "Collin Morikawa",     "rank": 9},
-    {"player": "Tommy Fleetwood",     "rank": 11},
-    {"player": "Justin Thomas",       "rank": 13},
+    {"player": "Justin Thomas",       "rank": 9},
+    {"player": "Collin Morikawa",     "rank": 11},
     {"player": "Ludvig Aberg",        "rank": 14},
     {"player": "Viktor Hovland",      "rank": 16},
+    {"player": "Jon Rahm",            "rank": 20},
     {"player": "Bryson DeChambeau",   "rank": 24},
     {"player": "Patrick Cantlay",     "rank": 34},
-    {"player": "Jon Rahm",            "rank": 36},
 ]}
 
 def compute_baseline_golf():
@@ -570,26 +568,21 @@ def compute_baseline_golf():
     return result
 
 
-# NASCAR Cup standings after Race 6 (Darlington, March 22 2026)
+# NASCAR Cup standings after Race 10 (Talladega, April 26 2026)
 NASCAR_2026_STANDINGS_STATIC = {"standings": [
-    {"driver": "Tyler Reddick",         "points": 325},
-    {"driver": "Ryan Blaney",           "points": 230},
-    {"driver": "Bubba Wallace",         "points": 205},
-    {"driver": "Denny Hamlin",          "points": 203},
-    {"driver": "Chase Elliott",         "points": 194},
-    {"driver": "William Byron",         "points": 191},
-    {"driver": "Chris Buescher",        "points": 188},
-    {"driver": "Christopher Bell",      "points": 182},
-    {"driver": "Brad Keselowski",       "points": 182},
-    {"driver": "Kyle Larson",           "points": 176},
-    {"driver": "Ty Gibbs",              "points": 173},
-    {"driver": "Ryan Preece",           "points": 154},
-    {"driver": "Carson Hocevar",        "points": 151},
-    {"driver": "Daniel Suarez",         "points": 150},
-    {"driver": "Shane van Gisbergen",   "points": 140},
-    {"driver": "Joey Logano",           "points": 139},
-    {"driver": "Ross Chastain",         "points": 115},
-    {"driver": "Chase Briscoe",         "points": 108},
+    {"driver": "Tyler Reddick",         "points": 484},
+    {"driver": "Denny Hamlin",          "points": 374},
+    {"driver": "Ryan Blaney",           "points": 344},
+    {"driver": "Chase Elliott",         "points": 340},
+    {"driver": "Kyle Larson",           "points": 315},
+    {"driver": "William Byron",         "points": 275},
+    {"driver": "Bubba Wallace",         "points": 275},
+    {"driver": "Christopher Bell",      "points": 268},
+    {"driver": "Daniel Suarez",         "points": 228},
+    {"driver": "Joey Logano",           "points": 227},
+    {"driver": "Chase Briscoe",         "points": 222},
+    {"driver": "Ross Chastain",         "points": 205},
+    {"driver": "Shane van Gisbergen",   "points": 195},
 ]}
 
 def compute_baseline_nascar():
