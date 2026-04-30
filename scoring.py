@@ -518,21 +518,21 @@ def fetch_nascar_espn_live():
         return None
 
 
-# OWGR static fallback (post-RBC Heritage, week 17, April 28 2026)
+# OWGR static fallback (owgr.com screenshot, April 30 2026)
 GOLF_2026_OWGR_STATIC = {"rankings": [
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
-    {"player": "Tommy Fleetwood",     "rank": 3},
-    {"player": "Xander Schauffele",   "rank": 4},
-    {"player": "Russell Henley",      "rank": 5},
-    {"player": "J.J. Spaun",          "rank": 6},
-    {"player": "Justin Thomas",       "rank": 9},
-    {"player": "Collin Morikawa",     "rank": 11},
-    {"player": "Ludvig Aberg",        "rank": 14},
-    {"player": "Viktor Hovland",      "rank": 16},
-    {"player": "Jon Rahm",            "rank": 20},
-    {"player": "Bryson DeChambeau",   "rank": 24},
-    {"player": "Patrick Cantlay",     "rank": 34},
+    {"player": "Collin Morikawa",     "rank": 6},
+    {"player": "Tommy Fleetwood",     "rank": 7},
+    {"player": "Russell Henley",      "rank": 8},
+    {"player": "Xander Schauffele",   "rank": 9},
+    {"player": "J.J. Spaun",          "rank": 10},
+    {"player": "Justin Thomas",       "rank": 16},
+    {"player": "Ludvig Aberg",        "rank": 18},
+    {"player": "Viktor Hovland",      "rank": 20},
+    {"player": "Jon Rahm",            "rank": 23},
+    {"player": "Bryson DeChambeau",   "rank": 28},
+    {"player": "Patrick Cantlay",     "rank": 38},
 ]}
 
 def compute_baseline_golf():
