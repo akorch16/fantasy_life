@@ -734,7 +734,8 @@ def _omdb_movie_data(title, year=None):
 # Manual box office / RT overrides for films OMDB hasn't fully indexed yet.
 # Values here are used when OMDB returns null for that field.
 _MOVIE_OVERRIDES = {
-    'The Drama': {'box_office': 36_000_000, 'rt_score': 77},
+    'The Drama':              {'box_office': 36_000_000,  'rt_score': 77},
+    'The Devil Wears Prada 2': {'box_office': 77_000_000, 'rt_score': 78},
 }
 
 
