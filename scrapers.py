@@ -767,8 +767,9 @@ def scrape_actor_actress(category='Actor'):
         for m in raw_movies:
             omdb = _omdb_movie_data(m['title'], year='2026')
             override = _MOVIE_OVERRIDES.get(m['title'], {})
-            bo   = omdb.get('box_office') or (override.get('box_office'))
-            rt   = omdb.get('rt_score')   or (override.get('rt_score'))
+            # Override takes priority — lets us correct stale/wrong OMDB values
+            bo   = override.get('box_office') or omdb.get('box_office')
+            rt   = override.get('rt_score')   or omdb.get('rt_score')
             if bo and rt:
                 comp = round((bo / 1_000_000) * (rt / 100), 2)
             elif rt:  # box office not yet reported — use RT score alone as proxy
