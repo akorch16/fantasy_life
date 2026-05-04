@@ -102,30 +102,30 @@ HARDCODED_BONUSES = {
         'Wu':     2.5,  # Scheffler — 2026 Masters runner-up
     },
     'NHL': {
-        # 2.5 pts each for teams that made the 2026 Stanley Cup Playoffs
         # Devils (Wu), Maple Leafs (Jens), Panthers (Todd), Red Wings (Theo),
         # Capitals (Feder), Rangers (Molmen) did NOT make playoffs
-        'Shep':   2.5,  # Boston Bruins
-        'Fryar':  2.5,  # Tampa Bay Lightning
-        'Jamzee': 2.5,  # Carolina Hurricanes
-        'Tim':    2.5,  # Vegas Golden Knights
-        'Mitchell':2.5, # Dallas Stars
-        'Korch':  2.5,  # Colorado Avalanche
-        'Buckley':2.5,  # Edmonton Oilers
+        # R1 exit = 2.5 | R2 entry = 4.0
+        'Shep':    2.5,  # Boston Bruins      — eliminated R1 (lost to Sabres 2-4)
+        'Fryar':   2.5,  # Tampa Bay Lightning — eliminated R1 (lost to Canadiens G7)
+        'Mitchell':2.5,  # Dallas Stars        — eliminated R1 (lost to Wild 2-4)
+        'Buckley': 2.5,  # Edmonton Oilers     — eliminated R1 (lost to Ducks 2-4)
+        'Jamzee':  4.0,  # Carolina Hurricanes — advanced to R2 (swept Senators 4-0)
+        'Tim':     4.0,  # Vegas Golden Knights — advanced to R2 (beat Mammoth 4-2)
+        'Korch':   4.0,  # Colorado Avalanche  — advanced to R2 (swept Kings 4-0)
     },
     'NBA': {
-        # 2.5 pts each for teams that made the 2026 playoffs (not play-in losers)
         # Warriors (Mitchell), Clippers (Fryar), Bucks (Molmen) did NOT make playoffs
-        'Tim':    2.5,  # Denver Nuggets
-        'Wu':     2.5,  # San Antonio Spurs
-        'Jens':   2.5,  # Cleveland Cavaliers
-        'Todd':   2.5,  # Minnesota Timberwolves
-        'Shep':   2.5,  # Boston Celtics
-        'Theo':   2.5,  # Los Angeles Lakers
-        'Feder':  2.5,  # Oklahoma City Thunder
-        'Korch':  2.5,  # Houston Rockets
-        'Jamzee': 2.5,  # Orlando Magic (won play-in)
-        'Buckley':2.5,  # New York Knicks
+        # R1 exit = 2.5 | R2 entry = 4.0
+        'Tim':    2.5,  # Denver Nuggets      — eliminated R1 (lost to Wolves 2-4)
+        'Shep':   2.5,  # Boston Celtics      — eliminated R1 (lost to 76ers 3-4)
+        'Korch':  2.5,  # Houston Rockets     — eliminated R1 (lost to Lakers 2-4)
+        'Jamzee': 2.5,  # Orlando Magic       — eliminated R1 (lost to Pistons G7)
+        'Wu':     4.0,  # San Antonio Spurs   — advanced to R2 (beat Trail Blazers)
+        'Jens':   4.0,  # Cleveland Cavaliers — advanced to R2 (beat Raptors G7)
+        'Todd':   4.0,  # Minnesota Timberwolves — advanced to R2 (beat Nuggets 4-2)
+        'Theo':   4.0,  # Los Angeles Lakers  — advanced to R2 (beat Rockets 4-2)
+        'Feder':  4.0,  # Oklahoma City Thunder — advanced to R2 (swept Suns 4-0)
+        'Buckley':4.0,  # New York Knicks     — advanced to R2 (beat Hawks)
     },
 }
 
