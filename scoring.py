@@ -1093,12 +1093,14 @@ if __name__ == '__main__':
     # Preserve existing headline if Gemini fails to produce one
     existing_headline = None
     existing_snapshot = None
+    existing_staged = None
     if os.path.exists(out_path):
         try:
             with open(out_path) as f:
                 existing = json.load(f)
                 existing_headline = existing.get('headline')
                 existing_snapshot = existing.get('prev_snapshot')
+                existing_staged = existing.get('staged_snapshot')
         except Exception:
             pass
 
@@ -1115,22 +1117,42 @@ if __name__ == '__main__':
             'Colorado Avalanche (Korch) were first to clinch an NHL playoff spot. Alcaraz (Todd) eyes Monte Carlo next week.'
         )
 
-    # Snapshot rotation: keep prev_snapshot for 7 days, then rotate
+    # Two-phase weekly snapshot rotation:
+    # prev_snapshot = reference for delta display; staged_snapshot = next week's reference.
+    # When prev_snapshot turns 7 days old, keep it for this run's delta and start staging.
+    # When staged_snapshot turns 7 days old, promote it to prev_snapshot.
+    # This ensures delta is never 0 on rotation day.
     from datetime import date as _date
     today_str = _date.today().isoformat()
+    fresh_snap = {
+        'date':   today_str,
+        'ranks':  {p['name']: p['place'] for p in data.get('players', [])},
+        'totals': {p['name']: round(p['total'], 2) for p in data.get('players', [])},
+    }
     snap = existing_snapshot or {}
     snap_date = snap.get('date')
-    if snap_date:
-        days_old = (_date.today() - _date.fromisoformat(snap_date)).days
-        if days_old >= 7:
-            snap = None  # will be replaced with current data below
-    if not snap:
-        snap = {
-            'date':   today_str,
-            'ranks':  {p['name']: p['place'] for p in data.get('players', [])},
-            'totals': {p['name']: round(p['total'], 2) for p in data.get('players', [])},
-        }
-    data['prev_snapshot'] = snap
+    staged = existing_staged or {}
+    staged_date = staged.get('date')
+    if staged_date:
+        staged_days_old = (_date.today() - _date.fromisoformat(staged_date)).days
+        if staged_days_old >= 7:
+            # Staged is a week old: promote to prev, start a new staged
+            data['prev_snapshot'] = staged
+            data['staged_snapshot'] = fresh_snap
+        else:
+            # Staged is young: keep existing prev for delta, staged unchanged
+            data['prev_snapshot'] = snap if snap_date else fresh_snap
+            data['staged_snapshot'] = staged
+    elif snap_date:
+        snap_days_old = (_date.today() - _date.fromisoformat(snap_date)).days
+        if snap_days_old >= 7:
+            # No staged yet and prev is old: keep prev for delta, begin staging
+            data['prev_snapshot'] = snap
+            data['staged_snapshot'] = fresh_snap
+        else:
+            data['prev_snapshot'] = snap
+    else:
+        data['prev_snapshot'] = fresh_snap
 
     with open(out_path, 'w') as f:
         json.dump(data, f)
