@@ -617,7 +617,7 @@ ACTOR_ACTRESS_STATIC = {
     },
     'Actress': {
         'Jessie Buckley':  0.59,    # The Bride! (2026-03-06, RT 59%)
-        'Anya Taylor-Joy': 586.27,  # Super Mario Galaxy (RT 68%, $402.6M domestic → 273.77) + 312.5 baseline
+        'Anya Taylor-Joy': 273.77,  # Super Mario Galaxy (RT 68%, $402.6M domestic → 402.6 × 0.68)
     },
 }
 
