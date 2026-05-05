@@ -612,11 +612,11 @@ def compute_baseline_nascar():
 # composite = rt_score / 100 when no box office data available.
 ACTOR_ACTRESS_STATIC = {
     'Actor': {
-        'Robert Pattinson': 0.59,    # The Bride! (2026-03-06, RT 59%)
-        'Chris Hemsworth':  63.36,   # Crime 101 (2026-02-13, RT 88%, BO $72M → 72 × 0.88)
+        'Robert Pattinson': 36.19,  # The Drama (RT 77%, $47M domestic → 47 × 0.77)
+        'Chris Hemsworth':  27.72,  # Crime 101 (RT 88%, $31.5M domestic → 31.5 × 0.88)
     },
     'Actress': {
-        'Jessie Buckley':  0.59,    # The Bride! (2026-03-06, RT 59%)
+        'Jessie Buckley':  4.16,    # The Bride! (RT 57%, $7.3M domestic → 7.3 × 0.57)
         'Anya Taylor-Joy': 273.77,  # Super Mario Galaxy (RT 68%, $402.6M domestic → 402.6 × 0.68)
     },
 }

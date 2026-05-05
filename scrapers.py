@@ -731,12 +731,14 @@ def _omdb_movie_data(title, year=None):
         return {}
 
 
-# Manual box office / RT overrides for films OMDB hasn't fully indexed yet.
-# Values here are used when OMDB returns null for that field.
+# Manual overrides: domestic box office (USD) and RT critic score.
+# Override takes priority over OMDB — use to correct stale or missing OMDB data.
 _MOVIE_OVERRIDES = {
-    'The Drama':                   {'box_office':  36_000_000, 'rt_score': 77},
-    'The Devil Wears Prada 2':     {'box_office':  77_000_000, 'rt_score': 78},
-    'The Super Mario Galaxy Movie': {'box_office': 402_600_000, 'rt_score': 68},
+    'The Drama':                   {'box_office':  47_000_000, 'rt_score': 77},   # $47M domestic as of May 2026; Zendaya/Pattinson A24
+    'The Devil Wears Prada 2':     {'box_office':  77_000_000, 'rt_score': 78},   # opening weekend domestic
+    'The Super Mario Galaxy Movie': {'box_office': 402_600_000, 'rt_score': 68},  # Anya Taylor-Joy
+    'Crime 101':                   {'box_office':  31_500_000, 'rt_score': 88},   # Hemsworth; domestic final ~$31.5M
+    'The Bride!':                  {'box_office':   7_300_000, 'rt_score': 57},   # Jessie Buckley; bombed domestically
 }
 
 
