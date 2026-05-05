@@ -787,7 +787,9 @@ def scrape_actor_actress(category='Actor'):
         composite_score = round(sum(m['composite'] for m in movies if m['composite']), 2)
         scores.append({'name': name, 'movies': movies, 'composite_score': composite_score})
 
-    save_standing(category, {'scores': scores})
+    # write_local=False: actor/actress data/*.json is manually maintained in git;
+    # don't let the scraper overwrite it mid-run before scoring reads it.
+    save_standing(category, {'scores': scores}, write_local=False)
     return True
 
 

@@ -76,8 +76,9 @@ def is_frozen(category: str) -> bool:
     except Exception:
         return False
 
-def save_standing(category: str, data: dict, frozen: bool = None) -> bool:
-    """Upsert standings data for a category. Pass frozen=True/False to change freeze state."""
+def save_standing(category: str, data: dict, frozen: bool = None, write_local: bool = True) -> bool:
+    """Upsert standings data for a category. Pass frozen=True/False to change freeze state.
+    Set write_local=False to skip overwriting the local data/*.json (used for manually-maintained categories)."""
     import json as _json, os as _os
     payload = {
         'category': category,
@@ -97,14 +98,15 @@ def save_standing(category: str, data: dict, frozen: bool = None) -> bool:
     if ok:
         print(f'  ✓ {category} saved to Supabase')
         # Also write local backup so scoring.py can fall back if Supabase is stale
-        try:
-            data_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'data')
-            local_path = _os.path.join(data_dir, f'{category.lower()}.json')
-            if _os.path.exists(local_path):
-                with open(local_path, 'w') as f:
-                    _json.dump(data, f)
-        except Exception:
-            pass
+        if write_local:
+            try:
+                data_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'data')
+                local_path = _os.path.join(data_dir, f'{category.lower()}.json')
+                if _os.path.exists(local_path):
+                    with open(local_path, 'w') as f:
+                        _json.dump(data, f)
+            except Exception:
+                pass
     else:
         print(f'  ✗ {category} save failed: {r.status_code} {r.text}')
     return ok

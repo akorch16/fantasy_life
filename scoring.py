@@ -616,7 +616,8 @@ ACTOR_ACTRESS_STATIC = {
         'Chris Hemsworth':  63.36,   # Crime 101 (2026-02-13, RT 88%, BO $72M → 72 × 0.88)
     },
     'Actress': {
-        'Jessie Buckley':   0.59,    # The Bride! (2026-03-06, RT 59%)
+        'Jessie Buckley':  0.59,    # The Bride! (2026-03-06, RT 59%)
+        'Anya Taylor-Joy': 586.27,  # Super Mario Galaxy (RT 68%, $402.6M domestic → 273.77) + 312.5 baseline
     },
 }
 
