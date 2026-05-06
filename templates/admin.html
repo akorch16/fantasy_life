@@ -86,6 +86,12 @@
   </div>
 
   <script>
+    const adminToken = new URLSearchParams(window.location.search).get('token') || '';
+
+    function authHeaders() {
+      return adminToken ? {'Content-Type':'application/json','X-Admin-Token': adminToken} : {'Content-Type':'application/json'};
+    }
+
     let bonuses = {};
 
     async function loadBonuses() {
@@ -124,7 +130,7 @@
       }
       const res = await fetch('/api/bonuses', {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
+        headers: authHeaders(),
         body: JSON.stringify({player, category: cat, points: pts})
       });
       if (res.ok) {
@@ -136,7 +142,7 @@
     async function removeBonus(cat, player) {
       await fetch('/api/bonuses', {
         method: 'DELETE',
-        headers: {'Content-Type':'application/json'},
+        headers: authHeaders(),
         body: JSON.stringify({player, category: cat})
       });
       loadBonuses();
@@ -145,7 +151,7 @@
     async function doRefresh() {
       showStatus('refresh-status', 'Refreshing... (this takes ~30s)', 'ok');
       try {
-        const res = await fetch('/api/refresh', {method:'POST'});
+        const res = await fetch('/api/refresh', {method:'POST', headers: authHeaders()});
         const d = await res.json();
         showStatus('refresh-status', 'Refresh complete! ' + JSON.stringify(d), 'ok');
       } catch(e) {

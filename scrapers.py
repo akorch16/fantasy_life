@@ -23,7 +23,6 @@ except ImportError:
 from db import save_standing, is_frozen, get_standing
 
 ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports'
-
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
     'Accept': 'application/json',
@@ -55,8 +54,6 @@ def name_matches(pick_name, data_name):
     return False
 
 # ── ESPN helpers ──────────────────────────────────────────────────────────────
-
-ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports'
 
 def _espn_standings(sport, league):
     urls = [
@@ -535,7 +532,7 @@ def scrape_billboard():
                         if a not in scores_map:
                             scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0}
                         scores_map[a]['num1_weeks'] += 1
-                        scores_map[a]['hot100_weeks'] += 1  # #1 counts as top 10 too
+                        # hot100_weeks is populated entirely by the top-10 page to avoid double-counting
             print(f'    #1 page: {len(scores_map)} artists found')
         except Exception as e:
             print(f'    ✗ #1 page: {e}')

@@ -10,8 +10,16 @@ from db import get_all_bonuses, add_bonus, delete_bonus, freeze_category, unfree
 
 app = Flask(__name__)
 
+ADMIN_TOKEN = os.environ.get('ADMIN_TOKEN', '')
+
+def _is_admin():
+    if not ADMIN_TOKEN:
+        return True  # dev/open mode when no token configured
+    token = request.headers.get('X-Admin-Token', '') or request.args.get('token', '')
+    return token == ADMIN_TOKEN
+
 # Cache scores for 5 minutes
-_scores_cache = {'players': [], 'last_updated': ''}  # non-None so first request returns fast
+_scores_cache: dict = {}
 _scores_cache_time = 0
 CACHE_TTL = 300  # seconds
 
@@ -24,7 +32,7 @@ def get_cached_scores():
             _scores_cache_time = now
         except Exception as e:
             print(f'  ✗ compute_all_scores failed: {e}')
-    return _scores_cache
+    return _scores_cache or {}
 
 def _warmup():
     """Pre-warm Supabase connection and scores cache in background at startup."""
@@ -59,32 +67,36 @@ def api_bonuses_get():
 
 @app.route('/api/bonuses', methods=['POST'])
 def api_bonuses_post():
+    if not _is_admin():
+        return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
     ok = add_bonus(data['category'], data['player'], float(data['points']))
     global _scores_cache, _scores_cache_time
-    _scores_cache = None
+    _scores_cache = {}
     _scores_cache_time = 0
     return jsonify({'ok': ok}), (200 if ok else 500)
 
 @app.route('/api/bonuses', methods=['DELETE'])
 def api_bonuses_delete():
+    if not _is_admin():
+        return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
     ok = delete_bonus(data['category'], data['player'])
-    # Invalidate scores cache
     global _scores_cache, _scores_cache_time
-    _scores_cache = None
+    _scores_cache = {}
     _scores_cache_time = 0
     return jsonify({'ok': ok}), (200 if ok else 500)
 
 @app.route('/api/refresh', methods=['POST'])
 def api_refresh():
+    if not _is_admin():
+        return jsonify({'error': 'Unauthorized'}), 401
     import threading
     from scrapers import refresh_all
     def run():
         global _scores_cache, _scores_cache_time
-        result = refresh_all()
-        # Invalidate cache after refresh
-        _scores_cache = None
+        refresh_all()
+        _scores_cache = {}
         _scores_cache_time = 0
     threading.Thread(target=run, daemon=True).start()
     return jsonify({'status': 'refresh started in background'})
