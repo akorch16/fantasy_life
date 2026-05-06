@@ -45,6 +45,30 @@
     <div class="status" id="refresh-status"></div>
   </div>
 
+  <!-- Freeze / Unfreeze -->
+  <div class="section">
+    <h2>Freeze / Unfreeze Category</h2>
+    <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem">Frozen categories are skipped by scrapers. Freeze a category once its season ends.</p>
+    <div class="grid">
+      <div>
+        <label>Category</label>
+        <select id="freeze-cat">
+          <option value="">Select category...</option>
+          <option>NFL</option><option>NBA</option><option>MLB</option>
+          <option>NHL</option><option>NCAAF</option><option>NCAAB</option>
+          <option>Tennis</option><option>Golf</option><option>NASCAR</option>
+          <option>MLS</option><option>Actor</option><option>Actress</option>
+          <option>Musician</option><option>Country</option><option>Stock</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex; gap:0.75rem; margin-top:1rem">
+      <button class="btn" onclick="doFreeze(true)">🔒 Freeze</button>
+      <button class="btn btn-secondary" onclick="doFreeze(false)">🔓 Unfreeze</button>
+    </div>
+    <div class="status" id="freeze-status"></div>
+  </div>
+
   <!-- Add bonus points -->
   <div class="section">
     <h2>Add Bonus Points</h2>
@@ -163,6 +187,21 @@
       const el = document.getElementById(id);
       el.textContent = msg;
       el.className = 'status ' + type;
+    }
+
+    async function doFreeze(freeze) {
+      const cat = document.getElementById('freeze-cat').value;
+      if (!cat) { showStatus('freeze-status', 'Select a category first', 'err'); return; }
+      const endpoint = freeze ? '/api/freeze' : '/api/unfreeze';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({category: cat})
+      });
+      const action = freeze ? 'Frozen' : 'Unfrozen';
+      res.ok
+        ? showStatus('freeze-status', `${action}: ${cat}`, 'ok')
+        : showStatus('freeze-status', `Failed to ${action.toLowerCase()} ${cat}`, 'err');
     }
 
     loadBonuses();

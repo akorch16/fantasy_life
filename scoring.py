@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 
 from draft_picks_2026 import DRAFT_PICKS_2026, PLAYERS, TENNIS_GENDER
-from db import get_standing, get_all_standings, get_all_bonuses
+from db import get_standing, get_all_standings, get_all_bonuses, get_last_updated
 
 # Bonus points per Amendment 7.14 (13-member inflation)
 BONUS_POINTS = {
@@ -50,57 +50,33 @@ def load_data(category_key):
     return data if data else None
 
 
-# Bonuses that can't yet be entered via admin panel — merged on top of Supabase
-HARDCODED_BONUSES = {
-    'Tennis': {
-        'Todd':  4.0,   # Alcaraz — 2026 Australian Open champion
-        'Shep':  2.5,   # Djokovic — 2026 Australian Open runner-up
-        'Fryar': 2.5,   # Sabalenka — 2026 Australian Open women's runner-up
-    },
-    'NCAAB': {
-        'Tim':     2.5,  # St. John's — Sweet 16
-        'Jens':    2.5,  # Duke — Sweet 16
-        'Mitchell':2.5,  # Alabama — Sweet 16
-        'Theo':    2.5,  # Houston — Sweet 16
-        'Fryar':   2.5,  # UConn — Sweet 16
-        'Korch':   2.5,  # Purdue — Sweet 16
-        'Jamzee':  2.5,  # Michigan — Sweet 16
-    },
-}
-
 def load_bonuses():
-    """Load bonus points from Supabase, merged with hardcoded bonuses."""
+    """Load bonus points from Supabase, with data/bonuses.json taking priority.
+
+    For any (category, player) pair present in the JSON file, the file value
+    replaces the Supabase value entirely (override-wins, not additive). Edit
+    data/bonuses.json instead of Supabase for auditability.
+    """
+    import json as _json
     bonuses = get_all_bonuses()
-    for cat, players in HARDCODED_BONUSES.items():
+    _bonus_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'bonuses.json')
+    try:
+        with open(_bonus_path) as _f:
+            file_bonuses = _json.load(_f)
+    except Exception as e:
+        print(f'  ✗ Could not load data/bonuses.json: {e}')
+        file_bonuses = {}
+    for cat, players in file_bonuses.items():
+        if cat.startswith('_'):
+            continue
         if cat not in bonuses:
             bonuses[cat] = {}
         for player, pts in players.items():
-            existing = bonuses[cat].get(player, 0)
-            bonuses[cat][player] = round(existing + pts, 2)
+            if player in bonuses.get(cat, {}):
+                print(f'  ↩ bonus override: {cat}/{player} Supabase={bonuses[cat][player]} → file={pts}')
+            bonuses[cat][player] = float(pts)
     return bonuses
 
-
-def get_last_updated():
-    """Get the most recent updated_at timestamp from Supabase standings."""
-    try:
-        import requests as req
-        SUPABASE_URL = os.environ.get('SUPABASE_URL', '').rstrip('/')
-        SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
-        r = req.get(
-            f'{SUPABASE_URL}/rest/v1/standings',
-            headers={'apikey': SUPABASE_KEY, 'Authorization': f'Bearer {SUPABASE_KEY}'},
-            params={'select': 'updated_at', 'order': 'updated_at.desc', 'limit': '1'},
-            timeout=10,
-        )
-        rows = r.json()
-        if rows:
-            ts = rows[0]['updated_at']
-            # Parse ISO timestamp
-            dt = datetime.fromisoformat(ts.replace('Z', '+00:00'))
-            return dt.strftime('%Y-%m-%d %H:%M UTC')
-    except Exception:
-        pass
-    return None
 
 
 # ── Ranking helpers ───────────────────────────────────────────────────────────

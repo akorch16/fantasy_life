@@ -5,8 +5,8 @@ Visit: http://localhost:5000
 """
 import os, json, time, threading
 from flask import Flask, render_template, jsonify, request
-from scoring import compute_all_scores, get_last_updated
-from db import get_all_bonuses, add_bonus, delete_bonus, freeze_category, unfreeze_category
+from scoring import compute_all_scores
+from db import get_all_bonuses, add_bonus, delete_bonus, freeze_category, unfreeze_category, get_last_updated
 
 app = Flask(__name__)
 
@@ -100,3 +100,19 @@ def api_refresh():
         _scores_cache_time = 0
     threading.Thread(target=run, daemon=True).start()
     return jsonify({'status': 'refresh started in background'})
+
+@app.route('/api/freeze', methods=['POST'])
+def api_freeze():
+    if not _is_admin():
+        return jsonify({'error': 'Unauthorized'}), 401
+    data = request.get_json()
+    ok = freeze_category(data['category'])
+    return jsonify({'ok': ok}), (200 if ok else 500)
+
+@app.route('/api/unfreeze', methods=['POST'])
+def api_unfreeze():
+    if not _is_admin():
+        return jsonify({'error': 'Unauthorized'}), 401
+    data = request.get_json()
+    ok = unfreeze_category(data['category'])
+    return jsonify({'ok': ok}), (200 if ok else 500)

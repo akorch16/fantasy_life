@@ -1,1 +1,55 @@
-{}
+{
+  "_note": "These values OVERRIDE Supabase for matching (category, player) pairs. Edit here instead of Supabase for auditability. Values are final intended totals, not additive offsets.",
+  "Tennis": {
+    "Todd":  4.0,
+    "Shep":  2.5,
+    "Fryar": 2.5
+  },
+  "Actress": {
+    "Jamzee": 4.0,
+    "Theo":   0.0
+  },
+  "NCAAF": {
+    "Fryar": 2.5
+  },
+  "Musician": {
+    "Fryar": 4.0,
+    "Korch": 13.0,
+    "Wu":    3.0,
+    "Jens":  6.0
+  },
+  "NCAAB": {
+    "Tim":     2.5,
+    "Jens":    4.0,
+    "Mitchell":2.5,
+    "Theo":    2.5,
+    "Fryar":   9.0,
+    "Korch":   4.0,
+    "Jamzee": 13.0
+  },
+  "Golf": {
+    "Molmen": 6.0,
+    "Wu":     2.5
+  },
+  "NHL": {
+    "Shep":    2.5,
+    "Fryar":   2.5,
+    "Mitchell":2.5,
+    "Buckley": 2.5,
+    "Jamzee":  4.0,
+    "Tim":     4.0,
+    "Korch":   4.0
+  },
+  "NBA": {
+    "Tim":    2.5,
+    "Shep":   2.5,
+    "Korch":  2.5,
+    "Jamzee": 2.5,
+    "Wu":     4.0,
+    "Jens":   4.0,
+    "Todd":   4.0,
+    "Theo":   4.0,
+    "Feder":  4.0,
+    "Buckley":4.0
+  }
+}
