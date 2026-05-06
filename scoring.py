@@ -66,78 +66,35 @@ def load_data(category_key):
     return supabase_data
 
 
-# Bonuses that can't yet be entered via admin panel — merged on top of Supabase
-HARDCODED_BONUSES = {
-    'Tennis': {
-        'Todd':  4.0,   # Alcaraz — 2026 Australian Open champion
-        'Shep':  2.5,   # Djokovic — 2026 Australian Open runner-up
-        'Fryar': 2.5,   # Sabalenka — 2026 Australian Open women's runner-up
-    },
-    'Actress': {
-        'Jamzee': 4.0,   # Emma Stone — Best Actress nomination (Bugonia, 98th Oscars)
-        'Theo':  -4.0,   # Correction: Sydney Sweeney was NOT nominated (Supabase had wrong 4.0)
-    },
-    'NCAAF': {
-        'Fryar': 2.5,  # Texas A&M — made CFP playoff (Round of 16 exit)
-    },
-    'Musician': {
-        # Supabase already has partial bonuses; these values offset to reach the correct totals:
-        # target total = Supabase existing + hardcoded adjustment
-        'Fryar':  1.0,   # Justin Bieber:      Supabase=3  + 1  = 4 total
-        'Korch':  2.0,   # SZA:                Supabase=11 + 2  = 13 total
-        'Wu':    -1.0,   # FKA Twigs:          Supabase=4  + -1 = 3 total
-        'Jens':   3.0,   # Sabrina Carpenter:  Supabase=3  + 3  = 6 total
-    },
-    'NCAAB': {
-        'Tim':     2.5,  # St. John's — eliminated Sweet 16
-        'Jens':    4.0,  # Duke — Elite 8 (beat St. John's 80-75)
-        'Mitchell':2.5,  # Alabama — eliminated Sweet 16
-        'Theo':    2.5,  # Houston — eliminated Sweet 16
-        'Fryar':   9.0,  # UConn — National Championship game
-        'Korch':   4.0,  # Purdue — Elite 8 (beat Arizona Mar 28)
-        'Jamzee': 13.0,  # Michigan — National Champions 🏆
-    },
-    'Golf': {
-        'Molmen': 6.0,  # McIlroy — 2026 Masters champion (back-to-back)
-        'Wu':     2.5,  # Scheffler — 2026 Masters runner-up
-    },
-    'NHL': {
-        # Devils (Wu), Maple Leafs (Jens), Panthers (Todd), Red Wings (Theo),
-        # Capitals (Feder), Rangers (Molmen) did NOT make playoffs
-        # R1 exit = 2.5 | R2 entry = 4.0
-        'Shep':    2.5,  # Boston Bruins      — eliminated R1 (lost to Sabres 2-4)
-        'Fryar':   2.5,  # Tampa Bay Lightning — eliminated R1 (lost to Canadiens G7)
-        'Mitchell':2.5,  # Dallas Stars        — eliminated R1 (lost to Wild 2-4)
-        'Buckley': 2.5,  # Edmonton Oilers     — eliminated R1 (lost to Ducks 2-4)
-        'Jamzee':  4.0,  # Carolina Hurricanes — advanced to R2 (swept Senators 4-0)
-        'Tim':     4.0,  # Vegas Golden Knights — advanced to R2 (beat Mammoth 4-2)
-        'Korch':   4.0,  # Colorado Avalanche  — advanced to R2 (swept Kings 4-0)
-    },
-    'NBA': {
-        # Warriors (Mitchell), Clippers (Fryar), Bucks (Molmen) did NOT make playoffs
-        # R1 exit = 2.5 | R2 entry = 4.0
-        'Tim':    2.5,  # Denver Nuggets      — eliminated R1 (lost to Wolves 2-4)
-        'Shep':   2.5,  # Boston Celtics      — eliminated R1 (lost to 76ers 3-4)
-        'Korch':  2.5,  # Houston Rockets     — eliminated R1 (lost to Lakers 2-4)
-        'Jamzee': 2.5,  # Orlando Magic       — eliminated R1 (lost to Pistons G7)
-        'Wu':     4.0,  # San Antonio Spurs   — advanced to R2 (beat Trail Blazers)
-        'Jens':   4.0,  # Cleveland Cavaliers — advanced to R2 (beat Raptors G7)
-        'Todd':   4.0,  # Minnesota Timberwolves — advanced to R2 (beat Nuggets 4-2)
-        'Theo':   4.0,  # Los Angeles Lakers  — advanced to R2 (beat Rockets 4-2)
-        'Feder':  4.0,  # Oklahoma City Thunder — advanced to R2 (swept Suns 4-0)
-        'Buckley':4.0,  # New York Knicks     — advanced to R2 (beat Hawks)
-    },
-}
-
 def load_bonuses():
-    """Load bonus points from Supabase, merged with hardcoded bonuses."""
+    """Load bonus points from Supabase, overridden by data/bonuses.json.
+
+    data/bonuses.json is the authoritative source for any (category, player)
+    pair it contains — its value replaces (not adds to) the Supabase value.
+    Supabase-only entries for pairs not in the file are preserved unchanged.
+    Edit data/bonuses.json to update bonuses without a Python redeploy.
+    """
     bonuses = get_all_bonuses()
-    for cat, players in HARDCODED_BONUSES.items():
+
+    _bonus_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'bonuses.json')
+    try:
+        import json as _json
+        with open(_bonus_path) as _f:
+            file_bonuses = _json.load(_f)
+    except Exception as e:
+        print(f'  ✗ Could not load data/bonuses.json: {e}')
+        file_bonuses = {}
+
+    for cat, players in file_bonuses.items():
+        if cat.startswith('_'):
+            continue  # skip metadata keys like _note
         if cat not in bonuses:
             bonuses[cat] = {}
         for player, pts in players.items():
-            existing = bonuses[cat].get(player, 0)
-            bonuses[cat][player] = round(existing + pts, 2)
+            if player in bonuses.get(cat, {}):
+                print(f'  ↩ bonus override: {cat}/{player} Supabase={bonuses[cat][player]} → file={pts}')
+            bonuses[cat][player] = float(pts)
+
     return bonuses
 
 
@@ -1016,15 +973,9 @@ def compute_all_scores():
     for i, p in enumerate(sorted_players):
         p['place'] = i + 1
 
-    print('Generating live news headline via Gemini...')
-    headline = generate_news_headline(DRAFT_PICKS_2026)
-    if headline == 'NO_NEWS':
-        headline = None
-    print(f'  Headline: {headline}')
-
     return {
         'players':      sorted_players,
-        'headline':     headline,
+        'headline':     None,  # set by __main__ after scores are written
         'last_updated': get_last_updated(),
         'season':       2026,
     }
@@ -1107,15 +1058,8 @@ if __name__ == '__main__':
     print('Computing scores...')
     data = compute_all_scores()
 
-    if not data.get('headline') and existing_headline:
-        print(f'  Gemini produced no headline — preserving existing: {existing_headline[:60]}...')
-        data['headline'] = existing_headline
-    elif not data.get('headline'):
-        data['headline'] = (
-            'Final Four Saturday: UConn (Fryar) vs Illinois, Michigan (Jamzee) vs Arizona in Indianapolis. '
-            'Tommy Fleetwood (Korch) tees off as favorite at the Valero Texas Open today. '
-            'Colorado Avalanche (Korch) were first to clinch an NHL playoff spot. Alcaraz (Todd) eyes Monte Carlo next week.'
-        )
+    # Preserve existing headline — scores are written before headline is regenerated
+    data['headline'] = existing_headline or ''
 
     # Two-phase weekly snapshot rotation:
     # prev_snapshot = reference for delta display; staged_snapshot = next week's reference.
@@ -1154,7 +1098,22 @@ if __name__ == '__main__':
     else:
         data['prev_snapshot'] = fresh_snap
 
+    # Write scores first — headline failure must never block the leaderboard update
     with open(out_path, 'w') as f:
         json.dump(data, f)
     n = len(data.get('players', []))
     print(f'✓ Wrote {out_path}  ({n} players, last_updated={data.get("last_updated")})')
+
+    # Attempt headline update as a separate, non-critical step
+    print('Generating live news headline...')
+    try:
+        new_headline = generate_news_headline(DRAFT_PICKS_2026)
+        if new_headline and new_headline != 'NO_NEWS':
+            data['headline'] = new_headline
+            with open(out_path, 'w') as f:
+                json.dump(data, f)
+            print(f'  ✓ Headline updated: {new_headline[:80]}')
+        else:
+            print(f'  No new headline — existing preserved: {existing_headline[:60] if existing_headline else "(none)"}')
+    except Exception as e:
+        print(f'  ✗ Headline generation failed (scores unaffected): {e}')

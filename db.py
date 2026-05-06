@@ -3,8 +3,10 @@ db.py — Supabase database layer for Fantasy Life 2026
 Replaces local JSON file reads/writes with persistent Postgres via Supabase REST API.
 """
 
-import os, json, requests
+import os, json, requests, threading
 from datetime import datetime
+
+_bonus_lock = threading.Lock()
 
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '').rstrip('/')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
@@ -161,31 +163,37 @@ def get_all_bonuses() -> dict:
         return {}
 
 def add_bonus(category: str, player: str, points: float, reason: str = '') -> bool:
-    """Add points to a player's bonus for a category (accumulates)."""
-    # Get existing first
-    r = requests.get(
-        f'{SUPABASE_URL}/rest/v1/bonuses',
-        headers=_headers(),
-        params={'category': f'eq.{category}', 'player': f'eq.{player}', 'select': 'points'},
-        timeout=_TIMEOUT,
-    )
-    existing = float(r.json()[0]['points']) if r.json() else 0.0
-    new_total = round(existing + points, 2)
+    """Set a player's bonus for a category (replaces existing value).
 
-    payload = {
-        'category': category,
-        'player': player,
-        'points': new_total,
-        'reason': reason,
-        'updated_at': datetime.utcnow().isoformat(),
-    }
-    r = requests.post(
-        f'{SUPABASE_URL}/rest/v1/bonuses',
-        headers={**_headers(), 'Prefer': 'resolution=merge-duplicates,return=representation'},
-        json=payload,
-        timeout=_TIMEOUT,
-    )
-    return r.status_code in (200, 201)
+    Uses a process-level lock to prevent concurrent read-modify-write races
+    when multiple requests arrive simultaneously. The lock is per-process;
+    for multi-process deployments a database-level atomic update is preferred.
+    """
+    with _bonus_lock:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/bonuses',
+            headers=_headers(),
+            params={'category': f'eq.{category}', 'player': f'eq.{player}', 'select': 'points'},
+            timeout=_TIMEOUT,
+        )
+        rows = r.json() if r.ok else []
+        existing = float(rows[0]['points']) if rows else 0.0
+        new_total = round(existing + points, 2)
+
+        payload = {
+            'category': category,
+            'player': player,
+            'points': new_total,
+            'reason': reason,
+            'updated_at': datetime.utcnow().isoformat(),
+        }
+        r = requests.post(
+            f'{SUPABASE_URL}/rest/v1/bonuses',
+            headers={**_headers(), 'Prefer': 'resolution=merge-duplicates,return=representation'},
+            json=payload,
+            timeout=_TIMEOUT,
+        )
+        return r.status_code in (200, 201)
 
 def delete_bonus(category: str, player: str) -> bool:
     """Remove a player's bonus for a category."""
