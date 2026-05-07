@@ -2,56 +2,62 @@
   "scores": [
     {
       "name": "Timothee Chalamet",
-      "composite_score": 412.5
+      "composite_score": 0
     },
     {
       "name": "Pedro Pascal",
-      "composite_score": 387.2
+      "composite_score": 0
     },
     {
       "name": "Tom Holland",
-      "composite_score": 356.8
+      "composite_score": 0
     },
     {
       "name": "Dwayne Johnson",
-      "composite_score": 298.5
+      "composite_score": 0
     },
     {
       "name": "Chris Hemsworth",
-      "composite_score": 276.3
+      "composite_score": 27.72,
+      "movies": [
+        { "title": "Crime 101", "release_date": "2026-04-17", "box_office": 31500000, "rt_score": 88, "composite": 27.72 }
+      ]
     },
     {
       "name": "Robert Pattinson",
-      "composite_score": 241.7
+      "composite_score": 36.19,
+      "movies": [
+        { "title": "The Drama", "release_date": "2026-03-27", "box_office": 47000000, "rt_score": 77, "composite": 36.19 }
+      ]
     },
     {
       "name": "Matt Damon",
-      "composite_score": 198.4
+      "composite_score": 0
     },
     {
       "name": "Leonardo DiCaprio",
-      "composite_score": 187.6
+      "composite_score": 0
     },
     {
       "name": "Jeremy Allen White",
-      "composite_score": 143.2
+      "composite_score": 0
     },
     {
       "name": "Jon Bernthal",
-      "composite_score": 118.9
+      "composite_score": 0
     },
     {
       "name": "George Clooney",
-      "composite_score": 95.4
+      "composite_score": 0
     },
     {
       "name": "Wagner Moura",
-      "composite_score": 72.1
+      "composite_score": 0
     },
     {
       "name": "Sean Penn",
-      "composite_score": 48.3
+      "composite_score": 0
     }
   ],
-  "_updated": "2026-03-06T23:14:42.786857"
+  "_updated": "2026-05-07"
 }

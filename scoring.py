@@ -5,7 +5,6 @@ Reads all data from Supabase via db.py instead of local JSON files.
 """
 
 import os
-from datetime import datetime
 
 from draft_picks_2026 import DRAFT_PICKS_2026, PLAYERS, TENNIS_GENDER
 from db import get_standing, get_all_standings, get_all_bonuses, get_last_updated

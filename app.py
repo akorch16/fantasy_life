@@ -11,6 +11,7 @@ from db import get_all_bonuses, add_bonus, delete_bonus, freeze_category, unfree
 app = Flask(__name__)
 
 ADMIN_TOKEN = os.environ.get('ADMIN_TOKEN', '')
+_refresh_lock = threading.Lock()
 
 def _is_admin():
     if not ADMIN_TOKEN:
@@ -70,6 +71,8 @@ def api_bonuses_post():
     if not _is_admin():
         return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
+    if not data or not all(k in data for k in ('category', 'player', 'points')):
+        return jsonify({'error': 'Missing required fields: category, player, points'}), 400
     ok = add_bonus(data['category'], data['player'], float(data['points']))
     global _scores_cache, _scores_cache_time
     _scores_cache = {}
@@ -81,6 +84,8 @@ def api_bonuses_delete():
     if not _is_admin():
         return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
+    if not data or not all(k in data for k in ('category', 'player')):
+        return jsonify({'error': 'Missing required fields: category, player'}), 400
     ok = delete_bonus(data['category'], data['player'])
     global _scores_cache, _scores_cache_time
     _scores_cache = {}
@@ -91,13 +96,17 @@ def api_bonuses_delete():
 def api_refresh():
     if not _is_admin():
         return jsonify({'error': 'Unauthorized'}), 401
-    import threading
+    if not _refresh_lock.acquire(blocking=False):
+        return jsonify({'status': 'refresh already in progress'}), 429
     from scrapers import refresh_all
     def run():
         global _scores_cache, _scores_cache_time
-        refresh_all()
-        _scores_cache = {}
-        _scores_cache_time = 0
+        try:
+            refresh_all()
+            _scores_cache = {}
+            _scores_cache_time = 0
+        finally:
+            _refresh_lock.release()
     threading.Thread(target=run, daemon=True).start()
     return jsonify({'status': 'refresh started in background'})
 
@@ -106,6 +115,8 @@ def api_freeze():
     if not _is_admin():
         return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
+    if not data or 'category' not in data:
+        return jsonify({'error': 'Missing required field: category'}), 400
     ok = freeze_category(data['category'])
     return jsonify({'ok': ok}), (200 if ok else 500)
 
@@ -114,5 +125,7 @@ def api_unfreeze():
     if not _is_admin():
         return jsonify({'error': 'Unauthorized'}), 401
     data = request.get_json()
+    if not data or 'category' not in data:
+        return jsonify({'error': 'Missing required field: category'}), 400
     ok = unfreeze_category(data['category'])
     return jsonify({'ok': ok}), (200 if ok else 500)

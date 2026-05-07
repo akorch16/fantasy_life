@@ -3,7 +3,7 @@ db.py — Supabase database layer for Fantasy Life 2026
 Replaces local JSON file reads/writes with persistent Postgres via Supabase REST API.
 """
 
-import os, json, requests, threading
+import os, requests, threading
 from datetime import datetime
 
 _bonus_lock = threading.Lock()
