@@ -943,7 +943,7 @@
       <div class="modal-eyebrow">🔓 Premium Unlocked — You're Welcome</div>
 
       <div class="roast-header">
-        <div class="roast-rank">13</div>
+        <div class="roast-rank" id="todd-reveal-rank">13</div>
         <div>
           <div class="roast-label">Current Standing</div>
           <div class="roast-name">Todd</div>
@@ -951,7 +951,7 @@
         </div>
         <div style="margin-left:auto;text-align:right;">
           <div class="roast-label">Total Score</div>
-          <div class="roast-score-display">47.5</div>
+          <div class="roast-score-display" id="todd-reveal-total">47.5</div>
         </div>
       </div>
 
@@ -1232,11 +1232,22 @@ function setFilter(cat, btn) {
 }
 
 // ============================================================
+// CONFIG — set this to your deployed Flask backend URL
+// Leave empty to keep the paywall in joke-only mode
+// ============================================================
+const FLASK_API = '';  // e.g. 'https://fantasy-life-api.onrender.com'
+
+// ============================================================
 // TODD PAYWALL
 // ============================================================
 function openToddModal() {
   document.getElementById('todd-modal').classList.add('open');
-  showPhase(1);
+  if (localStorage.getItem('todd_unlocked') === '1') {
+    renderToddReveal();
+    showPhase(3);
+  } else {
+    showPhase(1);
+  }
 }
 
 function closeToddModal() {
@@ -1264,16 +1275,50 @@ const processingMessages = [
 
 function startPayment(tier) {
   showPhase(2);
-  let i = 0;
-  const el = document.getElementById('processing-text');
-  const interval = setInterval(() => {
-    el.textContent = processingMessages[i % processingMessages.length];
-    i++;
-    if (i >= processingMessages.length) {
-      clearInterval(interval);
-      setTimeout(() => showPhase(3), 600);
+
+  if (!FLASK_API) {
+    // Joke mode — no backend configured
+    let i = 0;
+    const el = document.getElementById('processing-text');
+    const interval = setInterval(() => {
+      el.textContent = processingMessages[i % processingMessages.length];
+      i++;
+      if (i >= processingMessages.length) {
+        clearInterval(interval);
+        setTimeout(() => { renderToddReveal(); showPhase(3); }, 600);
+      }
+    }, 500);
+    return;
+  }
+
+  document.getElementById('processing-text').textContent = 'Redirecting to secure checkout...';
+  fetch(FLASK_API + '/api/create-checkout-session', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({tier}),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      document.getElementById('processing-text').textContent =
+        'Payment unavailable right now — try again later.';
     }
-  }, 500);
+  })
+  .catch(() => {
+    document.getElementById('processing-text').textContent =
+      'Could not reach payment server — try again later.';
+  });
+}
+
+function renderToddReveal() {
+  const todd = (window.SCORES_DATA || []).find(p => p.name === 'Todd');
+  if (!todd) return;
+  const rankEl = document.getElementById('todd-reveal-rank');
+  const totalEl = document.getElementById('todd-reveal-total');
+  if (rankEl) rankEl.textContent = todd.place || '?';
+  if (totalEl) totalEl.textContent = (todd.total || 0).toFixed(1);
 }
 
 const disputeResponses = [
@@ -1340,10 +1385,31 @@ fetch('./scores.json')
     }
     initDisplay();
     renderTable();
+    checkStripeReturn();
   })
   .catch(() => {
     renderTable(); // render empty state
   });
+
+// Check if user is returning from a completed Stripe payment
+function checkStripeReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const sid = params.get('session_id');
+  if (!sid || !FLASK_API) return;
+
+  // Clean the session_id off the URL immediately
+  window.history.replaceState({}, '', window.location.pathname);
+
+  fetch(FLASK_API + '/api/check-unlock?session_id=' + encodeURIComponent(sid))
+    .then(r => r.json())
+    .then(data => {
+      if (data.unlocked) {
+        localStorage.setItem('todd_unlocked', '1');
+        openToddModal(); // openToddModal checks localStorage and jumps to phase 3
+      }
+    })
+    .catch(() => {});
+}
 </script>
 
   <footer class="site-footer">

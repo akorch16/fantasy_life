@@ -4,6 +4,7 @@ Run: python app.py
 Visit: http://localhost:5000
 """
 import os, json, time, threading
+import stripe
 from flask import Flask, render_template, jsonify, request
 from scoring import compute_all_scores
 from db import get_all_bonuses, add_bonus, delete_bonus, freeze_category, unfreeze_category, get_last_updated
@@ -12,6 +13,14 @@ from draft_picks_2026 import PLAYERS
 app = Flask(__name__)
 
 ADMIN_TOKEN = os.environ.get('ADMIN_TOKEN', '')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
+# GitHub Pages URL — used for Stripe success/cancel redirects
+PAGES_URL = os.environ.get('PAGES_URL', 'http://localhost:5000')
+
+if STRIPE_SECRET_KEY:
+    stripe.api_key = STRIPE_SECRET_KEY
+else:
+    print('WARNING: STRIPE_SECRET_KEY not set — payment endpoints will return 503.')
 _refresh_lock = threading.Lock()
 
 _VALID_CATEGORIES = {
@@ -165,3 +174,61 @@ def api_unfreeze():
         return jsonify({'error': f'Unknown category: {data["category"]}'}), 400
     ok = unfreeze_category(data['category'])
     return jsonify({'ok': ok}), (200 if ok else 500)
+
+# ── Stripe payments ───────────────────────────────────────────────────────────
+
+_TODD_TIERS = {
+    1: {'name': "Todd's Basic Unlock — See the number. Weep.",         'amount': 499},
+    2: {'name': "Todd's Premium Unlock — Full category-by-category roast", 'amount': 999},
+    3: {'name': "Todd's Enterprise Unlock — 30 min with Todd himself", 'amount': 2999},
+}
+
+def _cors(resp):
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return resp
+
+@app.route('/api/create-checkout-session', methods=['POST', 'OPTIONS'])
+def api_create_checkout_session():
+    if request.method == 'OPTIONS':
+        return _cors(jsonify({}))
+    if not STRIPE_SECRET_KEY:
+        return _cors(jsonify({'error': 'Payments not configured'})), 503
+    data = request.get_json() or {}
+    tier = int(data.get('tier', 1))
+    product = _TODD_TIERS.get(tier, _TODD_TIERS[1])
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {'name': product['name']},
+                    'unit_amount': product['amount'],
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=f'{PAGES_URL}/index.html?session_id={{CHECKOUT_SESSION_ID}}',
+            cancel_url=f'{PAGES_URL}/index.html',
+        )
+    except stripe.StripeError as e:
+        return _cors(jsonify({'error': str(e)})), 502
+    return _cors(jsonify({'url': session.url}))
+
+@app.route('/api/check-unlock', methods=['GET', 'OPTIONS'])
+def api_check_unlock():
+    if request.method == 'OPTIONS':
+        return _cors(jsonify({}))
+    if not STRIPE_SECRET_KEY:
+        return _cors(jsonify({'unlocked': False}))
+    session_id = request.args.get('session_id', '')
+    if not session_id.startswith('cs_'):
+        return _cors(jsonify({'unlocked': False}))
+    try:
+        session = stripe.checkout.Session.retrieve(session_id)
+        unlocked = session.payment_status == 'paid'
+    except stripe.StripeError:
+        unlocked = False
+    return _cors(jsonify({'unlocked': unlocked}))
