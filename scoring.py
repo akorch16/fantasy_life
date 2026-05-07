@@ -9,6 +9,9 @@ import os
 from draft_picks_2026 import DRAFT_PICKS_2026, PLAYERS, TENNIS_GENDER
 from db import get_standing, get_all_standings, get_all_bonuses, get_last_updated
 
+SEASON = 2026
+PREMIUM_PLAYER = 'Todd'
+
 # Bonus points per Amendment 7.14 (13-member inflation)
 BONUS_POINTS = {
     'sports_championship': {
@@ -604,7 +607,7 @@ def compute_all_scores():
             'name':       player,
             'total':      round(total, 2),
             'categories': {k.lower(): v for k, v in cat_breakdown.items()},
-            'is_premium': player == 'Todd',
+            'is_premium': player == PREMIUM_PLAYER,
         }
 
     sorted_players = sorted(player_totals.values(), key=lambda x: x['total'], reverse=True)
@@ -614,7 +617,7 @@ def compute_all_scores():
     return {
         'players':      sorted_players,
         'last_updated': get_last_updated(),
-        'season':       2026,
+        'season':       SEASON,
     }
 
 

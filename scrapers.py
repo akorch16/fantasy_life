@@ -52,7 +52,6 @@ def _espn_standings(sport, league):
     for url in urls:
         try:
             data = fetch_json(url, timeout=15)
-            print(f'    ESPN {league} keys: {list(data.keys())}')
             entries = []
             for conf in data.get('children', []):
                 children = conf.get('children', [conf])
@@ -199,7 +198,6 @@ def scrape_ncaab():
                 'wins': wins,
                 'losses': losses
             })
-            print(f'    NCAAB: {full_name} | {short_name} | {location} ({wins}-{losses})')
         ranked.sort(key=lambda x: x['pct'], reverse=True)
         poll = [{'rank': i+1, 'team': r['team'], 'short': r.get('short',''), 'location': r.get('location','')}
                 for i, r in enumerate(ranked[:25])]
