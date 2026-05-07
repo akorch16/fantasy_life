@@ -37,10 +37,11 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scrapers.py
 
-      - name: Compute scores → docs/scores.json
+      - name: Compute scores + FL News headline → docs/scores.json
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scoring.py
 
       - name: Commit & push scores.json

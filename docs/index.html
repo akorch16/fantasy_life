@@ -1327,11 +1327,13 @@ fetch('./scores.json')
   .then(data => {
     window.SCORES_DATA = data.players || [];
     window.LAST_UPDATED = data.last_updated || '';
+    if (data.headline) {
+      document.getElementById('news-bar-headline').innerHTML = data.headline;
+    }
     initDisplay();
     renderTable();
   })
   .catch(() => {
-
     renderTable(); // render empty state
   });
 </script>
