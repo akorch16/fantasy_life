@@ -32,26 +32,38 @@
 
     /* ─── HEADER ─── */
     header {
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 0 32px;
+      padding: 0 24px;
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 56px;
       position: sticky;
       top: 0;
-      background: var(--bg);
       z-index: 100;
     }
 
     .logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
-      letter-spacing: 0.08em;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
       color: var(--text);
+      text-decoration: none;
     }
 
     .logo span { color: var(--blue); }
+
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .nav-link:hover { color: var(--text); }
 
     /* ─── BUCKLEY FAN SITE OVERLAY ─── */
     #buckley-overlay {
@@ -799,14 +811,10 @@
 <body>
 
 <header>
-  <div style="display:flex;align-items:center;gap:12px;">
-    <div class="header-logo-img" onclick="openBuckley()" id="header-logo-img-wrap"></div>
-    <div class="logo">Fantasy<span>Life</span></div>
-  </div>
-  <div style="display:flex;align-items:center;gap:20px;">
-    <a href="./rules.html" style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Rules</a>
-
-  </div>
+  <div class="logo">Fantasy<span>Life</span></div>
+  <nav style="display:flex;align-items:center;gap:20px;">
+    <a href="./rules.html" class="nav-link">Rules</a>
+  </nav>
 </header>
 
 <div class="news-bar" id="news-bar">
