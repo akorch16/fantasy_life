@@ -5,6 +5,7 @@ Replaces local JSON file reads/writes with persistent Postgres via Supabase REST
 
 import os, requests, threading
 from datetime import datetime
+from typing import Optional
 
 _bonus_lock = threading.Lock()
 
@@ -26,7 +27,7 @@ def _headers():
 
 # ── Standings ────────────────────────────────────────────────────────────────
 
-def get_last_updated() -> str | None:
+def get_last_updated() -> Optional[str]:
     """Return the most recent standings updated_at as a human-readable UTC string."""
     if not SUPABASE_URL or not SUPABASE_KEY:
         return None

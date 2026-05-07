@@ -11,6 +11,7 @@ from db import get_standing, get_all_standings, get_all_bonuses, get_last_update
 
 SEASON = 2026
 PREMIUM_PLAYER = 'Todd'
+_MISSING_POLL_RANK = 26  # one beyond the 25-team poll ceiling; treated as unranked in scoring
 
 # Bonus points per Amendment 7.14 (13-member inflation)
 BONUS_POINTS = {
@@ -224,7 +225,7 @@ def compute_baseline_poll(category, data_key, reverse=False, static_data=None):
                     team_matches(team, entry_location)):
                     raw = entry.get('rank')
                     break
-        raw_values[player] = raw if raw is not None else 26
+        raw_values[player] = raw if raw is not None else _MISSING_POLL_RANK
 
     ranks = rank_avg(raw_values, reverse=False)
 
@@ -234,7 +235,7 @@ def compute_baseline_poll(category, data_key, reverse=False, static_data=None):
         rank = ranks.get(player)
         pts = rank_to_points(rank) if rank is not None else 0
         result[player] = {
-            'pick': team, 'raw_value': raw if raw != 26 else None,
+            'pick': team, 'raw_value': raw if raw != _MISSING_POLL_RANK else None,
             'rank': rank, 'baseline_pts': pts, 'bonus_pts': 0,
         }
     return result

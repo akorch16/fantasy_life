@@ -13,12 +13,8 @@ Sources:
 import json, os, re
 from datetime import datetime
 
-try:
-    import requests
-    from bs4 import BeautifulSoup
-    SCRAPING_AVAILABLE = True
-except ImportError:
-    SCRAPING_AVAILABLE = False
+import requests
+from bs4 import BeautifulSoup
 
 from db import save_standing, is_frozen, get_standing
 from scoring import name_matches
@@ -425,10 +421,14 @@ def scrape_stock():
             try:
                 url = f'https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1d&range=ytd'
                 r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'}, timeout=10)
-                data = r.json()['chart']['result'][0]
-                meta = data['meta']
+                body = r.json()
+                results = body.get('chart', {}).get('result') or []
+                if not results:
+                    raise Exception('empty result from Yahoo Finance')
+                data = results[0]
+                meta = data.get('meta', {})
                 current = meta.get('regularMarketPrice') or meta.get('previousClose')
-                closes = data['indicators']['quote'][0].get('close', [])
+                closes = (data.get('indicators', {}).get('quote') or [{}])[0].get('close', [])
                 jan1 = next((c for c in closes if c is not None), None)
                 if current and jan1:
                     prices.append({'ticker': ticker, 'current_price': current, 'jan1_price': jan1,
