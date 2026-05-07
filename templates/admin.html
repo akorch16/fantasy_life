@@ -37,6 +37,20 @@
   <h1>⚙️ Admin Panel</h1>
   <p style="color:var(--muted); margin-bottom:2rem; font-size:0.9rem">Manage bonus points and trigger data refresh</p>
 
+  <!-- Token entry (hidden once token is set in sessionStorage) -->
+  <div class="section" id="token-section">
+    <h2>Admin Token</h2>
+    <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem">Enter your admin token to authorize changes. Stored for this browser tab only — never in the URL.</p>
+    <div style="display:flex; gap:0.75rem; align-items:flex-end">
+      <div style="flex:1">
+        <label>Token</label>
+        <input type="password" id="token-input" placeholder="Paste token here" autocomplete="off">
+      </div>
+      <button class="btn" onclick="saveToken()">Unlock</button>
+    </div>
+    <div class="status" id="token-status"></div>
+  </div>
+
   <!-- Refresh -->
   <div class="section">
     <h2>Data Refresh</h2>
@@ -110,10 +124,29 @@
   </div>
 
   <script>
-    const adminToken = new URLSearchParams(window.location.search).get('token') || '';
+    // Token stored in sessionStorage, never in the URL.
+    // On first visit the input below is shown; subsequent same-tab loads reuse the stored value.
+    let adminToken = sessionStorage.getItem('adminToken') || '';
+
+    function saveToken() {
+      const val = document.getElementById('token-input').value.trim();
+      if (!val) { showStatus('token-status', 'Enter a token first', 'err'); return; }
+      sessionStorage.setItem('adminToken', val);
+      adminToken = val;
+      document.getElementById('token-section').style.display = 'none';
+      showStatus('token-status', 'Token saved for this session', 'ok');
+      loadBonuses();
+    }
+
+    // Hide the token entry section if we already have one stored
+    window.addEventListener('DOMContentLoaded', () => {
+      if (adminToken) document.getElementById('token-section').style.display = 'none';
+    });
 
     function authHeaders() {
-      return adminToken ? {'Content-Type':'application/json','X-Admin-Token': adminToken} : {'Content-Type':'application/json'};
+      return adminToken
+        ? {'Content-Type': 'application/json', 'X-Admin-Token': adminToken}
+        : {'Content-Type': 'application/json'};
     }
 
     let bonuses = {};
@@ -123,7 +156,7 @@
         const res = await fetch('/api/bonuses');
         bonuses = await res.json();
         renderBonusList();
-      } catch(e) {}
+      } catch(e) { showStatus('bonus-status', 'Failed to load bonuses: ' + e, 'err'); }
     }
 
     function renderBonusList() {
