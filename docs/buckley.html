@@ -191,6 +191,34 @@ a:hover { color:#ffff00; }
 
 .badge-row { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin-top:8px; }
 .badge { font-size:8px; padding:2px 5px; border:1px solid; font-family:'Courier New',monospace; font-weight:bold; }
+
+/* ── BIOENGINEERING FINAL EXAM ── */
+.bioeng-quiz { max-width:1100px; margin:0 auto 20px; padding:0 10px; }
+.bioeng-quiz-inner { background:#000022; border:4px solid #00ffff; overflow:hidden; }
+.bioeng-quiz-header { background:linear-gradient(90deg,#003366,#0066cc,#003366); color:#00ffff; font-size:20px; font-weight:bold; padding:12px; text-align:center; text-shadow:0 0 10px #00ffff; letter-spacing:2px; }
+.bioeng-quiz-intro { padding:10px 14px; font-size:12px; color:#ffff00; border-bottom:2px solid #003366; text-align:center; font-style:italic; }
+.bioeng-section-hdr { background:linear-gradient(90deg,#330000,#660000,#330000); color:#ff6666; font-size:13px; font-weight:bold; padding:6px 12px; margin-top:10px; letter-spacing:1px; }
+.bioeng-question { padding:10px 14px 6px; border-bottom:1px solid #112244; }
+.bioeng-q-num { color:#ff69b4; font-weight:bold; font-size:11px; margin-bottom:4px; }
+.bioeng-q-text { color:#e0e8ff; font-size:12px; line-height:1.6; margin-bottom:8px; }
+.bioeng-options { display:flex; flex-direction:column; gap:4px; }
+.bioeng-option { background:#001133; border:1px solid #334466; color:#aabbdd; padding:5px 10px; font-size:11px; font-family:'Comic Neue','Comic Sans MS',cursive; cursor:pointer; text-align:left; transition:all .15s; }
+.bioeng-option:hover { border-color:#00ffff; color:#00ffff; background:#001a33; }
+.bioeng-option.selected { background:#002244; border-color:#ff69b4; color:#ff69b4; }
+.bioeng-option.correct { background:#002200; border-color:#00ff44; color:#00ff44; }
+.bioeng-option.wrong { background:#220000; border-color:#ff4444; color:#ff4444; }
+.bioeng-textarea { width:100%; min-height:80px; background:#001133; border:1px solid #334466; color:#ccddff; font-family:'Comic Neue','Comic Sans MS',cursive; font-size:11px; padding:6px; resize:vertical; box-sizing:border-box; }
+.bioeng-textarea:focus { outline:none; border-color:#00ffff; }
+.bioeng-submit-area { padding:12px 14px; text-align:center; border-top:2px solid #003366; }
+.bioeng-submit-btn { background:linear-gradient(90deg,#006600,#00cc00); border:3px solid #00ff00; color:#000; font-size:14px; font-weight:bold; font-family:'Comic Neue','Comic Sans MS',cursive; padding:8px 24px; cursor:pointer; letter-spacing:1px; text-transform:uppercase; animation:submit-pulse 1.5s ease-in-out infinite alternate; }
+@keyframes submit-pulse { 0%{box-shadow:0 0 8px #00ff00} 100%{box-shadow:0 0 20px #00ff00,0 0 40px #00aa00} }
+.bioeng-results { display:none; padding:12px 14px; background:#000011; border-top:2px solid #00ffff; }
+.bioeng-score-display { font-size:22px; color:#ffff00; text-align:center; margin-bottom:8px; text-shadow:0 0 10px #ffff00; }
+.bioeng-answer-key { font-size:11px; line-height:1.8; color:#aabbcc; }
+.bioeng-answer-item { margin-bottom:3px; }
+.ans-correct { color:#00ff44; font-weight:bold; }
+.ans-wrong { color:#ff4444; }
+.bioeng-writein-note { margin-top:10px; padding:8px; background:#001122; border-left:3px solid #ff00ff; font-size:11px; color:#cc99ff; font-style:italic; line-height:1.6; }
 </style>
 </head>
 <body>
@@ -520,6 +548,140 @@ a:hover { color:#ffff00; }
 
 </div>
 
+<!-- ─── BIOENGINEERING FINAL EXAM ─── -->
+<div class="bioeng-quiz">
+  <div class="bioeng-quiz-inner">
+
+    <div class="bioeng-quiz-header">
+      🧬 BIOENGINEERING FINAL EXAM 🧬<br>
+      <span style="font-size:12px;color:#ffff00;font-family:'Comic Neue','Comic Sans MS',cursive;">brought to u by ScottBuckley4Ever.net</span>
+    </div>
+    <div class="bioeng-quiz-intro">
+      10-question upper-division Bioengineering exam (UCLA BE 100-series level and above). Questions 1–5 are multiple choice. Questions 6–10 require written responses.<br>
+      <span style="color:#ff69b4;font-weight:bold;">Scott has never attempted this quiz. He has requested this information be suppressed.</span>
+    </div>
+
+    <div class="bioeng-section-hdr">SECTION I — MULTIPLE CHOICE (Questions 1–5)</div>
+
+    <!-- Q1 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 1 — Cell Mechanics &amp; Biomaterials</div>
+      <div class="bioeng-q-text">Mesenchymal stem cells (MSCs) are seeded on polyacrylamide hydrogels of varying elastic moduli. Based on the findings of Engler et al. (2006), which outcome correctly pairs substrate stiffness with MSC lineage specification?</div>
+      <div class="bioeng-options" data-q="1" data-answer="C">
+        <button class="bioeng-option" data-opt="A" onclick="selectBioengOption(this)">A) Gels of ~25–40 kPa direct MSCs toward neurogenic differentiation, as measured by β-III tubulin upregulation</button>
+        <button class="bioeng-option" data-opt="B" onclick="selectBioengOption(this)">B) Substrate stiffness modulates cell morphology but does not alter transcription factor expression in the absence of soluble growth factors</button>
+        <button class="bioeng-option" data-opt="C" onclick="selectBioengOption(this)">C) Gels of ~0.1–1 kPa promote neurogenic differentiation; ~8–17 kPa myogenic; ~25–40 kPa osteogenic — matching the stiffness of brain, muscle, and pre-calcified bone respectively</button>
+        <button class="bioeng-option" data-opt="D" onclick="selectBioengOption(this)">D) Osteogenic differentiation is induced on the softest substrates because low stiffness maximizes integrin clustering and focal adhesion kinase (FAK) activation</button>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 2 — Synthetic Biology</div>
+      <div class="bioeng-q-text">The Gardner–Collins toggle switch uses mutual transcriptional repression between LacI and TetR. For the system to exhibit bistability, which mathematical condition on the Hill repression coefficients (n₁, n₂) is necessary?</div>
+      <div class="bioeng-options" data-q="2" data-answer="B">
+        <button class="bioeng-option" data-opt="A" onclick="selectBioengOption(this)">A) n₁ = n₂ = 1; cooperative repression is unnecessary when repressor concentrations are sufficiently high relative to the dissociation constants</button>
+        <button class="bioeng-option" data-opt="B" onclick="selectBioengOption(this)">B) Both n₁ and n₂ must exceed 1, ensuring the phase-plane nullclines can intersect at three fixed points — two stable (high/low states) and one unstable saddle point</button>
+        <button class="bioeng-option" data-opt="C" onclick="selectBioengOption(this)">C) n₁ + n₂ &gt; 6; total cooperativity must exceed this threshold to overcome thermal fluctuations at 37°C in mammalian cells</button>
+        <button class="bioeng-option" data-opt="D" onclick="selectBioengOption(this)">D) n₁ × n₂ must equal exactly 4; deviations convert the bistable switch to a monostable limit-cycle oscillator</button>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 3 — Transport Phenomena &amp; Bioreactor Design</div>
+      <div class="bioeng-q-text">Cells are immobilized in 2 mm-diameter alginate beads and consume oxygen with Michaelis-Menten kinetics. The generalized Thiele modulus is calculated as φ² = 18. Which statement best characterizes the mass transfer regime?</div>
+      <div class="bioeng-options" data-q="3" data-answer="D">
+        <button class="bioeng-option" data-opt="A" onclick="selectBioengOption(this)">A) The reaction is kinetics-limited; the effectiveness factor η ≈ 1 and the observed rate throughout the bead approaches Vmax</button>
+        <button class="bioeng-option" data-opt="B" onclick="selectBioengOption(this)">B) φ² = 18 places the system in a transition regime where η ≈ 0.7; design may conservatively assume kinetic control</button>
+        <button class="bioeng-option" data-opt="C" onclick="selectBioengOption(this)">C) The bead interior is fully oxygenated; φ² &gt; 1 only indicates that the characteristic diffusion time exceeds the reaction time constant at the surface</button>
+        <button class="bioeng-option" data-opt="D" onclick="selectBioengOption(this)">D) Severe internal diffusion limitation exists (φ² ≫ 1); effectiveness factor η ≪ 1, cells near the bead core are likely oxygen-starved, and observed rate is far below Vmax</button>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 4 — Biomaterials &amp; Scaffold Fabrication</div>
+      <div class="bioeng-q-text">A researcher electrospins PLGA 50:50 scaffolds and obtains a mean fiber diameter of ~800 nm. To increase fiber diameter to ~2 μm for improved cell infiltration, which single parameter change is most effective?</div>
+      <div class="bioeng-options" data-q="4" data-answer="B">
+        <button class="bioeng-option" data-opt="A" onclick="selectBioengOption(this)">A) Increase applied voltage from 15 kV to 25 kV to enhance electrostatic stretching and promote larger jet diameter at the collector</button>
+        <button class="bioeng-option" data-opt="B" onclick="selectBioengOption(this)">B) Increase polymer concentration from ~8% to ~15% w/v, raising solution viscosity and chain entanglement density to reduce jet elongation during flight</button>
+        <button class="bioeng-option" data-opt="C" onclick="selectBioengOption(this)">C) Decrease tip-to-collector distance from 15 cm to 5 cm to shorten flight time and reduce solvent evaporation-driven fiber thinning</button>
+        <button class="bioeng-option" data-opt="D" onclick="selectBioengOption(this)">D) Switch from DMF to chloroform as the primary solvent to decrease dielectric constant and reduce Coulombic self-repulsion within the jet</button>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 5 — Neural Engineering &amp; Biomedical Devices</div>
+      <div class="bioeng-q-text">A Utah array is implanted in the motor cortex of a non-human primate. After 10 weeks, &gt;60% of electrode channels exhibit degraded unit signal quality. Histology confirms a dense GFAP-positive glial sheath surrounding each shank. Which intervention has the strongest evidence base for attenuating this chronic foreign body response?</div>
+      <div class="bioeng-options" data-q="5" data-answer="C">
+        <button class="bioeng-option" data-opt="A" onclick="selectBioengOption(this)">A) Surface functionalization with poly-D-lysine (PDL) to enhance acute neuronal adhesion to the electrode tip at the time of implantation</button>
+        <button class="bioeng-option" data-opt="B" onclick="selectBioengOption(this)">B) Iridium oxide electrodeposition to increase electrochemically active surface area and lower electrode impedance, improving signal-to-noise ratio</button>
+        <button class="bioeng-option" data-opt="C" onclick="selectBioengOption(this)">C) Transitioning to a mechanically compliant substrate (e.g., parylene-C or SU-8) to reduce micromotion-driven strain at the implant–brain interface and attenuate the mechanically-induced inflammatory cascade</button>
+        <button class="bioeng-option" data-opt="D" onclick="selectBioengOption(this)">D) Increasing electrode tip taper angle to &gt;60° to minimize vascular disruption during the insertion phase</button>
+      </div>
+    </div>
+
+    <div class="bioeng-section-hdr">SECTION II — SHORT ANSWER (Questions 6–10)</div>
+    <div style="padding:6px 14px 2px;font-size:10px;color:#778899;font-style:italic;">Provide complete answers. Use appropriate technical terminology. Partial credit is awarded based on conceptual accuracy and depth of reasoning.</div>
+
+    <!-- Q6 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 6 — Microfluidics &amp; Organ-on-a-Chip</div>
+      <div class="bioeng-q-text">You are designing a microfluidic blood-brain barrier (BBB) model to study neuroinflammation in response to lipopolysaccharide (LPS).<br><br>(a) Identify the two primary cell types you would co-culture and specify which compartment (luminal vs. abluminal) each occupies.<br>(b) Describe one functional assay you would use to validate barrier integrity before initiating LPS experiments.<br>(c) Identify one key limitation of this in vitro model compared to the in vivo BBB that could affect interpretation of your LPS response data.</div>
+      <textarea class="bioeng-textarea" id="bioeng-q6" placeholder="Write your answer here..."></textarea>
+    </div>
+
+    <!-- Q7 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 7 — Quantitative Proteomics &amp; Experimental Design</div>
+      <div class="bioeng-q-text">A mass spectrometry-based proteomics study compares global protein expression in iPSC-derived cardiomyocytes before and after CRISPR correction of a pathogenic SCN5A variant. The dataset contains 3,800 quantified proteins across 4 biological replicates per condition.<br><br>(a) Describe the statistical framework you would use to identify differentially expressed proteins, including how you would control the false discovery rate (FDR).<br>(b) Identify one potential batch effect that could confound your analysis and explain how PCA would help detect it.<br>(c) Explain why log₂ transformation of raw protein intensity values is applied prior to statistical analysis.</div>
+      <textarea class="bioeng-textarea" id="bioeng-q7" placeholder="Write your answer here..."></textarea>
+    </div>
+
+    <!-- Q8 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 8 — Bioreactor Engineering (Quantitative)</div>
+      <div class="bioeng-q-text">A continuous stirred-tank bioreactor (CSTR) operates at steady state with a 2 L working volume and a volumetric flow rate of 60 mL/hr. CHO cells follow Monod kinetics: μ_max = 0.04 hr⁻¹, K_s = 0.5 g/L glucose. Feed glucose concentration S₀ = 4.0 g/L. Assume no cell death and perfect mixing.<br><br>(a) Calculate the dilution rate D (hr⁻¹).<br>(b) Use the Monod equation at steady state (μ = D) to calculate the steady-state substrate concentration S* (g/L). Show your derivation.<br>(c) If the biomass yield coefficient Y<sub>X/S</sub> = 0.3 g cells/g glucose and the feed contains no cells, calculate the steady-state cell concentration X* (g/L).</div>
+      <textarea class="bioeng-textarea" id="bioeng-q8" placeholder="Show all work and units..."></textarea>
+    </div>
+
+    <!-- Q9 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 9 — Regulatory Science &amp; Bioethics</div>
+      <div class="bioeng-q-text">A clinical-stage company is developing an allogeneic CAR-T cell therapy for relapsed/refractory B-cell lymphoma. The manufacturing process uses CRISPR-Cas9 to knock out the endogenous TCR alpha locus (TRAC) in donor T cells to reduce graft-versus-host disease (GvHD) risk.<br><br>(a) Identify the FDA center responsible for regulating this therapy and describe the regulatory pathway (IND type and application type). Cite any relevant FDA guidance documents.<br>(b) Describe two manufacturing-related risks specific to allogeneic CAR-T production that must be addressed in the CMC (Chemistry, Manufacturing, and Controls) section of the IND.<br>(c) Propose one ethical consideration that must be explicitly addressed in the Phase I informed consent process for this patient population.</div>
+      <textarea class="bioeng-textarea" id="bioeng-q9" placeholder="Write your answer here..."></textarea>
+    </div>
+
+    <!-- Q10 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 10 — Molecular Biology &amp; Cancer Therapeutics</div>
+      <div class="bioeng-q-text">Synthetic lethality has become a central paradigm in precision oncology.<br><br>(a) Define synthetic lethality and explain the normal cellular functions of PARP1 and BRCA1/2 in DNA damage repair.<br>(b) Explain mechanistically why PARP inhibition is selectively lethal to BRCA1/2-deficient tumor cells but not to adjacent normal cells with intact BRCA function.<br>(c) Name one FDA-approved PARP inhibitor and its approved oncologic indication.<br>(d) Describe one clinically observed resistance mechanism to PARP inhibitor therapy and propose a combination therapeutic strategy to overcome it.</div>
+      <textarea class="bioeng-textarea" id="bioeng-q10" placeholder="Write your answer here..."></textarea>
+    </div>
+
+    <div class="bioeng-submit-area">
+      <button class="bioeng-submit-btn" onclick="submitBioengQuiz()">⚗️ SUBMIT EXAM ⚗️</button>
+      <div style="font-size:10px;color:#556677;margin-top:6px;">* Section II responses are self-graded. Be honest with yourself.</div>
+    </div>
+
+    <div class="bioeng-results" id="bioeng-results">
+      <div class="bioeng-score-display" id="bioeng-score-display"></div>
+      <div class="bioeng-answer-key" id="bioeng-answer-key"></div>
+      <div class="bioeng-writein-note">
+        <strong style="color:#ff00ff;">SECTION II ANSWER KEY (self-grade):</strong><br><br>
+        <strong>Q6:</strong> Luminal = brain microvascular endothelial cells (BMECs); abluminal = astrocytes and/or pericytes. Validation via TEER (transendothelial electrical resistance) measurement or fluorescent tracer (e.g., 4 kDa FITC-dextran) permeability assay. Key limitations: absence of immune cell trafficking, lack of pulsatile shear stress, no brain-side neuronal input, static cytokine microenvironment vs. in vivo.<br><br>
+        <strong>Q7:</strong> (a) Moderated t-test (limma) or DESeq2/edgeR framework; Benjamini-Hochberg FDR correction at q &lt; 0.05. (b) Batch = sample preparation date or TMT labeling batch; PCA would show samples clustering by batch rather than by condition on PC1. (c) Log₂ transformation converts multiplicative error structure to additive, normalizes the right-skewed intensity distribution, and stabilizes variance across the intensity range (homoscedasticity assumption of parametric tests).<br><br>
+        <strong>Q8:</strong> (a) D = F/V = 0.06 L/hr ÷ 2 L = <strong>0.03 hr⁻¹</strong>. (b) At steady state μ = D → D = μ_max · S*/(K_s + S*) → S* = K_s · D/(μ_max − D) = 0.5 × 0.03/(0.04 − 0.03) = <strong>1.5 g/L</strong>. (c) X* = Y<sub>X/S</sub>(S₀ − S*) = 0.3 × (4.0 − 1.5) = <strong>0.75 g/L</strong>.<br><br>
+        <strong>Q9:</strong> (a) CBER (not CDER) regulates cell/gene therapies; HCT/P 351 biological product requiring IND + BLA; see FDA guidance "Considerations for the Design, Development, and Analytical Procedures for Phase I Studies of Therapeutic Proteins." (b) Risks: (i) donor-to-donor variability in editing efficiency and T cell fitness across manufacturing lots; (ii) detection and characterization of off-target Cas9 cleavage events (required: GUIDE-seq or Digenome-seq, karyotyping). (c) Ethics: terminally ill patients may have compromised autonomy under therapeutic misconception; consent must clearly distinguish experimental from therapeutic intent and address allogeneic GvHD risk.<br><br>
+        <strong>Q10:</strong> (a) PARP1 repairs single-strand breaks (SSBs) via base excision repair (BER); BRCA1/2 mediate homologous recombination repair (HRR) of double-strand breaks (DSBs). (b) PARP inhibition causes SSB accumulation → replication fork collapse → DSBs; BRCA-intact cells resolve DSBs via HRR; BRCA-deficient cells resort to error-prone NHEJ → chromosomal instability → cell death (synthetic lethality). Also: PARP trapping on DNA contributes to cytotoxicity. (c) Olaparib (Lynparza) — FDA approved for BRCA1/2-mutated advanced ovarian cancer (2014) and HER2-negative metastatic breast cancer (2018). (d) Resistance via BRCA2 reversion mutations restoring HRR; overcome by combining with carboplatin, ATR inhibitors (e.g., ceralasertib), or PI3K/AKT pathway inhibitors to increase replication stress and overwhelm residual HRR capacity.
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div class="site-footer">
   <p class="hot-pink" style="font-size:14px;font-weight:bold;">ScottBuckley4Ever.net</p>
   <div class="badge-row">
@@ -568,6 +730,59 @@ const quizAnswers={
 };
 function quizAnswer(ans){
   document.getElementById('quiz-result').textContent='Result: '+quizAnswers[ans];
+}
+
+// ── BIOENGINEERING QUIZ ─────────────────────────────────────────────
+const BIOENG_CORRECT = { 1:'C', 2:'B', 3:'D', 4:'B', 5:'C' };
+
+function selectBioengOption(btn) {
+  const group = btn.closest('[data-q]');
+  group.querySelectorAll('.bioeng-option').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function submitBioengQuiz() {
+  let score = 0;
+  const keyLines = [];
+
+  for (let q = 1; q <= 5; q++) {
+    const group = document.querySelector(`.bioeng-options[data-q="${q}"]`);
+    const correct = BIOENG_CORRECT[q];
+    const selected = group.querySelector('.bioeng-option.selected');
+    const choice = selected ? selected.dataset.opt : null;
+
+    group.querySelectorAll('.bioeng-option').forEach(btn => {
+      btn.onclick = null; // lock after submit
+      if (btn.dataset.opt === correct) btn.classList.add('correct');
+      else if (btn.classList.contains('selected')) btn.classList.add('wrong');
+      btn.classList.remove('selected');
+    });
+
+    if (choice === correct) {
+      score++;
+      keyLines.push(`<div class="bioeng-answer-item">Q${q}: <span class="ans-correct">✓ ${correct} — Correct</span></div>`);
+    } else {
+      keyLines.push(`<div class="bioeng-answer-item">Q${q}: <span class="ans-wrong">${choice ? '✗ ' + choice : '(no answer)'}</span> → <span class="ans-correct">${correct}</span></div>`);
+    }
+  }
+
+  const grades   = ['F','F','D','C','B','A'];
+  const comments = [
+    'Scott is nodding in quiet solidarity.',
+    'You answered like someone who skimmed the abstract once.',
+    'Partial credit. UCLA would not expel you. Probably.',
+    'Solid. You passed the course. Maybe.',
+    'Strong work. Consider a PhD. Or don\'t, it\'s brutal out there.',
+    '🏆 PERFECT. Buckley cannot believe you also beat him at bioengineering.',
+  ];
+
+  document.getElementById('bioeng-score-display').innerHTML =
+    `MC Score: <span style="color:#00ff44;">${score}/5</span> &nbsp;|&nbsp; Grade: <span style="color:#ffff00;">${grades[score]}</span><br>
+     <span style="font-size:12px;color:#ff69b4;">${comments[score]}</span>`;
+  document.getElementById('bioeng-answer-key').innerHTML = keyLines.join('');
+  const results = document.getElementById('bioeng-results');
+  results.style.display = 'block';
+  results.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
 
 // Visitor counter easter egg
