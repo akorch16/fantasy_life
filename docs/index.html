@@ -1232,10 +1232,14 @@ function setFilter(cat, btn) {
 }
 
 // ============================================================
-// CONFIG — set this to your deployed Flask backend URL
-// Leave empty to keep the paywall in joke-only mode
+// STRIPE PAYMENT LINKS
 // ============================================================
-const FLASK_API = '';  // e.g. 'https://fantasy-life-api.onrender.com'
+const STRIPE_LINKS = {
+  1: 'https://buy.stripe.com/eVqfZg5bT4s16BO1OEg7e00',
+  2: 'https://buy.stripe.com/aFa4gy6fX2jT9O01OEg7e01',
+  3: 'https://buy.stripe.com/6oU9AS5bTaQp6BO3WMg7e02',
+};
+const FLASK_API = '';  // unused with Payment Links
 
 // ============================================================
 // TODD PAYWALL
@@ -1275,41 +1279,16 @@ const processingMessages = [
 
 function startPayment(tier) {
   showPhase(2);
-
-  if (!FLASK_API) {
-    // Joke mode — no backend configured
-    let i = 0;
-    const el = document.getElementById('processing-text');
-    const interval = setInterval(() => {
-      el.textContent = processingMessages[i % processingMessages.length];
-      i++;
-      if (i >= processingMessages.length) {
-        clearInterval(interval);
-        setTimeout(() => { renderToddReveal(); showPhase(3); }, 600);
-      }
-    }, 500);
-    return;
-  }
-
-  document.getElementById('processing-text').textContent = 'Redirecting to secure checkout...';
-  fetch(FLASK_API + '/api/create-checkout-session', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({tier}),
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      document.getElementById('processing-text').textContent =
-        'Payment unavailable right now — try again later.';
+  let i = 0;
+  const el = document.getElementById('processing-text');
+  const interval = setInterval(() => {
+    el.textContent = processingMessages[i % processingMessages.length];
+    i++;
+    if (i >= processingMessages.length) {
+      clearInterval(interval);
+      window.location.href = STRIPE_LINKS[tier] || STRIPE_LINKS[1];
     }
-  })
-  .catch(() => {
-    document.getElementById('processing-text').textContent =
-      'Could not reach payment server — try again later.';
-  });
+  }, 500);
 }
 
 function renderToddReveal() {
@@ -1391,24 +1370,16 @@ fetch('./scores.json')
     renderTable(); // render empty state
   });
 
-// Check if user is returning from a completed Stripe payment
+// Check if user is returning from a completed Stripe Payment Link
 function checkStripeReturn() {
   const params = new URLSearchParams(window.location.search);
-  const sid = params.get('session_id');
-  if (!sid || !FLASK_API) return;
+  if (params.get('todd_unlocked') !== '1') return;
 
-  // Clean the session_id off the URL immediately
+  // Clean the param off the URL immediately
   window.history.replaceState({}, '', window.location.pathname);
 
-  fetch(FLASK_API + '/api/check-unlock?session_id=' + encodeURIComponent(sid))
-    .then(r => r.json())
-    .then(data => {
-      if (data.unlocked) {
-        localStorage.setItem('todd_unlocked', '1');
-        openToddModal(); // openToddModal checks localStorage and jumps to phase 3
-      }
-    })
-    .catch(() => {});
+  localStorage.setItem('todd_unlocked', '1');
+  openToddModal(); // openToddModal checks localStorage and jumps to phase 3
 }
 </script>
 
