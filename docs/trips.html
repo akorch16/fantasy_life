@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fantasy Life — Trips</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0f14;
+      --surface:  #13161d;
+      --surface2: #1a1e28;
+      --border:   #232733;
+      --text:     #f0f2f8;
+      --muted:    #9aa3b5;
+      --dim:      #6b7280;
+      --blue:     #2d7dd2;
+      --blue-dim: #1a4a82;
+      --green:    #22c55e;
+      --red:      #ef4444;
+      --gold:     #f59e0b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.75;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--blue); }
+    .header-logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center top;
+      background-image: url('./todd.jpg');
+    }
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-link.active { color: var(--blue); }
+
+    /* ── PAGE ── */
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .page-title span { color: var(--blue); }
+    .page-subtitle {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 36px;
+    }
+
+    /* ── MAP ── */
+    .map-wrap {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 40px;
+      height: 420px;
+    }
+    #trips-map {
+      height: 100%;
+      width: 100%;
+      background: #0d0f14;
+    }
+
+    /* Leaflet popup dark styling */
+    .leaflet-popup-content-wrapper {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .leaflet-popup-tip { background: var(--surface2); }
+    .leaflet-popup-content { margin: 12px 16px; }
+    .popup-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      color: var(--blue);
+      line-height: 1.1;
+    }
+    .popup-winner {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .popup-location {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+    .popup-latest {
+      display: inline-block;
+      margin-top: 6px;
+      background: var(--gold);
+      color: #000;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    /* ── INTRO QUOTE ── */
+    .intro-quote {
+      background: var(--surface);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 6px 6px 0;
+      padding: 20px 24px;
+      margin-bottom: 48px;
+    }
+    .intro-quote p {
+      font-size: 1rem;
+      color: var(--text);
+      font-style: italic;
+      line-height: 1.75;
+      margin-bottom: 10px;
+    }
+    .intro-quote cite {
+      font-style: normal;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-title {
+      font-size: 0.72rem;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--blue);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── TRIP LIST ── */
+    .trips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+
+    .trip-row {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: border-color 0.15s;
+    }
+    .trip-winner-location {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .trip-row:hover { border-color: #3a4255; }
+    .trip-row.latest {
+      border-color: var(--gold);
+      background: #1a1600;
+    }
+    .trip-row.latest:hover { border-color: #d4870a; }
+
+    .trip-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.06em;
+      color: var(--blue);
+    }
+    .trip-row.latest .trip-year { color: var(--gold); }
+
+    .trip-winner {
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .trip-winner-badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-left: 6px;
+      background: rgba(245,158,11,0.15);
+      color: var(--gold);
+      vertical-align: middle;
+    }
+
+    .trip-location {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .trip-location.tbd { color: var(--dim); font-style: italic; }
+
+    /* ── NEXT TRIP ── */
+    .next-trip-card {
+      background: var(--surface);
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+    .next-trip-header {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 4px;
+    }
+    .next-trip-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 0.06em;
+      color: var(--blue);
+      line-height: 1;
+    }
+    .next-trip-city {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.06em;
+      color: var(--text);
+    }
+    .next-trip-dates {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
+    .next-trip-section {
+      margin-top: 20px;
+    }
+    .next-trip-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .flight-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .flight-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .flight-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .airbnb-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      background: #ff385c22;
+      border: 1px solid #ff385c55;
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #ff385c;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: background 0.15s;
+    }
+    .airbnb-btn:hover { background: #ff385c33; }
+    .activity-list, .restaurant-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .activity-item, .restaurant-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+    }
+    .activity-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .activity-name {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    .activity-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.5;
+    }
+    .activity-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--blue);
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .activity-link:hover { text-decoration: underline; }
+    .activity-meta {
+      font-size: 0.72rem;
+      color: var(--gold);
+      margin-top: 3px;
+      font-family: 'DM Mono', monospace;
+    }
+    .next-trip-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    /* ── LEADERBOARD ── */
+    .wins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .wins-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .wins-count {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      line-height: 1;
+      color: var(--blue);
+      min-width: 32px;
+      text-align: center;
+    }
+    .wins-count.top { color: var(--gold); }
+    .wins-name {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    @media (max-width: 600px) {
+      .page { padding: 24px 12px 60px; }
+      header { padding: 0 16px; }
+      .map-wrap { height: 300px; }
+      .trip-row { grid-template-columns: 52px 1fr; padding: 10px 14px; }
+      .wins-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="./index.html" class="header-logo-img"></a>
+    <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <a href="./rules.html" class="nav-link">Rules</a>
+    <a href="./calendar.html" class="nav-link">Calendar</a>
+    <a href="./trips.html" class="nav-link active">Trips</a>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="page-title">FL <span>Trips</span></div>
+  <div class="page-subtitle">Annual winner's trip</div>
+
+  <div class="intro-quote">
+    <p>"Since year one, the winner has picked a trip and had their trip paid for by the other 12. The group pays for airfare, lodging, and one nice dinner."</p>
+    <cite>— Amendment 7.18, FL Constitution</cite>
+  </div>
+
+  <!-- MAP -->
+  <div class="map-wrap">
+    <div id="trips-map"></div>
+  </div>
+
+  <!-- TRIP LIST -->
+  <div class="section-title">All Trips</div>
+  <div class="trips-list">
+
+    <div class="trip-row latest">
+      <div class="trip-year">2026</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Scott Buckley <span class="trip-winner-badge">Latest</span></div>
+        <div class="trip-location">Charleston, SC</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2025</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Alex Korchinski</div>
+        <div class="trip-location">Calgary, AB</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2024</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Ryan James</div>
+        <div class="trip-location">Rogue River, OR</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2023</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Scott Mitchell</div>
+        <div class="trip-location">Coeur d'Alene, ID</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2022</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Anthony Fryar</div>
+        <div class="trip-location">Denver, CO</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2021</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Jason Feder</div>
+        <div class="trip-location">Mexico City, MX</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2020</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Anthony Fryar</div>
+        <div class="trip-location tbd">Location TBD</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2019</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Todd Grover</div>
+        <div class="trip-location">Austin, TX</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2018</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Alex Korchinski</div>
+        <div class="trip-location">Vancouver, BC</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2017</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Scott Mitchell</div>
+        <div class="trip-location">Jackson Hole, WY</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2016</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Theo Lee</div>
+        <div class="trip-location">Lake Tahoe, NV</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2015</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Todd Grover</div>
+        <div class="trip-location">New Orleans, LA</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2014</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Anthony Fryar</div>
+        <div class="trip-location">Nashville, TN</div>
+      </div>
+    </div>
+
+    <div class="trip-row">
+      <div class="trip-year">2013</div>
+      <div class="trip-winner-location">
+        <div class="trip-winner">Tim Marcroft</div>
+        <div class="trip-location">Las Vegas, NV</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 2026 NEXT TRIP -->
+  <div class="section-title">2026 Trip — Upcoming</div>
+  <div class="next-trip-card">
+    <div class="next-trip-header">
+      <div class="next-trip-year">2026</div>
+      <div class="next-trip-city">Charleston, SC</div>
+    </div>
+    <div class="next-trip-dates">Oct 22 – 25, 2026 · 13 guys</div>
+
+    <!-- FLIGHTS -->
+    <div class="next-trip-section">
+      <div class="next-trip-label">✈ Flights</div>
+      <div class="flight-links">
+        <a class="flight-btn" href="https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI2LTEwLTIyagcIARIDU0ZPcgcIARIDQ0hTGh4SCjIwMjYtMTAtMjVqBwgBEgNDSFNyBwgBEgNTRk9AAUgBcAGCAQsI____________AZgBAQ" target="_blank">San Francisco → CHS</a>
+        <a class="flight-btn" href="https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI2LTEwLTIyagcIARIDUERYcgcIARIDQ0hTGh4SCjIwMjYtMTAtMjVqBwgBEgNDSFNyBwgBEgNQRFhAAUgBcAGCAQsI____________AZgBAQ" target="_blank">Portland → CHS</a>
+        <a class="flight-btn" href="https://www.google.com/travel/flights/search?tfs=CBwQAhoeEgoyMDI2LTEwLTIyagcIARIDTEFYcgcIARIDQ0hTGh4SCjIwMjYtMTAtMjVqBwgBEgNDSFNyBwgBEgNMQVhAAUgBcAGCAQsI____________AZgBAQ" target="_blank">Los Angeles → CHS</a>
+        <a class="flight-btn" href="https://www.google.com/travel/flights/search?tfs=CBwQAhokEgoyMDI2LTEwLTIyag0IAxIJL20vMDJfMjg2cgcIARIDQ0hTGiQSCjIwMjYtMTAtMjVqBwgBEgNDSFNyDQgDEgkvbS8wMl8yODZAAUgBcAGCAQsI____________AZgBAQ" target="_blank">New York → CHS</a>
+      </div>
+    </div>
+
+    <!-- AIRBNB -->
+    <div class="next-trip-section">
+      <div class="next-trip-label">🏠 Stay</div>
+      <a class="airbnb-btn" href="https://www.airbnb.com/rooms/735571599452521278?adults=14&check_in=2026-10-22&check_out=2026-10-25&guests=14&location=Charleston%2C%20SC&search_mode=regular_search&source_impression_id=p3_1776539722_P3Uszv7rTDyAm5w4&previous_page_section_name=1001&federated_search_id=be2c4ea0-" target="_blank">
+        View Airbnb — 14 guests · Oct 22–25
+      </a>
+    </div>
+
+    <div class="next-trip-divider"></div>
+
+    <!-- ACTIVITIES -->
+    <div class="next-trip-section">
+      <div class="next-trip-label">🎯 Activities</div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon">🚤</div>
+          <div>
+            <div class="activity-name">Osprey Boat Charters — Clay Pigeon Shooting</div>
+            <div class="activity-desc">Shoot sporting clays off the deck of a boat off Isle of Palms — guns, ammo, and safety gear included for up to 49 guests.</div>
+            <a class="activity-link" href="https://ospreyboatcharters.com/" target="_blank">ospreyboatcharters.com →</a>
+            <a class="activity-link" href="https://maps.google.com/?q=Osprey+Boat+Charters+Isle+of+Palms+SC" target="_blank" style="margin-left:10px;">Google Maps →</a>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">⚓</div>
+          <div>
+            <div class="activity-name">USS Yorktown &amp; Patriots Point</div>
+            <div class="activity-meta">★ 4.5 · 4,756 TripAdvisor reviews</div>
+            <div class="activity-desc">Tour a WWII aircraft carrier with flight simulators, flight deck access, and a destroyer and submarine on-site.</div>
+            <a class="activity-link" href="https://www.patriotspoint.org/" target="_blank">patriotspoint.org →</a>
+            <a class="activity-link" href="https://maps.google.com/?q=Patriots+Point+Naval+%26+Maritime+Museum+Mount+Pleasant+SC" target="_blank" style="margin-left:10px;">Google Maps →</a>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">⛵</div>
+          <div>
+            <div class="activity-name">Fort Sumter National Monument</div>
+            <div class="activity-meta">★ 4.7 · 10,252 Google reviews</div>
+            <div class="activity-desc">Take a ferry to the Civil War battleground in Charleston Harbor where the first shots of the war were fired — guided NPS tours of the 1861 fort included.</div>
+            <a class="activity-link" href="https://www.nps.gov/fosu/" target="_blank">nps.gov/fosu →</a>
+            <a class="activity-link" href="https://maps.google.com/?q=Fort+Sumter+National+Monument+Charleston+SC" target="_blank" style="margin-left:10px;">Google Maps →</a>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">👻</div>
+          <div>
+            <div class="activity-name">Bulldog Tours — Old City Jail Ghost Tour</div>
+            <div class="activity-meta">★ 4.5 · 8,410+ TripAdvisor reviews</div>
+            <div class="activity-desc">Walk the cellblocks of Charleston's most haunted building — 19th-century prison that held pirates, Civil War POWs, and serial killer Lavinia Fisher.</div>
+            <a class="activity-link" href="https://bulldogtours.com/" target="_blank">bulldogtours.com →</a>
+            <a class="activity-link" href="https://maps.google.com/?q=Bulldog+Tours+Charleston+SC" target="_blank" style="margin-left:10px;">Google Maps →</a>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">🏖</div>
+          <div>
+            <div class="activity-name">Folly Beach</div>
+            <div class="activity-meta">★ 4.5 · TripAdvisor Travelers' Choice</div>
+            <div class="activity-desc">30 minutes from downtown — Charleston's favorite Atlantic beach with surf, cold beers, and the iconic 1,045-foot pier stretching into the ocean.</div>
+            <a class="activity-link" href="https://maps.google.com/?q=Folly+Beach+SC" target="_blank">Google Maps →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="next-trip-divider"></div>
+
+    <!-- RESTAURANTS -->
+    <div class="next-trip-section">
+      <div class="next-trip-label">🍽 Restaurants</div>
+      <div class="restaurant-list">
+        <div class="restaurant-item">
+          <div class="activity-icon">🦞</div>
+          <div>
+            <div class="activity-name">Hyman's Seafood</div>
+            <div class="activity-meta">★ 4.9 · 47,279 Google reviews</div>
+            <div class="activity-desc">Charleston institution since 1890 — the 2nd most reviewed restaurant in America, famous for she-crab soup, fried shrimp, and fresh fish at 215 Meeting St.</div>
+            <a class="activity-link" href="https://www.hymanseafood.com/" target="_blank">hymanseafood.com →</a>
+            <a class="activity-link" href="https://maps.google.com/?q=Hyman%27s+Seafood+Charleston+SC" target="_blank" style="margin-left:10px;">Google Maps →</a>
+          </div>
+        </div>
+        <div class="restaurant-item">
+          <div class="activity-icon">⚓</div>
+          <div>
+            <div class="activity-name">Fleet Landing</div>
+            <div class="activity-meta">★ 4.6 · 11,393 Google reviews</div>
+            <div class="activity-desc">Waterfront seafood on Charleston Harbor in a converted naval building — raw bar, she-crab soup, and outdoor decks overlooking the water.</div>
+            <a class="activity-link" href="https://fleetlanding.net/" target="_blank">fleetlanding.net →</a>
+            <a class="activity-link" href="https://maps.google.com/?q=Fleet+Landing+Restaurant+Charleston+SC" target="_blank" style="margin-left:10px;">Google Maps →</a>
+          </div>
+        </div>
+        <div class="restaurant-item">
+          <div class="activity-icon">🥩</div>
+          <div>
+            <div class="activity-name">Hall's Chophouse</div>
+            <div class="activity-meta">★ 4.8 · 6,976 TripAdvisor reviews</div>
+            <div class="activity-desc">Consistently rated the best steakhouse in Charleston — wet and dry aged cuts, outstanding service, and a serious wine list.</div>
+            <a class="activity-link" href="https://hallschophousecharleston.com/" target="_blank">hallschophousecharleston.com →</a>
+            <a class="activity-link" href="https://maps.google.com/?q=Hall%27s+Chophouse+Charleston+SC" target="_blank" style="margin-left:10px;">Google Maps →</a>
+          </div>
+        </div>
+        <div class="restaurant-item">
+          <div class="activity-icon">🌿</div>
+          <div>
+            <div class="activity-name">Husk</div>
+            <div class="activity-meta">★ 4.5 · 5,254 TripAdvisor reviews</div>
+            <div class="activity-desc">Michelin-recommended Southern temple at 76 Queen St — every ingredient sourced from the South, named one of America's 100 greatest restaurants.</div>
+            <a class="activity-link" href="https://huskrestaurant.com/charleston/" target="_blank">huskrestaurant.com →</a>
+            <a class="activity-link" href="https://maps.google.com/?q=Husk+Restaurant+Charleston+SC" target="_blank" style="margin-left:10px;">Google Maps →</a>
+          </div>
+        </div>
+        <div class="restaurant-item">
+          <div class="activity-icon">🍑</div>
+          <div>
+            <div class="activity-name">Magnolias</div>
+            <div class="activity-meta">★ 4.7 · 5,029 Google reviews</div>
+            <div class="activity-desc">The restaurant that launched Charleston's culinary renaissance, serving elevated Lowcountry classics since 1990.</div>
+            <a class="activity-link" href="https://magnoliascharleston.com/" target="_blank">magnoliascharleston.com →</a>
+            <a class="activity-link" href="https://maps.google.com/?q=Magnolias+Restaurant+Charleston+SC" target="_blank" style="margin-left:10px;">Google Maps →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WINS LEADERBOARD -->
+  <div class="section-title">Trip Wins</div>
+  <div class="wins-grid">
+    <div class="wins-card">
+      <div class="wins-count top">3</div>
+      <div class="wins-name">Anthony Fryar</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">2</div>
+      <div class="wins-name">Todd Grover</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">2</div>
+      <div class="wins-name">Scott Mitchell</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">2</div>
+      <div class="wins-name">Alex Korchinski</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">1</div>
+      <div class="wins-name">Tim Marcroft</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">1</div>
+      <div class="wins-name">Theo Lee</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">1</div>
+      <div class="wins-name">Jason Feder</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">1</div>
+      <div class="wins-name">Ryan James</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count">1</div>
+      <div class="wins-name">Scott Buckley</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count" style="color:var(--dim)">0</div>
+      <div class="wins-name">Andrew Wu</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count" style="color:var(--dim)">0</div>
+      <div class="wins-name">Jens Hagen</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count" style="color:var(--dim)">0</div>
+      <div class="wins-name">Corey Shepardson</div>
+    </div>
+    <div class="wins-card">
+      <div class="wins-count" style="color:var(--dim)">0</div>
+      <div class="wins-name">David Molmen</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const trips = [
+    { year: 2026, winner: 'Scott Buckley',   location: 'Charleston, SC',    lat: 32.7765,  lng:  -79.9311, latest: true  },
+    { year: 2025, winner: 'Alex Korchinski', location: 'Calgary, AB',       lat: 51.0447,  lng: -114.0719 },
+    { year: 2024, winner: 'Ryan James',      location: 'Rogue River, OR',   lat: 42.4351,  lng: -123.1768 },
+    { year: 2023, winner: 'Scott Mitchell',  location: "Coeur d'Alene, ID", lat: 47.6777,  lng: -116.7805 },
+    { year: 2022, winner: 'Anthony Fryar',   location: 'Denver, CO',        lat: 39.7392,  lng: -104.9903 },
+    { year: 2021, winner: 'Jason Feder',     location: 'Mexico City, MX',   lat: 19.4326,  lng:  -99.1332 },
+    { year: 2019, winner: 'Todd Grover',     location: 'Austin, TX',        lat: 30.2672,  lng:  -97.7431 },
+    { year: 2018, winner: 'Alex Korchinski', location: 'Vancouver, BC',     lat: 49.2827,  lng: -123.1207 },
+    { year: 2017, winner: 'Scott Mitchell',  location: 'Jackson Hole, WY',  lat: 43.4799,  lng: -110.7624 },
+    { year: 2016, winner: 'Theo Lee',        location: 'Lake Tahoe, NV',    lat: 39.0968,  lng: -120.0324 },
+    { year: 2015, winner: 'Todd Grover',     location: 'New Orleans, LA',   lat: 29.9511,  lng:  -90.0715 },
+    { year: 2014, winner: 'Anthony Fryar',   location: 'Nashville, TN',     lat: 36.1627,  lng:  -86.7816 },
+    { year: 2013, winner: 'Tim Marcroft',    location: 'Las Vegas, NV',     lat: 36.1699,  lng: -115.1398 },
+  ];
+
+  const map = L.map('trips-map', {
+    center: [38, -103],
+    zoom: 3,
+    zoomControl: true,
+    scrollWheelZoom: false,
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19,
+  }).addTo(map);
+
+  function makeIcon(latest, cityName) {
+    const color = latest ? '#f59e0b' : '#2d7dd2';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+      <path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z" fill="${color}"/>
+      <circle cx="14" cy="14" r="6" fill="#0d0f14"/>
+    </svg>`;
+    const label = `<div style="
+      position:absolute;
+      top:38px;
+      left:50%;
+      transform:translateX(-50%);
+      white-space:nowrap;
+      font-family:'DM Mono',monospace;
+      font-size:10px;
+      font-weight:500;
+      color:${color};
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      text-shadow:0 1px 3px #000,0 0 6px #000;
+      pointer-events:none;
+    ">${cityName}</div>`;
+    return L.divIcon({
+      html: `<div style="position:relative;">${svg}${label}</div>`,
+      iconSize: [28, 36],
+      iconAnchor: [14, 36],
+      popupAnchor: [0, -38],
+      className: '',
+    });
+  }
+
+  const bounds = [];
+  trips.forEach(t => {
+    const cityName = t.location.split(',')[0];
+    const marker = L.marker([t.lat, t.lng], { icon: makeIcon(t.latest, cityName) }).addTo(map);
+    const latestBadge = t.latest ? '<div class="popup-latest">Most Recent</div>' : '';
+    marker.bindPopup(`
+      <div class="popup-year">${t.year}</div>
+      <div class="popup-winner">${t.winner}</div>
+      <div class="popup-location">${t.location}</div>
+      ${latestBadge}
+    `);
+  });
+</script>
+
+</body>
+</html>
