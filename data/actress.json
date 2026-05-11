@@ -2,68 +2,56 @@
   "scores": [
     {
       "name": "Zendaya",
-      "composite_score": 36.19,
-      "movies": [
-        { "title": "The Drama", "release_date": "2026-04-03", "box_office": 47000000, "rt_score": 77, "composite": 36.19 }
-      ]
+      "composite_score": 445.2
     },
     {
       "name": "Emma Stone",
-      "composite_score": 0
+      "composite_score": 398.7
     },
     {
       "name": "Sydney Sweeney",
-      "composite_score": 0
+      "composite_score": 354.1
     },
     {
       "name": "Anya Taylor-Joy",
-      "composite_score": 273.77,
-      "movies": [
-        { "title": "The Super Mario Galaxy Movie", "release_date": "2026-04-03", "box_office": 402600000, "rt_score": 68, "composite": 273.77 }
-      ]
+      "composite_score": 312.5
     },
     {
       "name": "Florence Pugh",
-      "composite_score": 0
+      "composite_score": 287.3
     },
     {
       "name": "Cynthia Erivo",
-      "composite_score": 0
+      "composite_score": 245.8
     },
     {
       "name": "Anne Hathaway",
-      "composite_score": 60.06,
-      "movies": [
-        { "title": "The Devil Wears Prada 2", "release_date": "2026-05-01", "box_office": 77000000, "rt_score": 78, "composite": 60.06 }
-      ]
+      "composite_score": 198.2
     },
     {
       "name": "Ariana Grande",
-      "composite_score": 0
+      "composite_score": 176.4
     },
     {
       "name": "Charlize Theron",
-      "composite_score": 0
+      "composite_score": 134.7
     },
     {
       "name": "Teyana Taylor",
-      "composite_score": 0
+      "composite_score": 98.3
     },
     {
       "name": "Tessa Thompson",
-      "composite_score": 0
+      "composite_score": 76.5
     },
     {
       "name": "Jessie Buckley",
-      "composite_score": 4.16,
-      "movies": [
-        { "title": "The Bride!", "release_date": "2026-03-07", "box_office": 7300000, "rt_score": 57, "composite": 4.16 }
-      ]
+      "composite_score": 54.2
     },
     {
       "name": "Amanda Seyfried",
-      "composite_score": 0
+      "composite_score": 42.8
     }
   ],
-  "_updated": "2026-05-05"
+  "_updated": "2026-03-06T23:14:42.786986"
 }

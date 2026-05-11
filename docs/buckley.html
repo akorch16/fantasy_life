@@ -115,7 +115,7 @@ body {
 .gallery-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:8px; }
 .gallery-item { position:relative; border:3px solid #ff69b4; overflow:hidden; cursor:pointer; transition:all 0.2s; }
 .gallery-item:hover { border-color:#ffff00; transform:scale(1.05); z-index:10; }
-.gallery-item img { width:100%; height:auto; object-fit:contain; display:block; background:#000; }
+.gallery-item img { width:100%; height:120px; object-fit:cover; display:block; }
 .gal-caption { position:absolute; bottom:0;left:0;right:0; background:rgba(0,0,0,.75); color:#ffff00; font-size:9px; padding:2px 4px; text-align:center; }
 
 .stats-table { width:100%; border-collapse:collapse; font-size:11px; }
@@ -191,6 +191,34 @@ a:hover { color:#ffff00; }
 
 .badge-row { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin-top:8px; }
 .badge { font-size:8px; padding:2px 5px; border:1px solid; font-family:'Courier New',monospace; font-weight:bold; }
+
+/* ── BIOENGINEERING FINAL EXAM ── */
+.bioeng-quiz { max-width:1100px; margin:0 auto 20px; padding:0 10px; }
+.bioeng-quiz-inner { background:#000022; border:4px solid #00ffff; overflow:hidden; }
+.bioeng-quiz-header { background:linear-gradient(90deg,#003366,#0066cc,#003366); color:#00ffff; font-size:20px; font-weight:bold; padding:12px; text-align:center; text-shadow:0 0 10px #00ffff; letter-spacing:2px; }
+.bioeng-quiz-intro { padding:10px 14px; font-size:12px; color:#ffff00; border-bottom:2px solid #003366; text-align:center; font-style:italic; }
+.bioeng-section-hdr { background:linear-gradient(90deg,#330000,#660000,#330000); color:#ff6666; font-size:13px; font-weight:bold; padding:6px 12px; margin-top:10px; letter-spacing:1px; }
+.bioeng-question { padding:10px 14px 6px; border-bottom:1px solid #112244; }
+.bioeng-q-num { color:#ff69b4; font-weight:bold; font-size:11px; margin-bottom:4px; }
+.bioeng-q-text { color:#e0e8ff; font-size:12px; line-height:1.6; margin-bottom:8px; }
+.bioeng-options { display:flex; flex-direction:column; gap:4px; }
+.bioeng-option { background:#001133; border:1px solid #334466; color:#aabbdd; padding:5px 10px; font-size:11px; font-family:'Comic Neue','Comic Sans MS',cursive; cursor:pointer; text-align:left; transition:all .15s; }
+.bioeng-option:hover { border-color:#00ffff; color:#00ffff; background:#001a33; }
+.bioeng-option.selected { background:#002244; border-color:#ff69b4; color:#ff69b4; }
+.bioeng-option.correct { background:#002200; border-color:#00ff44; color:#00ff44; }
+.bioeng-option.wrong { background:#220000; border-color:#ff4444; color:#ff4444; }
+.bioeng-textarea { width:100%; min-height:80px; background:#001133; border:1px solid #334466; color:#ccddff; font-family:'Comic Neue','Comic Sans MS',cursive; font-size:11px; padding:6px; resize:vertical; box-sizing:border-box; }
+.bioeng-textarea:focus { outline:none; border-color:#00ffff; }
+.bioeng-submit-area { padding:12px 14px; text-align:center; border-top:2px solid #003366; }
+.bioeng-submit-btn { background:linear-gradient(90deg,#006600,#00cc00); border:3px solid #00ff00; color:#000; font-size:14px; font-weight:bold; font-family:'Comic Neue','Comic Sans MS',cursive; padding:8px 24px; cursor:pointer; letter-spacing:1px; text-transform:uppercase; animation:submit-pulse 1.5s ease-in-out infinite alternate; }
+@keyframes submit-pulse { 0%{box-shadow:0 0 8px #00ff00} 100%{box-shadow:0 0 20px #00ff00,0 0 40px #00aa00} }
+.bioeng-results { display:none; padding:12px 14px; background:#000011; border-top:2px solid #00ffff; }
+.bioeng-score-display { font-size:22px; color:#ffff00; text-align:center; margin-bottom:8px; text-shadow:0 0 10px #ffff00; }
+.bioeng-answer-key { font-size:11px; line-height:1.8; color:#aabbcc; }
+.bioeng-answer-item { margin-bottom:3px; }
+.ans-correct { color:#00ff44; font-weight:bold; }
+.ans-wrong { color:#ff4444; }
+.bioeng-writein-note { margin-top:10px; padding:8px; background:#001122; border-left:3px solid #ff00ff; font-size:11px; color:#cc99ff; font-style:italic; line-height:1.6; }
 </style>
 </head>
 <body>
@@ -203,7 +231,7 @@ a:hover { color:#ffff00; }
 
 <div class="ticker-wrap">
   <span class="ticker-text">
-    WELCOME 2 THE OFFICIAL SCOTT BUCKLEY FAN SITE &nbsp;&nbsp;&nbsp; HE WENT 2 HARVARD (HE WILL TELL U) &nbsp;&nbsp;&nbsp; 0.38 ON A BREATHALYZER AND STILL TALKING &nbsp;&nbsp;&nbsp; GO BRUINS &nbsp;&nbsp;&nbsp; STUDIED BIOENGINEERING, BITCH &nbsp;&nbsp;&nbsp; SOLVANG ENTHUSIAST &nbsp;&nbsp;&nbsp; FORMER NORM'S EMPLOYEE &nbsp;&nbsp;&nbsp; THE MOST INTERESTING MAN IN SAN RAMON &nbsp;&nbsp;&nbsp; VISITOR COUNT: 69,420 &nbsp;&nbsp;&nbsp; BEST VIEWED IN INTERNET EXPLORER 6.0 &nbsp;&nbsp;&nbsp;
+    WELCOME 2 THE OFFICIAL SCOTT BUCKLEY FAN SITE &nbsp;&nbsp;&nbsp; HE WENT 2 HARVARD (HE WILL TELL U) &nbsp;&nbsp;&nbsp; NEVER WON FANTASY LIFE NOT EVEN ONCE &nbsp;&nbsp;&nbsp; GO BRUINS (but also played football... poorly) &nbsp;&nbsp;&nbsp; SECTION H REPRESENT &nbsp;&nbsp;&nbsp; THE MOST INTERESTING MAN IN SAN RAMON &nbsp;&nbsp;&nbsp; VISITOR COUNT: 69,420 &nbsp;&nbsp;&nbsp; BEST VIEWED IN INTERNET EXPLORER 6.0 &nbsp;&nbsp;&nbsp;
   </span>
 </div>
 
@@ -235,12 +263,11 @@ a:hover { color:#ffff00; }
           <tr><td>School:</td><td>UCLA (fine)<br>HBS Section H (omg)</td></tr>
           <tr><td>Job:</td><td>"strategy" at a startup<br><span style="font-size:9px;color:#667788;">(vibes-based biz intel)</span></td></tr>
           <tr><td>Status:</td><td>Married (she is amazing, idk how)</td></tr>
-          <tr><td>Fantasy Wins:</td><td style="color:#00ff00;font-weight:bold;">1 👑</td></tr>
-          <tr><td>Fantasy Hope:</td><td style="color:#ffff00;font-weight:bold;">delusional (in a good way)</td></tr>
-          <tr><td>Beer:</td><td>yes. always. BAC: unknown</td></tr>
-          <tr><td>Breathalyzer:</td><td style="color:#ff69b4;font-weight:bold;">0.38 (legend)</td></tr>
-          <tr><td>Pants:</td><td>has peed in them. multiple times.</td></tr>
-          <tr><td>Hobbies:</td><td>chopping wood, Solvang trips</td></tr>
+          <tr><td>Fantasy Wins:</td><td style="color:#ff0000;font-weight:bold;">0</td></tr>
+          <tr><td>Fantasy Podiums:</td><td style="color:#ff0000;font-weight:bold;">0</td></tr>
+          <tr><td>Fantasy Hope:</td><td style="color:#ff0000;font-weight:bold;">diminishing</td></tr>
+          <tr><td>Beer:</td><td>yes. always.</td></tr>
+          <tr><td>Stubbornness:</td><td>clinically concerning</td></tr>
         </table>
       </div>
     </div>
@@ -262,7 +289,7 @@ a:hover { color:#ffff00; }
       <div class="panel-body">
         <div class="mood-display">
           <div class="mood-icon">&#127866;</div>
-          <div><div class="mood-label">Current Mood:</div><div class="mood-text">Hydrated (with beer). Always beer.</div></div>
+          <div><div class="mood-label">Current Mood:</div><div class="mood-text">Stubborn &amp; hydrated (with beer)</div></div>
         </div>
         <div class="mood-display">
           <div class="mood-icon">&#128226;</div>
@@ -270,7 +297,7 @@ a:hover { color:#ffff00; }
         </div>
         <div class="mood-display">
           <div class="mood-icon">&#127944;</div>
-          <div><div class="mood-label">Fantasy Status:</div><div class="mood-text">Defending champion. Telling everyone about it.</div></div>
+          <div><div class="mood-label">Fantasy Status:</div><div class="mood-text">Losing (as always)</div></div>
         </div>
       </div>
     </div>
@@ -287,16 +314,16 @@ a:hover { color:#ffff00; }
           <div class="progress-bar"><div class="progress-fill blue" style="width:97%"></div></div>
         </div>
         <div class="progress-wrap">
-          <div class="progress-label">Chopping Wood</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:91%"></div></div>
+          <div class="progress-label">Being Stubborn</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
         </div>
         <div class="progress-wrap">
-          <div class="progress-label">Peeing in Correct Location</div>
-          <div class="progress-bar"><div class="progress-fill yellow" style="width:18%"></div></div>
+          <div class="progress-label">Work Strategy (reportedly)</div>
+          <div class="progress-bar"><div class="progress-fill yellow" style="width:80%"></div></div>
         </div>
         <div class="progress-wrap">
           <div class="progress-label">Winning Fantasy Life</div>
-          <div class="progress-bar"><div class="progress-fill green" style="width:7%"></div></div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:2%"></div></div>
         </div>
         <div class="progress-wrap">
           <div class="progress-label">HS Football (San Ramon)</div>
@@ -317,57 +344,30 @@ a:hover { color:#ffff00; }
     <div class="about-box">
       <div class="about-header">ABOUT SCOTT BUCKLEY</div>
       <div class="about-body">
-        <p>OMG hi welcome 2 my site!!!! This is the <span class="hot-pink">OFFICIAL</span> fan page of <span class="glitter">SCOTT BUCKLEY</span>, who is without question one of the most interesting people I know. Beer in hand. Axe nearby. Possibly on his way to Solvang.</p>
+        <p>OMG hi welcome 2 my site!!!! This is the <span class="hot-pink">OFFICIAL</span> fan page of <span class="glitter">SCOTT BUCKLEY</span>, who is without question one of the most impressive guys I know... considering absolutely everything working against him.</p>
         <hr class="fancy">
-        <p>Scott grew up in <span class="yellow">San Ramon, California</span> where he bravely suited up for high school football at San Ramon Valley. He wore #55. He showed up. The scoreboard had other opinions. To be completely fair, suiting up and playing is 100% more than most people do, which is why we must honor his journey while also absolutely clowning on it.</p>
+        <p>Scott grew up in <span class="yellow">San Ramon, California</span> where he bravely suited up for high school football at San Ramon Valley. Like, BRAVELY. He wore #55. He showed up. The scoreboard had other opinions. To be completely fair, suiting up and playing is 100% more than most people do, which is why we must honor his journey while also absolutely clowning on it.</p>
         <hr class="fancy">
-        <p>After surviving high school football with his pride mostly intact, Scott headed to <span class="yellow">UCLA</span> where he studied <span class="hot-pink">bioengineering, bitch</span>. Not the easiest major. He also joined a fraternity and treated the beer supply like a senior thesis. At some point he worked at <span class="cyan">Norm's</span>, which is either deeply impressive or extremely chaotic depending on how you order your eggs.</p>
-        <div style="text-align:center;margin:10px 0;">
-          <img id="inline-img9-ref" src="" style="max-width:65%;border:3px solid #00ffff;display:block;margin:0 auto;">
-          <div style="font-size:10px;color:#ffff00;font-style:italic;margin-top:4px;">the man himself. doing bits.</div>
-        </div>
+        <p>After surviving high school football with his pride mostly intact, Scott headed to <span class="yellow">UCLA</span> where he joined a fraternity and, by all accounts, treated the beer supply like a senior thesis. Years of dedicated field research. Peer-reviewed by his liver. Published nowhere because what happens in the frat house stays in the frat house.</p>
         <hr class="fancy">
-        <div style="text-align:center;margin:10px 0;">
-          <img id="inline-img9-ref" src="" style="max-width:60%;border:3px solid #ff69b4;display:block;margin:0 auto;" onerror="this.style.display='none'">
-        </div>
-        <p>There is a documented incident involving <span class="fire-text">Napster</span>. Scott allegedly got into legal trouble for music piracy in the Napster era. In his defense: everyone was doing it. In the prosecution's defense: not everyone got caught. This is the origin story of a man who would later study strategy professionally. The pipeline makes sense in retrospect.</p>
+        <p>Then -- <span class="fire-text">AND THIS IS WHERE IT GETS WILD</span> -- Scott got into <span class="glitter">HARVARD BUSINESS SCHOOL</span>. Section H. Which, if you do not know what that is, Scott will explain it to you. Give him a moment. He will find a way to work it in. He always does. He is very patient about this.</p>
         <hr class="fancy">
-        <p>Then -- <span class="fire-text">AND THIS IS WHERE IT GETS WILD</span> -- Scott got into <span class="glitter">HARVARD BUSINESS SCHOOL</span>. Section H. Which, if you do not know what that is, Scott will explain it to you. He will find a way to work it in. He always does.</p>
+        <p>Today Scott does <span class="cyan">"strategy"</span> at a tech startup. He is, infuriatingly, good at it. This removes a significant portion of available roast material and we are all less rich for it. The man pivoted from bench-warmer to Harvard MBA to startup strategist with the confidence of someone who has never once second-guessed themselves. Stubborn? Yes. Effective? Somehow also yes. We hate it.</p>
         <hr class="fancy">
-        <p>On the subject of beer: Scott once registered a <span class="hot-pink">0.38 on a breathalyzer</span>. For context, 0.08 is the legal limit. 0.30 is considered potentially fatal. Scott was <span class="yellow">talking</span>. He has also peed his pants on multiple documented occasions. His wife, a woman of extraordinary patience and vision, addressed his bathroom accuracy issues by training him to <span class="cyan">pee in the shower</span>. An elegant solution to an inelegant problem.</p>
-        <div style="text-align:center;margin:10px 0;">
-          <img id="inline-img4-ref" src="" style="max-width:65%;border:3px solid #ff69b4;display:block;margin:0 auto;">
-          <div style="font-size:10px;color:#ffff00;font-style:italic;margin-top:4px;">actual documentation of behavior</div>
-        </div>
-        <hr class="fancy">
-        <p>Off-season, Scott enjoys <span class="yellow">chopping wood</span> with the energy of a man proving something to the universe, and making pilgrimages to <span class="hot-pink">Solvang</span>, the Danish-American village that Scott has decided is his place. One time he fell into a <span class="cyan">rosebush</span>. This is not directly related to Solvang but it feels thematically consistent.</p>
-        <div style="text-align:center;margin:10px 0;">
-          <img id="inline-img10-ref" src="" style="max-width:65%;border:3px solid #ffff00;display:block;margin:0 auto;">
-          <div style="font-size:10px;color:#ffff00;font-style:italic;margin-top:4px;">he is proving something to the universe</div>
-        </div>
-        <hr class="fancy">
-        <p>He is also <span class="hot-pink">married</span> which again: impressive. She is lovely. She trained him to use the shower. He would be lost without her in every measurable sense.</p>
+        <p>He is also <span class="hot-pink">married</span> which again: impressive. She is lovely. He somehow closed that deal with the same energy he applies to his Fantasy Life draft -- all confidence, great pitch -- except unlike Fantasy Life, this one actually worked out.</p>
       </div>
     </div>
 
     <div class="shame-box">
-      <div class="shame-header">FANTASY LIFE HALL OF LEGENDS</div>
+      <div class="shame-header">FANTASY LIFE HALL OF SHAME</div>
       <div class="shame-body">
-        <p style="text-align:center;font-size:32px;margin-bottom:8px;letter-spacing:8px;">🏆</p>
-        <p style="text-align:center;font-size:11px;color:#ffcc00;margin-bottom:12px;">HE DID IT. ONE CHAMPIONSHIP. IT HAPPENED.</p>
-        <p>Scott Buckley, armed with opinions nobody asked for, a frat house education in fluid dynamics, and an HBS degree he will mention, won a Fantasy Life championship. It was real. It was documented. It cannot be taken away from him no matter how many beers he drinks or rosebushes he falls into.</p>
+        <p style="text-align:center;font-size:32px;margin-bottom:8px;letter-spacing:8px;">0</p>
+        <p style="text-align:center;font-size:11px;color:#ff6666;margin-bottom:12px;">CHAMPIONSHIPS. ZERO. NIL. NADA. NONE.</p>
+        <p>In a league where victory is available to everyone, Scott has managed to make it personally unavailable to himself. Year after year, armed with a Harvard MBA, a background in strategy, and genuine opinions about literally everything, Scott assembles his roster, talks his talk, and then watches the season unfold in the wrong direction.</p>
         <br>
-        <p>Scott has <span class="hot-pink">many, many words</span> about his team. He will explain at length why his picks make sense. Sometimes, improbably, <span class="yellow">the picks do make sense</span>. This is the paradox of Scott Buckley: a man who once blew a 0.38 on a breathalyzer and still had opinions, who fell into a rosebush and got back up, who peed his pants on multiple occasions and kept going. Champion material? Apparently yes.</p>
+        <p>It is not for lack of confidence. It is not for lack of words. Scott has <span class="hot-pink">many, many words</span> about his team. He will explain at length why his picks make sense. His picks do not make sense. This is the paradox of Scott Buckley: brilliant man, tragic fantasy manager. Harvard could not teach him this. Nothing can.</p>
         <br>
-        <p style="text-align:center;font-size:13px;color:#ffcc00;font-style:italic;">"Told you." -- Scott Buckley, the one year it finally worked out</p>
-        <div style="text-align:center;margin:10px 0;">
-          <img id="inline-img12-ref" src="" style="max-width:70%;border:3px solid #ffcc00;display:block;margin:0 auto;">
-          <div style="font-size:10px;color:#ffcc00;font-style:italic;margin-top:4px;">champion behavior. look at him go.</div>
-        </div>
-        <div style="text-align:center;margin:10px 0;">
-          <img id="inline-img13-ref" src="" style="max-width:90%;border:3px solid #ff69b4;display:block;margin:0 auto;">
-          <div style="font-size:10px;color:#ffff00;font-style:italic;margin-top:4px;">the whole squad. deep in Texas. legends all.</div>
-        </div>
+        <p style="text-align:center;font-size:13px;color:#ff9999;font-style:italic;">"Any year now." -- Scott Buckley, every single year, no exceptions</p>
       </div>
     </div>
 
@@ -435,7 +435,7 @@ a:hover { color:#ffff00; }
     </div>
 
     <div class="under-construction">
-      UNDER CONSTRUCTION -- This page will be complete when Scott wins Fantasy Life again. Soon probably. He has opinions about it.
+      UNDER CONSTRUCTION -- This page will be complete when Scott wins Fantasy Life. So: never.
     </div>
 
     <div class="quiz-box">
@@ -458,15 +458,15 @@ a:hover { color:#ffff00; }
     <div class="panel red-border">
       <div class="panel-header red">LATEST UPDATES</div>
       <div class="panel-body" style="font-size:11px;">
-        <p><span class="yellow">TODAY:</span> Drank a beer. Formed an opinion. Chopped some wood. In that order.</p>
+        <p><span class="yellow">TODAY:</span> Scott formed an opinion nobody asked for. Shared it anyway. Stood by it.</p>
         <hr class="fancy">
-        <p><span class="yellow">YESTERDAY:</span> Brought up Solvang unprompted. Nobody was surprised.</p>
+        <p><span class="yellow">YESTERDAY:</span> Mentioned Harvard Business School while discussing what to have for lunch.</p>
         <hr class="fancy">
-        <p><span class="yellow">THIS WEEK:</span> Peed in the shower (wife's orders). No further questions.</p>
+        <p><span class="yellow">THIS WEEK:</span> Lost in Fantasy Life. "Next year is MY year."</p>
         <hr class="fancy">
-        <p><span class="yellow">THIS MONTH:</span> Drank beer. Lots of it. The breathalyzer shuddered in anticipation.</p>
+        <p><span class="yellow">THIS MONTH:</span> Drank beer. Was stubborn about something specific. Killed it at work (ugh).</p>
         <hr class="fancy">
-        <p><span class="yellow">THIS YEAR:</span> Defending Fantasy Life champion. Yes really. It happened.</p>
+        <p><span class="yellow">THIS YEAR:</span> No Fantasy Life trophy. As is tradition. As is destiny.</p>
       </div>
     </div>
 
@@ -475,23 +475,23 @@ a:hover { color:#ffff00; }
       <div class="panel-body">
         <div class="guestbook-entry">
           <div class="gb-name">xXFantasyQueenXx</div>
-          <div class="gb-text">omg scott won?? SCOTT WON?? we are all living in his world now.</div>
+          <div class="gb-text">omg scott ur so brave for entering the league every year knowing whats gonna happen. icon.</div>
         </div>
         <div class="guestbook-entry">
           <div class="gb-name">HBSsection_H_fan</div>
           <div class="gb-text">great site!! did u know scott went to harvard? he told me. twice. in one breath.</div>
         </div>
         <div class="guestbook-entry">
-          <div class="gb-name">SolvangVisitorCenter</div>
-          <div class="gb-text">scott has been here more times than we can count. we have reserved a danish for him.</div>
+          <div class="gb-name">SanRamonSports</div>
+          <div class="gb-text">#55 was... present. on the field. we remember him being there. the stats are blurry but the memory is vivid.</div>
         </div>
         <div class="guestbook-entry">
           <div class="gb-name">ScottsBeer</div>
-          <div class="gb-text">0.38. still standing. still talking. i am in awe of this man.</div>
+          <div class="gb-text">he treats me well. no complaints from my end. 10/10 customer.</div>
         </div>
         <div class="guestbook-entry">
-          <div class="gb-name">NapsterLegalDept</div>
-          <div class="gb-text">we remember him. unfortunately.</div>
+          <div class="gb-name">StrategyConsultant99</div>
+          <div class="gb-text">his actual work strategy is annoyingly good though so IDK what to do with this information.</div>
         </div>
         <div style="margin-top:6px;font-size:10px;text-align:center;color:#556677;"><a href="#">sign the guestbook!!</a></div>
       </div>
@@ -504,36 +504,30 @@ a:hover { color:#ffff00; }
         <br>
         <p><span class="hot-pink">HS:</span> San Ramon football. Wore #55. Showed up. Honorable.</p>
         <br>
-        <p><span class="hot-pink">UCLA:</span> Bioengineering, bitch. Also beer. Also Norm's.</p>
-        <br>
-        <p><span class="hot-pink">Napster:</span> Got in legal trouble. Learned nothing. No regrets.</p>
+        <p><span class="hot-pink">UCLA:</span> Studied. Pledged. Drank beer as a lifestyle choice.</p>
         <br>
         <p><span class="hot-pink">HBS:</span> Section H. He earned it. He will tell you.</p>
         <br>
-        <p><span class="hot-pink">Rosebush:</span> Fell into one. Got up. Kept going.</p>
+        <p><span class="hot-pink">Startup:</span> "Strategy." Irritatingly effective.</p>
         <br>
-        <p><span class="hot-pink">Marriage:</span> She trained him to use the shower. A love story.</p>
+        <p><span class="hot-pink">Marriage:</span> Somehow. Congratulations to him.</p>
         <br>
-        <p><span class="hot-pink">Fantasy Life:</span> Entered. Lost many times. Then WON. 🏆</p>
+        <p><span class="hot-pink">Fantasy Life:</span> Entered. Lost. Entered again. Lost again. Ongoing.</p>
       </div>
     </div>
 
     <div class="panel yellow-border">
       <div class="panel-header yellow">FUN FACTS!!</div>
       <div class="panel-body" style="font-size:11px;line-height:1.9;">
-        <p>Wore a football uniform in high school (showed up, that counts)</p>
-        <p>Beer is a food group AND a personality trait</p>
-        <p>Blew a 0.38 on a breathalyzer. Was still talking.</p>
-        <p>Has peed his pants. Multiple times. Documented.</p>
-        <p>Studied "bioengineering, bitch" at UCLA</p>
-        <p>Worked at Norm's. The diner. Yes really.</p>
-        <p>Fell into a rosebush. Got back up.</p>
-        <p>Big fan of Solvang. This is non-negotiable.</p>
-        <p>Loves chopping wood. Deeply.</p>
-        <p>Got in legal trouble for Napster piracy</p>
+        <p>Wore a football uniform in high school (participation trophy in the mail)</p>
+        <p>Harvard MBA -- the conversation piece that keeps giving</p>
+        <p>Beer is a food group AND a personality trait for Scott</p>
+        <p>Has never in recorded history not had an opinion ready</p>
+        <p>Rode a mechanical bull, survived, will mention it</p>
+        <p>0 Fantasy Life championships but 10/10 pre-draft confidence</p>
         <p>Can actually wakeboard (irritating)</p>
-        <p>Wife trained him to pee in the shower (long story)</p>
-        <p>Fantasy Life champion 🏆 (it happened)</p>
+        <p>Married up, per all available evidence</p>
+        <p>A wildcard in the truest sense: nobody knows what he does next</p>
       </div>
     </div>
 
@@ -542,9 +536,9 @@ a:hover { color:#ffff00; }
       <div class="panel-body" style="font-size:11px;">
         <p><a href="#">Harvard Business School</a><br><span style="color:#556677;font-size:9px;">(as if u needed another reminder)</span></p>
         <br>
-        <p><a href="#">Visit Solvang</a><br><span style="color:#556677;font-size:9px;">(scott's spiritual home. danes welcome.)</span></p>
+        <p><a href="#">UCLA Bruins</a><br><span style="color:#556677;font-size:9px;">(the undergrad. also impressive. less mentioned.)</span></p>
         <br>
-        <p><a href="#">Fantasy Life</a><br><span style="color:#556677;font-size:9px;">(where Scott is the reigning champion)</span></p>
+        <p><a href="#">Fantasy Life</a><br><span style="color:#556677;font-size:9px;">(where Scott consistently does not win)</span></p>
         <br>
         <p><a href="#">San Ramon Valley Football</a><br><span style="color:#556677;font-size:9px;">(RIP #55's highlight reel)</span></p>
       </div>
@@ -554,17 +548,151 @@ a:hover { color:#ffff00; }
 
 </div>
 
+<!-- ─── BIOENGINEERING FINAL EXAM ─── -->
+<div class="bioeng-quiz">
+  <div class="bioeng-quiz-inner">
+
+    <div class="bioeng-quiz-header">
+      🧬 BIOENGINEERING FINAL EXAM 🧬<br>
+      <span style="font-size:12px;color:#ffff00;font-family:'Comic Neue','Comic Sans MS',cursive;">brought to u by ScottBuckley4Ever.net</span>
+    </div>
+    <div class="bioeng-quiz-intro">
+      10-question upper-division Bioengineering exam (UCLA BE 100-series level and above). Questions 1–5 are multiple choice. Questions 6–10 require written responses.<br>
+      <span style="color:#ff69b4;font-weight:bold;">Scott has never attempted this quiz. He has requested this information be suppressed.</span>
+    </div>
+
+    <div class="bioeng-section-hdr">SECTION I — MULTIPLE CHOICE (Questions 1–5)</div>
+
+    <!-- Q1 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 1 — Cell Mechanics &amp; Biomaterials</div>
+      <div class="bioeng-q-text">Mesenchymal stem cells (MSCs) are seeded on polyacrylamide hydrogels of varying elastic moduli. Based on the findings of Engler et al. (2006), which outcome correctly pairs substrate stiffness with MSC lineage specification?</div>
+      <div class="bioeng-options" data-q="1" data-answer="C">
+        <button class="bioeng-option" data-opt="A" onclick="selectBioengOption(this)">A) Gels of ~25–40 kPa direct MSCs toward neurogenic differentiation, as measured by β-III tubulin upregulation</button>
+        <button class="bioeng-option" data-opt="B" onclick="selectBioengOption(this)">B) Substrate stiffness modulates cell morphology but does not alter transcription factor expression in the absence of soluble growth factors</button>
+        <button class="bioeng-option" data-opt="C" onclick="selectBioengOption(this)">C) Gels of ~0.1–1 kPa promote neurogenic differentiation; ~8–17 kPa myogenic; ~25–40 kPa osteogenic — matching the stiffness of brain, muscle, and pre-calcified bone respectively</button>
+        <button class="bioeng-option" data-opt="D" onclick="selectBioengOption(this)">D) Osteogenic differentiation is induced on the softest substrates because low stiffness maximizes integrin clustering and focal adhesion kinase (FAK) activation</button>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 2 — Synthetic Biology</div>
+      <div class="bioeng-q-text">The Gardner–Collins toggle switch uses mutual transcriptional repression between LacI and TetR. For the system to exhibit bistability, which mathematical condition on the Hill repression coefficients (n₁, n₂) is necessary?</div>
+      <div class="bioeng-options" data-q="2" data-answer="B">
+        <button class="bioeng-option" data-opt="A" onclick="selectBioengOption(this)">A) n₁ = n₂ = 1; cooperative repression is unnecessary when repressor concentrations are sufficiently high relative to the dissociation constants</button>
+        <button class="bioeng-option" data-opt="B" onclick="selectBioengOption(this)">B) Both n₁ and n₂ must exceed 1, ensuring the phase-plane nullclines can intersect at three fixed points — two stable (high/low states) and one unstable saddle point</button>
+        <button class="bioeng-option" data-opt="C" onclick="selectBioengOption(this)">C) n₁ + n₂ &gt; 6; total cooperativity must exceed this threshold to overcome thermal fluctuations at 37°C in mammalian cells</button>
+        <button class="bioeng-option" data-opt="D" onclick="selectBioengOption(this)">D) n₁ × n₂ must equal exactly 4; deviations convert the bistable switch to a monostable limit-cycle oscillator</button>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 3 — Transport Phenomena &amp; Bioreactor Design</div>
+      <div class="bioeng-q-text">Cells are immobilized in 2 mm-diameter alginate beads and consume oxygen with Michaelis-Menten kinetics. The generalized Thiele modulus is calculated as φ² = 18. Which statement best characterizes the mass transfer regime?</div>
+      <div class="bioeng-options" data-q="3" data-answer="D">
+        <button class="bioeng-option" data-opt="A" onclick="selectBioengOption(this)">A) The reaction is kinetics-limited; the effectiveness factor η ≈ 1 and the observed rate throughout the bead approaches Vmax</button>
+        <button class="bioeng-option" data-opt="B" onclick="selectBioengOption(this)">B) φ² = 18 places the system in a transition regime where η ≈ 0.7; design may conservatively assume kinetic control</button>
+        <button class="bioeng-option" data-opt="C" onclick="selectBioengOption(this)">C) The bead interior is fully oxygenated; φ² &gt; 1 only indicates that the characteristic diffusion time exceeds the reaction time constant at the surface</button>
+        <button class="bioeng-option" data-opt="D" onclick="selectBioengOption(this)">D) Severe internal diffusion limitation exists (φ² ≫ 1); effectiveness factor η ≪ 1, cells near the bead core are likely oxygen-starved, and observed rate is far below Vmax</button>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 4 — Biomaterials &amp; Scaffold Fabrication</div>
+      <div class="bioeng-q-text">A researcher electrospins PLGA 50:50 scaffolds and obtains a mean fiber diameter of ~800 nm. To increase fiber diameter to ~2 μm for improved cell infiltration, which single parameter change is most effective?</div>
+      <div class="bioeng-options" data-q="4" data-answer="B">
+        <button class="bioeng-option" data-opt="A" onclick="selectBioengOption(this)">A) Increase applied voltage from 15 kV to 25 kV to enhance electrostatic stretching and promote larger jet diameter at the collector</button>
+        <button class="bioeng-option" data-opt="B" onclick="selectBioengOption(this)">B) Increase polymer concentration from ~8% to ~15% w/v, raising solution viscosity and chain entanglement density to reduce jet elongation during flight</button>
+        <button class="bioeng-option" data-opt="C" onclick="selectBioengOption(this)">C) Decrease tip-to-collector distance from 15 cm to 5 cm to shorten flight time and reduce solvent evaporation-driven fiber thinning</button>
+        <button class="bioeng-option" data-opt="D" onclick="selectBioengOption(this)">D) Switch from DMF to chloroform as the primary solvent to decrease dielectric constant and reduce Coulombic self-repulsion within the jet</button>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 5 — Neural Engineering &amp; Biomedical Devices</div>
+      <div class="bioeng-q-text">A Utah array is implanted in the motor cortex of a non-human primate. After 10 weeks, &gt;60% of electrode channels exhibit degraded unit signal quality. Histology confirms a dense GFAP-positive glial sheath surrounding each shank. Which intervention has the strongest evidence base for attenuating this chronic foreign body response?</div>
+      <div class="bioeng-options" data-q="5" data-answer="C">
+        <button class="bioeng-option" data-opt="A" onclick="selectBioengOption(this)">A) Surface functionalization with poly-D-lysine (PDL) to enhance acute neuronal adhesion to the electrode tip at the time of implantation</button>
+        <button class="bioeng-option" data-opt="B" onclick="selectBioengOption(this)">B) Iridium oxide electrodeposition to increase electrochemically active surface area and lower electrode impedance, improving signal-to-noise ratio</button>
+        <button class="bioeng-option" data-opt="C" onclick="selectBioengOption(this)">C) Transitioning to a mechanically compliant substrate (e.g., parylene-C or SU-8) to reduce micromotion-driven strain at the implant–brain interface and attenuate the mechanically-induced inflammatory cascade</button>
+        <button class="bioeng-option" data-opt="D" onclick="selectBioengOption(this)">D) Increasing electrode tip taper angle to &gt;60° to minimize vascular disruption during the insertion phase</button>
+      </div>
+    </div>
+
+    <div class="bioeng-section-hdr">SECTION II — SHORT ANSWER (Questions 6–10)</div>
+    <div style="padding:6px 14px 2px;font-size:10px;color:#778899;font-style:italic;">Provide complete answers. Use appropriate technical terminology. Partial credit is awarded based on conceptual accuracy and depth of reasoning.</div>
+
+    <!-- Q6 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 6 — Microfluidics &amp; Organ-on-a-Chip</div>
+      <div class="bioeng-q-text">You are designing a microfluidic blood-brain barrier (BBB) model to study neuroinflammation in response to lipopolysaccharide (LPS).<br><br>(a) Identify the two primary cell types you would co-culture and specify which compartment (luminal vs. abluminal) each occupies.<br>(b) Describe one functional assay you would use to validate barrier integrity before initiating LPS experiments.<br>(c) Identify one key limitation of this in vitro model compared to the in vivo BBB that could affect interpretation of your LPS response data.</div>
+      <textarea class="bioeng-textarea" id="bioeng-q6" placeholder="Write your answer here..."></textarea>
+    </div>
+
+    <!-- Q7 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 7 — Quantitative Proteomics &amp; Experimental Design</div>
+      <div class="bioeng-q-text">A mass spectrometry-based proteomics study compares global protein expression in iPSC-derived cardiomyocytes before and after CRISPR correction of a pathogenic SCN5A variant. The dataset contains 3,800 quantified proteins across 4 biological replicates per condition.<br><br>(a) Describe the statistical framework you would use to identify differentially expressed proteins, including how you would control the false discovery rate (FDR).<br>(b) Identify one potential batch effect that could confound your analysis and explain how PCA would help detect it.<br>(c) Explain why log₂ transformation of raw protein intensity values is applied prior to statistical analysis.</div>
+      <textarea class="bioeng-textarea" id="bioeng-q7" placeholder="Write your answer here..."></textarea>
+    </div>
+
+    <!-- Q8 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 8 — Bioreactor Engineering (Quantitative)</div>
+      <div class="bioeng-q-text">A continuous stirred-tank bioreactor (CSTR) operates at steady state with a 2 L working volume and a volumetric flow rate of 60 mL/hr. CHO cells follow Monod kinetics: μ_max = 0.04 hr⁻¹, K_s = 0.5 g/L glucose. Feed glucose concentration S₀ = 4.0 g/L. Assume no cell death and perfect mixing.<br><br>(a) Calculate the dilution rate D (hr⁻¹).<br>(b) Use the Monod equation at steady state (μ = D) to calculate the steady-state substrate concentration S* (g/L). Show your derivation.<br>(c) If the biomass yield coefficient Y<sub>X/S</sub> = 0.3 g cells/g glucose and the feed contains no cells, calculate the steady-state cell concentration X* (g/L).</div>
+      <textarea class="bioeng-textarea" id="bioeng-q8" placeholder="Show all work and units..."></textarea>
+    </div>
+
+    <!-- Q9 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 9 — Regulatory Science &amp; Bioethics</div>
+      <div class="bioeng-q-text">A clinical-stage company is developing an allogeneic CAR-T cell therapy for relapsed/refractory B-cell lymphoma. The manufacturing process uses CRISPR-Cas9 to knock out the endogenous TCR alpha locus (TRAC) in donor T cells to reduce graft-versus-host disease (GvHD) risk.<br><br>(a) Identify the FDA center responsible for regulating this therapy and describe the regulatory pathway (IND type and application type). Cite any relevant FDA guidance documents.<br>(b) Describe two manufacturing-related risks specific to allogeneic CAR-T production that must be addressed in the CMC (Chemistry, Manufacturing, and Controls) section of the IND.<br>(c) Propose one ethical consideration that must be explicitly addressed in the Phase I informed consent process for this patient population.</div>
+      <textarea class="bioeng-textarea" id="bioeng-q9" placeholder="Write your answer here..."></textarea>
+    </div>
+
+    <!-- Q10 -->
+    <div class="bioeng-question">
+      <div class="bioeng-q-num">Question 10 — Molecular Biology &amp; Cancer Therapeutics</div>
+      <div class="bioeng-q-text">Synthetic lethality has become a central paradigm in precision oncology.<br><br>(a) Define synthetic lethality and explain the normal cellular functions of PARP1 and BRCA1/2 in DNA damage repair.<br>(b) Explain mechanistically why PARP inhibition is selectively lethal to BRCA1/2-deficient tumor cells but not to adjacent normal cells with intact BRCA function.<br>(c) Name one FDA-approved PARP inhibitor and its approved oncologic indication.<br>(d) Describe one clinically observed resistance mechanism to PARP inhibitor therapy and propose a combination therapeutic strategy to overcome it.</div>
+      <textarea class="bioeng-textarea" id="bioeng-q10" placeholder="Write your answer here..."></textarea>
+    </div>
+
+    <div class="bioeng-submit-area">
+      <button class="bioeng-submit-btn" onclick="submitBioengQuiz()">⚗️ SUBMIT EXAM ⚗️</button>
+      <div style="font-size:10px;color:#556677;margin-top:6px;">* Section II responses are self-graded. Be honest with yourself.</div>
+    </div>
+
+    <div class="bioeng-results" id="bioeng-results">
+      <div class="bioeng-score-display" id="bioeng-score-display"></div>
+      <div class="bioeng-answer-key" id="bioeng-answer-key"></div>
+      <div class="bioeng-writein-note">
+        <strong style="color:#ff00ff;">SECTION II ANSWER KEY (self-grade):</strong><br><br>
+        <strong>Q6:</strong> Luminal = brain microvascular endothelial cells (BMECs); abluminal = astrocytes and/or pericytes. Validation via TEER (transendothelial electrical resistance) measurement or fluorescent tracer (e.g., 4 kDa FITC-dextran) permeability assay. Key limitations: absence of immune cell trafficking, lack of pulsatile shear stress, no brain-side neuronal input, static cytokine microenvironment vs. in vivo.<br><br>
+        <strong>Q7:</strong> (a) Moderated t-test (limma) or DESeq2/edgeR framework; Benjamini-Hochberg FDR correction at q &lt; 0.05. (b) Batch = sample preparation date or TMT labeling batch; PCA would show samples clustering by batch rather than by condition on PC1. (c) Log₂ transformation converts multiplicative error structure to additive, normalizes the right-skewed intensity distribution, and stabilizes variance across the intensity range (homoscedasticity assumption of parametric tests).<br><br>
+        <strong>Q8:</strong> (a) D = F/V = 0.06 L/hr ÷ 2 L = <strong>0.03 hr⁻¹</strong>. (b) At steady state μ = D → D = μ_max · S*/(K_s + S*) → S* = K_s · D/(μ_max − D) = 0.5 × 0.03/(0.04 − 0.03) = <strong>1.5 g/L</strong>. (c) X* = Y<sub>X/S</sub>(S₀ − S*) = 0.3 × (4.0 − 1.5) = <strong>0.75 g/L</strong>.<br><br>
+        <strong>Q9:</strong> (a) CBER (not CDER) regulates cell/gene therapies; HCT/P 351 biological product requiring IND + BLA; see FDA guidance "Considerations for the Design, Development, and Analytical Procedures for Phase I Studies of Therapeutic Proteins." (b) Risks: (i) donor-to-donor variability in editing efficiency and T cell fitness across manufacturing lots; (ii) detection and characterization of off-target Cas9 cleavage events (required: GUIDE-seq or Digenome-seq, karyotyping). (c) Ethics: terminally ill patients may have compromised autonomy under therapeutic misconception; consent must clearly distinguish experimental from therapeutic intent and address allogeneic GvHD risk.<br><br>
+        <strong>Q10:</strong> (a) PARP1 repairs single-strand breaks (SSBs) via base excision repair (BER); BRCA1/2 mediate homologous recombination repair (HRR) of double-strand breaks (DSBs). (b) PARP inhibition causes SSB accumulation → replication fork collapse → DSBs; BRCA-intact cells resolve DSBs via HRR; BRCA-deficient cells resort to error-prone NHEJ → chromosomal instability → cell death (synthetic lethality). Also: PARP trapping on DNA contributes to cytotoxicity. (c) Olaparib (Lynparza) — FDA approved for BRCA1/2-mutated advanced ovarian cancer (2014) and HER2-negative metastatic breast cancer (2018). (d) Resistance via BRCA2 reversion mutations restoring HRR; overcome by combining with carboplatin, ATR inhibitors (e.g., ceralasertib), or PI3K/AKT pathway inhibitors to increase replication stress and overwhelm residual HRR capacity.
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div class="site-footer">
   <p class="hot-pink" style="font-size:14px;font-weight:bold;">ScottBuckley4Ever.net</p>
   <div class="badge-row">
     <div class="badge" style="background:#000080;border-color:#ffff00;color:#ffff00;">BEST ON IE 6.0</div>
     <div class="badge" style="background:#000;border-color:#00ff00;color:#00ff00;">800x600</div>
     <div class="badge" style="background:#ff0000;border-color:#ffff00;color:#ffff00;">UNDER CONSTRUCTION</div>
-    <div class="badge" style="background:#003300;border-color:#ffff00;color:#ffff00;">FANTASY CHAMPION</div>
+    <div class="badge" style="background:#003300;border-color:#00ff00;color:#00ff00;">NO FANTASY WINS</div>
   </div>
   <p style="margin-top:8px;">Best viewed in Internet Explorer 6.0 at 800x600 resolution</p>
-  <p style="margin-top:5px;color:#667788;">copyright 2002-2025 ScottBuckley4Ever.net | Est. before he went to Harvard (he will bring it up now) | Fantasy Wins: 1 | Beer Consumed: incalculable | Pants Peed: several</p>
-  <p style="margin-top:5px;font-size:10px;color:#445566;">made with love and beer | powered by Solvang energy | Scott has read none of this and we prefer it that way</p>
+  <p style="margin-top:5px;color:#667788;">copyright 2002-2025 ScottBuckley4Ever.net | Est. before he went to Harvard (he will bring it up now) | Fantasy Wins: 0 | Beer Consumed: incalculable</p>
+  <p style="margin-top:5px;font-size:10px;color:#445566;">made with love and beer | not affiliated with Harvard Business School | Scott has read none of this and we prefer it that way</p>
 </div>
 
 <script>
@@ -595,30 +723,67 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLight
 
 // Quiz
 const quizAnswers={
-  'A':'You are the BEER ERA. Classic Buckley foundation. The bioengineering degree (bitch) led directly to this can of Coors. The pipeline was always clear.',
-  'B':'You are the SOLVANG ERA. You have discovered the Danish windmills. You are at peace. You are telling everyone about Solvang. No one asked. You do not care.',
-  'C':'You are the BREATHALYZER ERA. 0.38. There is nothing more to say. The number speaks. The pants do not.',
-  'D':'You are ALL ERAS SIMULTANEOUSLY. This is the true Scott Buckley Experience. Beer in hand, opinion forming, 0.38 on the breathalyzer, chopping wood in the backyard, Fantasy championship banner in the background. Perfect.'
+  'A':'You are the BEER ERA. Classic Buckley foundation. The UCLA years never really ended and honestly we respect the commitment.',
+  'B':'You are the OPINION ERA. He has entered the room and he has THOUGHTS. Pull up a chair. This will take a while. He went to Harvard, you know.',
+  'C':'You are the HBS ERA. Section H. The most efficient conversational pivot in recorded history. Bravo.',
+  'D':'You are ALL ERAS SIMULTANEOUSLY. This is the true Scott Buckley Experience. Beer in hand, opinion forming, Harvard looming, Fantasy team losing in the background. Perfect.'
 };
 function quizAnswer(ans){
   document.getElementById('quiz-result').textContent='Result: '+quizAnswers[ans];
 }
 
-// Copy base64 srcs to inline image placeholders
-(function(){
-  var map = {
-    'inline-img9-ref':'img9',
-    'inline-img4-ref':'img4',
-    'inline-img10-ref':'img10',
-    'inline-img12-ref':'img12',
-    'inline-img13-ref':'img13'
-  };
-  for(var id in map){
-    var src = document.getElementById(map[id]);
-    var dest = document.getElementById(id);
-    if(src && dest) dest.src = src.src;
+// ── BIOENGINEERING QUIZ ─────────────────────────────────────────────
+const BIOENG_CORRECT = { 1:'C', 2:'B', 3:'D', 4:'B', 5:'C' };
+
+function selectBioengOption(btn) {
+  const group = btn.closest('[data-q]');
+  group.querySelectorAll('.bioeng-option').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function submitBioengQuiz() {
+  let score = 0;
+  const keyLines = [];
+
+  for (let q = 1; q <= 5; q++) {
+    const group = document.querySelector(`.bioeng-options[data-q="${q}"]`);
+    const correct = BIOENG_CORRECT[q];
+    const selected = group.querySelector('.bioeng-option.selected');
+    const choice = selected ? selected.dataset.opt : null;
+
+    group.querySelectorAll('.bioeng-option').forEach(btn => {
+      btn.onclick = null; // lock after submit
+      if (btn.dataset.opt === correct) btn.classList.add('correct');
+      else if (btn.classList.contains('selected')) btn.classList.add('wrong');
+      btn.classList.remove('selected');
+    });
+
+    if (choice === correct) {
+      score++;
+      keyLines.push(`<div class="bioeng-answer-item">Q${q}: <span class="ans-correct">✓ ${correct} — Correct</span></div>`);
+    } else {
+      keyLines.push(`<div class="bioeng-answer-item">Q${q}: <span class="ans-wrong">${choice ? '✗ ' + choice : '(no answer)'}</span> → <span class="ans-correct">${correct}</span></div>`);
+    }
   }
-})();
+
+  const grades   = ['F','F','D','C','B','A'];
+  const comments = [
+    'Scott is nodding in quiet solidarity.',
+    'You answered like someone who skimmed the abstract once.',
+    'Partial credit. UCLA would not expel you. Probably.',
+    'Solid. You passed the course. Maybe.',
+    'Strong work. Consider a PhD. Or don\'t, it\'s brutal out there.',
+    '🏆 PERFECT. Buckley cannot believe you also beat him at bioengineering.',
+  ];
+
+  document.getElementById('bioeng-score-display').innerHTML =
+    `MC Score: <span style="color:#00ff44;">${score}/5</span> &nbsp;|&nbsp; Grade: <span style="color:#ffff00;">${grades[score]}</span><br>
+     <span style="font-size:12px;color:#ff69b4;">${comments[score]}</span>`;
+  document.getElementById('bioeng-answer-key').innerHTML = keyLines.join('');
+  const results = document.getElementById('bioeng-results');
+  results.style.display = 'block';
+  results.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
 
 // Visitor counter easter egg
 let clicks=0;

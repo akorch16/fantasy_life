@@ -13,17 +13,13 @@ Sources:
 import json, os, re
 from datetime import datetime
 
-try:
-    import requests
-    from bs4 import BeautifulSoup
-    SCRAPING_AVAILABLE = True
-except ImportError:
-    SCRAPING_AVAILABLE = False
+import requests
+from bs4 import BeautifulSoup
 
 from db import save_standing, is_frozen, get_standing
+from scoring import name_matches
 
 ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports'
-
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
     'Accept': 'application/json',
@@ -41,22 +37,7 @@ def fetch_html(url, timeout=15):
     r.raise_for_status()
     return BeautifulSoup(r.text, 'html.parser')
 
-def name_matches(pick_name, data_name):
-    if not pick_name or not data_name:
-        return False
-    pick = pick_name.lower().strip()
-    data = data_name.lower().strip()
-    if pick in data or data in pick:
-        return True
-    pick_last = pick.split()[-1] if pick.split() else pick
-    data_last = data.split()[-1] if data.split() else data
-    if len(pick_last) > 3 and (pick_last in data or data_last in pick):
-        return True
-    return False
-
 # ── ESPN helpers ──────────────────────────────────────────────────────────────
-
-ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports'
 
 def _espn_standings(sport, league):
     urls = [
@@ -67,7 +48,6 @@ def _espn_standings(sport, league):
     for url in urls:
         try:
             data = fetch_json(url, timeout=15)
-            print(f'    ESPN {league} keys: {list(data.keys())}')
             entries = []
             for conf in data.get('children', []):
                 children = conf.get('children', [conf])
@@ -214,7 +194,6 @@ def scrape_ncaab():
                 'wins': wins,
                 'losses': losses
             })
-            print(f'    NCAAB: {full_name} | {short_name} | {location} ({wins}-{losses})')
         ranked.sort(key=lambda x: x['pct'], reverse=True)
         poll = [{'rank': i+1, 'team': r['team'], 'short': r.get('short',''), 'location': r.get('location','')}
                 for i, r in enumerate(ranked[:25])]
@@ -224,28 +203,62 @@ def scrape_ncaab():
 
 # ── MLS (ESPN) ────────────────────────────────────────────────────────────────
 
+def _espn_standings_mls(year=2026):
+    """Fetch MLS standings for a specific season year to avoid defaulting to prior completed season."""
+    import datetime
+    yr = year or datetime.date.today().year
+    urls = [
+        f'https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/standings?season={yr}',
+        f'https://site.web.api.espn.com/apis/v2/sports/soccer/usa.1/standings?season={yr}&seasontype=2',
+        f'https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/standings',
+    ]
+    for url in urls:
+        try:
+            data = fetch_json(url, timeout=15)
+            entries = []
+            for conf in data.get('children', []):
+                for div in conf.get('children', [conf]):
+                    for entry in div.get('standings', {}).get('entries', []):
+                        entries.append(entry)
+                for entry in conf.get('standings', {}).get('entries', []):
+                    if entry not in entries:
+                        entries.append(entry)
+            if not entries:
+                for entry in data.get('standings', {}).get('entries', []):
+                    entries.append(entry)
+            if entries:
+                print(f'    ✓ MLS entries from {url[:70]}')
+                return entries
+        except Exception as e:
+            print(f'    ✗ MLS {url[:60]}: {e}')
+    return []
+
 def scrape_mls():
     if is_frozen('MLS'):
         print('  ⏸ MLS is frozen, skipping'); return True
     try:
-        # Try multiple MLS slugs
-        for slug in ['usa.1', 'mls', 'soccer.usa.1']:
-            entries = _espn_standings('soccer', slug)
-            if entries:
-                standings = []
-                for e in entries:
-                    name = e.get('team', {}).get('displayName', '')
-                    pts = _espn_stat(e, 'points') or _espn_stat(e, 'pts') or 0
-                    standings.append({'team': name, 'points': pts})
-                if standings:
+        import datetime
+        entries = _espn_standings_mls(year=datetime.date.today().year)
+        if entries:
+            standings = []
+            for e in entries:
+                name = e.get('team', {}).get('displayName', '')
+                pts = _espn_stat(e, 'points') or _espn_stat(e, 'pts') or 0
+                if name:
+                    standings.append({'team': name, 'points': int(pts or 0)})
+            if standings:
+                # Sanity-check: if max points > 50, likely prior completed season — skip
+                if max(s['points'] for s in standings) > 50:
+                    print(f'    ✗ MLS data looks like prior season (max pts {max(s["points"] for s in standings)}), skipping')
+                else:
                     standings.sort(key=lambda x: x['points'], reverse=True)
-                    print(f'    ✓ Got {len(standings)} MLS teams from slug {slug}')
+                    print(f'    ✓ Got {len(standings)} MLS teams')
                     return save_standing('MLS', {'standings': standings})
-        raise Exception('No MLS data from any slug')
+        raise Exception('No MLS data found')
     except Exception as e:
         print(f'  ✗ MLS: {e}'); return False
 
-# ── NASCAR (NASCAR.com / motorsport.com scrape) ───────────────────────────────
+# ── NASCAR (ESPN JSON API) ────────────────────────────────────────────────────
 
 def scrape_nascar():
     if is_frozen('NASCAR'):
@@ -253,50 +266,33 @@ def scrape_nascar():
     try:
         standings = []
 
-        # Primary: motorsport.com standings page
+        # Primary: ESPN JSON API (same endpoint used by scoring.py)
         try:
-            soup = fetch_html('https://www.motorsport.com/nascar-cup/standings/')
-            rows = soup.select('table tr, .standings-table tr, .driver-row')
-            for row in rows:
-                cols = row.find_all('td')
-                if len(cols) >= 3:
-                    try:
-                        rank_text = cols[0].get_text(strip=True)
-                        rank = int(''.join(filter(str.isdigit, rank_text)) or '0')
-                        if rank == 0:
-                            continue
-                        driver = cols[1].get_text(strip=True) if len(cols) > 1 else ''
-                        pts_text = cols[-1].get_text(strip=True).replace(',', '')
-                        pts = int(''.join(filter(str.isdigit, pts_text)) or '0')
-                        if driver and pts > 0:
-                            standings.append({'driver': driver, 'points': pts, 'rank': rank})
-                    except (ValueError, AttributeError):
-                        continue
-            if standings:
-                print(f'    ✓ motorsport.com: {len(standings)} NASCAR drivers')
+            data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/racing/nascar-premier/standings')
+            entries = []
+            for child in data.get('children', []):
+                child_entries = child.get('standings', {}).get('entries', [])
+                if not child_entries:
+                    continue
+                for entry in child_entries:
+                    name = entry.get('athlete', {}).get('displayName', '')
+                    pts = None
+                    for stat in entry.get('stats', []):
+                        if stat.get('name') == 'points':
+                            try:
+                                pts = int(float(stat.get('value', 0)))
+                            except (TypeError, ValueError):
+                                pass
+                            break
+                    if name and pts is not None:
+                        entries.append({'driver': name, 'points': pts})
+                if entries:
+                    break
+            if entries:
+                standings = sorted(entries, key=lambda x: -x['points'])
+                print(f'    ✓ ESPN NASCAR API: {len(standings)} drivers')
         except Exception as e:
-            print(f'    ✗ motorsport.com: {e}')
-
-        # Fallback: nascar.com standings
-        if not standings:
-            try:
-                import re
-                soup = fetch_html('https://www.nascar.com/standings/nascar-cup-series/')
-                for row in soup.select('tr'):
-                    cols = row.find_all('td')
-                    if len(cols) >= 3:
-                        try:
-                            rank = int(cols[0].get_text(strip=True))
-                            driver = cols[1].get_text(strip=True)
-                            pts = int(cols[2].get_text(strip=True).replace(',', ''))
-                            if driver and pts > 0:
-                                standings.append({'driver': driver, 'points': pts, 'rank': rank})
-                        except (ValueError, AttributeError):
-                            continue
-                if standings:
-                    print(f'    ✓ nascar.com: {len(standings)} NASCAR drivers')
-            except Exception as e:
-                print(f'    ✗ nascar.com: {e}')
+            print(f'    ✗ ESPN NASCAR API: {e}')
 
         if standings:
             return save_standing('NASCAR', {'standings': standings})
@@ -362,65 +358,52 @@ def scrape_tennis():
     except Exception as e:
         print(f'  ✗ Tennis: {e}'); return False
 
-# ── Golf (OWGR via lasvegassun / ESPN fallback) ───────────────────────────────
+# ── Golf (ESPN JSON API / owgr.com JSON fallback) ────────────────────────────
+
+def _parse_owgr_espn(data):
+    rankings = []
+    for group in data.get('rankings', []):
+        for entry in group.get('ranks', []):
+            rank = entry.get('current') or entry.get('rank')
+            player = entry.get('athlete', {}).get('displayName', '')
+            if player and rank:
+                rankings.append({'player': player, 'rank': int(rank)})
+    return rankings
+
 def scrape_golf():
     if is_frozen('Golf'):
         print('  ⏸ Golf is frozen, skipping'); return True
     try:
         rankings = []
 
-        # Primary: Las Vegas Sun publishes a clean OWGR table weekly
+        # Primary: ESPN golf rankings API
         try:
-            import datetime, re
-            today = datetime.date.today()
-            # Try today and up to 7 days back to find the latest publish
-            for delta in range(8):
-                d = today - datetime.timedelta(days=delta)
-                url = f'https://lasvegassun.com/news/{d.year}/{d.month:02d}/{d.day:02d}/world-golf-ranking/'
-                try:
-                    soup = fetch_html(url)
-                    for row in soup.select('table tr')[1:]:
-                        cols = row.find_all('td')
-                        if len(cols) >= 2:
-                            rank_text = cols[0].text.strip()
-                            name_text = re.sub(r'\s+', ' ', cols[1].text.strip())
-                            if rank_text.isdigit() and name_text:
-                                rankings.append({'player': name_text, 'rank': int(rank_text)})
-                    if rankings:
-                        print(f'    ✓ Las Vegas Sun {d}: {len(rankings)} golfers')
-                        break
-                except Exception:
-                    continue
+            data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings')
+            rankings = _parse_owgr_espn(data)
+            if rankings:
+                print(f'    ✓ ESPN Golf API: {len(rankings)} players')
         except Exception as e:
-            print(f'    ✗ Las Vegas Sun: {e}')
+            print(f'    ✗ ESPN Golf API: {e}')
+
+        # Fallback: owgr.com internal JSON API
+        if not rankings:
+            try:
+                data = fetch_json(
+                    'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200&country=All&playerName=',
+                    headers={'Referer': 'https://www.owgr.com/', 'Accept': 'application/json'}
+                )
+                for item in data.get('rankings', data if isinstance(data, list) else []):
+                    rank = item.get('rank') or item.get('position')
+                    player = item.get('name') or item.get('playerName') or item.get('fullName', '')
+                    if player and rank:
+                        rankings.append({'player': player, 'rank': int(rank)})
+                if rankings:
+                    print(f'    ✓ OWGR.com JSON API: {len(rankings)} players')
+            except Exception as e:
+                print(f'    ✗ OWGR.com JSON API: {e}')
 
         if rankings:
             return save_standing('Golf', {'rankings': rankings})
-
-        # Fallback: OWGR.com table scrape
-        try:
-            soup = fetch_html('https://www.owgr.com/current-world-ranking')
-            for row in soup.select('table tr, tbody tr')[1:100]:
-                cols = row.find_all('td')
-                if len(cols) >= 3:
-                    try:
-                        rank = int(cols[0].text.strip().split()[0])
-                        player = ''
-                        for idx in [2, 3, 1]:
-                            candidate = cols[idx].text.strip() if len(cols) > idx else ''
-                            if candidate and not candidate.replace(',', '').replace('.', '').isdigit():
-                                player = candidate
-                                break
-                        if player:
-                            rankings.append({'player': player, 'rank': rank})
-                    except (ValueError, AttributeError):
-                        continue
-            if rankings:
-                print(f'    ✓ OWGR.com: {len(rankings)} golfers')
-                return save_standing('Golf', {'rankings': rankings})
-        except Exception as e:
-            print(f'    ✗ OWGR.com: {e}')
-
         raise Exception('No golf rankings found from any source')
     except Exception as e:
         print(f'  ✗ Golf: {e}'); return False
@@ -438,10 +421,14 @@ def scrape_stock():
             try:
                 url = f'https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1d&range=ytd'
                 r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'}, timeout=10)
-                data = r.json()['chart']['result'][0]
-                meta = data['meta']
+                body = r.json()
+                results = body.get('chart', {}).get('result') or []
+                if not results:
+                    raise Exception('empty result from Yahoo Finance')
+                data = results[0]
+                meta = data.get('meta', {})
                 current = meta.get('regularMarketPrice') or meta.get('previousClose')
-                closes = data['indicators']['quote'][0].get('close', [])
+                closes = (data.get('indicators', {}).get('quote') or [{}])[0].get('close', [])
                 jan1 = next((c for c in closes if c is not None), None)
                 if current and jan1:
                     prices.append({'ticker': ticker, 'current_price': current, 'jan1_price': jan1,
@@ -454,13 +441,12 @@ def scrape_stock():
     except Exception as e:
         print(f'  ✗ Stock: {e}'); return False
 
-# ── Country GDP (IMF DataMapper) ─────────────────────────────────────────────
+# ── Country GDP (World Bank) ──────────────────────────────────────────────────
 def scrape_country_gdp():
     if is_frozen('Country'):
         print('  ⏸ Country is frozen, skipping'); return True
     try:
         from draft_picks_2026 import DRAFT_PICKS_2026
-        # IMF WEO ISO-3 codes (same as ISO 3166-1 alpha-3)
         ISO_MAP = {
             'Netherlands': 'NLD', 'United States': 'USA', 'Germany': 'DEU',
             'Guinea': 'GIN', 'South Sudan': 'SSD', 'France': 'FRA',
@@ -469,32 +455,35 @@ def scrape_country_gdp():
         }
         countries = list(DRAFT_PICKS_2026['Country'].values())
         codes = [ISO_MAP[c] for c in countries if c in ISO_MAP]
-
-        # IMF DataMapper API — NGDP_RPCH = Real GDP growth (annual %)
+        
+        # Batch all countries in ONE request
         codes_str = ';'.join(codes)
-        url = (f'https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH/'
-               f'{codes_str}?periods=2026')
-        r = requests.get(url, headers=HEADERS, timeout=15)
+        url = f'https://api.worldbank.org/v2/country/{codes_str}/indicator/NY.GDP.MKTP.KD.ZG?format=json&mrv=5&per_page=100'
+        r = requests.get(url, headers=HEADERS, timeout=10)
         r.raise_for_status()
-        api_data = r.json()
-
-        # Response shape: {"values": {"NGDP_RPCH": {"NLD": {"2025": 1.4}, ...}}}
-        country_data = api_data.get('values', {}).get('NGDP_RPCH', {})
-
+        data = r.json()
+        records = data[1] if isinstance(data, list) and len(data) > 1 else []
+        
+        # Build lookup: iso_code -> gdp_growth
+        gdp_lookup = {}
+        for rec in records:
+            code = rec.get('countryiso3code') or rec.get('country', {}).get('id', '')
+            val = rec.get('value')
+            if code and val is not None and code not in gdp_lookup:
+                gdp_lookup[code] = round(float(val), 2)
+        
         gdp = []
-        reverse_iso = {v: k for k, v in ISO_MAP.items()}
-        for code, years in country_data.items():
-            val = years.get('2026')
-            country_name = reverse_iso.get(code)
-            if country_name and val is not None:
-                gdp.append({'country': country_name, 'gdp_growth_pct': round(float(val), 2)})
-                print(f'    {country_name} ({code}): {val}%')
+        for country in countries:
+            code = ISO_MAP.get(country)
+            if code and code in gdp_lookup:
+                gdp.append({'country': country, 'gdp_growth_pct': gdp_lookup[code]})
+                print(f'    {country} ({code}): {gdp_lookup[code]}%')
             else:
-                print(f'    ✗ No 2025 data for {code}')
-
+                print(f'    ✗ No data for {country}')
+        
         if gdp:
             return save_standing('Country', {'gdp': gdp})
-        raise Exception('No GDP data found from IMF')
+        raise Exception('No GDP data found')
     except Exception as e:
         print(f'  ✗ Country: {e}'); return False
 
@@ -507,88 +496,34 @@ def scrape_billboard():
         import re
         scores_map = {}
 
-        def _ensure(artist, song=None):
-            if artist not in scores_map:
-                scores_map[artist] = {'artist': artist, 'num1_weeks': 0, 'hot100_weeks': 0, 'songs': {}}
-            if song and song not in scores_map[artist]['songs']:
-                scores_map[artist]['songs'][song] = {'num1_weeks': 0, 'hot100_weeks': 0}
-
         # ── Page 1: #1 weeks ─────────────────────────────────────────────
-        # Wikipedia tables use rowspan for multi-week runs: only the first
-        # week has all columns; continuation rows have just a date cell.
-        # We track current_artists/current_song so continuation rows count.
         try:
             soup1 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number_ones_of_2026', timeout=15)
             for table in soup1.select('table.wikitable'):
-                current_artists = []
-                current_song = None
                 for row in table.select('tr'):
                     cols = row.find_all(['td', 'th'])
-                    if not cols:
+                    if len(cols) < 4:
                         continue
-
-                    if all(c.name == 'th' for c in cols):
-                        current_artists = []
-                        current_song = None
+                    # Table: No. | Issue date | Song | Artist(s) | Ref.
+                    artist_text = cols[3].get_text(separator=' ', strip=True)
+                    # Skip header rows
+                    if artist_text.lower() in ('artist', 'artist(s)', 'ref.', ''):
                         continue
-
-                    artist_text = None
-                    song_text = None
-                    for artist_col in (3, 2):
-                        if len(cols) > artist_col:
-                            candidate = cols[artist_col].get_text(separator=' ', strip=True)
-                            if candidate.lower() not in ('artist', 'artist(s)', 'ref.', 'notes', ''):
-                                artist_text = candidate
-                                song_col = artist_col - 1
-                                if len(cols) > song_col:
-                                    song_text = cols[song_col].get_text(separator=' ', strip=True).strip('"').strip()
-                                break
-
-                    if artist_text:
-                        current_artists = []
-                        current_song = song_text
-                        for a in re.split(r'\s*[,&]\s*|\s+feat\.\s+|\s+and\s+', artist_text, flags=re.IGNORECASE):
-                            a = a.strip().strip('"').strip()
-                            if a and len(a) >= 2:
-                                current_artists.append(a)
-                                _ensure(a, current_song)
-
-                    for a in current_artists:
+                    # Each row = 1 week at #1
+                    artists = re.split(r'\s*[,&]\s*|\s+feat\.\s+|\s+and\s+', artist_text, flags=re.IGNORECASE)
+                    for a in artists:
+                        a = a.strip().strip('"').strip()
+                        if not a or len(a) < 2:
+                            continue
+                        if a not in scores_map:
+                            scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0}
                         scores_map[a]['num1_weeks'] += 1
-                        scores_map[a]['hot100_weeks'] += 1  # #1 also counts as top-10
-                        if current_song:
-                            scores_map[a]['songs'][current_song]['num1_weeks'] += 1
-                            scores_map[a]['songs'][current_song]['hot100_weeks'] += 1
-
+                        # hot100_weeks is populated entirely by the top-10 page to avoid double-counting
             print(f'    #1 page: {len(scores_map)} artists found')
         except Exception as e:
             print(f'    ✗ #1 page: {e}')
 
-        # ── Page 2a: 2025 top-10 weeks (for carryover subtraction) ───────────
-        # The 2026 top-10 page shows CUMULATIVE all-time weeks, not just 2026.
-        # We subtract the 2025 page count for each song to isolate 2026 weeks.
-        weeks_2025_map = {}
-        try:
-            soup25 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2025', timeout=15)
-            for table in soup25.select('table.wikitable'):
-                for row in table.select('tr'):
-                    cols = row.find_all(['td', 'th'])
-                    if len(cols) < 6:
-                        continue
-                    song_text  = cols[1].get_text(separator=' ', strip=True).strip('"').strip()
-                    artist_text = cols[2].get_text(separator=' ', strip=True)
-                    weeks_text  = cols[5].get_text(strip=True).replace('*', '').strip()
-                    if not weeks_text or artist_text.lower() in ('artist', 'artist(s)'):
-                        continue
-                    try:
-                        weeks_2025_map[song_text] = int(weeks_text.split()[0])
-                    except ValueError:
-                        continue
-            print(f'    2025 top-10 page: {len(weeks_2025_map)} songs for carryover subtraction')
-        except Exception as e:
-            print(f'    ✗ 2025 top-10 page: {e}')
-
-        # ── Page 2b: top-10 weeks ─────────────────────────────────────────────
+        # ── Page 2: top-10 weeks ──────────────────────────────────────────
         try:
             soup2 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2026', timeout=15)
             for table in soup2.select('table.wikitable'):
@@ -597,22 +532,14 @@ def scrape_billboard():
                     if len(cols) < 6:
                         continue
                     # Table: Date | Single | Artist(s) | Peak | Peak date | Weeks in top ten | Ref.
-                    song_text   = cols[1].get_text(separator=' ', strip=True).strip('"').strip()
                     artist_text = cols[2].get_text(separator=' ', strip=True)
                     weeks_text  = cols[5].get_text(strip=True).replace('*', '').strip()
 
                     if not weeks_text or artist_text.lower() in ('artist', 'artist(s)'):
                         continue
                     try:
-                        total_weeks = int(weeks_text.split()[0])
+                        weeks = int(weeks_text.split()[0])
                     except ValueError:
-                        continue
-
-                    # Subtract carryover weeks from 2025 to get 2026-only weeks
-                    weeks_2025 = weeks_2025_map.get(song_text, 0)
-                    weeks = max(0, total_weeks - weeks_2025)
-
-                    if weeks == 0:
                         continue
 
                     artists = re.split(r'\s*[,&]\s*|\s+feat\.\s+|\s+and\s+', artist_text, flags=re.IGNORECASE)
@@ -620,27 +547,21 @@ def scrape_billboard():
                         a = a.strip().strip('"').strip()
                         if not a or len(a) < 2:
                             continue
-                        _ensure(a, song_text)
+                        if a not in scores_map:
+                            scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0}
                         scores_map[a]['hot100_weeks'] += weeks
-                        scores_map[a]['songs'][song_text]['hot100_weeks'] += weeks
             print(f'    Top-10 page: {len(scores_map)} total artists found')
         except Exception as e:
             print(f'    ✗ Top-10 page: {e}')
 
         if scores_map:
-            # Convert per-song dicts to sorted lists for storage
-            for entry in scores_map.values():
-                entry['songs'] = sorted(
-                    [{'title': t, 'num1_weeks': d['num1_weeks'], 'hot100_weeks': d['hot100_weeks']}
-                     for t, d in entry['songs'].items()],
-                    key=lambda x: (x['num1_weeks'], x['hot100_weeks']), reverse=True
-                )
+            # Log picks that matched
             from draft_picks_2026 import DRAFT_PICKS_2026
             picks = list(DRAFT_PICKS_2026.get('Musician', {}).values())
             for pick in picks:
                 match = next((v for k, v in scores_map.items() if name_matches(pick, k)), None)
                 if match:
-                    print(f'    ✓ {pick}: {match["num1_weeks"]} #1 wks, {match["hot100_weeks"]} top-10 wks, {len(match["songs"])} songs')
+                    print(f'    ✓ {pick}: {match["num1_weeks"]} #1 wks, {match["hot100_weeks"]} top-10 wks')
                 else:
                     print(f'    – {pick}: no chart data')
             return save_standing('Musician', {'scores': list(scores_map.values())})
@@ -648,152 +569,6 @@ def scrape_billboard():
         raise Exception('No chart data found')
     except Exception as e:
         print(f'  ✗ Musician/Wikipedia: {e}'); return False
-
-
-# ── Actor / Actress (TMDB + OMDB) ────────────────────────────────────────────
-
-TMDB_API_KEY = os.environ.get('TMDB_API_KEY', '')
-OMDB_API_KEY = os.environ.get('OMDB_API_KEY', '')
-_TMDB_BASE   = 'https://api.themoviedb.org/3'
-_OMDB_BASE   = 'http://www.omdbapi.com/'
-
-
-def _tmdb_search_person(name):
-    if not TMDB_API_KEY:
-        return None
-    try:
-        r = fetch_json(f'{_TMDB_BASE}/search/person',
-                       params={'api_key': TMDB_API_KEY, 'query': name})
-        results = r.get('results', [])
-        return results[0]['id'] if results else None
-    except Exception as e:
-        print(f'    ✗ TMDB person search ({name}): {e}')
-        return None
-
-
-def _tmdb_person_movies_2026(person_id):
-    if not TMDB_API_KEY:
-        return []
-    try:
-        from datetime import date
-        today = date.today().isoformat()
-        r = fetch_json(f'{_TMDB_BASE}/person/{person_id}/movie_credits',
-                       params={'api_key': TMDB_API_KEY})
-        movies = []
-        for m in r.get('cast', []):
-            release = m.get('release_date', '')
-            if release.startswith('2026') and release <= today:
-                movies.append({
-                    'title':        m.get('title', ''),
-                    'tmdb_id':      m.get('id'),
-                    'release_date': release,
-                })
-        return movies
-    except Exception as e:
-        print(f'    ✗ TMDB credits (id={person_id}): {e}')
-        return []
-
-
-def _omdb_movie_data(title, year=None):
-    if not OMDB_API_KEY:
-        return {}
-    params = {'apikey': OMDB_API_KEY, 't': title}
-    if year:
-        params['y'] = year
-    try:
-        r = fetch_json(_OMDB_BASE, params=params)
-        if r.get('Response') != 'True':
-            # fallback 1: retry without year constraint
-            if year:
-                return _omdb_movie_data(title, year=None)
-            # fallback 2: strip trailing punctuation (e.g. "The Bride!" → "The Bride")
-            clean = title.rstrip('!?.')
-            if clean != title:
-                return _omdb_movie_data(clean, year=year)
-            return {}
-        bo_raw = r.get('BoxOffice', 'N/A')
-        box_office = None
-        if bo_raw and bo_raw != 'N/A':
-            try:
-                box_office = int(bo_raw.replace('$', '').replace(',', ''))
-            except ValueError:
-                pass
-        rt_score = None
-        for rating in r.get('Ratings', []):
-            if rating.get('Source') == 'Rotten Tomatoes':
-                try:
-                    rt_score = int(rating['Value'].replace('%', ''))
-                except ValueError:
-                    pass
-        return {'box_office': box_office, 'rt_score': rt_score}
-    except Exception as e:
-        print(f'    ✗ OMDB ({title}): {e}')
-        return {}
-
-
-# Manual overrides: domestic box office (USD) and RT critic score.
-# Override takes priority over OMDB — use to correct stale or missing OMDB data.
-_MOVIE_OVERRIDES = {
-    'The Drama':                   {'box_office':  47_000_000, 'rt_score': 77},   # $47M domestic as of May 2026; Zendaya/Pattinson A24
-    'The Devil Wears Prada 2':     {'box_office':  77_000_000, 'rt_score': 78},   # opening weekend domestic
-    'The Super Mario Galaxy Movie': {'box_office': 402_600_000, 'rt_score': 68},  # Anya Taylor-Joy
-    'Crime 101':                   {'box_office':  31_500_000, 'rt_score': 88},   # Hemsworth; domestic final ~$31.5M
-    'The Bride!':                  {'box_office':   7_300_000, 'rt_score': 57},   # Jessie Buckley; bombed domestically
-}
-
-
-def scrape_actor_actress(category='Actor'):
-    if is_frozen(category):
-        print(f'  ⏸ {category} is frozen, skipping'); return True
-    if not TMDB_API_KEY:
-        print(f'  ✗ TMDB_API_KEY not set — skipping {category}'); return False
-    if not OMDB_API_KEY:
-        print(f'  ✗ OMDB_API_KEY not set — skipping {category}'); return False
-
-    from draft_picks_2026 import DRAFT_PICKS_2026
-    picks = DRAFT_PICKS_2026.get(category, {})
-    scores = []
-
-    for _player, name in picks.items():
-        print(f'    {name}...')
-        person_id = _tmdb_search_person(name)
-        if not person_id:
-            print(f'      not found on TMDB')
-            scores.append({'name': name, 'movies': [], 'composite_score': 0.0})
-            continue
-
-        raw_movies = _tmdb_person_movies_2026(person_id)
-        print(f'      {len(raw_movies)} released 2026 film(s) found')
-
-        movies = []
-        for m in raw_movies:
-            omdb = _omdb_movie_data(m['title'], year='2026')
-            override = _MOVIE_OVERRIDES.get(m['title'], {})
-            # Override takes priority — lets us correct stale/wrong OMDB values
-            bo   = override.get('box_office') or omdb.get('box_office')
-            rt   = override.get('rt_score')   or omdb.get('rt_score')
-            if bo and rt:
-                comp = round((bo / 1_000_000) * (rt / 100), 2)
-            elif rt:  # box office not yet reported — use RT score alone as proxy
-                comp = round(rt / 100, 2)
-            else:
-                comp = None
-            movies.append({
-                'title':        m['title'],
-                'release_date': m['release_date'],
-                'box_office':   bo,
-                'rt_score':     rt,
-                'composite':    comp,
-            })
-
-        composite_score = round(sum(m['composite'] for m in movies if m['composite']), 2)
-        scores.append({'name': name, 'movies': movies, 'composite_score': composite_score})
-
-    # write_local=False: actor/actress data/*.json is manually maintained in git;
-    # don't let the scraper overwrite it mid-run before scoring reads it.
-    save_standing(category, {'scores': scores}, write_local=False)
-    return True
-
 
 # ── Refresh All ───────────────────────────────────────────────────────────────
 
@@ -814,8 +589,6 @@ def refresh_all():
         ('NCAAB', scrape_ncaab), ('Tennis', scrape_tennis), ('Golf', scrape_golf),
         ('NASCAR', scrape_nascar), ('MLS', scrape_mls), ('Stock', scrape_stock),
         ('Country', scrape_country_gdp), ('Musician', scrape_billboard),
-        ('Actor',   lambda: scrape_actor_actress('Actor')),
-        ('Actress', lambda: scrape_actor_actress('Actress')),
     ]
     for name, fn in all_scrapers:
         print(f'Scraping {name}...')

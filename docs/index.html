@@ -3,20 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1')location.replace('https:'+location.href.slice(5));</script>
-  <title>Fantasy Life - Sports, Pop Culture, Geopolitics, and More</title>
-  <!-- Social / OG meta -->
-  <meta property="og:title" content="Fantasy Life - Sports, Pop Culture, Geopolitics, and More" />
-  <meta property="og:description" content="The official Fantasy Life draft scoring board. Live standings, picks, and chaos." />
-  <meta property="og:image" content="https://fantasylife.org/group.jpg" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:url" content="https://fantasylife.org" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="https://fantasylife.org/group.jpg" />
-  <meta name="twitter:title" content="Fantasy Life - Sports, Pop Culture, Geopolitics, and More" />
-  <meta name="twitter:description" content="The official Fantasy Life draft scoring board. Live standings, picks, and chaos." />
+  <title>Fantasy Life 2026</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -45,26 +32,38 @@
 
     /* ─── HEADER ─── */
     header {
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 0 32px;
+      padding: 0 24px;
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 56px;
       position: sticky;
       top: 0;
-      background: var(--bg);
       z-index: 100;
     }
 
     .logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
-      letter-spacing: 0.08em;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
       color: var(--text);
+      text-decoration: none;
     }
 
     .logo span { color: var(--blue); }
+
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .nav-link:hover { color: var(--text); }
 
     /* ─── BUCKLEY FAN SITE OVERLAY ─── */
     #buckley-overlay {
@@ -97,15 +96,14 @@
     }
 
     .header-logo-img {
-      width: 56px;
-      height: 56px;
-      border-radius: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
       overflow: hidden;
       cursor: pointer;
       flex-shrink: 0;
       background-size: cover;
       background-position: center top;
-      align-self: stretch;
     }
 
     .header-meta {
@@ -298,20 +296,12 @@
       vertical-align: middle;
     }
 
-    @media (max-width: 480px) {
-      .player-row td { padding: 10px 6px; }
-      .rank-cell { width: 36px; min-width: 36px; }
-      .change-cell { width: 44px; min-width: 44px; font-size: 0.78rem; }
-    }
-
     .rank-cell {
       text-align: center;
       font-family: 'DM Mono', monospace;
       font-size: 0.8rem;
       color: var(--muted);
-      width: 48px;
-      min-width: 48px;
-      white-space: nowrap;
+      width: 44px;
     }
 
     .rank-1 { }
@@ -341,27 +331,6 @@
       color: var(--muted);
     }
 
-
-    .rank-delta {
-      display: block;
-      font-size: 0.7rem;
-      font-weight: 700;
-      line-height: 1;
-      margin-top: 2px;
-    }
-    .change-cell {
-      text-align: right;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.85rem;
-      font-weight: 600;
-      width: 56px;
-      min-width: 56px;
-      white-space: nowrap;
-    }
-    .delta-up   { color: #22c55e; }
-    .delta-down { color: #ef4444; }
-    .delta-same { color: var(--muted); opacity: 0.5; }
-
     .expand-cell {
       width: 32px;
       text-align: center;
@@ -387,83 +356,6 @@
       border-radius: 4px;
       border: 1px solid var(--border);
     }
-
-    /* ─── FILM BREAKDOWN ─── */
-    .film-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.82rem;
-    }
-    .film-table th {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      padding: 0 10px 8px 0;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-    .film-table td {
-      padding: 8px 10px 8px 0;
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
-      vertical-align: middle;
-    }
-    .film-table tr:last-child td { border-bottom: none; }
-    .film-title-cell { font-weight: 500; }
-    .film-bo-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); }
-    .rt-score-badge { font-family: 'DM Mono', monospace; font-weight: 600; font-size: 0.82rem; }
-    .rt-fresh  { color: #4ade80; }
-    .rt-mixed  { color: #fbbf24; }
-    .rt-rotten { color: #f87171; }
-    .film-no-releases { font-size: 0.82rem; color: var(--muted); font-style: italic; padding: 4px 0 8px; }
-    .awards-section-title {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--blue);
-      margin: 14px 0 6px;
-    }
-    .award-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 5px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.8rem;
-    }
-    .award-item:last-child { border-bottom: none; }
-    .award-win-label  { color: var(--gold); font-weight: 600; }
-    .award-nom-label  { color: var(--muted); }
-
-    /* ─── MUSICIAN SONG BREAKDOWN ─── */
-    .song-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.82rem;
-    }
-    .song-table th {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--muted);
-      padding: 0 10px 6px 0;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-    .song-table td {
-      padding: 8px 10px 8px 0;
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
-      vertical-align: middle;
-    }
-    .song-table tr:last-child td { border-bottom: none; }
-    .song-title-cell { font-weight: 500; }
-    .song-weeks-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); text-align: center; padding-right: 4px; }
-    .song-no-data { font-size: 0.82rem; color: var(--dim); font-style: italic; padding: 4px 0 8px; }
 
     .breakdown-grid {
       display: grid;
@@ -827,7 +719,7 @@
     .site-footer-copy {
       font-family: 'DM Mono', monospace;
       font-size: 0.62rem;
-      color: var(--muted);
+      color: var(--dim);
       letter-spacing: 0.08em;
       text-transform: uppercase;
       margin-bottom: 12px;
@@ -856,11 +748,12 @@
       border-bottom: 1px solid #1e2a1e;
       padding: 6px 16px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
       font-size: 0.7rem;
       font-family: 'DM Mono', monospace;
       letter-spacing: 0.04em;
+      flex-wrap: wrap;
     }
     .news-bar-left {
       display: flex;
@@ -889,32 +782,11 @@
       flex: 1;
       white-space: normal;
       word-break: break-word;
-      min-width: 0;
     }
     .news-bar-headline em {
       color: var(--accent);
       font-style: normal;
       font-weight: 600;
-    }
-    @media (max-width: 600px) {
-      .news-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-        padding: 8px 12px;
-      }
-      .news-bar-left {
-        flex-direction: row;
-        align-items: center;
-        border-right: none;
-        padding-right: 0;
-        gap: 8px;
-      }
-      #news-bar-last-updated { display: none; }
-      .news-bar-headline {
-        font-size: 0.72rem;
-        line-height: 1.5;
-      }
     }
 
     /* ─── LAST UPDATED ─── */
@@ -933,34 +805,25 @@
       .season-hero { flex-direction: column; align-items: flex-start; }
       .todd-hero { width: 120px; align-self: flex-end; }
       .season-stats { gap: 20px; }
-      .cat-name { font-size: 0.70rem; }
-      .cat-pick { font-size: 0.91rem; }
-      .cat-pts  { font-size: 0.86rem; }
     }
   </style>
 </head>
 <body>
 
-<header style="padding-left:0;">
-  <div style="display:flex;align-items:stretch;gap:14px;">
-    <div class="header-logo-img" onclick="openBuckley()" id="header-logo-img-wrap"></div>
-    <div class="logo" style="align-self:center;">Fantasy<span>Life</span></div>
-  </div>
-  <div style="display:flex;align-items:center;gap:20px;">
-    <a href="./rules.html" style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Rules</a>
-    <a href="./calendar.html" style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Calendar</a>
-    <a href="./trips.html" style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Trips</a>
-
-  </div>
+<header>
+  <div class="logo">Fantasy<span>Life</span></div>
+  <nav style="display:flex;align-items:center;gap:20px;">
+    <a href="./rules.html" class="nav-link">Rules</a>
+  </nav>
 </header>
 
 <div class="news-bar" id="news-bar">
   <div class="news-bar-left">
     <div class="news-bar-label">📡 FL News</div>
-    <div class="news-bar-updated" id="news-bar-updated"></div>
+    <div class="news-bar-updated"><span style="opacity:0.5">updated </span><span id="news-bar-updated">loading…</span></div>
   </div>
   <div class="news-bar-headline" id="news-bar-headline">
-    <span id="news-bar-last-updated" style="opacity:0.5;margin-right:10px;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.03em;">Last updated: loading…</span><span id="news-ticker-text">Loading FL News…</span>
+    🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em> — Jamzee's actress pick quietly printing points while everyone sleeps.
   </div>
 </div>
 
@@ -1080,7 +943,7 @@
       <div class="modal-eyebrow">🔓 Premium Unlocked — You're Welcome</div>
 
       <div class="roast-header">
-        <div class="roast-rank">13</div>
+        <div class="roast-rank" id="todd-reveal-rank">13</div>
         <div>
           <div class="roast-label">Current Standing</div>
           <div class="roast-name">Todd</div>
@@ -1088,7 +951,7 @@
         </div>
         <div style="margin-left:auto;text-align:right;">
           <div class="roast-label">Total Score</div>
-          <div class="roast-score-display">47.5</div>
+          <div class="roast-score-display" id="todd-reveal-total">47.5</div>
         </div>
       </div>
 
@@ -1138,7 +1001,6 @@
 // ============================================================
 window.SCORES_DATA = [];
 window.LAST_UPDATED = '';
-window.FL_HEADLINE = null;
 window.CATEGORIES = ["nfl","nba","mlb","nhl","ncaaf","ncaab","tennis","golf","nascar","mls","actor","actress","musician","country","stock"];
 
 // Category display names
@@ -1157,24 +1019,21 @@ function initDisplay() {
   const start = new Date('2026-01-01');
   const now = new Date();
   const weeks = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
-  const weEl = document.getElementById('weeks-elapsed');
-  if (weEl) weEl.textContent = Math.max(0, weeks);
+  document.getElementById('weeks-elapsed').textContent = Math.max(0, weeks);
 
-  const dateOpts = { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Los_Angeles' };
-  let dateStr;
+  const ptOpts = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Los_Angeles', timeZoneName: 'short' };
+  let updatedStr;
   try {
     const raw = window.LAST_UPDATED || '';
     const d = raw
       ? new Date(raw.replace(' UTC', 'Z').replace(' ', 'T'))
       : new Date();
-    dateStr = d.toLocaleDateString('en-US', dateOpts);
+    updatedStr = d.toLocaleString('en-US', ptOpts);
   } catch(e) {
-    dateStr = '';
+    updatedStr = window.LAST_UPDATED || new Date().toLocaleString('en-US', ptOpts);
   }
   const nbEl = document.getElementById('news-bar-updated');
-  if (nbEl) nbEl.textContent = dateStr;
-  const luEl = document.getElementById('news-bar-last-updated');
-  if (luEl) luEl.textContent = dateStr ? 'Updated: ' + dateStr : '';
+  if (nbEl) nbEl.textContent = updatedStr;
 }
 
 // Per-category stat label and value formatter
@@ -1187,158 +1046,14 @@ const CAT_STAT = {
   ncaab:   { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
   tennis:  { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
   golf:    { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
-  nascar:  { label: 'Sprint Cup', fmt: c => c.raw_value != null ? c.raw_value : '–' },
+  nascar:  { label: 'Points',    fmt: c => c.raw_value != null ? c.raw_value : '–' },
   mls:     { label: 'Points',    fmt: c => c.raw_value != null ? c.raw_value : '–' },
   actor:   { label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
   actress: { label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
-  musician:{ label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value : '–' },
+  musician:{ label: 'Wks Top10', fmt: c => c.raw_value != null ? c.raw_value : '–' },
   country: { label: 'GDP Chg%',  fmt: c => c.raw_value != null ? c.raw_value.toFixed(2) + '%' : '–' },
   stock:   { label: 'YTD Chg',   fmt: c => c.raw_display != null ? c.raw_display : (c.raw_value != null ? c.raw_value.toFixed(1) + '%' : '–') },
 };
-
-// ============================================================
-// ACTOR / ACTRESS FILMOGRAPHY DATA
-// ============================================================
-
-// All known 2026 films per actor/actress (released + upcoming).
-// rt/bo null = not yet available (shows N/A). Omit a person entirely if they have zero 2026 films.
-const FILMOGRAPHY_2026 = {
-  'Actor': {
-    'Chris Hemsworth':    [{title:'Crime 101',                 release:'Feb 13, 2026', bo:'$72M',      rt:88},
-                           {title:'Avengers: Doomsday',        release:'May 1, 2026',  bo:null,        rt:null}],
-    'Robert Pattinson':   [{title:'The Bride!',                release:'Mar 6, 2026',  bo:'$23M',      rt:59},
-                           {title:'The Drama',                 release:'Apr 3, 2026',  bo:null,        rt:null}],
-    'Matt Damon':         [{title:'The Rip',                   release:'Jan 16, 2026', bo:'Streaming', rt:79},
-                           {title:'The Odyssey',               release:'Jul 17, 2026', bo:null,        rt:null}],
-    'Tom Holland':        [{title:'The Odyssey',               release:'Jul 17, 2026', bo:null,        rt:null},
-                           {title:'Spider-Man: Brand New Day', release:'Jul 31, 2026', bo:null,        rt:null}],
-    'Jon Bernthal':       [{title:'The Odyssey',               release:'Jul 17, 2026', bo:null,        rt:null},
-                           {title:'Spider-Man: Brand New Day', release:'Jul 31, 2026', bo:null,        rt:null}],
-    'Pedro Pascal':       [{title:'The Mandalorian & Grogu',   release:'May 22, 2026', bo:null,        rt:null}],
-    'Jeremy Allen White': [{title:'The Mandalorian & Grogu',   release:'May 22, 2026', bo:null,        rt:null}],
-    'Dwayne Johnson':     [{title:'Moana',                     release:'Jul 10, 2026', bo:null,        rt:null}],
-    // Sean Penn, Wagner Moura, George Clooney, Leonardo DiCaprio, Timothee Chalamet — no 2026 films
-  },
-  'Actress': {
-    'Jessie Buckley':     [{title:'The Bride!',                   release:'Mar 6, 2026',  bo:'$23M', rt:59}],
-    'Anya Taylor-Joy':    [{title:'The Super Mario Galaxy Movie',  release:'Apr 1, 2026',  bo:null,   rt:null}],
-    'Zendaya':            [{title:'The Drama',                    release:'Apr 3, 2026',  bo:null,   rt:null},
-                           {title:'Spider-Man: Brand New Day',    release:'Jul 31, 2026', bo:null,   rt:null},
-                           {title:'Dune: Part Three',             release:'Dec 18, 2026', bo:null,   rt:null}],
-    'Anne Hathaway':      [{title:'Mother Mary',                  release:'Apr 24, 2026', bo:null,   rt:null},
-                           {title:'The Devil Wears Prada 2',      release:'May 1, 2026',  bo:null,   rt:null},
-                           {title:'The Odyssey',                  release:'Jul 17, 2026', bo:null,   rt:null}],
-    'Charlize Theron':    [{title:'The Odyssey',                  release:'Jul 17, 2026', bo:null,   rt:null}],
-    'Florence Pugh':      [{title:'Avengers: Doomsday',           release:'Dec 18, 2026', bo:null,   rt:null},
-                           {title:'Dune: Part Three',             release:'Dec 18, 2026', bo:null,   rt:null}],
-    // Ariana Grande, Amanda Seyfried, Teyana Taylor, Tessa Thompson,
-    // Sydney Sweeney, Cynthia Erivo, Emma Stone — no 2026 films
-  },
-};
-
-// 98th Academy Awards (March 2, 2026) — noms/wins for 2025 films
-const OSCAR_AWARDS = {
-  'Actor': {
-    'Sean Penn':          [{result:'Won',       category:'Best Supporting Actor', film:'One Battle After Another'}],
-    'Wagner Moura':       [{result:'Nominated', category:'Best Actor',            film:'The Secret Agent'}],
-    'Leonardo DiCaprio':  [{result:'Nominated', category:'Best Actor',            film:'One Battle After Another'}],
-    'Timothee Chalamet':  [{result:'Nominated', category:'Best Actor',            film:'Marty Supreme'}],
-  },
-  'Actress': {
-    'Jessie Buckley':     [{result:'Won',       category:'Best Actress',           film:'Hamnet'}],
-    'Emma Stone':         [{result:'Nominated', category:'Best Actress',           film:'Bugonia'}],
-    'Teyana Taylor':      [{result:'Nominated', category:'Best Supporting Actress',film:'One Battle After Another'}],
-  },
-};
-
-function buildMusicianBreakdown(pickName, songs) {
-  const artistImg = pickName === 'FKA Twigs'
-    ? `<img src="fka-twigs.png" alt="FKA Twigs" style="width:200px;height:200px;object-fit:cover;border-radius:8px;display:block;margin-bottom:12px;">`
-    : '';
-  if (!songs || !songs.length) {
-    return `<div class="breakdown-inner">${artistImg}<div class="song-no-data">No song chart data available yet.</div></div>`;
-  }
-  const rows = songs.map(s => {
-    const num1 = s.num1_weeks > 0 ? `<span style="color:var(--gold);font-weight:600">${s.num1_weeks}</span>` : '—';
-    const top10 = s.hot100_weeks > 0 ? s.hot100_weeks : '—';
-    return `<tr>
-      <td class="song-title-cell">${s.title}</td>
-      <td class="song-weeks-cell">${num1}</td>
-      <td class="song-weeks-cell">${top10}</td>
-    </tr>`;
-  }).join('');
-  return `<div class="breakdown-inner">
-    ${artistImg}
-    <table class="song-table">
-      <thead><tr>
-        <th>Song</th>
-        <th style="text-align:center">#1 Wks</th>
-        <th style="text-align:center">Top 10 Wks</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  </div>`;
-}
-
-function buildFilmographyBreakdown(pickName, scraperMovies, catType) {
-  const staticFilms = (FILMOGRAPHY_2026[catType] || {})[pickName] || [];
-
-  // Enrich static entries with live scraper data where available
-  const scraperMap = {};
-  (scraperMovies || []).forEach(m => { if (m.title) scraperMap[m.title] = m; });
-  const films = staticFilms.map(f => {
-    const s = scraperMap[f.title] || {};
-    return {
-      title:   f.title,
-      release: f.release,
-      bo:      f.bo   || (s.box_office ? '$' + (s.box_office / 1e6).toFixed(0) + 'M' : null),
-      rt:      f.rt   != null ? f.rt : s.rt_score != null ? s.rt_score : null,
-    };
-  });
-
-  let filmRows = '';
-  if (!films.length) {
-    filmRows = `<div class="film-no-releases">No movies in 2026. Better luck next year.</div>`;
-  } else {
-    const rows = films.map(f => {
-      const rtClass = f.rt >= 60 ? 'rt-fresh' : f.rt >= 40 ? 'rt-mixed' : f.rt != null ? 'rt-rotten' : '';
-      const rtStr   = f.rt != null ? f.rt + '%' : 'N/A';
-      const boStr   = f.bo || 'N/A';
-      return `<tr>
-        <td class="film-title-cell">${f.title}</td>
-        <td style="color:var(--muted);font-size:0.78rem;font-family:'DM Mono',monospace">${f.release}</td>
-        <td class="film-bo-cell">${boStr}</td>
-        <td><span class="rt-score-badge ${rtClass}">${rtStr}</span></td>
-      </tr>`;
-    }).join('');
-    filmRows = `<table class="film-table">
-      <thead><tr>
-        <th>Film</th><th>Released</th><th>Domestic BO</th><th>RT</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-  }
-
-  // Oscar section
-  const awards = (OSCAR_AWARDS[catType] || {})[pickName] || [];
-  let awardsHtml = '';
-  if (awards.length) {
-    const items = awards.map(a => {
-      const isWin = a.result === 'Won';
-      return `<div class="award-item">
-        <span>${isWin ? '🏆' : '🎬'}</span>
-        <div>
-          <span class="${isWin ? 'award-win-label' : 'award-nom-label'}">${a.result}</span>
-          <span style="color:var(--muted)"> · ${a.category}</span>
-          <div style="font-size:0.75rem;color:var(--dim);margin-top:2px;font-style:italic">${a.film}</div>
-        </div>
-      </div>`;
-    }).join('');
-    awardsHtml = `<div class="awards-section-title">98th Academy Awards (2026)</div>${items}`;
-  }
-
-  return `<div class="breakdown-inner">${filmRows}${awardsHtml}</div>`;
-}
 
 // ============================================================
 // RENDER TABLE
@@ -1348,20 +1063,14 @@ let currentFilter = 'all';
 function updateHeader() {
   const header = document.getElementById('table-header');
   if (currentFilter === 'all') {
-    header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th class="pts" style="font-size:0.6rem">Week +/-</th><th></th>`;
+    header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th></th>`;
   } else {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
-    const extraCol = currentFilter === 'musician'
-      ? `<th class="pts" style="font-size:0.6rem">#1 Wks</th><th class="pts" style="font-size:0.6rem">Top 10 Wks</th>`
-      : currentFilter === 'ncaab'
-      ? `<th class="pts" style="font-size:0.6rem">Bracket</th>`
-      : '';
     header.innerHTML = `
       <th>#</th>
       <th>Player / Pick</th>
-      ${extraCol}
       <th class="pts" style="font-size:0.6rem">${statLabel}</th>
-      <th class="pts" style="font-size:0.6rem">Points</th>
+      <th class="pts" style="font-size:0.6rem">Regular</th>
       <th class="pts" style="font-size:0.6rem">Bonus Pts</th>
       <th class="pts" style="font-size:0.6rem">Total</th>
       <th></th>
@@ -1399,41 +1108,28 @@ function renderTable() {
     const tr = document.createElement('tr');
     tr.className = 'player-row';
     tr.id = 'row-' + idx;
-    const isBuckley = false; // temporarily disabled 2026-04-29
-    const toddPaywalled = isTodd;
-    tr.onclick = toddPaywalled ? () => openToddModal() : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
+    const isBuckley = player.name === 'Buckley';
+    tr.onclick = isTodd ? () => openToddModal() : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
 
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
-    if (toddPaywalled) {
-      const toddChangeCel = currentFilter === 'all' ? `<td class="change-cell delta-same">??</td>` : '';
+    if (isTodd) {
+      const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '';
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
           <div class="player-name todd-name"><span class="todd-lock-icon">🔒</span> Todd</div>
-          <div class="todd-teaser">Premium subscription required</div>
+          <div class="todd-teaser">Score hidden — premium subscription required</div>
         </td>
         <td class="score-cell todd-score">??</td>
-        ${toddChangeCel}
+        ${extraCols}
         <td class="expand-cell">$</td>
       `;
     } else if (currentFilter === 'all') {
-      const snap = window.PREV_SNAPSHOT || {};
-      const prevRank  = (snap.ranks  || {})[player.name];
-      const prevTotal = (snap.totals || {})[player.name];
-      const rankDelta  = (prevRank  != null) ? prevRank  - rank                      : null;
-      const scoreDelta = (prevTotal != null) ? (player.total || 0) - prevTotal        : null;
-      const rdClass = rankDelta == null ? 'delta-same' : rankDelta > 0 ? 'delta-up' : rankDelta < 0 ? 'delta-down' : 'delta-same';
-      const rdText  = rankDelta == null ? '—' : rankDelta > 0 ? `▲${rankDelta}` : rankDelta < 0 ? `▼${Math.abs(rankDelta)}` : '—';
-      const rankDeltaSpan = `<span class="rank-delta ${rdClass}">${rdText}</span>`;
-      const scClass = scoreDelta == null || Math.abs(scoreDelta) < 0.05 ? 'delta-same' : scoreDelta > 0 ? 'delta-up' : 'delta-down';
-      const scText  = scoreDelta == null || Math.abs(scoreDelta) < 0.05 ? '—'
-        : scoreDelta > 0 ? `+${scoreDelta.toFixed(1)}` : `${scoreDelta.toFixed(1)}`;
       tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}${rankDeltaSpan}</td>
+        <td class="rank-cell ${rankClass}">${rank}</td>
         <td><div class="player-name">${player.name}</div></td>
         <td class="score-cell">${(player.total || 0).toFixed(1)}</td>
-        <td class="change-cell ${scClass}">${scText}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
       `;
     } else {
@@ -1443,16 +1139,9 @@ function renderTable() {
       const statVal = statFmt.fmt ? statFmt.fmt(catData) : '–';
       const regular = catData.baseline_pts !== undefined ? catData.baseline_pts.toFixed(1) : '–';
       const bonus = catData.bonus_pts !== undefined && catData.bonus_pts > 0 ? '+' + catData.bonus_pts.toFixed(1) : '–';
-      const bracketPts = catData.bracket_win_pts != null && catData.bracket_win_pts > 0 ? catData.bracket_win_pts : null;
       const total = catData.baseline_pts !== undefined
-        ? (catData.baseline_pts + (catData.bonus_pts || 0) + (catData.bracket_win_pts || 0)).toFixed(1)
+        ? (catData.baseline_pts + (catData.bonus_pts || 0)).toFixed(1)
         : '–';
-
-      const num1Col = currentFilter === 'musician'
-        ? `<td class="stat-col">${catData.num1_weeks != null ? catData.num1_weeks : '–'}</td><td class="stat-col">${catData.hot100_weeks != null ? catData.hot100_weeks : '–'}</td>`
-        : currentFilter === 'ncaab'
-        ? `<td class="stat-col">${bracketPts != null ? '+' + bracketPts.toFixed(1) : '–'}</td>`
-        : '';
 
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
@@ -1460,7 +1149,6 @@ function renderTable() {
           <div class="player-name">${player.name}</div>
           <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${pick}</div>
         </td>
-        ${num1Col}
         <td class="stat-col primary">${statVal}</td>
         <td class="stat-col">${regular}</td>
         <td class="stat-col bonus-col">${bonus}</td>
@@ -1471,53 +1159,45 @@ function renderTable() {
 
     tbody.appendChild(tr);
 
-    // Breakdown row (non-Todd, or Todd on category tabs)
-    if (!toddPaywalled) {
+    // Breakdown row (non-Todd only)
+    if (!isTodd) {
       const br = document.createElement('tr');
       br.className = 'breakdown-row';
       br.id = 'breakdown-' + idx;
 
       const td = document.createElement('td');
       td.className = 'breakdown-cell';
-      td.colSpan = currentFilter === 'all' ? 5 : (currentFilter === 'musician' ? 9 : 7);
+      td.colSpan = currentFilter === 'all' ? 4 : 7;
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {
-        const aP = (cats[a] || {}).baseline_pts !== undefined ? ((cats[a].baseline_pts || 0) + (cats[a].bonus_pts || 0)) : -Infinity;
-        const bP = (cats[b] || {}).baseline_pts !== undefined ? ((cats[b].baseline_pts || 0) + (cats[b].bonus_pts || 0)) : -Infinity;
+        const aP = (cats[a] || {}).baseline_pts ?? -Infinity;
+        const bP = (cats[b] || {}).baseline_pts ?? -Infinity;
         return bP - aP;
       });
       const items = sortedCats.map(cat => {
         const c = cats[cat] || {};
-        const total = c.baseline_pts !== undefined ? (c.baseline_pts + (c.bonus_pts || 0)) : null;
-        const ptsDisplay = total !== null ? total.toFixed(1) : '–';
+        const pts = c.baseline_pts !== undefined ? c.baseline_pts : null;
+        const ptsDisplay = pts !== null ? pts.toFixed(1) : '–';
         const pick = c.pick || '–';
+        const bonus = c.bonus_pts ? `<span class="bonus-pts"> +${c.bonus_pts}✦</span>` : '';
         let tierClass = '';
         let ptsColorClass = '';
-        if (total !== null) {
-          if (total >= 10) { tierClass = 'tier-high'; ptsColorClass = 'pts-high'; }
-          else if (total >= 6) { tierClass = 'tier-mid'; ptsColorClass = 'pts-mid'; }
+        if (pts !== null) {
+          if (pts >= 10) { tierClass = 'tier-high'; ptsColorClass = 'pts-high'; }
+          else if (pts >= 6) { tierClass = 'tier-mid'; ptsColorClass = 'pts-mid'; }
           else { tierClass = 'tier-low'; ptsColorClass = 'pts-low'; }
         }
         return `
           <div class="cat-item ${tierClass}">
             <span class="cat-name">${CAT_LABELS[cat]}</span>
             <span class="cat-pick">${pick}</span>
-            <span class="cat-pts ${ptsColorClass}">${ptsDisplay}</span>
+            <span class="cat-pts ${ptsColorClass}">${ptsDisplay}${bonus}</span>
           </div>
         `;
       }).join('');
 
-      if (currentFilter === 'actor' || currentFilter === 'actress') {
-        const catData = (player.categories || {})[currentFilter] || {};
-        const catType = currentFilter === 'actor' ? 'Actor' : 'Actress';
-        td.innerHTML = buildFilmographyBreakdown(catData.pick, catData.movies, catType);
-      } else if (currentFilter === 'musician') {
-        const catData = (player.categories || {})['musician'] || {};
-        td.innerHTML = buildMusicianBreakdown(catData.pick, catData.songs);
-      } else {
-        td.innerHTML = `<div class="breakdown-inner"><div class="breakdown-grid">${items}</div></div>`;
-      }
+      td.innerHTML = `<div class="breakdown-inner"><div class="breakdown-grid">${items}</div></div>`;
       br.appendChild(td);
       tbody.appendChild(br);
     }
@@ -1552,11 +1232,26 @@ function setFilter(cat, btn) {
 }
 
 // ============================================================
+// STRIPE PAYMENT LINKS
+// ============================================================
+const STRIPE_LINKS = {
+  1: 'https://buy.stripe.com/eVqfZg5bT4s16BO1OEg7e00',
+  2: 'https://buy.stripe.com/aFa4gy6fX2jT9O01OEg7e01',
+  3: 'https://buy.stripe.com/6oU9AS5bTaQp6BO3WMg7e02',
+};
+const FLASK_API = '';  // unused with Payment Links
+
+// ============================================================
 // TODD PAYWALL
 // ============================================================
 function openToddModal() {
   document.getElementById('todd-modal').classList.add('open');
-  showPhase(1);
+  if (localStorage.getItem('todd_unlocked') === '1') {
+    renderToddReveal();
+    showPhase(3);
+  } else {
+    showPhase(1);
+  }
 }
 
 function closeToddModal() {
@@ -1591,9 +1286,18 @@ function startPayment(tier) {
     i++;
     if (i >= processingMessages.length) {
       clearInterval(interval);
-      setTimeout(() => showPhase(3), 600);
+      window.location.href = STRIPE_LINKS[tier] || STRIPE_LINKS[1];
     }
   }, 500);
+}
+
+function renderToddReveal() {
+  const todd = (window.SCORES_DATA || []).find(p => p.name === 'Todd');
+  if (!todd) return;
+  const rankEl = document.getElementById('todd-reveal-rank');
+  const totalEl = document.getElementById('todd-reveal-total');
+  if (rankEl) rankEl.textContent = todd.place || '?';
+  if (totalEl) totalEl.textContent = (todd.total || 0).toFixed(1);
 }
 
 const disputeResponses = [
@@ -1653,25 +1357,34 @@ function closeBuckley() {
 fetch('./scores.json')
   .then(r => r.json())
   .then(data => {
-    window.SCORES_DATA   = data.players       || [];
-    window.LAST_UPDATED  = data.last_updated  || '';
-    window.PREV_SNAPSHOT = data.prev_snapshot || {};
+    window.SCORES_DATA = data.players || [];
+    window.LAST_UPDATED = data.last_updated || '';
+    if (data.headline) {
+      document.getElementById('news-bar-headline').innerHTML = data.headline;
+    }
     initDisplay();
     renderTable();
-    const tickerEl = document.getElementById('news-ticker-text');
-    if (tickerEl) tickerEl.textContent = data.headline || '';
+    checkStripeReturn();
   })
   .catch(() => {
     renderTable(); // render empty state
   });
+
+// Check if user is returning from a completed Stripe Payment Link
+function checkStripeReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('todd_unlocked') !== '1') return;
+
+  // Clean the param off the URL immediately
+  window.history.replaceState({}, '', window.location.pathname);
+
+  localStorage.setItem('todd_unlocked', '1');
+  openToddModal(); // openToddModal checks localStorage and jumps to phase 3
+}
 </script>
 
-  <div style="text-align:center; padding: 1.5rem 1rem; color: var(--muted); font-size: 0.85rem;">
-    Questions? Contact <a href="mailto:tgrover8@gmail.com" style="color: var(--blue); text-decoration: none;">customer service</a>.
-  </div>
-
   <footer class="site-footer">
-    <div class="site-footer-copy">Created 2011, Ratified 2022 by Tim · Wu · Jens · Todd · Mitchell · Shep · Theo · Feder · Fryar · Korch · Molmen · Jamzee · Buckley</div>
+    <div class="site-footer-copy">© Copyright 2011, Ratified 2022 by Tim · Wu · Jens · Todd · Mitchell · Shep · Theo · Feder · Fryar · Korch · Molmen · Jamzee · Buckley</div>
   </footer>
 
   <!-- BUCKLEY FAN SITE OVERLAY -->

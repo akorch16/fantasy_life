@@ -4,12 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fantasy Life 2026</title>
-  <meta property="og:title" content="Fantasy Life 2026" />
-  <meta property="og:description" content="Live leaderboard for the 2026 Fantasy Life season." />
-  <meta property="og:image" content="{{ url_for('static', filename='todd.jpg', _external=True) }}" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="{{ url_for('static', filename='todd.jpg', _external=True) }}" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -452,44 +446,6 @@
       .roast-score-display { font-size: 2rem; }
     }
 
-    /* ─── MOBILE RESPONSIVE ─── */
-    @media (max-width: 600px) {
-      /* Header */
-      header { padding: 0 12px; }
-      .header-meta { display: none; }
-      .header-stats { gap: 10px; }
-      .header-stat-num { font-size: 1rem; }
-      .header-stat-label { font-size: 0.48rem; }
-
-      /* Page */
-      .page { padding: 20px 12px 60px; }
-
-      /* Season hero */
-      .season-hero { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 24px; }
-      .season-title { white-space: normal; }
-      .season-stats { gap: 16px; }
-      .stat-num { font-size: 1.7rem; }
-      .todd-hero { display: none; }
-
-      /* Filter */
-      .filter-group { flex-wrap: wrap; }
-      .filter-btn { padding: 5px 9px; font-size: 0.68rem; }
-
-      /* Table */
-      .standings-table thead th { padding: 6px 6px; font-size: 0.58rem; }
-      .player-row td { padding: 10px 6px; }
-      .player-name { font-size: 0.85rem; }
-      .score-cell { font-size: 1.1rem; }
-      .stat-col { font-size: 0.72rem; }
-      .stat-col.primary { font-size: 0.78rem; }
-      .stat-col.total-col { font-size: 1.1rem; }
-      .stat-col.bonus-col { display: none; }
-      .standings-table thead th.bonus-col { display: none; }
-      .todd-teaser { font-size: 0.62rem; }
-      .rank-cell { width: 32px; font-size: 0.72rem; }
-      .standings-table thead th:first-child { width: 32px; }
-    }
-
     .modal-close {
       position: absolute;
       top: 16px; right: 16px;
@@ -782,7 +738,6 @@
     <div class="header-todd" onclick="openToddModal()" title="Todd's Score">
       <img id="header-todd-img" src="" alt="Todd" />
     </div>
-    <a href="/calendar" class="admin-link">CALENDAR</a>
     <a href="/admin" class="admin-link">ADMIN</a>
   </div>
 </header>
@@ -1008,10 +963,10 @@ const CAT_STAT = {
   ncaab:   { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
   tennis:  { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
   golf:    { label: 'Rank',      fmt: c => c.raw_value != null ? '#' + c.raw_value : '–' },
-  nascar:  { label: 'Sprint Cup', fmt: c => c.raw_value != null ? c.raw_value : '–' },
+  nascar:  { label: 'Points',    fmt: c => c.raw_value != null ? c.raw_value : '–' },
   mls:     { label: 'Points',    fmt: c => c.raw_value != null ? c.raw_value : '–' },
-  actor:   { label: 'Box Score',  fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
-  actress: { label: 'Box Score',  fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
+  actor:   { label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
+  actress: { label: 'Score',     fmt: c => c.raw_value != null ? c.raw_value.toFixed(1) : '–' },
   musician:{ label: 'Wks Top10', fmt: c => c.raw_value != null ? c.raw_value : '–' },
   country: { label: 'GDP Chg%',  fmt: c => c.raw_value != null ? c.raw_value.toFixed(2) + '%' : '–' },
   stock:   { label: 'YTD Chg',   fmt: c => c.raw_display != null ? c.raw_display : (c.raw_value != null ? c.raw_value.toFixed(1) + '%' : '–') },
@@ -1028,14 +983,12 @@ function updateHeader() {
     header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th></th>`;
   } else {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
-    const extraHeader = currentFilter === 'musician' ? `<th class="pts" style="font-size:0.6rem">#1 Wks</th><th class="pts" style="font-size:0.6rem">Top 10 Wks</th>` : '';
     header.innerHTML = `
       <th>#</th>
       <th>Player / Pick</th>
       <th class="pts" style="font-size:0.6rem">${statLabel}</th>
-      ${extraHeader}
-      <th class="pts" style="font-size:0.6rem">Points</th>
-      <th class="pts bonus-col" style="font-size:0.6rem">Bonus</th>
+      <th class="pts" style="font-size:0.6rem">Regular</th>
+      <th class="pts" style="font-size:0.6rem">Bonus</th>
       <th class="pts" style="font-size:0.6rem">Total</th>
       <th></th>
     `;
@@ -1077,7 +1030,7 @@ function renderTable() {
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
     if (isTodd) {
-      const extraCols = currentFilter !== 'all' ? `<td></td>${currentFilter === 'musician' ? '<td></td><td></td>' : ''}<td></td><td></td><td></td>` : '';
+      const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '';
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
@@ -1106,10 +1059,6 @@ function renderTable() {
         ? (catData.baseline_pts + (catData.bonus_pts || 0)).toFixed(1)
         : '–';
 
-      const num1Cell = currentFilter === 'musician'
-        ? `<td class="stat-col">${catData.num1_weeks != null ? catData.num1_weeks : '–'}</td><td class="stat-col">${catData.hot100_weeks != null ? catData.hot100_weeks : '–'}</td>`
-        : '';
-
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
@@ -1117,7 +1066,6 @@ function renderTable() {
           <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${pick}</div>
         </td>
         <td class="stat-col primary">${statVal}</td>
-        ${num1Cell}
         <td class="stat-col">${regular}</td>
         <td class="stat-col bonus-col">${bonus}</td>
         <td class="stat-col total-col">${total}</td>
@@ -1135,7 +1083,7 @@ function renderTable() {
 
       const td = document.createElement('td');
       td.className = 'breakdown-cell';
-      td.colSpan = currentFilter === 'all' ? 4 : (currentFilter === 'musician' ? 9 : 7);
+      td.colSpan = currentFilter === 'all' ? 4 : 7;
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {
@@ -1146,8 +1094,7 @@ function renderTable() {
       const items = sortedCats.map(cat => {
         const c = cats[cat] || {};
         const pts = c.baseline_pts !== undefined ? c.baseline_pts : null;
-        const total = pts !== null ? pts + (c.bonus_pts || 0) : null;
-        const totalDisplay = total !== null ? total.toFixed(1) : '–';
+        const ptsDisplay = pts !== null ? pts.toFixed(1) : '–';
         const pick = c.pick || '–';
         const bonus = c.bonus_pts ? `<span class="bonus-pts"> +${c.bonus_pts}✦</span>` : '';
         let tierClass = '';
@@ -1157,15 +1104,6 @@ function renderTable() {
           else if (pts >= 6) { tierClass = 'tier-mid'; ptsColorClass = 'pts-mid'; }
           else { tierClass = 'tier-low'; ptsColorClass = 'pts-low'; }
         }
-        if (currentFilter === 'all') {
-          return `
-            <div class="cat-item ${tierClass}">
-              <span class="cat-name">${CAT_LABELS[cat]}</span>
-              <span class="cat-pts ${ptsColorClass}">${totalDisplay}${bonus}</span>
-            </div>
-          `;
-        }
-        const ptsDisplay = pts !== null ? pts.toFixed(1) : '–';
         return `
           <div class="cat-item ${tierClass}">
             <span class="cat-name">${CAT_LABELS[cat]}</span>

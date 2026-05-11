@@ -3,8 +3,9 @@ db.py — Supabase database layer for Fantasy Life 2026
 Replaces local JSON file reads/writes with persistent Postgres via Supabase REST API.
 """
 
-import os, json, requests, threading
+import os, requests, threading
 from datetime import datetime
+from typing import Optional
 
 _bonus_lock = threading.Lock()
 
@@ -25,6 +26,25 @@ def _headers():
     }
 
 # ── Standings ────────────────────────────────────────────────────────────────
+
+def get_last_updated() -> Optional[str]:
+    """Return the most recent standings updated_at as a human-readable UTC string."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return None
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/standings',
+            headers=_headers(),
+            params={'select': 'updated_at', 'order': 'updated_at.desc', 'limit': '1'},
+            timeout=_TIMEOUT,
+        )
+        rows = r.json()
+        if rows:
+            dt = datetime.fromisoformat(rows[0]['updated_at'].replace('Z', '+00:00'))
+            return dt.strftime('%Y-%m-%d %H:%M UTC')
+    except Exception:
+        pass
+    return None
 
 def get_standing(category: str) -> dict:
     if not SUPABASE_URL or not SUPABASE_KEY:
@@ -78,10 +98,8 @@ def is_frozen(category: str) -> bool:
     except Exception:
         return False
 
-def save_standing(category: str, data: dict, frozen: bool = None, write_local: bool = True) -> bool:
-    """Upsert standings data for a category. Pass frozen=True/False to change freeze state.
-    Set write_local=False to skip overwriting the local data/*.json (used for manually-maintained categories)."""
-    import json as _json, os as _os
+def save_standing(category: str, data: dict, frozen: bool = None) -> bool:
+    """Upsert standings data for a category. Pass frozen=True/False to change freeze state."""
     payload = {
         'category': category,
         'data': data,
@@ -99,16 +117,6 @@ def save_standing(category: str, data: dict, frozen: bool = None, write_local: b
     ok = r.status_code in (200, 201)
     if ok:
         print(f'  ✓ {category} saved to Supabase')
-        # Also write local backup so scoring.py can fall back if Supabase is stale
-        if write_local:
-            try:
-                data_dir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'data')
-                local_path = _os.path.join(data_dir, f'{category.lower()}.json')
-                if _os.path.exists(local_path):
-                    with open(local_path, 'w') as f:
-                        _json.dump(data, f)
-            except Exception:
-                pass
     else:
         print(f'  ✗ {category} save failed: {r.status_code} {r.text}')
     return ok
