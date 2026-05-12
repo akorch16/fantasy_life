@@ -45,23 +45,34 @@
       z-index: 100;
     }
     .logo {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
       color: var(--text);
       text-decoration: none;
     }
-    .logo span { color: var(--accent); }
-    .back-link {
+    .logo span { color: var(--blue); }
+    .header-logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center top;
+      background-image: url('./todd.jpg');
+      display: block;
+    }
+    .nav-link {
       font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--muted);
       text-decoration: none;
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
-    .back-link:hover { color: var(--text); }
+    .nav-link:hover { color: var(--text); }
+    .nav-link.active { color: var(--blue); }
 
     /* ── PAGE ── */
     .page {
@@ -288,8 +299,15 @@
 <body>
 
 <header>
-  <a href="./index.html" class="logo">Fantasy<span>Life</span></a>
-  <a href="./index.html" class="back-link">← Standings</a>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="./index.html" class="header-logo-img"></a>
+    <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <a href="./rules.html" class="nav-link active">Rules</a>
+    <a href="./calendar.html" class="nav-link">Calendar</a>
+    <a href="./trips.html" class="nav-link">Trips</a>
+  </div>
 </header>
 
 <div class="page">
