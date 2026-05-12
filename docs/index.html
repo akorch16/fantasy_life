@@ -833,7 +833,7 @@
 <div class="news-bar" id="news-bar">
   <div class="news-bar-left">
     <div class="news-bar-label">📡 FL News</div>
-    <div class="news-bar-updated"><span style="opacity:0.5">updated </span><span id="news-bar-updated">loading…</span></div>
+    <div class="news-bar-updated"><span style="opacity:0.5">updated </span><span id="news-bar-updated"></span></div>
   </div>
   <div class="news-bar-headline" id="news-bar-headline">
     🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em> — Jamzee's actress pick quietly printing points while everyone sleeps.
@@ -1034,19 +1034,15 @@ function initDisplay() {
   const weeks = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
   document.getElementById('weeks-elapsed').textContent = Math.max(0, weeks);
 
-  const ptOpts = { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Los_Angeles', timeZoneName: 'short' };
-  let updatedStr;
-  try {
-    const raw = window.LAST_UPDATED || '';
-    const d = raw
-      ? new Date(raw.replace(' UTC', 'Z').replace(' ', 'T'))
-      : new Date();
-    updatedStr = d.toLocaleString('en-US', ptOpts);
-  } catch(e) {
-    updatedStr = window.LAST_UPDATED || new Date().toLocaleString('en-US', ptOpts);
-  }
   const nbEl = document.getElementById('news-bar-updated');
-  if (nbEl) nbEl.textContent = updatedStr;
+  if (nbEl && window.LAST_UPDATED) {
+    try {
+      const d = new Date(window.LAST_UPDATED.replace(' UTC', 'Z').replace(' ', 'T'));
+      nbEl.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Los_Angeles' });
+    } catch(e) {
+      nbEl.textContent = window.LAST_UPDATED;
+    }
+  }
 }
 
 // Per-category stat label and value formatter
@@ -1076,7 +1072,7 @@ let currentFilter = 'all';
 function updateHeader() {
   const header = document.getElementById('table-header');
   if (currentFilter === 'all') {
-    header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th></th>`;
+    header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th class="pts">Wk +/-</th><th></th>`;
   } else {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
     header.innerHTML = `
@@ -1140,7 +1136,7 @@ function renderTable() {
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
     if (isTodd) {
-      const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '';
+      const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '<td></td>';
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td>
@@ -1155,7 +1151,8 @@ function renderTable() {
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td><div class="player-name">${player.name}</div></td>
-        <td class="score-cell">${(player.total || 0).toFixed(1)}${weekDeltaHtml(player.week_delta)}</td>
+        <td class="score-cell">${(player.total || 0).toFixed(1)}</td>
+        <td class="score-cell">${weekDeltaHtml(player.week_delta)}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
       `;
     } else {
@@ -1193,7 +1190,7 @@ function renderTable() {
 
       const td = document.createElement('td');
       td.className = 'breakdown-cell';
-      td.colSpan = currentFilter === 'all' ? 4 : 7;
+      td.colSpan = currentFilter === 'all' ? 5 : 7;
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {
