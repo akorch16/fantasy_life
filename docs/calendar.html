@@ -33,15 +33,15 @@
     }
 
     header {
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 0 32px;
+      padding: 0 24px;
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 56px;
       position: sticky;
       top: 0;
-      background: var(--bg);
       z-index: 100;
     }
 
@@ -66,11 +66,10 @@
     .nav-link {
       color: var(--muted);
       text-decoration: none;
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       font-family: 'DM Mono', monospace;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      transition: color 0.15s;
     }
     .nav-link:hover { color: var(--text); }
     .nav-link.active { color: var(--blue); }
