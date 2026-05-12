@@ -308,6 +308,14 @@
     .rank-2 { }
     .rank-3 { }
 
+    .place-change { font-size:0.55rem; font-family:'DM Mono',monospace; letter-spacing:0.02em; display:block; margin-top:2px; }
+    .place-change.up   { color: var(--green); }
+    .place-change.down { color: var(--red); }
+    .place-change.flat { color: var(--dim); }
+    .week-delta { font-family:'DM Mono',monospace; font-size:0.7rem; font-weight:500; margin-left:8px; }
+    .week-delta.pos { color: var(--green); }
+    .week-delta.neg { color: var(--red); }
+
     .player-name {
       font-size: 0.95rem;
       font-weight: 500;
@@ -1106,6 +1114,19 @@ function renderTable() {
     });
   }
 
+  function placeChangeHtml(pc) {
+    if (pc == null) return '';
+    if (pc > 0) return `<span class="place-change up">▲${pc}</span>`;
+    if (pc < 0) return `<span class="place-change down">▼${Math.abs(pc)}</span>`;
+    return `<span class="place-change flat">—</span>`;
+  }
+  function weekDeltaHtml(wd) {
+    if (wd == null) return '';
+    if (wd > 0) return `<span class="week-delta pos">+${wd.toFixed(1)}</span>`;
+    if (wd < 0) return `<span class="week-delta neg">${wd.toFixed(1)}</span>`;
+    return `<span class="week-delta flat" style="color:var(--dim)">+0.0</span>`;
+  }
+
   sorted.forEach((player, idx) => {
     const isTodd = player.name === 'Todd';
     const rank = idx + 1;
@@ -1121,7 +1142,7 @@ function renderTable() {
     if (isTodd) {
       const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '';
       tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}</td>
+        <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td>
           <div class="player-name todd-name"><span class="todd-lock-icon">🔒</span> Todd</div>
           <div class="todd-teaser">Score hidden — premium subscription required</div>
@@ -1132,9 +1153,9 @@ function renderTable() {
       `;
     } else if (currentFilter === 'all') {
       tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}</td>
+        <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td><div class="player-name">${player.name}</div></td>
-        <td class="score-cell">${(player.total || 0).toFixed(1)}</td>
+        <td class="score-cell">${(player.total || 0).toFixed(1)}${weekDeltaHtml(player.week_delta)}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
       `;
     } else {
@@ -1149,7 +1170,7 @@ function renderTable() {
         : '–';
 
       tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}</td>
+        <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td>
           <div class="player-name">${player.name}</div>
           <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${pick}</div>

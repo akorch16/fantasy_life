@@ -728,17 +728,35 @@ if __name__ == '__main__':
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, 'scores.json')
 
-    # Preserve existing headline so a Claude failure never blanks the news bar
+    # Read previous scores for week-over-week deltas and to preserve headline
     existing_headline = ''
+    prev_totals: dict = {}
+    prev_places: dict = {}
     try:
         with open(out_path) as _f:
-            existing_headline = json.load(_f).get('headline', '')
+            prev = json.load(_f)
+            existing_headline = prev.get('headline', '')
+            for p in prev.get('players', []):
+                name = p.get('name', '')
+                if name:
+                    prev_totals[name] = p.get('total', 0)
+                    prev_places[name] = p.get('place', 0)
     except Exception:
         pass
 
     print('Computing scores...')
     data = compute_all_scores()
     data['headline'] = existing_headline
+
+    # Attach week-over-week deltas
+    for p in data.get('players', []):
+        name = p['name']
+        if name in prev_totals:
+            p['week_delta'] = round(p['total'] - prev_totals[name], 2)
+            p['place_change'] = prev_places.get(name, p['place']) - p['place']
+        else:
+            p['week_delta'] = None
+            p['place_change'] = None
 
     # Write scores first — headline failure must never block the leaderboard
     with open(out_path, 'w') as f:
