@@ -205,17 +205,20 @@
     }
 
     .trip-row {
-      display: grid;
-      grid-template-columns: 60px 1fr;
+      display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 16px;
+      gap: 0 16px;
       padding: 12px 18px;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 6px;
       transition: border-color 0.15s;
+      cursor: default;
     }
+    .trip-row.has-photos { cursor: pointer; }
     .trip-winner-location {
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 2px;
@@ -261,6 +264,31 @@
       color: var(--muted);
     }
     .trip-location.tbd { color: var(--dim); font-style: italic; }
+
+    .trip-chevron {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 0.75rem;
+      transition: transform 0.2s;
+      align-self: center;
+    }
+    .trip-row.open .trip-chevron { transform: rotate(180deg); }
+
+    .trip-photos {
+      display: none;
+      width: 100%;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding-top: 10px;
+    }
+    .trip-row.open .trip-photos { display: flex; }
+    .trip-photos img {
+      height: 140px;
+      width: auto;
+      border-radius: 4px;
+      object-fit: cover;
+      flex: 0 0 auto;
+    }
 
     /* ── NEXT TRIP ── */
     .next-trip-card {
@@ -433,7 +461,8 @@
       .page { padding: 24px 12px 60px; }
       header { padding: 0 16px; }
       .map-wrap { height: 300px; }
-      .trip-row { grid-template-columns: 52px 1fr; padding: 10px 14px; }
+      .trip-row { padding: 10px 14px; }
+      .trip-photos img { height: 110px; }
       .wins-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
@@ -551,35 +580,53 @@
       </div>
     </div>
 
-    <div class="trip-row">
+    <div class="trip-row has-photos" onclick="toggleTripPhotos(this)">
       <div class="trip-year">2016</div>
       <div class="trip-winner-location">
         <div class="trip-winner">Theo Lee</div>
         <div class="trip-location">Lake Tahoe, NV</div>
       </div>
+      <div class="trip-chevron">▾</div>
+      <div class="trip-photos">
+        <img src="./tahoe-trip-2016.jpeg" alt="Tahoe 2016" loading="lazy">
+        <img src="./tahoe-trip-2016.JPG" alt="Tahoe 2016" loading="lazy">
+      </div>
     </div>
 
-    <div class="trip-row">
+    <div class="trip-row has-photos" onclick="toggleTripPhotos(this)">
       <div class="trip-year">2015</div>
       <div class="trip-winner-location">
         <div class="trip-winner">Todd Grover</div>
         <div class="trip-location">New Orleans, LA</div>
       </div>
+      <div class="trip-chevron">▾</div>
+      <div class="trip-photos">
+        <img src="./new-orleans-trip-2015.JPG" alt="New Orleans 2015" loading="lazy">
+        <img src="./new-orleans-trip-2015-2.JPG" alt="New Orleans 2015" loading="lazy">
+      </div>
     </div>
 
-    <div class="trip-row">
+    <div class="trip-row has-photos" onclick="toggleTripPhotos(this)">
       <div class="trip-year">2014</div>
       <div class="trip-winner-location">
         <div class="trip-winner">Anthony Fryar</div>
         <div class="trip-location">Nashville, TN</div>
       </div>
+      <div class="trip-chevron">▾</div>
+      <div class="trip-photos">
+        <img src="./nashville-trip-2014.jpg" alt="Nashville 2014" loading="lazy">
+      </div>
     </div>
 
-    <div class="trip-row">
+    <div class="trip-row has-photos" onclick="toggleTripPhotos(this)">
       <div class="trip-year">2013</div>
       <div class="trip-winner-location">
         <div class="trip-winner">Tim Marcroft</div>
         <div class="trip-location">Las Vegas, NV</div>
+      </div>
+      <div class="trip-chevron">▾</div>
+      <div class="trip-photos">
+        <img src="./vegas-trip-2013.JPG" alt="Las Vegas 2013" loading="lazy">
       </div>
     </div>
 
@@ -862,6 +909,11 @@
       ${latestBadge}
     `);
   });
+</script>
+<script>
+function toggleTripPhotos(row) {
+  row.classList.toggle('open');
+}
 </script>
 
 </body>
