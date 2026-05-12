@@ -110,6 +110,15 @@ body {
 .about-header { background:linear-gradient(90deg,#003366,#0066cc,#003366); color:#00ffff; font-size:18px; font-weight:bold; padding:8px; text-align:center; text-shadow:0 0 10px #00ffff; letter-spacing:2px; }
 .about-body { padding:12px; font-size:13px; line-height:1.7; color:#ccddff; }
 
+.top8-box { background:#000033; border:4px solid #ff69b4; margin-bottom:10px; overflow:hidden; }
+.top8-header { background:linear-gradient(90deg,#660044,#cc0077,#660044); color:#ffff00; font-size:16px; font-weight:bold; padding:8px; text-align:center; text-shadow:1px 1px 0 #000; letter-spacing:2px; text-transform:uppercase; }
+.top8-subheader { text-align:center; font-size:10px; color:#ff69b4; padding:3px 0 6px; }
+.top8-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:10px; }
+.top8-friend { text-align:center; }
+.top8-friend img { width:100%; aspect-ratio:1; object-fit:cover; object-position:top; border:3px solid #ff69b4; display:block; }
+.top8-friend img:hover { border-color:#ffff00; cursor:pointer; }
+.top8-friend-name { font-size:10px; color:#ffff00; margin-top:3px; font-weight:bold; }
+.top8-friend-link { font-size:9px; color:#ff69b4; text-decoration:underline; cursor:pointer; }
 .gallery-box { background:#000033; border:4px solid #ffff00; margin-bottom:10px; overflow:hidden; }
 .gallery-header { background:linear-gradient(90deg,#664400,#cc8800,#664400); color:#ffff00; font-size:16px; font-weight:bold; padding:8px; text-align:center; text-shadow:1px 1px 0 #000; letter-spacing:2px; }
 .gallery-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:8px; }
@@ -368,6 +377,14 @@ a:hover { color:#ffff00; }
         <p>It is not for lack of confidence. It is not for lack of words. Scott has <span class="hot-pink">many, many words</span> about his team. He will explain at length why his picks make sense. His picks do not make sense. This is the paradox of Scott Buckley: brilliant man, tragic fantasy manager. Harvard could not teach him this. Nothing can.</p>
         <br>
         <p style="text-align:center;font-size:13px;color:#ff9999;font-style:italic;">"Any year now." -- Scott Buckley, every single year, no exceptions</p>
+      </div>
+    </div>
+
+    <div class="top8-box">
+      <div class="top8-header">💕 Scott's Top 8 💕</div>
+      <div class="top8-subheader">his closest friends (all of them are scott buckley)</div>
+      <div class="top8-grid" id="top8-grid">
+        <!-- populated by JS below -->
       </div>
     </div>
 
@@ -711,6 +728,20 @@ for(let i=0;i<35;i++){
 }
 
 // Lightbox
+// Top 8 — all 8 friends are Scott Buckley
+(function() {
+  const imgIds = ['img2','img3','img4','img5','img6','img8','img9','img10'];
+  const names = ['Scott Buckley','Scott Buckley','Scott Buckley','Scott Buckley','Scott Buckley','Scott Buckley','Scott Buckley','Scott Buckley'];
+  const grid = document.getElementById('top8-grid');
+  imgIds.forEach(function(id, i) {
+    const src = document.getElementById(id).src;
+    const div = document.createElement('div');
+    div.className = 'top8-friend';
+    div.innerHTML = '<img src="'+src+'" alt="Scott Buckley" onclick="openLightbox(this.src,\'Scott Buckley — a true friend.\')"><div class="top8-friend-name">'+names[i]+'</div><div class="top8-friend-link">💕 View Profile</div>';
+    grid.appendChild(div);
+  });
+})();
+
 function openLightbox(src,caption){
   document.getElementById('lightbox-img').src=src;
   document.getElementById('lightbox-caption').textContent=caption;
