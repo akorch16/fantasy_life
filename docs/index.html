@@ -1199,8 +1199,10 @@ function renderTable() {
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {
-        const aP = (cats[a] || {}).baseline_pts ?? -Infinity;
-        const bP = (cats[b] || {}).baseline_pts ?? -Infinity;
+        const aC = cats[a] || {};
+        const bC = cats[b] || {};
+        const aP = aC.baseline_pts !== undefined ? aC.baseline_pts + (aC.bonus_pts || 0) : -Infinity;
+        const bP = bC.baseline_pts !== undefined ? bC.baseline_pts + (bC.bonus_pts || 0) : -Infinity;
         return bP - aP;
       });
       const items = sortedCats.map(cat => {
