@@ -363,18 +363,18 @@
       align-items: center;
       gap: 8px;
       padding: 9px 18px;
-      background: var(--blue-dim);
+      background: var(--blue);
       border: 1px solid var(--blue);
       border-radius: 5px;
       font-family: 'DM Mono', monospace;
       font-size: 0.78rem;
       font-weight: 500;
-      color: var(--blue);
+      color: #fff;
       text-decoration: none;
       letter-spacing: 0.04em;
       transition: background 0.15s;
     }
-    .airbnb-btn:hover { background: #1a4a8a; }
+    .airbnb-btn:hover { background: #1a6abf; }
     .activity-list, .restaurant-list {
       display: flex;
       flex-direction: column;
@@ -517,11 +517,18 @@
       </div>
     </div>
 
-    <div class="trip-row">
+    <div class="trip-row has-photos" onclick="toggleTripPhotos(this)">
       <div class="trip-year">2025</div>
       <div class="trip-winner-location">
         <div class="trip-winner">Alex Korchinski</div>
         <div class="trip-location">Calgary, AB</div>
+      </div>
+      <div class="trip-chevron">▾</div>
+      <div class="trip-photos">
+        <img src="./calgary-trip.JPG" alt="Calgary 2025" loading="lazy">
+        <img src="./calgary-trip-2.JPG" alt="Calgary 2025" loading="lazy">
+        <img src="./calgary-trip-3.JPG" alt="Calgary 2025" loading="lazy">
+        <img src="./calgary-trip-5.JPG" alt="Calgary 2025" loading="lazy">
       </div>
     </div>
 
@@ -694,7 +701,7 @@
     <div class="next-trip-section">
       <div class="next-trip-label">🏠 Stay</div>
       <a class="airbnb-btn" href="https://www.airbnb.com/rooms/735571599452521278?adults=14&check_in=2026-10-22&check_out=2026-10-25&guests=14&location=Charleston%2C%20SC&search_mode=regular_search&source_impression_id=p3_1776539722_P3Uszv7rTDyAm5w4&previous_page_section_name=1001&federated_search_id=be2c4ea0-" target="_blank">
-        View Airbnb — 14 guests · Oct 22–25
+        View Charleston Airbnb
       </a>
     </div>
 
