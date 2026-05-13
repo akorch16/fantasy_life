@@ -1131,15 +1131,12 @@ function renderTable() {
   sorted.forEach((player, idx) => {
     const isTodd = player.name === 'Todd';
     const rank = idx + 1;
-    const buckleyTs = localStorage.getItem('buckley_unlocked');
-    const isBuckleyUnlocked = buckleyTs && (Date.now() - parseInt(buckleyTs)) < 86400000;
-    const isBuckleyLocked = player.name === 'Buckley' && !isBuckleyUnlocked;
 
     const tr = document.createElement('tr');
     tr.className = 'player-row';
     tr.id = 'row-' + idx;
     const isBuckley = player.name === 'Buckley';
-    tr.onclick = isTodd ? () => openToddModal() : isBuckleyLocked ? () => openBuckley() : isBuckley ? () => toggleBreakdown(idx) : () => toggleBreakdown(idx);
+    tr.onclick = isTodd ? () => openToddModal() : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
 
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
@@ -1154,18 +1151,6 @@ function renderTable() {
         <td class="score-cell todd-score">??</td>
         ${extraCols}
         <td class="expand-cell">$</td>
-      `;
-    } else if (isBuckleyLocked) {
-      const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '<td></td>';
-      tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
-        <td>
-          <div class="player-name todd-name"><span class="todd-lock-icon">🔒</span> Buckley</div>
-          <div class="todd-teaser">Score hidden — pass the bioengineering exam to unlock</div>
-        </td>
-        <td class="score-cell todd-score">??</td>
-        ${extraCols}
-        <td class="expand-cell">⚗️</td>
       `;
     } else if (currentFilter === 'all') {
       tr.innerHTML = `
@@ -1202,8 +1187,8 @@ function renderTable() {
 
     tbody.appendChild(tr);
 
-    // Breakdown row (non-Todd, non-locked-Buckley only)
-    if (!isTodd && !isBuckleyLocked) {
+    // Breakdown row (non-Todd only)
+    if (!isTodd) {
       const br = document.createElement('tr');
       br.className = 'breakdown-row';
       br.id = 'breakdown-' + idx;
