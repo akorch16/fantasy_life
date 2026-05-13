@@ -44,7 +44,7 @@ Search for recent news (last 3 days) across these categories, prioritizing stori
 - Entertainment: Grammy nominations/wins, Oscar nominations/wins, box office weekend results, Billboard chart moves
 - Finance: notable % moves for COIN, NVDA, TSLA, SMCI, PLTR, AVGO, CVNA, TTWO, INTC — and any macro news affecting them
 
-Only surface stories that involve the actual picks listed above. Discard anything that doesn't map to a pick.
+Only surface stories that involve the actual picks listed above. Discard anything that doesn't map to a pick. **Never fabricate or infer a chart position, ranking, score, or statistic — if a search result doesn't explicitly confirm it, don't assert it.** If no real story maps to a pick in a given category, skip that category entirely rather than inventing one.
 
 ### Step 2 — Pick the 5 best stories
 
@@ -62,10 +62,10 @@ Write a single punchy FL News ticker headline that:
 - Covers all 5 stories, separated by periods (.)
 - Uses `<em>` tags around **league player names** (Korch, Fryar, etc.) — NOT around team or pick names
 - Attributes each story with the player who owns that pick in parentheses, e.g. `Avalanche (<em>Korch</em>) advance to the second round`
-- Ends with a single fitting emoji
 - Is written in present tense, punchy wire-service style — no fluff
+- **No emoji anywhere in the headline**
 
 **Example format:**
-`Avalanche (<em>Korch</em>) sweep Blues. Beyoncé (<em>Buckley</em>) debuts at #1. NVDA (<em>Todd</em>) surges 8% on earnings. Cavaliers (<em>Jens</em>) clinch East. Lightning (<em>Fryar</em>) eliminated in Game 7 💥`
+`Avalanche (<em>Korch</em>) sweep Blues. Beyoncé (<em>Buckley</em>) debuts at #1. NVDA (<em>Todd</em>) surges 8% on earnings. Cavaliers (<em>Jens</em>) clinch East. Lightning (<em>Fryar</em>) eliminated in Game 7.`
 
 Output ONLY the headline. No explanation, no preamble.
