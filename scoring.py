@@ -272,32 +272,32 @@ def compute_baseline_tennis():
     return result
 
 
-# OWGR as of March 22, 2026 (static fallback — ESPN API broken)
+# OWGR as of May 12, 2026 / Week 19 (static fallback — ESPN API blocked)
 GOLF_2026_OWGR_STATIC = {"rankings": [
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
-    {"player": "Cameron Young",       "rank": 3},
-    {"player": "Tommy Fleetwood",     "rank": 4},
-    {"player": "Xander Schauffele",   "rank": 5},
-    {"player": "Matt Fitzpatrick",    "rank": 6},
-    {"player": "Justin Rose",         "rank": 7},
-    {"player": "Collin Morikawa",     "rank": 8},
-    {"player": "Russell Henley",      "rank": 9},
-    {"player": "Chris Gotterup",      "rank": 10},
-    {"player": "Robert MacIntyre",    "rank": 11},
-    {"player": "Sepp Straka",         "rank": 12},
-    {"player": "J.J. Spaun",          "rank": 13},
-    {"player": "Hideki Matsuyama",    "rank": 14},
-    {"player": "Justin Thomas",       "rank": 15},
-    {"player": "Ben Griffin",         "rank": 16},
+    {"player": "Tommy Fleetwood",     "rank": 3},
+    {"player": "Xander Schauffele",   "rank": 4},
+    {"player": "Russell Henley",      "rank": 5},
+    {"player": "J.J. Spaun",          "rank": 6},
+    {"player": "Robert MacIntyre",    "rank": 7},
+    {"player": "Ben Griffin",         "rank": 8},
+    {"player": "Justin Thomas",       "rank": 9},
+    {"player": "Justin Rose",         "rank": 10},
+    {"player": "Collin Morikawa",     "rank": 11},
+    {"player": "Cameron Young",       "rank": 12},
+    {"player": "Sepp Straka",         "rank": 13},
+    {"player": "Matt Fitzpatrick",    "rank": 14},
+    {"player": "Hideki Matsuyama",    "rank": 15},
+    {"player": "Chris Gotterup",      "rank": 16},
     {"player": "Jacob Bridgeman",     "rank": 17},
     {"player": "Ludvig Aberg",        "rank": 18},
     {"player": "Alex Noren",          "rank": 19},
     {"player": "Harris English",      "rank": 20},
     {"player": "Viktor Hovland",      "rank": 21},
-    {"player": "Bryson DeChambeau",   "rank": 24},
-    {"player": "Jon Rahm",            "rank": 28},
-    {"player": "Patrick Cantlay",     "rank": 34},
+    {"player": "Jon Rahm",            "rank": 22},
+    {"player": "Bryson DeChambeau",   "rank": 29},
+    {"player": "Patrick Cantlay",     "rank": 33},
 ]}
 
 def compute_baseline_golf():
@@ -356,26 +356,28 @@ def compute_baseline_mls():
     return compute_baseline_sports('MLS', 'mls', 'points', reverse=True, static_data=data)
 
 
-# NASCAR Cup standings after Race 6 (Darlington, March 22 2026)
+# NASCAR Cup standings after Race 12 (Watkins Glen, May 10 2026)
 NASCAR_2026_STANDINGS_STATIC = {"standings": [
-    {"driver": "Tyler Reddick",         "points": 325},
-    {"driver": "Ryan Blaney",           "points": 230},
-    {"driver": "Bubba Wallace",         "points": 205},
-    {"driver": "Denny Hamlin",          "points": 203},
-    {"driver": "Chase Elliott",         "points": 194},
-    {"driver": "William Byron",         "points": 191},
-    {"driver": "Chris Buescher",        "points": 188},
-    {"driver": "Christopher Bell",      "points": 182},
-    {"driver": "Brad Keselowski",       "points": 182},
-    {"driver": "Kyle Larson",           "points": 176},
-    {"driver": "Ty Gibbs",              "points": 173},
-    {"driver": "Ryan Preece",           "points": 154},
-    {"driver": "Carson Hocevar",        "points": 151},
-    {"driver": "Daniel Suarez",         "points": 150},
-    {"driver": "Shane van Gisbergen",   "points": 140},
-    {"driver": "Joey Logano",           "points": 139},
-    {"driver": "Ross Chastain",         "points": 115},
-    {"driver": "Chase Briscoe",         "points": 108},
+    {"driver": "Tyler Reddick",         "points": 567},
+    {"driver": "Denny Hamlin",          "points": 438},
+    {"driver": "Chase Elliott",         "points": 422},
+    {"driver": "Ryan Blaney",           "points": 405},
+    {"driver": "Chris Buescher",        "points": 375},
+    {"driver": "Ty Gibbs",              "points": 372},
+    {"driver": "Carson Hocevar",        "points": 342},
+    {"driver": "Kyle Larson",           "points": 332},
+    {"driver": "Brad Keselowski",       "points": 318},
+    {"driver": "Bubba Wallace",         "points": 313},
+    {"driver": "Christopher Bell",      "points": 311},
+    {"driver": "William Byron",         "points": 309},
+    {"driver": "Ryan Preece",           "points": 296},
+    {"driver": "Daniel Suarez",         "points": 295},
+    {"driver": "Austin Cindric",        "points": 287},
+    {"driver": "Shane van Gisbergen",   "points": 283},
+    {"driver": "Chase Briscoe",         "points": 277},
+    {"driver": "Joey Logano",           "points": 245},
+    {"driver": "Ross Chastain",         "points": 236},
+    {"driver": "AJ Allmendinger",       "points": 235},
 ]}
 
 def compute_baseline_nascar():
