@@ -785,46 +785,32 @@ function selectBioengOption(btn) {
 
 function submitBioengQuiz() {
   let score = 0;
-  const keyLines = [];
 
   for (let q = 1; q <= 5; q++) {
     const group = document.querySelector(`.bioeng-options[data-q="${q}"]`);
     const correct = BIOENG_CORRECT[q];
     const selected = group.querySelector('.bioeng-option.selected');
     const choice = selected ? selected.dataset.opt : null;
-
-    group.querySelectorAll('.bioeng-option').forEach(btn => {
-      btn.onclick = null; // lock after submit
-      if (btn.dataset.opt === correct) btn.classList.add('correct');
-      else if (btn.classList.contains('selected')) btn.classList.add('wrong');
-      btn.classList.remove('selected');
-    });
-
-    if (choice === correct) {
-      score++;
-      keyLines.push(`<div class="bioeng-answer-item">Q${q}: <span class="ans-correct">✓ ${correct} — Correct</span></div>`);
-    } else {
-      keyLines.push(`<div class="bioeng-answer-item">Q${q}: <span class="ans-wrong">${choice ? '✗ ' + choice : '(no answer)'}</span> → <span class="ans-correct">${correct}</span></div>`);
-    }
+    group.querySelectorAll('.bioeng-option').forEach(btn => { btn.onclick = null; btn.classList.remove('selected'); });
+    if (choice === correct) score++;
   }
 
-  const grades   = ['F','F','D','C','B','A'];
-  const comments = [
-    'Scott is nodding in quiet solidarity.',
-    'You answered like someone who skimmed the abstract once.',
-    'Partial credit. UCLA would not expel you. Probably.',
-    'Solid. You passed the course. Maybe.',
-    'Strong work. Consider a PhD. Or don\'t, it\'s brutal out there.',
-    '🏆 PERFECT. Buckley cannot believe you also beat him at bioengineering.',
-  ];
-
-  document.getElementById('bioeng-score-display').innerHTML =
-    `MC Score: <span style="color:#00ff44;">${score}/5</span> &nbsp;|&nbsp; Grade: <span style="color:#ffff00;">${grades[score]}</span><br>
-     <span style="font-size:12px;color:#ff69b4;">${comments[score]}</span>`;
-  document.getElementById('bioeng-answer-key').innerHTML = keyLines.join('');
   const results = document.getElementById('bioeng-results');
   results.style.display = 'block';
-  results.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  document.getElementById('bioeng-answer-key').innerHTML = '';
+
+  if (score < 5) {
+    document.getElementById('bioeng-score-display').innerHTML =
+      `<span style="color:#ff4444;font-size:18px;">Sorry, try again tomorrow.</span>`;
+    results.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  } else {
+    document.getElementById('bioeng-score-display').innerHTML =
+      `<div style="color:#00ff44;font-size:20px;margin-bottom:8px;">⚗️ 5/5 — PERFECT SCORE ⚗️</div>
+       <div style="color:#ffff00;font-size:14px;margin-bottom:12px;">Bioengineering, bitch. Showing score.</div>`;
+    results.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    localStorage.setItem('buckley_unlocked', Date.now().toString());
+    setTimeout(() => { window.location.href = './index.html'; }, 2200);
+  }
 }
 
 // Visitor counter easter egg
