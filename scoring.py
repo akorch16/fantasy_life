@@ -728,19 +728,16 @@ if __name__ == '__main__':
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, 'scores.json')
 
-    # Read previous scores for week-over-week deltas and to preserve headline
+    import datetime
+
+    # Read previous scores.json to preserve headline and weekly baseline
     existing_headline = ''
-    prev_totals: dict = {}
-    prev_places: dict = {}
+    weekly_baseline: dict = {}
     try:
         with open(out_path) as _f:
             prev = json.load(_f)
             existing_headline = prev.get('headline', '')
-            for p in prev.get('players', []):
-                name = p.get('name', '')
-                if name:
-                    prev_totals[name] = p.get('total', 0)
-                    prev_places[name] = p.get('place', 0)
+            weekly_baseline = prev.get('weekly_baseline', {})
     except Exception:
         pass
 
@@ -748,12 +745,31 @@ if __name__ == '__main__':
     data = compute_all_scores()
     data['headline'] = existing_headline
 
-    # Attach week-over-week deltas
+    # Build lookup of new scores/places
+    new_totals = {p['name']: p['total'] for p in data.get('players', [])}
+    new_places = {p['name']: p['place'] for p in data.get('players', [])}
+
+    # Reset baseline every Tuesday; seed from scratch if missing
+    today_utc = datetime.datetime.utcnow()
+    is_reset_day = today_utc.weekday() == 1  # Tuesday
+    if not weekly_baseline.get('totals') or is_reset_day:
+        weekly_baseline = {
+            'totals': new_totals,
+            'places': new_places,
+            'date': today_utc.strftime('%Y-%m-%d'),
+        }
+        print(f'  Weekly baseline {"reset" if is_reset_day else "seeded"} ({weekly_baseline["date"]})')
+
+    data['weekly_baseline'] = weekly_baseline
+
+    # Attach week-over-week deltas vs baseline
+    base_totals = weekly_baseline.get('totals', {})
+    base_places = weekly_baseline.get('places', {})
     for p in data.get('players', []):
         name = p['name']
-        if name in prev_totals:
-            p['week_delta'] = round(p['total'] - prev_totals[name], 2)
-            p['place_change'] = prev_places.get(name, p['place']) - p['place']
+        if name in base_totals:
+            p['week_delta'] = round(p['total'] - base_totals[name], 2)
+            p['place_change'] = base_places.get(name, p['place']) - p['place']
         else:
             p['week_delta'] = None
             p['place_change'] = None
