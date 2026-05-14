@@ -1072,6 +1072,14 @@ const CAT_LABELS = {
   country: "Country GDP", stock: "Stock"
 };
 
+// 98th Academy Awards (March 2026) — keyed by FL player name
+const OSCAR_2026 = {
+  actress: {
+    Jamzee: [{ category: 'Best Actress', result: 'Nominated' }],
+  },
+  actor: {},
+};
+
 // ============================================================
 // WEEKS ELAPSED since Jan 1, 2026
 // ============================================================
@@ -1276,9 +1284,14 @@ function renderTable() {
       }).join('');
 
       let detailPanel = '';
-      if (currentFilter === 'musician') detailPanel = buildMusicianDetail(player);
-      else if (currentFilter === 'actor' || currentFilter === 'actress') detailPanel = buildFilmDetail(player, currentFilter);
-      td.innerHTML = `<div class="breakdown-inner">${detailPanel}<div class="breakdown-grid">${items}</div></div>`;
+      let gridHtml = `<div class="breakdown-grid">${items}</div>`;
+      if (currentFilter === 'musician') {
+        detailPanel = buildMusicianDetail(player);
+      } else if (currentFilter === 'actor' || currentFilter === 'actress') {
+        detailPanel = buildFilmDetail(player, currentFilter);
+        gridHtml = '';
+      }
+      td.innerHTML = `<div class="breakdown-inner">${detailPanel}${gridHtml}</div>`;
       br.appendChild(td);
       tbody.appendChild(br);
     }
@@ -1311,21 +1324,52 @@ function buildFilmDetail(player, cat) {
   const d = ((player.categories || {})[cat] || {});
   const movies = d.movies || [];
   const bonus  = d.bonus_pts || 0;
+
   const rows = movies.map(m => {
-    const bo = m.box_office ? '$' + (m.box_office / 1e6).toFixed(1) + 'M' : '–';
-    const rt = m.rt_score   != null ? m.rt_score + '%' : '–';
-    return `<tr><td>${m.title || '–'}</td><td>${m.release_date || '–'}</td><td>${bo}</td><td>${rt}</td></tr>`;
+    const bo   = m.box_office  != null ? '$' + (m.box_office / 1e6).toFixed(1) + 'M' : '–';
+    const rt   = m.rt_score    != null ? m.rt_score + '%' : '–';
+    const comp = m.composite   != null ? m.composite.toFixed(2) : '–';
+    return `<tr>
+      <td>${m.title || '–'}</td>
+      <td>${m.release_date || '–'}</td>
+      <td>${bo}</td>
+      <td>${rt}</td>
+      <td>${comp}</td>
+    </tr>`;
   }).join('');
-  const tableHtml = movies.length > 0
+
+  const filmsHtml = movies.length > 0
     ? `<table class="detail-table">
-        <thead><tr><th>Film</th><th>Release</th><th>Box Office</th><th>RT</th></tr></thead>
+        <thead><tr><th>Film</th><th>Release</th><th>Box Office</th><th>RT</th><th>Score</th></tr></thead>
         <tbody>${rows}</tbody>
        </table>`
-    : `<p style="font-size:0.72rem;color:var(--muted);padding:2px 0">No films released in 2026 yet.</p>`;
-  const bonusHtml = bonus > 0
-    ? `<div class="detail-bonus">Oscar bonus: +${bonus.toFixed(1)} pts</div>`
-    : '';
-  return `<div class="cat-detail-panel"><h4>${d.pick || '–'} — Filmography 2026</h4>${tableHtml}${bonusHtml}</div>`;
+    : `<p style="font-size:0.72rem;color:var(--muted);padding:4px 0">No 2026 films in data yet.</p>`;
+
+  // Oscar section
+  const oscarEntries = ((OSCAR_2026[cat] || {})[player.name] || []);
+  let oscarHtml = '';
+  if (oscarEntries.length > 0) {
+    const oscarRows = oscarEntries.map(o => {
+      const isWin = o.result === 'Won';
+      const ptsTxt = bonus > 0 ? ` — +${bonus.toFixed(1)} pts` : '';
+      return `<tr>
+        <td style="color:${isWin ? 'var(--gold)' : 'var(--text)'}">${o.category}</td>
+        <td style="color:${isWin ? 'var(--gold)' : 'var(--muted)'}">${o.result}${ptsTxt}</td>
+      </tr>`;
+    }).join('');
+    oscarHtml = `
+      <div class="cat-detail-panel" style="margin-top:10px;margin-bottom:0">
+        <h4>98th Academy Awards</h4>
+        <table class="detail-table"><tbody>${oscarRows}</tbody></table>
+      </div>`;
+  }
+
+  return `
+    <div class="cat-detail-panel">
+      <h4>${d.pick || '–'} — 2026 Films</h4>
+      ${filmsHtml}
+    </div>
+    ${oscarHtml}`;
 }
 
 function toggleBreakdown(idx) {
