@@ -800,26 +800,12 @@
       border-bottom: 1px solid #1e2a1e;
       padding: 6px 16px;
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0;
       font-size: 0.7rem;
       font-family: 'DM Mono', monospace;
       letter-spacing: 0.04em;
-      flex-wrap: wrap;
-    }
-    .news-bar-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex-shrink: 0;
-      border-right: 1px solid #1e2a1e;
-      padding-right: 12px;
-    }
-    .news-bar-updated {
-      color: var(--muted);
-      letter-spacing: 0.04em;
-      font-size: 0.68rem;
-      white-space: nowrap;
     }
     .news-bar-label {
       color: var(--accent);
@@ -828,11 +814,23 @@
       text-transform: uppercase;
       letter-spacing: 0.1em;
       white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .news-bar-sep {
+      color: var(--muted);
+      white-space: pre;
+      flex-shrink: 0;
+    }
+    .news-bar-updated {
+      color: var(--muted);
+      font-size: 0.68rem;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .news-bar-headline {
       color: #c9d1d9;
       flex: 1;
-      white-space: normal;
+      min-width: 0;
       word-break: break-word;
     }
     .news-bar-headline em {
@@ -857,8 +855,7 @@
       .season-hero { flex-direction: column; align-items: flex-start; }
       .todd-hero { width: 120px; align-self: flex-end; }
       .season-stats { gap: 20px; }
-      .news-bar { flex-direction: column; gap: 4px; }
-      .news-bar-left { flex-direction: row; align-items: center; gap: 8px; border-right: none; padding-right: 0; border-bottom: none; }
+      .news-bar { gap: 0; }
     }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c0a91842667f4f16b87e22ebbce8e280"}'></script><!-- End Cloudflare Web Analytics -->
@@ -878,13 +875,11 @@
 </header>
 
 <div class="news-bar" id="news-bar">
-  <div class="news-bar-left">
-    <div class="news-bar-label">📡 FL News</div>
-    <div class="news-bar-updated" id="news-bar-updated"><span style="opacity:0.5">updated</span></div>
-  </div>
-  <div class="news-bar-headline" id="news-bar-headline">
-    🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em> — Jamzee's actress pick quietly printing points while everyone sleeps.
-  </div>
+  <span class="news-bar-label">📡 FL News</span>
+  <span class="news-bar-sep"> — Updated </span>
+  <span class="news-bar-updated" id="news-bar-updated"><span style="opacity:0.5">…</span></span>
+  <span class="news-bar-sep">: </span>
+  <span class="news-bar-headline" id="news-bar-headline">🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em> — Jamzee's actress pick quietly printing points while everyone sleeps.</span>
 </div>
 
 <div class="page">
