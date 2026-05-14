@@ -799,13 +799,10 @@
       background: #0d1117;
       border-bottom: 1px solid #1e2a1e;
       padding: 6px 16px;
-      display: flex;
-      align-items: baseline;
-      gap: 0;
       font-size: 0.7rem;
       font-family: 'DM Mono', monospace;
       letter-spacing: 0.04em;
-      overflow: hidden;
+      line-height: 1.6;
     }
     .news-bar-label {
       color: var(--accent);
@@ -813,26 +810,10 @@
       font-size: 0.62rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      white-space: nowrap;
-      flex-shrink: 0;
     }
-    .news-bar-sep {
-      color: var(--muted);
-      white-space: pre;
-      flex-shrink: 0;
-    }
-    .news-bar-updated {
-      color: var(--muted);
-      font-size: 0.68rem;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .news-bar-headline {
-      color: #c9d1d9;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .news-bar-sep { color: var(--muted); }
+    .news-bar-updated { color: var(--muted); font-size: 0.68rem; }
+    .news-bar-headline { color: #c9d1d9; }
     .news-bar-headline em {
       color: var(--accent);
       font-style: normal;
@@ -855,7 +836,6 @@
       .season-hero { flex-direction: column; align-items: flex-start; }
       .todd-hero { width: 120px; align-self: flex-end; }
       .season-stats { gap: 20px; }
-      .news-bar { gap: 0; }
     }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c0a91842667f4f16b87e22ebbce8e280"}'></script><!-- End Cloudflare Web Analytics -->
