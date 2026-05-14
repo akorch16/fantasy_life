@@ -801,11 +801,11 @@
       padding: 6px 16px;
       display: flex;
       align-items: baseline;
-      flex-wrap: wrap;
       gap: 0;
       font-size: 0.7rem;
       font-family: 'DM Mono', monospace;
       letter-spacing: 0.04em;
+      overflow: hidden;
     }
     .news-bar-label {
       color: var(--accent);
@@ -829,9 +829,9 @@
     }
     .news-bar-headline {
       color: #c9d1d9;
-      flex: 1;
-      min-width: 0;
-      word-break: break-word;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .news-bar-headline em {
       color: var(--accent);
@@ -1071,6 +1071,7 @@ const CAT_LABELS = {
 const OSCAR_2026 = {
   actress: {
     Jamzee: [{ category: 'Best Actress', result: 'Nominated' }],
+    Molmen: [{ category: 'Best Actress', film: 'Hamnet', result: 'Won' }],
   },
   actor: {},
 };
@@ -1086,15 +1087,9 @@ function initDisplay() {
 
   const nbEl = document.getElementById('news-bar-updated');
   if (nbEl && window.LAST_UPDATED) {
-    try {
-      const datePart = window.LAST_UPDATED.split(' ')[0]; // '2026-05-13'
-      const [y, m, d] = datePart.split('-').map(Number);
-      const date = new Date(y, m - 1, d);
-      const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      nbEl.innerHTML = '<span style="opacity:0.5">updated </span>' + formatted;
-    } catch(e) {
-      nbEl.textContent = 'updated ' + window.LAST_UPDATED.split(' ')[0];
-    }
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const parts = window.LAST_UPDATED.split(' ')[0].split('-');
+    nbEl.textContent = months[parseInt(parts[1], 10) - 1] + ' ' + parseInt(parts[2], 10);
   }
 }
 
@@ -1345,10 +1340,11 @@ function buildFilmDetail(player, cat) {
   let oscarHtml = '';
   if (oscarEntries.length > 0) {
     const oscarRows = oscarEntries.map(o => {
-      const isWin = o.result === 'Won';
-      const ptsTxt = bonus > 0 ? ` — +${bonus.toFixed(1)} pts` : '';
+      const isWin  = o.result === 'Won';
+      const filmTxt = o.film ? ` — ${o.film}` : '';
+      const ptsTxt  = bonus > 0 ? ` (+${bonus.toFixed(1)} pts)` : '';
       return `<tr>
-        <td style="color:${isWin ? 'var(--gold)' : 'var(--text)'}">${o.category}</td>
+        <td style="color:${isWin ? 'var(--gold)' : 'var(--text)'}">${o.category}${filmTxt}</td>
         <td style="color:${isWin ? 'var(--gold)' : 'var(--muted)'}">${o.result}${ptsTxt}</td>
       </tr>`;
     }).join('');
