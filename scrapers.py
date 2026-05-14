@@ -376,41 +376,7 @@ def scrape_golf():
     try:
         rankings = []
 
-        # Primary: Sportradar OWGR API (free trial key, set SPORTRADAR_API_KEY env var)
-        if not rankings:
-            try:
-                api_key = os.environ.get('SPORTRADAR_API_KEY', '')
-                if api_key:
-                    data = fetch_json(
-                        'https://api.sportradar.com/golf/trial/v3/en/players/wgr/2026/rankings.json',
-                        params={'api_key': api_key},
-                    )
-                    for item in data.get('rankings', []):
-                        # Try common Sportradar field name patterns
-                        first = item.get('first_name', '')
-                        last = item.get('last_name', '')
-                        player = item.get('display_name') or item.get('name') or (f'{first} {last}'.strip())
-                        rank = item.get('world_ranking') or item.get('ranking') or item.get('rank')
-                        if player and rank:
-                            rankings.append({'player': player, 'rank': int(rank)})
-                    if rankings:
-                        print(f'    ✓ Sportradar OWGR: {len(rankings)} players')
-                else:
-                    print('    – Sportradar: SPORTRADAR_API_KEY not set, skipping')
-            except Exception as e:
-                print(f'    ✗ Sportradar OWGR: {e}')
-
-        # Fallback 1: ESPN golf rankings API
-        if not rankings:
-            try:
-                data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings')
-                rankings = _parse_owgr_espn(data)
-                if rankings:
-                    print(f'    ✓ ESPN Golf API: {len(rankings)} players')
-            except Exception as e:
-                print(f'    ✗ ESPN Golf API: {e}')
-
-        # Fallback 2: OWGR.com internal JSON API
+        # Primary: OWGR.com JSON API (plain requests)
         if not rankings:
             try:
                 data = fetch_json(
@@ -426,6 +392,38 @@ def scrape_golf():
                     print(f'    ✓ OWGR.com JSON API: {len(rankings)} players')
             except Exception as e:
                 print(f'    ✗ OWGR.com JSON API: {e}')
+
+        # Fallback 1: OWGR.com via cloudscraper (bypasses bot-detection if plain request blocked)
+        if not rankings:
+            try:
+                import cloudscraper
+                scraper = cloudscraper.create_scraper()
+                r = scraper.get(
+                    'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200&country=All&playerName=',
+                    headers={'Accept': 'application/json'},
+                    timeout=20,
+                )
+                r.raise_for_status()
+                data = r.json()
+                for item in data.get('rankings', data if isinstance(data, list) else []):
+                    rank = item.get('rank') or item.get('position')
+                    player = item.get('name') or item.get('playerName') or item.get('fullName', '')
+                    if player and rank:
+                        rankings.append({'player': player, 'rank': int(rank)})
+                if rankings:
+                    print(f'    ✓ OWGR.com (cloudscraper): {len(rankings)} players')
+            except Exception as e:
+                print(f'    ✗ OWGR.com (cloudscraper): {e}')
+
+        # Fallback 2: ESPN golf rankings API
+        if not rankings:
+            try:
+                data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings')
+                rankings = _parse_owgr_espn(data)
+                if rankings:
+                    print(f'    ✓ ESPN Golf API: {len(rankings)} players')
+            except Exception as e:
+                print(f'    ✗ ESPN Golf API: {e}')
 
         if rankings:
             return save_standing('Golf', {'rankings': rankings})
