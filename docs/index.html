@@ -381,6 +381,13 @@
       background: var(--bg);
     }
 
+    .stale-badge {
+      font-size: 10px;
+      color: #f59e0b;
+      cursor: help;
+      margin-left: 2px;
+    }
+
     .cat-item.tier-high {
       border-color: #166534;
       background: #052e16;
@@ -1219,9 +1226,12 @@ function renderTable() {
           else if (total >= 6) { tierClass = 'tier-mid'; ptsColorClass = 'pts-mid'; }
           else { tierClass = 'tier-low'; ptsColorClass = 'pts-low'; }
         }
+        const staleTag = (cat === 'golf' && window.GOLF_DATA_STALE)
+          ? ' <span class="stale-badge" title="Rankings may be outdated">⚠</span>'
+          : '';
         return `
           <div class="cat-item ${tierClass}">
-            <span class="cat-name">${CAT_LABELS[cat]}</span>
+            <span class="cat-name">${CAT_LABELS[cat]}${staleTag}</span>
             <span class="cat-pick">${pick}</span>
             <span class="cat-pts ${ptsColorClass}">${ptsDisplay}</span>
           </div>
@@ -1390,6 +1400,7 @@ fetch('./scores.json')
   .then(data => {
     window.SCORES_DATA = data.players || [];
     window.LAST_UPDATED = data.last_updated || '';
+    window.GOLF_DATA_STALE = data.golf_data_stale || false;
     if (data.headline) {
       document.getElementById('news-bar-headline').innerHTML = data.headline;
     }
