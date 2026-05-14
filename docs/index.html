@@ -425,6 +425,83 @@
       color: var(--gold);
     }
 
+    /* ─── FILM BREAKDOWN ─── */
+    .film-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .film-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 0 10px 8px 0;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .film-table td {
+      padding: 8px 10px 8px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .film-table tr:last-child td { border-bottom: none; }
+    .film-title-cell { font-weight: 500; }
+    .film-bo-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); }
+    .rt-score-badge { font-family: 'DM Mono', monospace; font-weight: 600; font-size: 0.82rem; }
+    .rt-fresh  { color: #4ade80; }
+    .rt-mixed  { color: #fbbf24; }
+    .rt-rotten { color: #f87171; }
+    .film-no-releases { font-size: 0.82rem; color: var(--dim); font-style: italic; padding: 4px 0 8px; }
+    .awards-section-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--blue);
+      margin: 14px 0 6px;
+    }
+    .award-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .award-item:last-child { border-bottom: none; }
+    .award-win-label  { color: var(--gold); font-weight: 600; }
+    .award-nom-label  { color: var(--muted); }
+
+    /* ─── MUSICIAN SONG BREAKDOWN ─── */
+    .song-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .song-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      padding: 0 10px 6px 0;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .song-table td {
+      padding: 8px 10px 8px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .song-table tr:last-child td { border-bottom: none; }
+    .song-title-cell { font-weight: 500; }
+    .song-weeks-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); text-align: center; padding-right: 4px; }
+    .song-no-data { font-size: 0.82rem; color: var(--dim); font-style: italic; padding: 4px 0 8px; }
+
     /* ─── TODD PAYWALL ROW ─── */
     .todd-lock-icon {
       font-size: 1rem;
@@ -1071,6 +1148,128 @@ const CAT_STAT = {
 };
 
 // ============================================================
+// FILMOGRAPHY & OSCAR DATA
+// ============================================================
+const FILMOGRAPHY_2026 = {
+  'Actor': {
+    'Chris Hemsworth':    [{title:'Crime 101',                 release:'Feb 13, 2026', bo:'$72M',      rt:88},
+                           {title:'Avengers: Doomsday',        release:'May 1, 2026',  bo:null,        rt:null}],
+    'Robert Pattinson':   [{title:'The Bride!',                release:'Mar 6, 2026',  bo:'$23M',      rt:59},
+                           {title:'The Drama',                 release:'Apr 3, 2026',  bo:null,        rt:null}],
+    'Matt Damon':         [{title:'The Rip',                   release:'Jan 16, 2026', bo:'Streaming', rt:79},
+                           {title:'The Odyssey',               release:'Jul 17, 2026', bo:null,        rt:null}],
+    'Tom Holland':        [{title:'The Odyssey',               release:'Jul 17, 2026', bo:null,        rt:null},
+                           {title:'Spider-Man: Brand New Day', release:'Jul 31, 2026', bo:null,        rt:null}],
+    'Jon Bernthal':       [{title:'The Odyssey',               release:'Jul 17, 2026', bo:null,        rt:null},
+                           {title:'Spider-Man: Brand New Day', release:'Jul 31, 2026', bo:null,        rt:null}],
+    'Pedro Pascal':       [{title:'The Mandalorian & Grogu',   release:'May 22, 2026', bo:null,        rt:null}],
+    'Jeremy Allen White': [{title:'The Mandalorian & Grogu',   release:'May 22, 2026', bo:null,        rt:null}],
+    'Dwayne Johnson':     [{title:'Moana',                     release:'Jul 10, 2026', bo:null,        rt:null}],
+  },
+  'Actress': {
+    'Jessie Buckley':     [{title:'The Bride!',                   release:'Mar 6, 2026',  bo:'$23M', rt:59}],
+    'Anya Taylor-Joy':    [{title:'The Super Mario Galaxy Movie',  release:'Apr 1, 2026',  bo:null,   rt:null}],
+    'Zendaya':            [{title:'The Drama',                    release:'Apr 3, 2026',  bo:null,   rt:null},
+                           {title:'Spider-Man: Brand New Day',    release:'Jul 31, 2026', bo:null,   rt:null},
+                           {title:'Dune: Part Three',             release:'Dec 18, 2026', bo:null,   rt:null}],
+    'Anne Hathaway':      [{title:'Mother Mary',                  release:'Apr 24, 2026', bo:null,   rt:null},
+                           {title:'The Devil Wears Prada 2',      release:'May 1, 2026',  bo:null,   rt:null},
+                           {title:'The Odyssey',                  release:'Jul 17, 2026', bo:null,   rt:null}],
+    'Charlize Theron':    [{title:'The Odyssey',                  release:'Jul 17, 2026', bo:null,   rt:null}],
+    'Florence Pugh':      [{title:'Avengers: Doomsday',           release:'Dec 18, 2026', bo:null,   rt:null},
+                           {title:'Dune: Part Three',             release:'Dec 18, 2026', bo:null,   rt:null}],
+  },
+};
+
+const OSCAR_AWARDS = {
+  'Actor': {
+    'Sean Penn':          [{result:'Won',       category:'Best Supporting Actor', film:'One Battle After Another'}],
+    'Wagner Moura':       [{result:'Nominated', category:'Best Actor',            film:'The Secret Agent'}],
+    'Leonardo DiCaprio':  [{result:'Nominated', category:'Best Actor',            film:'One Battle After Another'}],
+    'Timothee Chalamet':  [{result:'Nominated', category:'Best Actor',            film:'Marty Supreme'}],
+  },
+  'Actress': {
+    'Jessie Buckley':     [{result:'Won',       category:'Best Actress',           film:'Hamnet'}],
+    'Emma Stone':         [{result:'Nominated', category:'Best Actress',           film:'Bugonia'}],
+    'Teyana Taylor':      [{result:'Nominated', category:'Best Supporting Actress',film:'One Battle After Another'}],
+  },
+};
+
+function buildMusicianBreakdown(pickName, num1Weeks, hot100Weeks) {
+  const artistImg = pickName === 'FKA Twigs'
+    ? `<img src="fka-twigs.png" alt="FKA Twigs" style="width:200px;height:200px;object-fit:cover;border-radius:8px;display:block;margin-bottom:12px;">`
+    : '';
+  if (num1Weeks == null && hot100Weeks == null) {
+    return `<div class="breakdown-inner">${artistImg}<div class="song-no-data">No chart data available yet.</div></div>`;
+  }
+  const num1Cell = num1Weeks > 0
+    ? `<span style="color:var(--gold);font-weight:600">${num1Weeks}</span>`
+    : (num1Weeks === 0 ? '0' : '—');
+  const top10Cell = hot100Weeks != null ? hot100Weeks : '—';
+  return `<div class="breakdown-inner">
+    ${artistImg}
+    <table class="song-table">
+      <thead><tr>
+        <th>Artist</th>
+        <th style="text-align:center">#1 Wks</th>
+        <th style="text-align:center">Top 10 Wks</th>
+      </tr></thead>
+      <tbody><tr>
+        <td class="song-title-cell">${pickName}</td>
+        <td class="song-weeks-cell">${num1Cell}</td>
+        <td class="song-weeks-cell">${top10Cell}</td>
+      </tr></tbody>
+    </table>
+  </div>`;
+}
+
+function buildFilmographyBreakdown(pickName, catType) {
+  const films = (FILMOGRAPHY_2026[catType] || {})[pickName] || [];
+
+  let filmRows = '';
+  if (!films.length) {
+    filmRows = `<div class="film-no-releases">No movies in 2026. Better luck next year.</div>`;
+  } else {
+    const rows = films.map(f => {
+      const rtClass = f.rt >= 60 ? 'rt-fresh' : f.rt >= 40 ? 'rt-mixed' : f.rt != null ? 'rt-rotten' : '';
+      const rtStr   = f.rt != null ? f.rt + '%' : 'N/A';
+      const boStr   = f.bo || 'N/A';
+      return `<tr>
+        <td class="film-title-cell">${f.title}</td>
+        <td style="color:var(--muted);font-size:0.78rem;font-family:'DM Mono',monospace">${f.release}</td>
+        <td class="film-bo-cell">${boStr}</td>
+        <td><span class="rt-score-badge ${rtClass}">${rtStr}</span></td>
+      </tr>`;
+    }).join('');
+    filmRows = `<table class="film-table">
+      <thead><tr>
+        <th>Film</th><th>Released</th><th>Domestic BO</th><th>RT</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  const awards = (OSCAR_AWARDS[catType] || {})[pickName] || [];
+  let awardsHtml = '';
+  if (awards.length) {
+    const items = awards.map(a => {
+      const isWin = a.result === 'Won';
+      return `<div class="award-item">
+        <span>${isWin ? '🏆' : '🎬'}</span>
+        <div>
+          <span class="${isWin ? 'award-win-label' : 'award-nom-label'}">${a.result}</span>
+          <span style="color:var(--muted)"> · ${a.category}</span>
+          <div style="font-size:0.75rem;color:var(--dim);margin-top:2px;font-style:italic">${a.film}</div>
+        </div>
+      </div>`;
+    }).join('');
+    awardsHtml = `<div class="awards-section-title">98th Academy Awards (2026)</div>${items}`;
+  }
+
+  return `<div class="breakdown-inner">${filmRows}${awardsHtml}</div>`;
+}
+
+// ============================================================
 // RENDER TABLE
 // ============================================================
 let currentFilter = 'all';
@@ -1228,7 +1427,16 @@ function renderTable() {
         `;
       }).join('');
 
-      td.innerHTML = `<div class="breakdown-inner"><div class="breakdown-grid">${items}</div></div>`;
+      if (currentFilter === 'actor' || currentFilter === 'actress') {
+        const catData = (player.categories || {})[currentFilter] || {};
+        const catType = currentFilter === 'actor' ? 'Actor' : 'Actress';
+        td.innerHTML = buildFilmographyBreakdown(catData.pick, catType);
+      } else if (currentFilter === 'musician') {
+        const catData = (player.categories || {})['musician'] || {};
+        td.innerHTML = buildMusicianBreakdown(catData.pick, catData.num1_weeks, catData.hot100_weeks);
+      } else {
+        td.innerHTML = `<div class="breakdown-inner"><div class="breakdown-grid">${items}</div></div>`;
+      }
       br.appendChild(td);
       tbody.appendChild(br);
     }
