@@ -46,6 +46,8 @@ Search for recent news (last 3 days) across these categories, prioritizing stori
 
 Only surface stories that involve the actual picks listed above. Discard anything that doesn't map to a pick.
 
+**Never fabricate or infer a chart position, ranking, score, or statistic — if a search result doesn't explicitly confirm it, don't assert it.** If no real story maps to a pick in a given category, skip that category entirely rather than inventing one.
+
 ### Step 2 — Pick the 5 best stories
 
 Select the 5 most headline-worthy events. Prefer:
@@ -62,10 +64,46 @@ Write a single punchy FL News ticker headline that:
 - Covers all 5 stories, separated by periods (.)
 - Uses `<em>` tags around **league player names** (Korch, Fryar, etc.) — NOT around team or pick names
 - Attributes each story with the player who owns that pick in parentheses, e.g. `Avalanche (<em>Korch</em>) advance to the second round`
-- Ends with a single fitting emoji
+- **No emoji anywhere in the headline**
 - Is written in present tense, punchy wire-service style — no fluff
 
 **Example format:**
-`Avalanche (<em>Korch</em>) sweep Blues. Beyoncé (<em>Buckley</em>) debuts at #1. NVDA (<em>Todd</em>) surges 8% on earnings. Cavaliers (<em>Jens</em>) clinch East. Lightning (<em>Fryar</em>) eliminated in Game 7 💥`
+`Avalanche (<em>Korch</em>) sweep Blues. Beyoncé (<em>Buckley</em>) debuts at #1. NVDA (<em>Todd</em>) surges 8% on earnings. Cavaliers (<em>Jens</em>) clinch East. Lightning (<em>Fryar</em>) eliminated in Game 7.`
 
 Output ONLY the headline. No explanation, no preamble.
+
+### Step 4 — Deploy to production
+
+After outputting the headline, deploy it live:
+
+1. Read `docs/scores.json` to get current content.
+2. Update only the `headline` field with the generated headline text.
+3. Write the updated JSON back to `docs/scores.json`.
+4. Create and push a hotfix branch, then create a PR and merge it immediately:
+
+```bash
+# Get today's date
+DATE=$(date +%Y-%m-%d)
+BRANCH="hotfix/headline-${DATE}"
+
+# Create branch from origin/main
+git fetch origin main
+git checkout -b "${BRANCH}" origin/main
+
+# Stage and commit
+git add docs/scores.json
+git commit -m "Update FL News headline ${DATE}"
+
+# Push
+git push -u origin "${BRANCH}"
+```
+
+5. Use `mcp__github__create_pull_request` to create a PR:
+   - `owner`: `akorch16`
+   - `repo`: `fantasy_life`
+   - `title`: `Update FL News headline ${DATE}`
+   - `head`: the hotfix branch name
+   - `base`: `main`
+   - `body`: the headline text
+
+6. Use `mcp__github__merge_pull_request` to merge it immediately with `squash` method.
