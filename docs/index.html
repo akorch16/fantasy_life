@@ -1064,13 +1064,7 @@ function initDisplay() {
   const now = new Date();
   const weeks = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
   document.getElementById('weeks-elapsed').textContent = Math.max(0, weeks);
-
-  const nbEl = document.getElementById('news-bar-updated');
-  if (nbEl && window.LAST_UPDATED) {
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const parts = window.LAST_UPDATED.split(' ')[0].split('-');
-    nbEl.textContent = months[parseInt(parts[1], 10) - 1] + ' ' + parseInt(parts[2], 10);
-  }
+}
 }
 
 // Per-category stat label and value formatter
@@ -1501,6 +1495,14 @@ fetch('./scores.json')
     window.GOLF_DATA_STALE = data.golf_data_stale || false;
     if (data.headline) {
       document.getElementById('news-bar-headline').innerHTML = data.headline;
+    }
+    // Set news bar date directly from data; fall back to today if field is absent
+    const _nbDate = document.getElementById('news-bar-updated');
+    if (_nbDate) {
+      const _months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const _raw = (data.last_updated || new Date().toISOString()).replace('T', ' ');
+      const _parts = _raw.split(' ')[0].split('-');
+      _nbDate.textContent = _months[parseInt(_parts[1], 10) - 1] + ' ' + parseInt(_parts[2], 10);
     }
     initDisplay();
     renderTable();
