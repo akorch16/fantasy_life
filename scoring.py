@@ -6,8 +6,10 @@ Reads all data from Supabase via db.py instead of local JSON files.
 
 import os
 
+from datetime import datetime, timezone
+
 from draft_picks_2026 import DRAFT_PICKS_2026, PLAYERS, TENNIS_GENDER
-from db import get_standing, get_all_standings, get_all_bonuses, get_last_updated
+from db import get_standing, get_all_standings, get_all_bonuses, get_last_updated, get_standing_updated_at
 
 SEASON = 2026
 PREMIUM_PLAYER = 'Todd'
@@ -273,7 +275,7 @@ def compute_baseline_tennis():
 
 
 # OWGR as of May 13, 2026 (static fallback — ESPN API blocked)
-GOLF_2026_OWGR_STATIC = {"rankings": [
+GOLF_2026_OWGR_STATIC = {"as_of": "2026-05-13", "rankings": [
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
     {"player": "Cameron Young",       "rank": 3},
@@ -617,10 +619,25 @@ def compute_all_scores():
     for i, p in enumerate(sorted_players):
         p['place'] = i + 1
 
+    # Staleness check: warn if golf data hasn't been refreshed within 7 days
+    golf_data_stale = True  # conservative default — assume stale until proven otherwise
+    golf_updated_at = get_standing_updated_at('Golf')
+    if golf_updated_at:
+        try:
+            age_days = (datetime.now(timezone.utc) - datetime.fromisoformat(golf_updated_at.replace('Z', '+00:00'))).days
+            golf_data_stale = age_days > 7
+            if golf_data_stale:
+                print(f'  ⚠ Golf data is {age_days} days old (last updated {golf_updated_at})')
+            else:
+                print(f'  ✓ Golf data is {age_days} days old (fresh)')
+        except Exception:
+            pass
+
     return {
-        'players':      sorted_players,
-        'last_updated': get_last_updated(),
-        'season':       SEASON,
+        'players':         sorted_players,
+        'last_updated':    get_last_updated(),
+        'season':          SEASON,
+        'golf_data_stale': golf_data_stale,
     }
 
 

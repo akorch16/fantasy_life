@@ -81,6 +81,24 @@ def get_all_standings() -> dict:
         print(f'  ✗ get_all_standings(): {e}')
         return {}
 
+def get_standing_updated_at(category: str) -> Optional[str]:
+    """Return the updated_at ISO timestamp for a category, or None if unavailable."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return None
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/standings',
+            headers=_headers(),
+            params={'category': f'eq.{category}', 'select': 'updated_at'},
+            timeout=_TIMEOUT,
+        )
+        rows = r.json()
+        if rows and isinstance(rows, list):
+            return rows[0].get('updated_at')
+    except Exception:
+        pass
+    return None
+
 def is_frozen(category: str) -> bool:
     if not SUPABASE_URL or not SUPABASE_KEY:
         return False
