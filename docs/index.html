@@ -388,6 +388,43 @@
       margin-left: 2px;
     }
 
+    .cat-detail-panel {
+      margin-bottom: 12px;
+      padding: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    .cat-detail-panel h4 {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.72rem;
+    }
+    .detail-table th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 500;
+      padding: 4px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-table td {
+      padding: 4px 8px;
+      color: var(--text);
+      border-bottom: 1px solid var(--dim);
+    }
+    .detail-table th:not(:first-child),
+    .detail-table td:not(:first-child) { text-align: right; }
+    .detail-table tr:last-child td { border-bottom: none; }
+    .detail-bonus { margin-top: 8px; font-size: 0.72rem; color: var(--gold); }
+
     .cat-item.tier-high {
       border-color: #166534;
       background: #052e16;
@@ -1238,11 +1275,57 @@ function renderTable() {
         `;
       }).join('');
 
-      td.innerHTML = `<div class="breakdown-inner"><div class="breakdown-grid">${items}</div></div>`;
+      let detailPanel = '';
+      if (currentFilter === 'musician') detailPanel = buildMusicianDetail(player);
+      else if (currentFilter === 'actor' || currentFilter === 'actress') detailPanel = buildFilmDetail(player, currentFilter);
+      td.innerHTML = `<div class="breakdown-inner">${detailPanel}<div class="breakdown-grid">${items}</div></div>`;
       br.appendChild(td);
       tbody.appendChild(br);
     }
   });
+}
+
+function buildMusicianDetail(player) {
+  const d = ((player.categories || {}).musician || {});
+  const num1   = d.num1_weeks   != null ? d.num1_weeks   : 0;
+  const hot100 = d.hot100_weeks != null ? d.hot100_weeks : 0;
+  const bonus  = d.bonus_pts || 0;
+  const bonusHtml = bonus > 0
+    ? `<tr><td style="color:var(--gold)">Grammy Bonus</td><td style="color:var(--gold)">+${bonus.toFixed(1)} pts</td></tr>`
+    : '';
+  return `
+    <div class="cat-detail-panel">
+      <h4>${d.pick || '–'} — Chart Stats</h4>
+      <table class="detail-table">
+        <tbody>
+          <tr><td>Billboard #1 Weeks</td><td>${num1}</td></tr>
+          <tr><td>Hot 100 Weeks</td><td>${hot100}</td></tr>
+          <tr><td>Score (2×#1 + Hot 100)</td><td>${(2 * num1) + hot100}</td></tr>
+          ${bonusHtml}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function buildFilmDetail(player, cat) {
+  const d = ((player.categories || {})[cat] || {});
+  const movies = d.movies || [];
+  const bonus  = d.bonus_pts || 0;
+  const rows = movies.map(m => {
+    const bo = m.box_office ? '$' + (m.box_office / 1e6).toFixed(1) + 'M' : '–';
+    const rt = m.rt_score   != null ? m.rt_score + '%' : '–';
+    return `<tr><td>${m.title || '–'}</td><td>${m.release_date || '–'}</td><td>${bo}</td><td>${rt}</td></tr>`;
+  }).join('');
+  const tableHtml = movies.length > 0
+    ? `<table class="detail-table">
+        <thead><tr><th>Film</th><th>Release</th><th>Box Office</th><th>RT</th></tr></thead>
+        <tbody>${rows}</tbody>
+       </table>`
+    : `<p style="font-size:0.72rem;color:var(--muted);padding:2px 0">No films released in 2026 yet.</p>`;
+  const bonusHtml = bonus > 0
+    ? `<div class="detail-bonus">Oscar bonus: +${bonus.toFixed(1)} pts</div>`
+    : '';
+  return `<div class="cat-detail-panel"><h4>${d.pick || '–'} — Filmography 2026</h4>${tableHtml}${bonusHtml}</div>`;
 }
 
 function toggleBreakdown(idx) {

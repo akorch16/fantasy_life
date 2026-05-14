@@ -417,12 +417,15 @@ def compute_baseline_actor_actress(category):
     data = load_data(category.lower())
 
     raw_values = {}
+    movies_by_player = {}
     for player, name in picks.items():
         composite = None
         if data:
             for entry in data.get('scores', []):
                 if name_matches(name, entry.get('name', '')):
                     composite = entry.get('composite_score')
+                    if entry.get('movies'):
+                        movies_by_player[player] = entry['movies']
                     break
         raw_values[player] = composite if composite is not None else -1
 
@@ -437,6 +440,7 @@ def compute_baseline_actor_actress(category):
         result[player] = {
             'pick': name, 'raw_value': round(raw, 2) if raw >= 0 else None,
             'rank': rank, 'baseline_pts': pts, 'bonus_pts': 0,
+            'movies': movies_by_player.get(player, []),
         }
     return result
 
@@ -446,6 +450,7 @@ def compute_baseline_musician():
     data = load_data('musician')
 
     raw_values = {}
+    chart_by_player = {}
     for player, name in picks.items():
         score = None
         if data:
@@ -454,6 +459,7 @@ def compute_baseline_musician():
                     num1   = entry.get('num1_weeks', 0) or 0
                     hot100 = entry.get('hot100_weeks', 0) or 0
                     score  = (2 * num1) + hot100
+                    chart_by_player[player] = {'num1_weeks': num1, 'hot100_weeks': hot100}
                     break
         raw_values[player] = score if score is not None else -1
 
@@ -465,9 +471,12 @@ def compute_baseline_musician():
         raw = raw_values[player]
         rank = ranks.get(player)
         pts = rank_to_points(rank) if rank is not None else 0
+        stats = chart_by_player.get(player, {})
         result[player] = {
             'pick': name, 'raw_value': raw if raw >= 0 else None,
             'rank': rank, 'baseline_pts': pts, 'bonus_pts': 0,
+            'num1_weeks': stats.get('num1_weeks', 0),
+            'hot100_weeks': stats.get('hot100_weeks', 0),
         }
     return result
 
@@ -599,7 +608,7 @@ def compute_all_scores():
             bonus     = p_data.get('bonus_pts', 0) or 0
             cat_total = base + bonus
             total    += cat_total
-            cat_breakdown[cat] = {
+            entry = {
                 'pick':         p_data.get('pick', '—'),
                 'raw_value':    p_data.get('raw_value'),
                 'raw_display':  p_data.get('raw_display'),
@@ -608,6 +617,12 @@ def compute_all_scores():
                 'bonus_pts':    round(bonus, 2),
                 'total_pts':    round(cat_total, 2),
             }
+            if cat == 'Musician':
+                entry['num1_weeks'] = p_data.get('num1_weeks', 0)
+                entry['hot100_weeks'] = p_data.get('hot100_weeks', 0)
+            elif cat in ('Actor', 'Actress'):
+                entry['movies'] = p_data.get('movies', [])
+            cat_breakdown[cat] = entry
         player_totals[player] = {
             'name':       player,
             'total':      round(total, 2),
