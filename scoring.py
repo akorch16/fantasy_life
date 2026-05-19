@@ -772,14 +772,19 @@ if __name__ == '__main__':
 
     import datetime
 
-    # Read previous scores.json to preserve headline and weekly baseline
+    # Read previous scores.json to preserve headline and score history
     existing_headline = ''
-    weekly_baseline: dict = {}
+    score_history: list = []
     try:
         with open(out_path) as _f:
             prev = json.load(_f)
             existing_headline = prev.get('headline', '')
-            weekly_baseline = prev.get('weekly_baseline', {})
+            score_history = prev.get('score_history', [])
+            # One-time migration from old weekly_baseline
+            if not score_history:
+                wb = prev.get('weekly_baseline', {})
+                if wb.get('totals') and wb.get('date'):
+                    score_history = [{'date': wb['date'], 'totals': wb['totals'], 'places': wb.get('places', {})}]
     except Exception:
         pass
 
@@ -791,22 +796,28 @@ if __name__ == '__main__':
     new_totals = {p['name']: p['total'] for p in data.get('players', [])}
     new_places = {p['name']: p['place'] for p in data.get('players', [])}
 
-    # Reset baseline every Tuesday; seed from scratch if missing
+    # 7-day rolling score history: update today's snapshot (overwrite if exists)
     today_utc = datetime.datetime.utcnow()
-    is_reset_day = today_utc.weekday() == 1  # Tuesday
-    if not weekly_baseline.get('totals') or is_reset_day:
-        weekly_baseline = {
-            'totals': new_totals,
-            'places': new_places,
-            'date': today_utc.strftime('%Y-%m-%d'),
-        }
-        print(f'  Weekly baseline {"reset" if is_reset_day else "seeded"} ({weekly_baseline["date"]})')
+    today_str = today_utc.strftime('%Y-%m-%d')
+    if score_history and score_history[-1].get('date') == today_str:
+        score_history[-1] = {'date': today_str, 'totals': new_totals, 'places': new_places}
+    else:
+        score_history.append({'date': today_str, 'totals': new_totals, 'places': new_places})
+    cutoff = (today_utc - datetime.timedelta(days=10)).strftime('%Y-%m-%d')
+    score_history = [e for e in score_history if e.get('date', '') >= cutoff]
+    target_date = (today_utc - datetime.timedelta(days=7)).strftime('%Y-%m-%d')
+    baseline_entry = min(
+        score_history,
+        key=lambda e: abs(
+            (datetime.datetime.strptime(e['date'], '%Y-%m-%d') -
+             datetime.datetime.strptime(target_date, '%Y-%m-%d')).days
+        )
+    )
+    data['score_history'] = score_history
 
-    data['weekly_baseline'] = weekly_baseline
-
-    # Attach week-over-week deltas vs baseline
-    base_totals = weekly_baseline.get('totals', {})
-    base_places = weekly_baseline.get('places', {})
+    # Attach week-over-week deltas vs 7-day-ago baseline
+    base_totals = baseline_entry.get('totals', {})
+    base_places = baseline_entry.get('places', {})
     for p in data.get('players', []):
         name = p['name']
         if name in base_totals:
