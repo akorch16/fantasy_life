@@ -1160,7 +1160,7 @@ function renderTable() {
     if (isTodd) {
       const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '<td></td>';
       tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
+        <td class="rank-cell ${rankClass}">${rank}${currentFilter === 'all' ? placeChangeHtml(player.place_change) : ''}</td>
         <td>
           <div class="player-name todd-name"><span class="todd-lock-icon">🔒</span> Todd</div>
           <div class="todd-teaser">premium required</div>
@@ -1189,7 +1189,7 @@ function renderTable() {
         : '–';
 
       tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
+        <td class="rank-cell ${rankClass}">${rank}</td>
         <td>
           <div class="player-name">${player.name}</div>
           <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${pick}</div>
