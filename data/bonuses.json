@@ -37,20 +37,20 @@
     "Fryar":   2.5,
     "Mitchell":2.5,
     "Buckley": 2.5,
-    "Jamzee":  4.0,
-    "Tim":     4.0,
-    "Korch":   4.0
+    "Jamzee":  6.5,
+    "Tim":     6.5,
+    "Korch":   6.5
   },
   "NBA": {
     "Tim":    2.5,
     "Shep":   2.5,
     "Korch":  2.5,
     "Jamzee": 2.5,
-    "Wu":     4.0,
-    "Jens":   4.0,
+    "Wu":     6.5,
+    "Jens":   6.5,
     "Todd":   4.0,
     "Theo":   4.0,
-    "Feder":  4.0,
-    "Buckley":4.0
+    "Feder":  6.5,
+    "Buckley":6.5
   }
 }
