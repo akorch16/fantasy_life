@@ -468,6 +468,10 @@ def scrape_stock():
 def scrape_country_gdp():
     if is_frozen('Country'):
         print('  ⏸ Country is frozen, skipping'); return True
+    # IMF WEO is published April + October — static file is authoritative until Oct 2026
+    import datetime
+    if datetime.date.today() < datetime.date(2026, 10, 1):
+        print('  ⏸ Country GDP: static file is current (next WEO: Oct 2026), skipping'); return True
     try:
         from draft_picks_2026 import DRAFT_PICKS_2026
         ISO_MAP = {

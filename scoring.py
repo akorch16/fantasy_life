@@ -483,15 +483,15 @@ def compute_baseline_musician():
 
 def compute_baseline_country():
     picks = DRAFT_PICKS_2026.get('Country', {})
-    data = load_data('country')
-    if not data:
-        import json as _json
-        _path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'country.json')
-        try:
-            with open(_path) as _f:
-                data = _json.load(_f)
-        except Exception:
-            pass
+    # WEO is published April + October only — always use static file as primary source
+    import json as _json
+    _path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'country.json')
+    data = None
+    try:
+        with open(_path) as _f:
+            data = _json.load(_f)
+    except Exception:
+        data = load_data('country')  # fallback to Supabase only if file missing
 
     raw_values = {}
     for player, country in picks.items():
