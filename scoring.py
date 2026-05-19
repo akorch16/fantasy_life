@@ -275,11 +275,7 @@ def compute_baseline_tennis():
 
 
 # OWGR as of May 13, 2026 (static fallback — ESPN API blocked)
-<<<<<<< Updated upstream
 GOLF_2026_OWGR_STATIC = {"as_of": "2026-05-13", "rankings": [
-=======
-GOLF_2026_OWGR_STATIC = {"rankings": [
->>>>>>> Stashed changes
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
     {"player": "Cameron Young",       "rank": 3},
