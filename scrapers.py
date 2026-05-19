@@ -464,7 +464,7 @@ def scrape_stock():
     except Exception as e:
         print(f'  ✗ Stock: {e}'); return False
 
-# ── Country GDP (World Bank) ──────────────────────────────────────────────────
+# ── Country GDP (IMF WEO DataMapper) ─────────────────────────────────────────
 def scrape_country_gdp():
     if is_frozen('Country'):
         print('  ⏸ Country is frozen, skipping'); return True
@@ -478,23 +478,24 @@ def scrape_country_gdp():
         }
         countries = list(DRAFT_PICKS_2026['Country'].values())
         codes = [ISO_MAP[c] for c in countries if c in ISO_MAP]
-        
-        # Batch all countries in ONE request
-        codes_str = ';'.join(codes)
-        url = f'https://api.worldbank.org/v2/country/{codes_str}/indicator/NY.GDP.MKTP.KD.ZG?format=json&mrv=5&per_page=100'
-        r = requests.get(url, headers=HEADERS, timeout=10)
+
+        # Primary: IMF DataMapper API — returns current WEO forecast year (not historical actuals)
+        codes_str = '/'.join(codes)
+        url = f'https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH/{codes_str}'
+        r = requests.get(url, headers=HEADERS, timeout=15)
         r.raise_for_status()
         data = r.json()
-        records = data[1] if isinstance(data, list) and len(data) > 1 else []
-        
-        # Build lookup: iso_code -> gdp_growth
+        values = data.get('values', {}).get('NGDP_RPCH', {})
+
+        # Use current year; fall back to next year if current year not yet published
+        import datetime
+        year = str(datetime.date.today().year)
         gdp_lookup = {}
-        for rec in records:
-            code = rec.get('countryiso3code') or rec.get('country', {}).get('id', '')
-            val = rec.get('value')
-            if code and val is not None and code not in gdp_lookup:
+        for code, years in values.items():
+            val = years.get(year) or years.get(str(int(year) + 1))
+            if val is not None:
                 gdp_lookup[code] = round(float(val), 2)
-        
+
         gdp = []
         for country in countries:
             code = ISO_MAP.get(country)
@@ -503,7 +504,7 @@ def scrape_country_gdp():
                 print(f'    {country} ({code}): {gdp_lookup[code]}%')
             else:
                 print(f'    ✗ No data for {country}')
-        
+
         if gdp:
             return save_standing('Country', {'gdp': gdp})
         raise Exception('No GDP data found')
