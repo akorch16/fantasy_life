@@ -783,14 +783,16 @@ if __name__ == '__main__':
     new_totals = {p['name']: p['total'] for p in data.get('players', [])}
     new_places = {p['name']: p['place'] for p in data.get('players', [])}
 
-    # Reset baseline every Tuesday; seed from scratch if missing
+    # Reset baseline every Tuesday (once per day only); seed from scratch if missing
     today_utc = datetime.datetime.utcnow()
+    today_str = today_utc.strftime('%Y-%m-%d')
     is_reset_day = today_utc.weekday() == 1  # Tuesday
-    if not weekly_baseline.get('totals') or is_reset_day:
+    already_reset_today = weekly_baseline.get('date', '') == today_str
+    if not weekly_baseline.get('totals') or (is_reset_day and not already_reset_today):
         weekly_baseline = {
             'totals': new_totals,
             'places': new_places,
-            'date': today_utc.strftime('%Y-%m-%d'),
+            'date': today_str,
         }
         print(f'  Weekly baseline {"reset" if is_reset_day else "seeded"} ({weekly_baseline["date"]})')
 
