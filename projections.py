@@ -490,10 +490,44 @@ def _sample_major(win_probs, ru_probs):
     Returns (winner_player_or_None, runner_up_player_or_None).
     """
     winner = _weighted_sample(win_probs)
-    # Sample runner_up from remaining players (exclude winner)
     ru_pool = {p: v for p, v in ru_probs.items() if p != winner}
     runner_up = _weighted_sample(ru_pool)
     return winner, runner_up
+
+
+def _sample_playoff_sport(champ_probs):
+    """
+    Sample full playoff results for one sport given championship odds.
+    Returns {player: bonus_pts} for picks that reach each milestone.
+
+    Simulates: champion (13 pts), runner-up (9 pts), 2 semi-finalists (6.5 pts).
+    Uses the same relative weights at each stage — stronger teams are more
+    likely to win every round, not just the championship.  Remaining probability
+    (1 − sum of picks) goes to OTHER at each stage, correctly modelling that
+    non-pick teams can win any round.
+    """
+    results = {}
+    remaining = dict(champ_probs)   # probabilities need not sum to 1
+
+    champion = _weighted_sample(remaining)
+    if champion:
+        results[champion] = 13.0
+        remaining.pop(champion)
+
+    runner_up = _weighted_sample(remaining)
+    if runner_up:
+        results[runner_up] = 9.0
+        remaining.pop(runner_up)
+
+    for _ in range(2):              # two semi-finalist slots
+        if not remaining:
+            break
+        semi = _weighted_sample(remaining)
+        if semi:
+            results[semi] = 6.5
+            remaining.pop(semi)
+
+    return results
 
 
 def _simulate_playoffs_conf(conf_west_probs, conf_east_probs, champ_probs):
@@ -567,40 +601,25 @@ def simulate(current_scores, odds, n=N_SIMS):
     current_nhl = {p["name"]: p["categories"].get("nhl", {}).get("bonus_pts", 0)
                    for p in current_scores}
 
-    # Precompute expected additional for deterministic categories (MLB/MLS/NASCAR/Golf/Tennis)
-    # These will be treated as fixed in the simulation (mean only, no per-sim sampling)
-    exp_mlb    = {p: 46.5 * _normalize(odds["mlb_champ"]).get(p, 0) for p in MLB_PICKS}
-    exp_mls    = {p: 46.5 * _normalize(odds["mls_champ"]).get(p, 0) for p in MLS_PICKS}
-    exp_nascar = {p: 46.5 * _normalize(odds["nascar_champ"]).get(p, 0) for p in NASCAR_PICKS}
+    # Pre-normalize championship odds for per-sim sampling
+    nba_norm    = _normalize(odds["nba_champ"])
+    nhl_norm    = _normalize(odds["nhl_champ"])
+    mlb_norm    = _normalize(odds["mlb_champ"])
+    mls_norm    = _normalize(odds["mls_champ"])
+    nascar_norm = _normalize(odds["nascar_champ"])
 
-    # Golf expected additional
-    exp_golf = {}
-    for player in GOLF_PICKS:
-        total = 0.0
-        for wk, rk, wp, rp in [("golf_uso_win","golf_uso_ru",6,2.5),
-                                 ("golf_open_win","golf_open_ru",6,2.5)]:
-            total += odds[wk].get(player,0)*wp + odds[rk].get(player,0)*rp
-        exp_golf[player] = total
-
-    # Tennis expected additional
-    exp_tennis = {}
-    pairs = [
-        ("tennis_french_men_win","tennis_french_men_ru"),
-        ("tennis_french_women_win","tennis_french_women_ru"),
-        ("tennis_wimbledon_men_win","tennis_wimbledon_men_ru"),
+    tennis_pairs = [
+        ("tennis_french_men_win",     "tennis_french_men_ru"),
+        ("tennis_french_women_win",   "tennis_french_women_ru"),
+        ("tennis_wimbledon_men_win",  "tennis_wimbledon_men_ru"),
         ("tennis_wimbledon_women_win","tennis_wimbledon_women_ru"),
-        ("tennis_usopen_men_win","tennis_usopen_men_ru"),
-        ("tennis_usopen_women_win","tennis_usopen_women_ru"),
+        ("tennis_usopen_men_win",     "tennis_usopen_men_ru"),
+        ("tennis_usopen_women_win",   "tennis_usopen_women_ru"),
     ]
-    all_tennis = {**TENNIS_MEN, **TENNIS_WOMEN}
-    for player in all_tennis:
-        total = 0.0
-        for wk, rk in pairs:
-            total += odds.get(wk,{}).get(player,0)*4 + odds.get(rk,{}).get(player,0)*2.5
-        exp_tennis[player] = total
-
-    nba_champ_norm = _normalize(odds["nba_champ"])
-    nhl_champ_norm = _normalize(odds["nhl_champ"])
+    golf_pairs = [
+        ("golf_uso_win", "golf_uso_ru"),
+        ("golf_open_win","golf_open_ru"),
+    ]
 
     sim_totals = {name: [] for name in players_list}
     wins  = {name: 0 for name in players_list}
@@ -609,36 +628,45 @@ def simulate(current_scores, odds, n=N_SIMS):
     for _ in range(n):
         totals = dict(base)
 
-        # Add deterministic expected values for far-future categories
-        for name in players_list:
-            totals[name] += exp_mlb.get(name, 0)
-            totals[name] += exp_mls.get(name, 0)
-            totals[name] += exp_nascar.get(name, 0)
-            totals[name] += exp_golf.get(name, 0)
-            totals[name] += exp_tennis.get(name, 0)
-
-        # ── NBA simulation ──────────────────────────────────────────────────
+        # ── NBA: sample conference finals + Finals ──────────────────────────
         nba_results = _simulate_playoffs_conf(
-            odds["nba_conf_finals_west"], odds["nba_conf_finals_east"], nba_champ_norm
+            odds["nba_conf_finals_west"], odds["nba_conf_finals_east"], nba_norm
         )
         for player in NBA_PICKS:
-            old_bonus = current_nba[player]
-            if old_bonus >= 6.5:
-                milestone = nba_results.get(player, "semi")
-                new_bonus = MILESTONES.get(milestone, 6.5)
-                totals[player] += max(0, new_bonus - old_bonus)
-            # Eliminated teams: no additional bonus
+            old = current_nba[player]
+            if old >= 6.5:
+                new = MILESTONES.get(nba_results.get(player, "semi"), 6.5)
+                totals[player] += max(0, new - old)
 
-        # ── NHL simulation ──────────────────────────────────────────────────
+        # ── NHL: sample conference finals + Finals ──────────────────────────
         nhl_results = _simulate_playoffs_conf(
-            odds["nhl_conf_finals_west"], odds["nhl_conf_finals_east"], nhl_champ_norm
+            odds["nhl_conf_finals_west"], odds["nhl_conf_finals_east"], nhl_norm
         )
         for player in NHL_PICKS:
-            old_bonus = current_nhl[player]
-            if old_bonus >= 6.5:
-                milestone = nhl_results.get(player, "semi")
-                new_bonus = MILESTONES.get(milestone, 6.5)
-                totals[player] += max(0, new_bonus - old_bonus)
+            old = current_nhl[player]
+            if old >= 6.5:
+                new = MILESTONES.get(nhl_results.get(player, "semi"), 6.5)
+                totals[player] += max(0, new - old)
+
+        # ── MLB / MLS / NASCAR: sample full playoff outcomes ────────────────
+        for player, pts in _sample_playoff_sport(mlb_norm).items():
+            totals[player] += pts
+        for player, pts in _sample_playoff_sport(mls_norm).items():
+            totals[player] += pts
+        for player, pts in _sample_playoff_sport(nascar_norm).items():
+            totals[player] += pts
+
+        # ── Golf: sample each remaining major independently ─────────────────
+        for wk, rk in golf_pairs:
+            winner, runner_up = _sample_major(odds[wk], odds[rk])
+            if winner:     totals[winner]     += 6.0
+            if runner_up:  totals[runner_up]  += 2.5
+
+        # ── Tennis: sample each remaining slam independently ────────────────
+        for wk, rk in tennis_pairs:
+            winner, runner_up = _sample_major(odds.get(wk, {}), odds.get(rk, {}))
+            if winner:     totals[winner]     += 4.0
+            if runner_up:  totals[runner_up]  += 2.5
 
         # Rank and tally
         ranked = sorted(players_list, key=lambda x: -totals[x])
@@ -653,11 +681,11 @@ def simulate(current_scores, odds, n=N_SIMS):
     for name in players_list:
         sims = sorted(sim_totals[name])
         out[name] = {
-            "win_pct":   round(wins[name] / n * 100, 1),
-            "top4_pct":  round(top4s[name] / n * 100, 1),
-            "projected_total": round(sum(sims) / n, 1),
-            "projected_p10":   round(sims[int(n * 0.10)], 1),
-            "projected_p90":   round(sims[int(n * 0.90)], 1),
+            "win_pct":        round(wins[name] / n * 100, 1),
+            "top4_pct":       round(top4s[name] / n * 100, 1),
+            "projected_total":round(sum(sims) / n, 1),
+            "projected_p10":  round(sims[int(n * 0.10)], 1),
+            "projected_p90":  round(sims[int(n * 0.90)], 1),
         }
     return out
 
