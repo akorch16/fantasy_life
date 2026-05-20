@@ -90,6 +90,90 @@ TENNIS_WOMEN = {
     "Jamzee": "Amanda Anisimova",
 }
 
+# ─── Upcoming 2026 film pipeline (Actor / Actress simulation) ─────────────────
+# box_office: (p10, p50, p90) domestic gross in $M  — lognormal distribution
+# rt:         (p10, p50, p90) Rotten Tomatoes score — normal distribution, capped 0–100
+# actor/actress: {player_key: role_factor}  (1.0=lead, 0.5=supporting, 0.25=cameo)
+FILM_PIPELINE = [
+    {
+        "title": "Mandalorian & Grogu",
+        "box_office": (200, 300, 400),
+        "rt": (65, 74, 85),
+        "actor":   {"Mitchell": 1.0, "Shep": 0.5},
+        "actress": {},
+    },
+    {
+        "title": "Moana",
+        "box_office": (130, 190, 260),
+        "rt": (48, 62, 75),
+        "actor":   {"Theo": 1.0},
+        "actress": {},
+    },
+    {
+        "title": "The Odyssey",
+        "box_office": (175, 275, 375),
+        "rt": (78, 88, 96),
+        "actor":   {"Molmen": 1.0, "Feder": 1.0, "Buckley": 1.0, "Korch": 1.0},
+        "actress": {"Korch": 1.0, "Wu": 1.0, "Mitchell": 1.0},
+    },
+    {
+        "title": "Spider-Man: Brand New Day",
+        "box_office": (450, 750, 1100),
+        "rt": (72, 84, 94),
+        "actor":   {"Feder": 1.0},
+        "actress": {"Wu": 1.0},
+    },
+    {
+        "title": "The Social Reckoning",
+        "box_office": (50, 90, 150),
+        "rt": (78, 89, 97),
+        "actor":   {"Shep": 1.0},
+        "actress": {},
+    },
+    {
+        "title": "Flowervale Street",
+        "box_office": (15, 35, 60),
+        "rt": (62, 75, 88),
+        "actor":   {},
+        "actress": {"Korch": 1.0},
+    },
+    {
+        "title": "Verity",
+        "box_office": (40, 75, 110),
+        "rt": (55, 68, 80),
+        "actor":   {},
+        "actress": {"Korch": 1.0},
+    },
+    {
+        "title": "Avengers: Doomsday",
+        "box_office": (350, 500, 700),
+        "rt": (68, 80, 90),
+        "actor":   {"Mitchell": 1.0, "Fryar": 0.25},
+        "actress": {"Fryar": 1.0},
+    },
+    {
+        "title": "Dune: Part Three",
+        "box_office": (180, 280, 400),
+        "rt": (82, 91, 97),
+        "actor":   {"Jamzee": 1.0, "Buckley": 1.0},
+        "actress": {"Wu": 0.5, "Fryar": 1.0, "Buckley": 1.0},
+    },
+    {
+        "title": "Focker-in-Law",
+        "box_office": (55, 95, 145),
+        "rt": (40, 58, 72),
+        "actor":   {},
+        "actress": {"Tim": 1.0},
+    },
+    {
+        "title": "Jumanji",
+        "box_office": (120, 175, 240),
+        "rt": (60, 72, 80),
+        "actor":   {"Theo": 1.0},
+        "actress": {},
+    },
+]
+
 # ─── Bonus milestone values ─────────────────────────────────────────────────
 MILESTONES = {
     "champion": 13.0, "runner_up": 9.0, "semi": 6.5,
@@ -290,6 +374,48 @@ def _weighted_sample(probs):
     return None  # OTHER (no pick wins)
 
 
+# ─── Film composite helpers ───────────────────────────────────────────────────
+def _sample_lognormal(p10, p50, p90):
+    """Sample from lognormal defined by (p10, median, p90) percentile anchors."""
+    mu = math.log(p50)
+    sigma = math.log(p90 / p10) / (2 * 1.28)
+    return math.exp(random.gauss(mu, sigma))
+
+
+def _sample_normal_capped(p10, p50, p90, lo=0.0, hi=100.0):
+    """Sample from normal distribution anchored at (p10, p50, p90), capped at [lo, hi]."""
+    sigma = (p90 - p10) / (2 * 1.28)
+    return max(lo, min(hi, random.gauss(p50, sigma)))
+
+
+def _expected_lognormal(p10, p50, p90):
+    """E[X] for lognormal parameterized by (p10, median, p90)."""
+    mu = math.log(p50)
+    sigma = math.log(p90 / p10) / (2 * 1.28)
+    return math.exp(mu + 0.5 * sigma * sigma)
+
+
+def _rank_composites(players_list, comp_dict):
+    """
+    Rank players by composite score, averaging ranks for ties.
+    Returns {player: baseline_pts} where rank 1 → 13 pts, rank 13 → 1 pt.
+    """
+    sorted_p = sorted(players_list, key=lambda x: -comp_dict.get(x, 0.0))
+    pts = {}
+    i = 0
+    while i < len(sorted_p):
+        j = i
+        val = comp_dict.get(sorted_p[i], 0.0)
+        while j < len(sorted_p) and comp_dict.get(sorted_p[j], 0.0) == val:
+            j += 1
+        avg_rank = (i + 1 + j) / 2.0
+        avg_pts = max(0.0, 14.0 - avg_rank)
+        for k in range(i, j):
+            pts[sorted_p[k]] = avg_pts
+        i = j
+    return pts
+
+
 # ─── Expected bonus helpers ──────────────────────────────────────────────────
 def _expected_bonus_preseason(p_champ):
     """
@@ -480,6 +606,28 @@ def compute_expected_additional(current_scores, odds):
             total += p_win * wp + p_ru * rp
         result[player]["tennis"] = total
 
+    # ── Actor / Actress: expected composite from upcoming films → rank delta ──
+    players_list = list(players.keys())
+    for cat in ("actor", "actress"):
+        # Start from current composites (already-released films)
+        composites = {
+            name: (players[name]["categories"].get(cat, {}).get("raw_value") or 0.0)
+            for name in players_list
+        }
+        # Add expected composite from each upcoming film (E[lognormal] × median RT/100)
+        for film in FILM_PIPELINE:
+            e_box = _expected_lognormal(*film["box_office"])
+            e_rt  = film["rt"][1]  # median RT as point estimate
+            e_contrib = (e_rt / 100.0) * e_box
+            for player, factor in film[cat].items():
+                composites[player] = composites.get(player, 0.0) + e_contrib * factor
+        # Rank by expected composite → pts
+        expected_pts = _rank_composites(players_list, composites)
+        # Delta vs current baseline_pts (bonus_pts stay frozen)
+        for name in players_list:
+            current_base = players[name]["categories"].get(cat, {}).get("baseline_pts") or 0.0
+            result[name][cat] = expected_pts.get(name, 0.0) - current_base
+
     return result
 
 
@@ -490,10 +638,39 @@ def _sample_major(win_probs, ru_probs):
     Returns (winner_player_or_None, runner_up_player_or_None).
     """
     winner = _weighted_sample(win_probs)
-    # Sample runner_up from remaining players (exclude winner)
     ru_pool = {p: v for p, v in ru_probs.items() if p != winner}
     runner_up = _weighted_sample(ru_pool)
     return winner, runner_up
+
+
+def _sample_playoff_sport(champ_probs):
+    """
+    Sample full playoff results for one sport given championship odds.
+    Returns {player: bonus_pts}: champion=13, runner_up=9, semis=6.5.
+    Remaining probability goes to OTHER teams at each stage.
+    """
+    results = {}
+    remaining = dict(champ_probs)
+
+    champion = _weighted_sample(remaining)
+    if champion:
+        results[champion] = 13.0
+        remaining.pop(champion)
+
+    runner_up = _weighted_sample(remaining)
+    if runner_up:
+        results[runner_up] = 9.0
+        remaining.pop(runner_up)
+
+    for _ in range(2):
+        if not remaining:
+            break
+        semi = _weighted_sample(remaining)
+        if semi:
+            results[semi] = 6.5
+            remaining.pop(semi)
+
+    return results
 
 
 def _simulate_playoffs_conf(conf_west_probs, conf_east_probs, champ_probs):
@@ -549,58 +726,55 @@ def simulate(current_scores, odds, n=N_SIMS):
     Returns {player: {win_pct, top4_pct, projected_total, projected_p10, projected_p90, ...}}.
     """
     players_list = [p["name"] for p in current_scores]
-    # Base totals: current total minus all live-category bonuses (we re-sample those)
-    # For frozen categories, total is already fixed; for live categories we resample bonus.
+
+    # Base totals: strip the portions we re-sample each run.
+    # Sports: subtract bonus_pts only (baseline rank is frozen).
+    # Actor/Actress: subtract baseline_pts (ranking re-simulated); bonus_pts stay frozen.
     base = {}
-    live_cats = {"nba", "nhl", "mlb", "mls", "nascar", "golf", "tennis"}
     for p in current_scores:
         name = p["name"]
         total = p["total"]
-        # Subtract current bonuses for live categories so we re-add sampled ones
-        for cat in live_cats:
-            total -= p["categories"].get(cat, {}).get("bonus_pts", 0)
+        for cat in ("nba", "nhl", "mlb", "mls", "nascar", "golf", "tennis"):
+            total -= p["categories"].get(cat, {}).get("bonus_pts", 0) or 0
+        for cat in ("actor", "actress"):
+            total -= p["categories"].get(cat, {}).get("baseline_pts", 0) or 0
         base[name] = total
 
-    # Pre-extract current bonuses for live playoff categories
-    current_nba = {p["name"]: p["categories"].get("nba", {}).get("bonus_pts", 0)
+    # Pre-extract composite scores (raw_value) for actor/actress
+    current_actor_comp = {
+        p["name"]: p["categories"].get("actor", {}).get("raw_value") or 0.0
+        for p in current_scores
+    }
+    current_actress_comp = {
+        p["name"]: p["categories"].get("actress", {}).get("raw_value") or 0.0
+        for p in current_scores
+    }
+
+    # Current bonuses for in-progress playoff categories
+    current_nba = {p["name"]: p["categories"].get("nba", {}).get("bonus_pts", 0) or 0
                    for p in current_scores}
-    current_nhl = {p["name"]: p["categories"].get("nhl", {}).get("bonus_pts", 0)
+    current_nhl = {p["name"]: p["categories"].get("nhl", {}).get("bonus_pts", 0) or 0
                    for p in current_scores}
 
-    # Precompute expected additional for deterministic categories (MLB/MLS/NASCAR/Golf/Tennis)
-    # These will be treated as fixed in the simulation (mean only, no per-sim sampling)
-    exp_mlb    = {p: 46.5 * _normalize(odds["mlb_champ"]).get(p, 0) for p in MLB_PICKS}
-    exp_mls    = {p: 46.5 * _normalize(odds["mls_champ"]).get(p, 0) for p in MLS_PICKS}
-    exp_nascar = {p: 46.5 * _normalize(odds["nascar_champ"]).get(p, 0) for p in NASCAR_PICKS}
+    # Pre-normalize championship odds for per-sim sampling
+    nba_norm    = _normalize(odds["nba_champ"])
+    nhl_norm    = _normalize(odds["nhl_champ"])
+    mlb_norm    = _normalize(odds["mlb_champ"])
+    mls_norm    = _normalize(odds["mls_champ"])
+    nascar_norm = _normalize(odds["nascar_champ"])
 
-    # Golf expected additional
-    exp_golf = {}
-    for player in GOLF_PICKS:
-        total = 0.0
-        for wk, rk, wp, rp in [("golf_uso_win","golf_uso_ru",6,2.5),
-                                 ("golf_open_win","golf_open_ru",6,2.5)]:
-            total += odds[wk].get(player,0)*wp + odds[rk].get(player,0)*rp
-        exp_golf[player] = total
-
-    # Tennis expected additional
-    exp_tennis = {}
-    pairs = [
-        ("tennis_french_men_win","tennis_french_men_ru"),
-        ("tennis_french_women_win","tennis_french_women_ru"),
-        ("tennis_wimbledon_men_win","tennis_wimbledon_men_ru"),
+    tennis_pairs = [
+        ("tennis_french_men_win",     "tennis_french_men_ru"),
+        ("tennis_french_women_win",   "tennis_french_women_ru"),
+        ("tennis_wimbledon_men_win",  "tennis_wimbledon_men_ru"),
         ("tennis_wimbledon_women_win","tennis_wimbledon_women_ru"),
-        ("tennis_usopen_men_win","tennis_usopen_men_ru"),
-        ("tennis_usopen_women_win","tennis_usopen_women_ru"),
+        ("tennis_usopen_men_win",     "tennis_usopen_men_ru"),
+        ("tennis_usopen_women_win",   "tennis_usopen_women_ru"),
     ]
-    all_tennis = {**TENNIS_MEN, **TENNIS_WOMEN}
-    for player in all_tennis:
-        total = 0.0
-        for wk, rk in pairs:
-            total += odds.get(wk,{}).get(player,0)*4 + odds.get(rk,{}).get(player,0)*2.5
-        exp_tennis[player] = total
-
-    nba_champ_norm = _normalize(odds["nba_champ"])
-    nhl_champ_norm = _normalize(odds["nhl_champ"])
+    golf_pairs = [
+        ("golf_uso_win",  "golf_uso_ru"),
+        ("golf_open_win", "golf_open_ru"),
+    ]
 
     sim_totals = {name: [] for name in players_list}
     wins  = {name: 0 for name in players_list}
@@ -609,36 +783,60 @@ def simulate(current_scores, odds, n=N_SIMS):
     for _ in range(n):
         totals = dict(base)
 
-        # Add deterministic expected values for far-future categories
-        for name in players_list:
-            totals[name] += exp_mlb.get(name, 0)
-            totals[name] += exp_mls.get(name, 0)
-            totals[name] += exp_nascar.get(name, 0)
-            totals[name] += exp_golf.get(name, 0)
-            totals[name] += exp_tennis.get(name, 0)
-
-        # ── NBA simulation ──────────────────────────────────────────────────
+        # ── NBA: sample conference finals + Finals ──────────────────────────
         nba_results = _simulate_playoffs_conf(
-            odds["nba_conf_finals_west"], odds["nba_conf_finals_east"], nba_champ_norm
+            odds["nba_conf_finals_west"], odds["nba_conf_finals_east"], nba_norm
         )
         for player in NBA_PICKS:
-            old_bonus = current_nba[player]
-            if old_bonus >= 6.5:
-                milestone = nba_results.get(player, "semi")
-                new_bonus = MILESTONES.get(milestone, 6.5)
-                totals[player] += max(0, new_bonus - old_bonus)
-            # Eliminated teams: no additional bonus
+            old = current_nba[player]
+            if old >= 6.5:
+                new = MILESTONES.get(nba_results.get(player, "semi"), 6.5)
+                totals[player] += max(0, new - old)
 
-        # ── NHL simulation ──────────────────────────────────────────────────
+        # ── NHL: sample conference finals + Finals ──────────────────────────
         nhl_results = _simulate_playoffs_conf(
-            odds["nhl_conf_finals_west"], odds["nhl_conf_finals_east"], nhl_champ_norm
+            odds["nhl_conf_finals_west"], odds["nhl_conf_finals_east"], nhl_norm
         )
         for player in NHL_PICKS:
-            old_bonus = current_nhl[player]
-            if old_bonus >= 6.5:
-                milestone = nhl_results.get(player, "semi")
-                new_bonus = MILESTONES.get(milestone, 6.5)
-                totals[player] += max(0, new_bonus - old_bonus)
+            old = current_nhl[player]
+            if old >= 6.5:
+                new = MILESTONES.get(nhl_results.get(player, "semi"), 6.5)
+                totals[player] += max(0, new - old)
+
+        # ── MLB / MLS / NASCAR: sample full playoff outcomes ────────────────
+        for player, pts in _sample_playoff_sport(mlb_norm).items():
+            totals[player] += pts
+        for player, pts in _sample_playoff_sport(mls_norm).items():
+            totals[player] += pts
+        for player, pts in _sample_playoff_sport(nascar_norm).items():
+            totals[player] += pts
+
+        # ── Golf: sample each remaining major independently ─────────────────
+        for wk, rk in golf_pairs:
+            winner, runner_up = _sample_major(odds[wk], odds[rk])
+            if winner:     totals[winner]     += 6.0
+            if runner_up:  totals[runner_up]  += 2.5
+
+        # ── Tennis: sample each remaining slam independently ────────────────
+        for wk, rk in tennis_pairs:
+            winner, runner_up = _sample_major(odds.get(wk, {}), odds.get(rk, {}))
+            if winner:     totals[winner]     += 4.0
+            if runner_up:  totals[runner_up]  += 2.5
+
+        # ── Actor / Actress: sample each upcoming film's box office + RT ────
+        actor_comp   = dict(current_actor_comp)
+        actress_comp = dict(current_actress_comp)
+        for film in FILM_PIPELINE:
+            box    = _sample_lognormal(*film["box_office"])
+            rt     = _sample_normal_capped(*film["rt"])
+            contrib = (rt / 100.0) * box
+            for player, factor in film["actor"].items():
+                actor_comp[player]   = actor_comp.get(player, 0.0)   + contrib * factor
+            for player, factor in film["actress"].items():
+                actress_comp[player] = actress_comp.get(player, 0.0) + contrib * factor
+        for comp_dict in (actor_comp, actress_comp):
+            for player, pts in _rank_composites(players_list, comp_dict).items():
+                totals[player] += pts
 
         # Rank and tally
         ranked = sorted(players_list, key=lambda x: -totals[x])
@@ -653,8 +851,8 @@ def simulate(current_scores, odds, n=N_SIMS):
     for name in players_list:
         sims = sorted(sim_totals[name])
         out[name] = {
-            "win_pct":   round(wins[name] / n * 100, 1),
-            "top4_pct":  round(top4s[name] / n * 100, 1),
+            "win_pct":         round(wins[name] / n * 100, 2),
+            "top4_pct":        round(top4s[name] / n * 100, 2),
             "projected_total": round(sum(sims) / n, 1),
             "projected_p10":   round(sims[int(n * 0.10)], 1),
             "projected_p90":   round(sims[int(n * 0.90)], 1),
@@ -719,7 +917,7 @@ def run():
         print(f"{p['name']:10} {p['current_total']:7.1f} "
               f"{p['projected_additional']:7.1f} {p['projected_total']:7.1f} "
               f"{p['projected_p10']:7.1f} {p['projected_p90']:7.1f} "
-              f"{p['win_pct']:5.1f}% {p['top4_pct']:5.1f}%")
+              f"{p['win_pct']:6.2f}% {p['top4_pct']:6.2f}%")
     print(f"\nWrote {PROJECTIONS_PATH}")
     if markets_used:
         print(f"Live Kalshi markets: {', '.join(markets_used)}")
