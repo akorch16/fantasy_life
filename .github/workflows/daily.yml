@@ -44,10 +44,15 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scoring.py
 
-      - name: Commit & push scores.json
+      - name: Compute projections → docs/projections.json
+        env:
+          KALSHI_API_KEY: ${{ secrets.KALSHI_API_KEY }}
+        run: python projections.py
+
+      - name: Commit & push scores + projections
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/scores.json
-          git diff --staged --quiet || git commit -m "chore: update scores $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git add docs/scores.json docs/projections.json
+          git diff --staged --quiet || git commit -m "chore: update scores + projections $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
