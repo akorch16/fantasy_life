@@ -890,11 +890,12 @@
       <button class="filter-btn" data-cat="musician" onclick="setFilter('musician', this)">Musician</button>
       <button class="filter-btn" data-cat="country" onclick="setFilter('country', this)">Country</button>
       <button class="filter-btn" data-cat="stock" onclick="setFilter('stock', this)">Stock</button>
+      <button class="filter-btn" data-cat="projections" onclick="setFilter('projections', this)">Projections</button>
     </div>
   </div>
 
   <!-- ─── STANDINGS TABLE ─── -->
-  <table class="standings-table">
+  <table class="standings-table" id="standings-table">
     <thead>
       <tr id="table-header">
         <th>#</th>
@@ -905,6 +906,25 @@
     </thead>
     <tbody id="standings-body">
       <!-- Rendered by JS from window.SCORES_DATA -->
+    </tbody>
+  </table>
+
+  <!-- ─── PROJECTIONS TABLE ─── -->
+  <table class="standings-table" id="projections-table" style="display:none">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Player</th>
+        <th class="pts" title="Current total points">Now</th>
+        <th class="pts" title="Expected additional points from remaining events">+Exp</th>
+        <th class="pts" title="Projected year-end total (median)">Proj</th>
+        <th class="pts" title="10th–90th percentile range">Range</th>
+        <th class="pts" title="Win probability">Win%</th>
+        <th class="pts" title="Top-4 finish probability">Top4%</th>
+      </tr>
+    </thead>
+    <tbody id="projections-body">
+      <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">Loading projections…</td></tr>
     </tbody>
   </table>
 
@@ -1361,7 +1381,54 @@ function setFilter(cat, btn) {
   // Close breakdowns
   document.querySelectorAll('.breakdown-row.open').forEach(r => r.classList.remove('open'));
   document.querySelectorAll('.player-row.expanded').forEach(r => r.classList.remove('expanded'));
-  renderTable();
+  const standingsEl = document.getElementById('standings-table');
+  const projEl = document.getElementById('projections-table');
+  if (cat === 'projections') {
+    if (standingsEl) standingsEl.style.display = 'none';
+    if (projEl) projEl.style.display = '';
+    loadAndRenderProjections();
+  } else {
+    if (standingsEl) standingsEl.style.display = '';
+    if (projEl) projEl.style.display = 'none';
+    renderTable();
+  }
+}
+
+let _projData = null;
+function loadAndRenderProjections() {
+  if (_projData) { _renderProjections(_projData); return; }
+  fetch('./projections.json')
+    .then(r => r.json())
+    .then(data => { _projData = data; _renderProjections(data); })
+    .catch(() => {
+      const tbody = document.getElementById('projections-body');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">Projections unavailable.</td></tr>';
+    });
+}
+
+function _winColor(pct) {
+  if (pct >= 25) return 'color:#22c55e';
+  if (pct >= 10) return 'color:#eab308';
+  return 'color:var(--text-muted)';
+}
+
+function _renderProjections(data) {
+  const tbody = document.getElementById('projections-body');
+  if (!tbody) return;
+  const players = (data.players || []).slice().sort((a, b) => b.projected_total - a.projected_total);
+  const genAt = data.generated_at ? data.generated_at.slice(0, 10) : '';
+  tbody.innerHTML = players.map((p, i) => `
+    <tr class="player-row">
+      <td>${i + 1}</td>
+      <td><strong>${p.name}</strong></td>
+      <td class="pts">${p.current_total.toFixed(1)}</td>
+      <td class="pts">+${p.projected_additional.toFixed(1)}</td>
+      <td class="pts"><strong>${p.projected_total.toFixed(1)}</strong></td>
+      <td class="pts" style="font-size:0.8em;color:var(--text-muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
+      <td class="pts" style="${_winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
+      <td class="pts" style="${_winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
+    </tr>
+  `).join('') + `<tr><td colspan="8" style="text-align:center;font-size:0.75em;color:var(--text-muted);padding:0.5rem">As of ${genAt} · ${(data.n_simulations||10000).toLocaleString()} simulations · ${data.kalshi_markets_used && data.kalshi_markets_used.length ? 'Live Kalshi odds' : 'Static odds'}</td></tr>`;
 }
 
 // ============================================================
