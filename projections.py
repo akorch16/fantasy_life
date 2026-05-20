@@ -174,6 +174,46 @@ FILM_PIPELINE = [
     },
 ]
 
+# ─── Stock simulation parameters ─────────────────────────────────────────────
+# (expected_additional_return_pct, std_dev_pct) for rest of 2026 (~7 months).
+# Values are from the PLAYER's perspective: positive = good for the pick.
+# For SHORT positions this is already sign-flipped (CVNA short: +5 means CVNA
+# expected to fall another 5%).
+STOCK_SIM = {
+    "Jamzee": (-10.0, 40.0),  # INTC Long: at +172%, mean-reversion risk
+    "Mitchell": ( 5.0, 50.0), # CVNA Short: volatile, expected continued decline
+    "Fryar":   ( 8.0, 25.0),  # AVGO Long: strong semiconductor fundamentals
+    "Todd":    (12.0, 30.0),  # NVDA Long: AI spending still accelerating
+    "Shep":    (-5.0, 40.0),  # TSLA Short: recovery risk for short position
+    "Buckley": ( 3.0, 15.0),  # NEE Long: stable regulated utility
+    "Korch":   ( 5.0, 45.0),  # SMCI Long: high volatility AI server play
+    "Molmen":  (15.0, 25.0),  # TTWO Long: GTA VI launch catalyst
+    "Theo":    ( 5.0, 18.0),  # CMG Long: steady restaurant recovery
+    "Feder":   (15.0, 35.0),  # PLTR Long: AI/government data momentum
+    "Tim":     ( 5.0, 45.0),  # COIN Long: crypto correlation, high vol
+    "Wu":      ( 8.0, 25.0),  # LULU Long: athleisure recovery from lows
+    "Jens":    (10.0, 35.0),  # SOFI Long: fintech recovery potential
+}
+
+# ─── Country simulation parameters ───────────────────────────────────────────
+# (expected_revision_pct, std_dev_pct): models uncertainty in the October 2026
+# IMF WEO GDP growth forecast revision relative to the current April 2026 forecast.
+COUNTRY_SIM = {
+    "Korch":    ( 0.0,  5.0),  # Guyana: oil-driven boom, can miss projections
+    "Todd":     ( 0.0,  3.0),  # Guinea: small economy, moderate forecast risk
+    "Jamzee":   ( 0.0,  0.8),  # Spain: stable EU, tight revision band
+    "Feder":    ( 0.0,  1.5),  # Brazil: emerging market, moderate uncertainty
+    "Wu":       ( 0.0,  0.4),  # United States: large stable, IMF rarely revises much
+    "Fryar":    ( 0.0,  0.8),  # Norway: small stable open economy
+    "Buckley":  ( 0.0,  0.5),  # Canada: closely correlated to US
+    "Theo":     ( 0.0,  0.4),  # Switzerland: very stable, tight revision band
+    "Shep":     ( 0.0,  0.4),  # France: stable EU economy
+    "Tim":      ( 0.0,  0.4),  # Netherlands: stable EU economy
+    "Jens":     ( 0.5,  0.8),  # Germany: in recession, slight upside bias
+    "Molmen":   ( 0.5,  5.0),  # Argentina: Milei reforms → high uncertainty
+    "Mitchell": ( 0.0,  8.0),  # South Sudan: conflict economy, extreme uncertainty
+}
+
 # ─── Bonus milestone values ─────────────────────────────────────────────────
 MILESTONES = {
     "champion": 13.0, "runner_up": 9.0, "semi": 6.5,
@@ -628,6 +668,28 @@ def compute_expected_additional(current_scores, odds):
             current_base = players[name]["categories"].get(cat, {}).get("baseline_pts") or 0.0
             result[name][cat] = expected_pts.get(name, 0.0) - current_base
 
+    # ── Stock: expected rank delta from remaining-year return distributions ───
+    stock_exp = {}
+    for player in STOCK_SIM:
+        current = players[player]["categories"].get("stock", {}).get("raw_value") or 0.0
+        exp_add, _ = STOCK_SIM[player]
+        stock_exp[player] = current + exp_add
+    expected_stock_pts = _rank_composites(players_list, stock_exp)
+    for name in players_list:
+        current_base = players[name]["categories"].get("stock", {}).get("baseline_pts") or 0.0
+        result[name]["stock"] = expected_stock_pts.get(name, 0.0) - current_base
+
+    # ── Country: expected rank delta from Oct 2026 IMF revision ─────────────
+    country_exp = {}
+    for player in COUNTRY_SIM:
+        current = players[player]["categories"].get("country", {}).get("raw_value") or 0.0
+        exp_rev, _ = COUNTRY_SIM[player]
+        country_exp[player] = current + exp_rev
+    expected_country_pts = _rank_composites(players_list, country_exp)
+    for name in players_list:
+        current_base = players[name]["categories"].get("country", {}).get("baseline_pts") or 0.0
+        result[name]["country"] = expected_country_pts.get(name, 0.0) - current_base
+
     return result
 
 
@@ -729,24 +791,33 @@ def simulate(current_scores, odds, n=N_SIMS):
 
     # Base totals: strip the portions we re-sample each run.
     # Sports: subtract bonus_pts only (baseline rank is frozen).
-    # Actor/Actress: subtract baseline_pts (ranking re-simulated); bonus_pts stay frozen.
+    # Actor/Actress/Stock/Country: subtract baseline_pts (ranking re-simulated);
+    #   bonus_pts stay frozen (already earned).
     base = {}
     for p in current_scores:
         name = p["name"]
         total = p["total"]
         for cat in ("nba", "nhl", "mlb", "mls", "nascar", "golf", "tennis"):
             total -= p["categories"].get(cat, {}).get("bonus_pts", 0) or 0
-        for cat in ("actor", "actress"):
+        for cat in ("actor", "actress", "stock", "country"):
             total -= p["categories"].get(cat, {}).get("baseline_pts", 0) or 0
         base[name] = total
 
-    # Pre-extract composite scores (raw_value) for actor/actress
+    # Pre-extract composite/raw scores for re-ranked categories
     current_actor_comp = {
         p["name"]: p["categories"].get("actor", {}).get("raw_value") or 0.0
         for p in current_scores
     }
     current_actress_comp = {
         p["name"]: p["categories"].get("actress", {}).get("raw_value") or 0.0
+        for p in current_scores
+    }
+    current_stock_raw = {
+        p["name"]: p["categories"].get("stock", {}).get("raw_value") or 0.0
+        for p in current_scores
+    }
+    current_country_raw = {
+        p["name"]: p["categories"].get("country", {}).get("raw_value") or 0.0
         for p in current_scores
     }
 
@@ -837,6 +908,22 @@ def simulate(current_scores, odds, n=N_SIMS):
         for comp_dict in (actor_comp, actress_comp):
             for player, pts in _rank_composites(players_list, comp_dict).items():
                 totals[player] += pts
+
+        # ── Stock: sample additional return, re-rank ────────────────────────
+        stock_sim = {}
+        for player in STOCK_SIM:
+            exp_add, std = STOCK_SIM[player]
+            stock_sim[player] = current_stock_raw.get(player, 0.0) + random.gauss(exp_add, std)
+        for player, pts in _rank_composites(players_list, stock_sim).items():
+            totals[player] += pts
+
+        # ── Country: sample Oct IMF revision, re-rank ──────────────────────
+        country_sim = {}
+        for player in COUNTRY_SIM:
+            exp_rev, std = COUNTRY_SIM[player]
+            country_sim[player] = current_country_raw.get(player, 0.0) + random.gauss(exp_rev, std)
+        for player, pts in _rank_composites(players_list, country_sim).items():
+            totals[player] += pts
 
         # Rank and tally
         ranked = sorted(players_list, key=lambda x: -totals[x])
