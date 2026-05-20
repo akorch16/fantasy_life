@@ -1425,8 +1425,8 @@ function _renderProjections(data) {
       <td class="pts">+${p.projected_additional.toFixed(1)}</td>
       <td class="pts"><strong>${p.projected_total.toFixed(1)}</strong></td>
       <td class="pts" style="font-size:0.8em;color:var(--text-muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
-      <td class="pts" style="${_winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
-      <td class="pts" style="${_winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
+      <td class="pts" style="${_winColor(p.win_pct)}">${p.win_pct.toFixed(2)}%</td>
+      <td class="pts" style="${_winColor(p.top4_pct)}">${p.top4_pct.toFixed(2)}%</td>
     </tr>
   `).join('') + `<tr><td colspan="8" style="text-align:center;font-size:0.75em;color:var(--text-muted);padding:0.5rem">As of ${genAt} · ${(data.n_simulations||10000).toLocaleString()} simulations · ${data.kalshi_markets_used && data.kalshi_markets_used.length ? 'Live Kalshi odds' : 'Static odds'}</td></tr>`;
 }

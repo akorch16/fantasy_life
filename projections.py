@@ -681,8 +681,8 @@ def simulate(current_scores, odds, n=N_SIMS):
     for name in players_list:
         sims = sorted(sim_totals[name])
         out[name] = {
-            "win_pct":        round(wins[name] / n * 100, 1),
-            "top4_pct":       round(top4s[name] / n * 100, 1),
+            "win_pct":        round(wins[name] / n * 100, 2),
+            "top4_pct":       round(top4s[name] / n * 100, 2),
             "projected_total":round(sum(sims) / n, 1),
             "projected_p10":  round(sims[int(n * 0.10)], 1),
             "projected_p90":  round(sims[int(n * 0.90)], 1),
@@ -747,7 +747,7 @@ def run():
         print(f"{p['name']:10} {p['current_total']:7.1f} "
               f"{p['projected_additional']:7.1f} {p['projected_total']:7.1f} "
               f"{p['projected_p10']:7.1f} {p['projected_p90']:7.1f} "
-              f"{p['win_pct']:5.1f}% {p['top4_pct']:5.1f}%")
+              f"{p['win_pct']:6.2f}% {p['top4_pct']:6.2f}%")
     print(f"\nWrote {PROJECTIONS_PATH}")
     if markets_used:
         print(f"Live Kalshi markets: {', '.join(markets_used)}")
