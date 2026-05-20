@@ -275,31 +275,26 @@ def compute_baseline_tennis():
 
 
 # OWGR as of May 13, 2026 (static fallback — ESPN API blocked)
-GOLF_2026_OWGR_STATIC = {"as_of": "2026-05-13", "rankings": [
+GOLF_2026_OWGR_STATIC = {"as_of": "2026-05-20", "rankings": [
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
     {"player": "Cameron Young",       "rank": 3},
     {"player": "Matt Fitzpatrick",    "rank": 4},
-    {"player": "Collin Morikawa",     "rank": 5},
-    {"player": "Tommy Fleetwood",     "rank": 6},
-    {"player": "Justin Rose",         "rank": 7},
-    {"player": "J.J. Spaun",          "rank": 8},
+    {"player": "Justin Rose",         "rank": 5},
+    {"player": "Collin Morikawa",     "rank": 6},
+    {"player": "Tommy Fleetwood",     "rank": 7},
+    {"player": "Xander Schauffele",   "rank": 8},
     {"player": "Russell Henley",      "rank": 9},
-    {"player": "Chris Gotterup",      "rank": 10},
-    {"player": "Xander Schauffele",   "rank": 11},
-    {"player": "Robert MacIntyre",    "rank": 12},
-    {"player": "Sepp Straka",         "rank": 13},
-    {"player": "Ben Griffin",         "rank": 14},
-    {"player": "Ludvig Aberg",        "rank": 15},
+    {"player": "J.J. Spaun",          "rank": 10},
+    {"player": "Chris Gotterup",      "rank": 11},
+    {"player": "Jon Rahm",            "rank": 12},
+    {"player": "Ludvig Aberg",        "rank": 13},
+    {"player": "Aaron Rai",           "rank": 15},
     {"player": "Justin Thomas",       "rank": 16},
-    {"player": "Hideki Matsuyama",    "rank": 17},
-    {"player": "Alex Noren",          "rank": 18},
-    {"player": "Jacob Bridgeman",     "rank": 19},
-    {"player": "Jon Rahm",            "rank": 20},
-    {"player": "Harris English",      "rank": 21},
-    {"player": "Viktor Hovland",      "rank": 27},
-    {"player": "Bryson DeChambeau",   "rank": 28},
-    {"player": "Patrick Cantlay",     "rank": 30},
+    {"player": "Hideki Matsuyama",    "rank": 19},
+    {"player": "Bryson DeChambeau",   "rank": 24},
+    {"player": "Viktor Hovland",      "rank": 30},
+    {"player": "Patrick Cantlay",     "rank": 33},
 ]}
 
 def compute_baseline_golf():
