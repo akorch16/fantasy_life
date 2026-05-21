@@ -2,7 +2,7 @@
   "gdp": [
     {"country": "South Sudan",   "gdp_growth_pct": 22.4},
     {"country": "Guyana",        "gdp_growth_pct": 16.2},
-    {"country": "Guinea",        "gdp_growth_pct": 10.5},
+    {"country": "Guinea",        "gdp_growth_pct":  8.7},
     {"country": "Argentina",     "gdp_growth_pct":  3.5},
     {"country": "Spain",         "gdp_growth_pct":  2.1},
     {"country": "United States", "gdp_growth_pct":  2.3},

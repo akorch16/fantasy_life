@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buckley Bucks Sportsbook</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0b0f; --surface: #12141a; --surface2: #1a1d26;
+      --border: #252836; --text: #e8eaf0; --muted: #6b7280;
+      --gold: #f0b429; --green: #22c55e; --red: #ef4444;
+      --blue: #3b82f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+    /* ── Header ── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;
+    }
+    .header-title { font-family: 'Bebas Neue'; font-size: 1.6rem; color: var(--gold); letter-spacing: 0.05em; }
+    .header-title span { color: var(--text); }
+    .balance-pill {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 999px; padding: 6px 16px;
+      font-family: 'DM Mono'; font-size: 0.9rem; color: var(--gold);
+    }
+    .header-right { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; color: var(--muted); }
+    .logout-btn {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-family: 'DM Sans';
+    }
+    .logout-btn:hover { color: var(--text); border-color: var(--text); }
+    .back-link { color: var(--muted); font-size: 0.8rem; text-decoration: none; }
+    .back-link:hover { color: var(--gold); }
+
+    /* ── Layout ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+    .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .section-title { font-family: 'Bebas Neue'; font-size: 1.2rem; margin-bottom: 1rem; color: var(--text); letter-spacing: 0.05em; }
+
+    /* ── Auth forms ── */
+    .auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; width: 100%; max-width: 420px; }
+    .auth-title { font-family: 'Bebas Neue'; font-size: 2rem; color: var(--gold); margin-bottom: 0.25rem; }
+    .auth-sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 0.75rem; color: var(--muted); font-family: 'DM Mono'; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+    .field input, .field select {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 9px 12px; border-radius: 8px; font-size: 0.9rem; font-family: 'DM Sans';
+    }
+    .field input:focus, .field select:focus { outline: none; border-color: var(--gold); }
+    .field select option { background: var(--surface2); }
+    .btn-primary {
+      width: 100%; background: var(--gold); color: #000; font-weight: 700;
+      padding: 11px; border: none; border-radius: 8px; font-size: 0.95rem;
+      font-family: 'DM Sans'; cursor: pointer; margin-top: 0.5rem;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .auth-switch { text-align: center; margin-top: 1.25rem; font-size: 0.85rem; color: var(--muted); }
+    .auth-switch a { color: var(--gold); text-decoration: none; }
+    .auth-switch a:hover { text-decoration: underline; }
+    .error-box { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--red); padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; }
+
+    /* ── Markets table ── */
+    .markets-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .markets-table th { text-align: left; font-family: 'DM Mono'; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 0 0.75rem 0.6rem; border-bottom: 1px solid var(--border); }
+    .markets-table th.right { text-align: right; }
+    .markets-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .markets-table tr:last-child td { border-bottom: none; }
+    .markets-table tr:hover td { background: var(--surface2); }
+    .market-type { font-family: 'DM Mono'; font-size: 0.7rem; background: var(--surface2); color: var(--muted); padding: 2px 7px; border-radius: 4px; }
+    .market-type.win { color: var(--gold); }
+    .market-type.top4 { color: var(--blue); }
+    .odds-pct { font-family: 'DM Mono'; color: var(--muted); }
+    .decimal { font-family: 'DM Mono'; font-weight: 600; color: var(--text); }
+    .bet-row { display: flex; gap: 0.5rem; align-items: center; justify-content: flex-end; }
+    .stake-input {
+      width: 90px; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 5px 8px; border-radius: 6px; font-size: 0.85rem; font-family: 'DM Mono';
+      text-align: right;
+    }
+    .stake-input:focus { outline: none; border-color: var(--gold); }
+    .bet-btn {
+      background: var(--gold); color: #000; font-weight: 700; border: none;
+      padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-family: 'DM Sans';
+      white-space: nowrap;
+    }
+    .bet-btn:hover { opacity: 0.85; }
+    .bet-btn:disabled { opacity: 0.4; cursor: default; }
+    .msg-row { font-size: 0.78rem; color: var(--green); font-family: 'DM Mono'; }
+    .msg-row.err { color: var(--red); }
+
+    /* ── Bets history ── */
+    .bets-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .bets-table th { text-align: left; font-family: 'DM Mono'; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 0 0.75rem 0.6rem; border-bottom: 1px solid var(--border); }
+    .bets-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); }
+    .bets-table tr:last-child td { border-bottom: none; }
+    .status-badge { font-family: 'DM Mono'; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; }
+    .status-badge.pending { background: rgba(107,114,128,0.15); color: var(--muted); }
+    .status-badge.won { background: rgba(34,197,94,0.15); color: var(--green); }
+    .status-badge.lost { background: rgba(239,68,68,0.1); color: var(--red); }
+    .payout { font-family: 'DM Mono'; }
+    .payout.won { color: var(--green); }
+    .empty-note { color: var(--muted); font-size: 0.85rem; padding: 1rem 0.75rem; }
+    .tab-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .tab-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 5px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-family: 'DM Sans'; }
+    .tab-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  </style>
+</head>
+<body>
+
+{# ── LOGIN PAGE ─────────────────────────────────────────────────────────── #}
+{% if page == 'login' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-title">🪙 Buckley Bucks</div>
+    <div class="auth-sub">Fantasy Life 2026 Sportsbook — Log in to place bets</div>
+    {% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+    <form method="POST" action="/sportsbook/login">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" required autocomplete="email" placeholder="your@email.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" required autocomplete="current-password" placeholder="••••••">
+      </div>
+      <button type="submit" class="btn-primary">Log In</button>
+    </form>
+    <div class="auth-switch">
+      No account? <a href="/sportsbook/register">Register here</a>
+      &nbsp;·&nbsp; <a href="/">← Leaderboard</a>
+    </div>
+  </div>
+</div>
+
+{# ── REGISTER PAGE ───────────────────────────────────────────────────────── #}
+{% elif page == 'register' %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-title">🪙 Create Account</div>
+    <div class="auth-sub">You start with <strong style="color:var(--gold)">500 BB</strong>. Use them wisely.</div>
+    {% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+    <form method="POST" action="/sportsbook/register">
+      <div class="field">
+        <label>Your Name</label>
+        <select name="player_name" required>
+          <option value="">Select your league name…</option>
+          {% for p in players %}
+          <option value="{{ p }}">{{ p }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" required autocomplete="email" placeholder="your@email.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" required autocomplete="new-password" placeholder="Min 6 characters">
+      </div>
+      <div class="field">
+        <label>Confirm Password</label>
+        <input type="password" name="confirm" required autocomplete="new-password" placeholder="Repeat password">
+      </div>
+      <button type="submit" class="btn-primary">Create Account</button>
+    </form>
+    <div class="auth-switch">
+      Already have an account? <a href="/sportsbook/login">Log in</a>
+    </div>
+  </div>
+</div>
+
+{# ── MAIN SPORTSBOOK ─────────────────────────────────────────────────────── #}
+{% else %}
+<div class="header">
+  <div>
+    <div class="header-title">🪙 Buckley <span>Bucks</span></div>
+    <a class="back-link" href="/">← Back to Leaderboard</a>
+  </div>
+  <div class="header-right">
+    <span>{{ account.player_name }}</span>
+    <div class="balance-pill">{{ "%.0f"|format(balance) }} BB</div>
+    <form method="POST" action="/sportsbook/logout" style="margin:0">
+      <button class="logout-btn" type="submit">Log out</button>
+    </form>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Markets -->
+  <div class="section">
+    <div class="section-title">Open Markets</div>
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-all" onclick="filterMarkets('all', this)">All</button>
+      <button class="tab-btn" id="tab-win" onclick="filterMarkets('win', this)">Win Overall</button>
+      <button class="tab-btn" id="tab-top4" onclick="filterMarkets('top4', this)">Top-4 Finish</button>
+    </div>
+    {% if markets %}
+    <table class="markets-table" id="markets-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Player</th>
+          <th class="right">Odds</th>
+          <th class="right">Payout</th>
+          <th class="right">Place Bet</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in markets %}
+        <tr data-type="{{ m.type }}" id="mrow-{{ m.id }}">
+          <td><span class="market-type {{ m.type }}">{{ 'WIN' if m.type == 'win' else 'TOP 4' }}</span></td>
+          <td><strong>{{ m.subject }}</strong></td>
+          <td class="right odds-pct">{{ "%.1f"|format(m.odds_pct) }}%</td>
+          <td class="right decimal">{{ "%.2f"|format(100.0 / m.odds_pct) }}×</td>
+          <td class="right">
+            <div class="bet-row">
+              <input class="stake-input" type="number" min="10" max="{{ "%.0f"|format(balance) }}"
+                     step="10" value="50" id="stake-{{ m.id }}">
+              <button class="bet-btn" onclick="placeBet('{{ m.id }}', '{{ m.subject }}', {{ m.odds_pct }})">Bet</button>
+            </div>
+            <div class="msg-row" id="msg-{{ m.id }}"></div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty-note">No open markets yet. Ask the admin to sync markets from the latest projections.</p>
+    {% endif %}
+  </div>
+
+  <!-- My Bets -->
+  <div class="section">
+    <div class="section-title">My Bets</div>
+    {% if bets %}
+    <table class="bets-table">
+      <thead>
+        <tr>
+          <th>Market</th>
+          <th>Player</th>
+          <th>Stake</th>
+          <th>To Win</th>
+          <th>Status</th>
+          <th>Placed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bets %}
+        {% set mkt = b.get('bb_markets') or {} %}
+        <tr>
+          <td><span class="market-type {{ mkt.get('type','') }}">{{ 'WIN' if mkt.get('type') == 'win' else 'TOP 4' }}</span></td>
+          <td><strong>{{ mkt.get('subject', '—') }}</strong></td>
+          <td class="payout">{{ "%.0f"|format(b.stake) }} BB</td>
+          <td class="payout {{ b.status }}">{{ "%.0f"|format(b.potential_payout) }} BB</td>
+          <td><span class="status-badge {{ b.status }}">{{ b.status.upper() }}</span></td>
+          <td style="color:var(--muted); font-size:0.8rem">{{ b.placed_at[:10] if b.placed_at else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty-note">You haven't placed any bets yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- How it works -->
+  <div class="section" style="border-color:transparent; background:transparent; padding:0.5rem 0">
+    <p style="color:var(--muted); font-size:0.78rem; line-height:1.6">
+      <strong style="color:var(--text)">How it works:</strong>
+      Each player starts with 500 BB. Bet on who wins the overall season or who finishes top-4.
+      Odds are derived from the Monte Carlo projection model. A 43% win probability pays 2.33× your stake.
+      Markets settle automatically when the admin runs settlement at the end of the season.
+    </p>
+  </div>
+
+</div>
+
+<script>
+  let currentBalance = {{ balance|tojson }};
+
+  function filterMarkets(type, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#markets-table tbody tr').forEach(row => {
+      row.style.display = (type === 'all' || row.dataset.type === type) ? '' : 'none';
+    });
+  }
+
+  async function placeBet(marketId, subject, oddsPct) {
+    const stakeEl = document.getElementById('stake-' + marketId);
+    const msgEl = document.getElementById('msg-' + marketId);
+    const stake = parseFloat(stakeEl.value);
+
+    if (isNaN(stake) || stake < 10) {
+      showMsg(msgEl, 'Min 10 BB', true); return;
+    }
+    if (stake > currentBalance) {
+      showMsg(msgEl, 'Not enough BB', true); return;
+    }
+
+    const payout = (stake * (100 / oddsPct)).toFixed(1);
+    if (!confirm(`Bet ${stake} BB on ${subject}?\nPotential payout: ${payout} BB`)) return;
+
+    const btn = document.querySelector(`#mrow-${marketId} .bet-btn`);
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/bb/bet', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({market_id: marketId, stake})
+      });
+      const d = await res.json();
+      if (res.ok) {
+        currentBalance = d.balance;
+        document.querySelectorAll('.balance-pill').forEach(el => {
+          el.textContent = Math.round(d.balance) + ' BB';
+        });
+        document.querySelectorAll('.stake-input').forEach(el => el.max = Math.round(d.balance));
+        showMsg(msgEl, `✓ Bet placed! To win: ${d.payout.toFixed(0)} BB`, false);
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        showMsg(msgEl, d.error || 'Failed', true);
+        btn.disabled = false;
+      }
+    } catch(e) {
+      showMsg(msgEl, 'Network error', true);
+      btn.disabled = false;
+    }
+  }
+
+  function showMsg(el, text, isErr) {
+    el.textContent = text;
+    el.className = 'msg-row' + (isErr ? ' err' : '');
+  }
+</script>
+{% endif %}
+
+</body>
+</html>

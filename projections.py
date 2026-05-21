@@ -90,6 +90,130 @@ TENNIS_WOMEN = {
     "Jamzee": "Amanda Anisimova",
 }
 
+# ─── Upcoming 2026 film pipeline (Actor / Actress simulation) ─────────────────
+# box_office: (p10, p50, p90) domestic gross in $M  — lognormal distribution
+# rt:         (p10, p50, p90) Rotten Tomatoes score — normal distribution, capped 0–100
+# actor/actress: {player_key: role_factor}  (1.0=lead, 0.5=supporting, 0.25=cameo)
+FILM_PIPELINE = [
+    {
+        "title": "Mandalorian & Grogu",
+        "box_office": (200, 300, 400),
+        "rt": (65, 74, 85),
+        "actor":   {"Mitchell": 1.0, "Shep": 0.5},
+        "actress": {},
+    },
+    {
+        "title": "Moana",
+        "box_office": (130, 190, 260),
+        "rt": (48, 62, 75),
+        "actor":   {"Theo": 1.0},
+        "actress": {},
+    },
+    {
+        "title": "The Odyssey",
+        "box_office": (175, 275, 375),
+        "rt": (78, 88, 96),
+        "actor":   {"Molmen": 1.0, "Feder": 1.0, "Buckley": 1.0, "Korch": 1.0},
+        "actress": {"Korch": 1.0, "Wu": 1.0, "Mitchell": 1.0},
+    },
+    {
+        "title": "Spider-Man: Brand New Day",
+        "box_office": (450, 750, 1100),
+        "rt": (72, 84, 94),
+        "actor":   {"Feder": 1.0},
+        "actress": {"Wu": 1.0},
+    },
+    {
+        "title": "The Social Reckoning",
+        "box_office": (50, 90, 150),
+        "rt": (78, 89, 97),
+        "actor":   {"Shep": 1.0},
+        "actress": {},
+    },
+    {
+        "title": "Flowervale Street",
+        "box_office": (15, 35, 60),
+        "rt": (62, 75, 88),
+        "actor":   {},
+        "actress": {"Korch": 1.0},
+    },
+    {
+        "title": "Verity",
+        "box_office": (40, 75, 110),
+        "rt": (55, 68, 80),
+        "actor":   {},
+        "actress": {"Korch": 1.0},
+    },
+    {
+        "title": "Avengers: Doomsday",
+        "box_office": (350, 500, 700),
+        "rt": (68, 80, 90),
+        "actor":   {"Mitchell": 1.0, "Fryar": 0.25},
+        "actress": {"Fryar": 1.0},
+    },
+    {
+        "title": "Dune: Part Three",
+        "box_office": (180, 280, 400),
+        "rt": (82, 91, 97),
+        "actor":   {"Jamzee": 1.0, "Buckley": 1.0},
+        "actress": {"Wu": 0.5, "Fryar": 1.0, "Buckley": 1.0},
+    },
+    {
+        "title": "Focker-in-Law",
+        "box_office": (55, 95, 145),
+        "rt": (40, 58, 72),
+        "actor":   {},
+        "actress": {"Tim": 1.0},
+    },
+    {
+        "title": "Jumanji",
+        "box_office": (120, 175, 240),
+        "rt": (60, 72, 80),
+        "actor":   {"Theo": 1.0},
+        "actress": {},
+    },
+]
+
+# ─── Stock simulation parameters ─────────────────────────────────────────────
+# (expected_additional_return_pct, std_dev_pct) for rest of 2026 (~7 months).
+# Values are from the PLAYER's perspective: positive = good for the pick.
+# For SHORT positions this is already sign-flipped (CVNA short: +5 means CVNA
+# expected to fall another 5%).
+STOCK_SIM = {
+    "Jamzee": (-10.0, 40.0),  # INTC Long: at +172%, mean-reversion risk
+    "Mitchell": ( 5.0, 50.0), # CVNA Short: volatile, expected continued decline
+    "Fryar":   ( 8.0, 25.0),  # AVGO Long: strong semiconductor fundamentals
+    "Todd":    (12.0, 30.0),  # NVDA Long: AI spending still accelerating
+    "Shep":    (-5.0, 40.0),  # TSLA Short: recovery risk for short position
+    "Buckley": ( 3.0, 15.0),  # NEE Long: stable regulated utility
+    "Korch":   ( 5.0, 45.0),  # SMCI Long: high volatility AI server play
+    "Molmen":  (15.0, 25.0),  # TTWO Long: GTA VI launch catalyst
+    "Theo":    ( 5.0, 18.0),  # CMG Long: steady restaurant recovery
+    "Feder":   (15.0, 35.0),  # PLTR Long: AI/government data momentum
+    "Tim":     ( 5.0, 45.0),  # COIN Long: crypto correlation, high vol
+    "Wu":      ( 8.0, 25.0),  # LULU Long: athleisure recovery from lows
+    "Jens":    (10.0, 35.0),  # SOFI Long: fintech recovery potential
+}
+
+# ─── Country simulation parameters ───────────────────────────────────────────
+# (expected_revision_pct, std_dev_pct): models uncertainty in the October 2026
+# IMF WEO GDP growth forecast revision relative to the current April 2026 forecast.
+COUNTRY_SIM = {
+    "Korch":    ( 0.0,  5.0),  # Guyana: oil-driven boom, can miss projections
+    "Todd":     ( 0.0,  3.0),  # Guinea: small economy, moderate forecast risk
+    "Jamzee":   ( 0.0,  0.8),  # Spain: stable EU, tight revision band
+    "Feder":    ( 0.0,  1.5),  # Brazil: emerging market, moderate uncertainty
+    "Wu":       ( 0.0,  0.4),  # United States: large stable, IMF rarely revises much
+    "Fryar":    ( 0.0,  0.8),  # Norway: small stable open economy
+    "Buckley":  ( 0.0,  0.5),  # Canada: closely correlated to US
+    "Theo":     ( 0.0,  0.4),  # Switzerland: very stable, tight revision band
+    "Shep":     ( 0.0,  0.4),  # France: stable EU economy
+    "Tim":      ( 0.0,  0.4),  # Netherlands: stable EU economy
+    "Jens":     ( 0.5,  0.8),  # Germany: in recession, slight upside bias
+    "Molmen":   ( 0.5,  5.0),  # Argentina: Milei reforms → high uncertainty
+    "Mitchell": ( 0.0,  8.0),  # South Sudan: conflict economy, extreme uncertainty
+}
+
 # ─── Bonus milestone values ─────────────────────────────────────────────────
 MILESTONES = {
     "champion": 13.0, "runner_up": 9.0, "semi": 6.5,
@@ -290,6 +414,48 @@ def _weighted_sample(probs):
     return None  # OTHER (no pick wins)
 
 
+# ─── Film composite helpers ───────────────────────────────────────────────────
+def _sample_lognormal(p10, p50, p90):
+    """Sample from lognormal defined by (p10, median, p90) percentile anchors."""
+    mu = math.log(p50)
+    sigma = math.log(p90 / p10) / (2 * 1.28)
+    return math.exp(random.gauss(mu, sigma))
+
+
+def _sample_normal_capped(p10, p50, p90, lo=0.0, hi=100.0):
+    """Sample from normal distribution anchored at (p10, p50, p90), capped at [lo, hi]."""
+    sigma = (p90 - p10) / (2 * 1.28)
+    return max(lo, min(hi, random.gauss(p50, sigma)))
+
+
+def _expected_lognormal(p10, p50, p90):
+    """E[X] for lognormal parameterized by (p10, median, p90)."""
+    mu = math.log(p50)
+    sigma = math.log(p90 / p10) / (2 * 1.28)
+    return math.exp(mu + 0.5 * sigma * sigma)
+
+
+def _rank_composites(players_list, comp_dict):
+    """
+    Rank players by composite score, averaging ranks for ties.
+    Returns {player: baseline_pts} where rank 1 → 13 pts, rank 13 → 1 pt.
+    """
+    sorted_p = sorted(players_list, key=lambda x: -comp_dict.get(x, 0.0))
+    pts = {}
+    i = 0
+    while i < len(sorted_p):
+        j = i
+        val = comp_dict.get(sorted_p[i], 0.0)
+        while j < len(sorted_p) and comp_dict.get(sorted_p[j], 0.0) == val:
+            j += 1
+        avg_rank = (i + 1 + j) / 2.0
+        avg_pts = max(0.0, 14.0 - avg_rank)
+        for k in range(i, j):
+            pts[sorted_p[k]] = avg_pts
+        i = j
+    return pts
+
+
 # ─── Expected bonus helpers ──────────────────────────────────────────────────
 def _expected_bonus_preseason(p_champ):
     """
@@ -480,6 +646,50 @@ def compute_expected_additional(current_scores, odds):
             total += p_win * wp + p_ru * rp
         result[player]["tennis"] = total
 
+    # ── Actor / Actress: expected composite from upcoming films → rank delta ──
+    players_list = list(players.keys())
+    for cat in ("actor", "actress"):
+        # Start from current composites (already-released films)
+        composites = {
+            name: (players[name]["categories"].get(cat, {}).get("raw_value") or 0.0)
+            for name in players_list
+        }
+        # Add expected composite from each upcoming film (E[lognormal] × median RT/100)
+        for film in FILM_PIPELINE:
+            e_box = _expected_lognormal(*film["box_office"])
+            e_rt  = film["rt"][1]  # median RT as point estimate
+            e_contrib = (e_rt / 100.0) * e_box
+            for player, factor in film[cat].items():
+                composites[player] = composites.get(player, 0.0) + e_contrib * factor
+        # Rank by expected composite → pts
+        expected_pts = _rank_composites(players_list, composites)
+        # Delta vs current baseline_pts (bonus_pts stay frozen)
+        for name in players_list:
+            current_base = players[name]["categories"].get(cat, {}).get("baseline_pts") or 0.0
+            result[name][cat] = expected_pts.get(name, 0.0) - current_base
+
+    # ── Stock: expected rank delta from remaining-year return distributions ───
+    stock_exp = {}
+    for player in STOCK_SIM:
+        current = players[player]["categories"].get("stock", {}).get("raw_value") or 0.0
+        exp_add, _ = STOCK_SIM[player]
+        stock_exp[player] = current + exp_add
+    expected_stock_pts = _rank_composites(players_list, stock_exp)
+    for name in players_list:
+        current_base = players[name]["categories"].get("stock", {}).get("baseline_pts") or 0.0
+        result[name]["stock"] = expected_stock_pts.get(name, 0.0) - current_base
+
+    # ── Country: expected rank delta from Oct 2026 IMF revision ─────────────
+    country_exp = {}
+    for player in COUNTRY_SIM:
+        current = players[player]["categories"].get("country", {}).get("raw_value") or 0.0
+        exp_rev, _ = COUNTRY_SIM[player]
+        country_exp[player] = current + exp_rev
+    expected_country_pts = _rank_composites(players_list, country_exp)
+    for name in players_list:
+        current_base = players[name]["categories"].get("country", {}).get("baseline_pts") or 0.0
+        result[name]["country"] = expected_country_pts.get(name, 0.0) - current_base
+
     return result
 
 
@@ -498,16 +708,11 @@ def _sample_major(win_probs, ru_probs):
 def _sample_playoff_sport(champ_probs):
     """
     Sample full playoff results for one sport given championship odds.
-    Returns {player: bonus_pts} for picks that reach each milestone.
-
-    Simulates: champion (13 pts), runner-up (9 pts), 2 semi-finalists (6.5 pts).
-    Uses the same relative weights at each stage — stronger teams are more
-    likely to win every round, not just the championship.  Remaining probability
-    (1 − sum of picks) goes to OTHER at each stage, correctly modelling that
-    non-pick teams can win any round.
+    Returns {player: bonus_pts}: champion=13, runner_up=9, semis=6.5.
+    Remaining probability goes to OTHER teams at each stage.
     """
     results = {}
-    remaining = dict(champ_probs)   # probabilities need not sum to 1
+    remaining = dict(champ_probs)
 
     champion = _weighted_sample(remaining)
     if champion:
@@ -519,7 +724,7 @@ def _sample_playoff_sport(champ_probs):
         results[runner_up] = 9.0
         remaining.pop(runner_up)
 
-    for _ in range(2):              # two semi-finalist slots
+    for _ in range(2):
         if not remaining:
             break
         semi = _weighted_sample(remaining)
@@ -583,22 +788,43 @@ def simulate(current_scores, odds, n=N_SIMS):
     Returns {player: {win_pct, top4_pct, projected_total, projected_p10, projected_p90, ...}}.
     """
     players_list = [p["name"] for p in current_scores]
-    # Base totals: current total minus all live-category bonuses (we re-sample those)
-    # For frozen categories, total is already fixed; for live categories we resample bonus.
+
+    # Base totals: strip the portions we re-sample each run.
+    # Sports: subtract bonus_pts only (baseline rank is frozen).
+    # Actor/Actress/Stock/Country: subtract baseline_pts (ranking re-simulated);
+    #   bonus_pts stay frozen (already earned).
     base = {}
-    live_cats = {"nba", "nhl", "mlb", "mls", "nascar", "golf", "tennis"}
     for p in current_scores:
         name = p["name"]
         total = p["total"]
-        # Subtract current bonuses for live categories so we re-add sampled ones
-        for cat in live_cats:
-            total -= p["categories"].get(cat, {}).get("bonus_pts", 0)
+        for cat in ("nba", "nhl", "mlb", "mls", "nascar", "golf", "tennis"):
+            total -= p["categories"].get(cat, {}).get("bonus_pts", 0) or 0
+        for cat in ("actor", "actress", "stock", "country"):
+            total -= p["categories"].get(cat, {}).get("baseline_pts", 0) or 0
         base[name] = total
 
-    # Pre-extract current bonuses for live playoff categories
-    current_nba = {p["name"]: p["categories"].get("nba", {}).get("bonus_pts", 0)
+    # Pre-extract composite/raw scores for re-ranked categories
+    current_actor_comp = {
+        p["name"]: p["categories"].get("actor", {}).get("raw_value") or 0.0
+        for p in current_scores
+    }
+    current_actress_comp = {
+        p["name"]: p["categories"].get("actress", {}).get("raw_value") or 0.0
+        for p in current_scores
+    }
+    current_stock_raw = {
+        p["name"]: p["categories"].get("stock", {}).get("raw_value") or 0.0
+        for p in current_scores
+    }
+    current_country_raw = {
+        p["name"]: p["categories"].get("country", {}).get("raw_value") or 0.0
+        for p in current_scores
+    }
+
+    # Current bonuses for in-progress playoff categories
+    current_nba = {p["name"]: p["categories"].get("nba", {}).get("bonus_pts", 0) or 0
                    for p in current_scores}
-    current_nhl = {p["name"]: p["categories"].get("nhl", {}).get("bonus_pts", 0)
+    current_nhl = {p["name"]: p["categories"].get("nhl", {}).get("bonus_pts", 0) or 0
                    for p in current_scores}
 
     # Pre-normalize championship odds for per-sim sampling
@@ -617,8 +843,8 @@ def simulate(current_scores, odds, n=N_SIMS):
         ("tennis_usopen_women_win",   "tennis_usopen_women_ru"),
     ]
     golf_pairs = [
-        ("golf_uso_win", "golf_uso_ru"),
-        ("golf_open_win","golf_open_ru"),
+        ("golf_uso_win",  "golf_uso_ru"),
+        ("golf_open_win", "golf_open_ru"),
     ]
 
     sim_totals = {name: [] for name in players_list}
@@ -668,6 +894,37 @@ def simulate(current_scores, odds, n=N_SIMS):
             if winner:     totals[winner]     += 4.0
             if runner_up:  totals[runner_up]  += 2.5
 
+        # ── Actor / Actress: sample each upcoming film's box office + RT ────
+        actor_comp   = dict(current_actor_comp)
+        actress_comp = dict(current_actress_comp)
+        for film in FILM_PIPELINE:
+            box    = _sample_lognormal(*film["box_office"])
+            rt     = _sample_normal_capped(*film["rt"])
+            contrib = (rt / 100.0) * box
+            for player, factor in film["actor"].items():
+                actor_comp[player]   = actor_comp.get(player, 0.0)   + contrib * factor
+            for player, factor in film["actress"].items():
+                actress_comp[player] = actress_comp.get(player, 0.0) + contrib * factor
+        for comp_dict in (actor_comp, actress_comp):
+            for player, pts in _rank_composites(players_list, comp_dict).items():
+                totals[player] += pts
+
+        # ── Stock: sample additional return, re-rank ────────────────────────
+        stock_sim = {}
+        for player in STOCK_SIM:
+            exp_add, std = STOCK_SIM[player]
+            stock_sim[player] = current_stock_raw.get(player, 0.0) + random.gauss(exp_add, std)
+        for player, pts in _rank_composites(players_list, stock_sim).items():
+            totals[player] += pts
+
+        # ── Country: sample Oct IMF revision, re-rank ──────────────────────
+        country_sim = {}
+        for player in COUNTRY_SIM:
+            exp_rev, std = COUNTRY_SIM[player]
+            country_sim[player] = current_country_raw.get(player, 0.0) + random.gauss(exp_rev, std)
+        for player, pts in _rank_composites(players_list, country_sim).items():
+            totals[player] += pts
+
         # Rank and tally
         ranked = sorted(players_list, key=lambda x: -totals[x])
         wins[ranked[0]] += 1
@@ -681,11 +938,11 @@ def simulate(current_scores, odds, n=N_SIMS):
     for name in players_list:
         sims = sorted(sim_totals[name])
         out[name] = {
-            "win_pct":        round(wins[name] / n * 100, 2),
-            "top4_pct":       round(top4s[name] / n * 100, 2),
-            "projected_total":round(sum(sims) / n, 1),
-            "projected_p10":  round(sims[int(n * 0.10)], 1),
-            "projected_p90":  round(sims[int(n * 0.90)], 1),
+            "win_pct":         round(wins[name] / n * 100, 2),
+            "top4_pct":        round(top4s[name] / n * 100, 2),
+            "projected_total": round(sum(sims) / n, 1),
+            "projected_p10":   round(sims[int(n * 0.10)], 1),
+            "projected_p90":   round(sims[int(n * 0.90)], 1),
         }
     return out
 
@@ -740,6 +997,16 @@ def run():
 
     with open(PROJECTIONS_PATH, "w") as f:
         json.dump(output, f, separators=(",", ":"))
+
+    # Sync odds into Buckley Bucks markets (no-op if Supabase not configured)
+    try:
+        from db import upsert_market
+        for p in players_out:
+            upsert_market("win",  p["name"], p["win_pct"])
+            upsert_market("top4", p["name"], p["top4_pct"])
+        print("Buckley Bucks markets synced")
+    except Exception as _e:
+        print(f"Note: BB market sync skipped ({_e})")
 
     print(f"\n── Results ─────────────────────────────────────────────────────")
     print(f"{'Player':10} {'Curr':7} {'+Exp':7} {'Proj':7} {'P10':7} {'P90':7} {'Win%':6} {'Top4%':6}")

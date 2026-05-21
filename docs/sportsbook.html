@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sportsbook — Fantasy Life 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161d;
+      --surface2: #1a1e28;
+      --border: #232733;
+      --blue: #2d7dd2;
+      --blue-dim: #1a4a82;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --dim: #3a3f50;
+      --green: #22c55e;
+      --red: #ef4444;
+      --gold: #f59e0b;
+      --accent: #f59e0b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--blue); }
+
+    /* ─── SITE NAV BAR ─── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+      gap: 0;
+    }
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 9px 14px;
+      border-bottom: 2px solid transparent;
+      display: inline-block;
+    }
+    .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
+    .nav-link.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* ─── NEWS BAR ─── */
+    .news-bar {
+      background: #0d1117;
+      border-bottom: 1px solid #1e2a1e;
+      padding: 6px 16px;
+      font-size: 0.7rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.04em;
+      line-height: 1.6;
+    }
+    .news-bar-label { color: var(--gold); font-weight: 600; }
+    .news-bar-sep { color: var(--muted); }
+    .news-bar-updated { color: var(--muted); font-size: 0.68rem; }
+    .news-bar-headline { color: #c9d1d9; }
+    .news-bar-headline em { color: var(--gold); font-style: normal; font-weight: 600; }
+
+    /* ─── MAIN LAYOUT ─── */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      margin-bottom: 0.25rem;
+    }
+    .page-subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    /* ─── SECTION HEADERS ─── */
+    .section-header {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ─── PROJECTIONS TABLE ─── */
+    .proj-table-wrap {
+      overflow-x: auto;
+      margin-bottom: 3rem;
+    }
+    .proj-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .proj-table th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .proj-table th.num { text-align: right; }
+    .proj-table td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .proj-table td.num { text-align: right; font-family: 'DM Mono', monospace; }
+    .proj-table tr:last-child td { border-bottom: none; }
+    .proj-table tr:hover td { background: var(--surface2); }
+    .rank-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      width: 32px;
+    }
+    .win-high { color: var(--green); }
+    .win-mid  { color: #eab308; }
+    .win-low  { color: var(--muted); }
+    .proj-footer td {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      text-align: center;
+      padding: 0.6rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ─── PROP BETS GRID ─── */
+    .bets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .bet-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .bet-card:hover { border-color: var(--blue-dim); }
+    .bet-sport {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+    .bet-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+    }
+    .bet-title em {
+      font-style: normal;
+      color: var(--gold);
+    }
+    .bet-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .bet-odds {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.35rem;
+      letter-spacing: 0.04em;
+    }
+    .odds-yes { color: var(--green); }
+    .odds-no  { color: var(--red); }
+    .bet-close {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+    .bet-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ─── EMPTY / LOADING STATES ─── */
+    .loading-msg {
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
+  </div>
+</header>
+
+<nav class="site-nav">
+  <a href="./index.html" class="nav-link">Leaderboard</a>
+  <a href="./rules.html" class="nav-link">Rules</a>
+  <a href="./calendar.html" class="nav-link">Calendar</a>
+  <a href="./trips.html" class="nav-link">Trips</a>
+  <a href="./sportsbook.html" class="nav-link active">Sportsbook</a>
+</nav>
+
+<div class="news-bar" id="news-bar">
+  <span class="news-bar-label">📡 FL News</span>
+  <span class="news-bar-sep"> — </span>
+  <span class="news-bar-headline" id="news-bar-headline"><span style="opacity:0.4">Loading…</span></span>
+</div>
+
+<div class="container">
+  <div class="page-title">🎲 Sportsbook</div>
+  <div class="page-subtitle">Monte Carlo projections + prop bets for Fantasy Life 2026. Updated daily.</div>
+
+  <!-- ─── PROJECTIONS ─── -->
+  <div class="section-header">Season Projections</div>
+  <div class="section-note">10,000-simulation Monte Carlo model using Kalshi championship odds. Ranked by projected year-end total.</div>
+  <div class="proj-table-wrap">
+    <table class="proj-table" id="proj-table">
+      <thead>
+        <tr>
+          <th class="rank-num">#</th>
+          <th>Player</th>
+          <th class="num" title="Current total points">Now</th>
+          <th class="num" title="Expected additional points from remaining events">+Exp</th>
+          <th class="num" title="Projected year-end total (median)">Proj</th>
+          <th class="num" title="10th–90th percentile range">Range</th>
+          <th class="num" title="Win probability">Win%</th>
+          <th class="num" title="Top-4 probability">Top4%</th>
+        </tr>
+      </thead>
+      <tbody id="proj-body">
+        <tr><td colspan="8" class="loading-msg">Loading projections…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─── PROP BETS ─── -->
+  <div class="section-header">Prop Bets</div>
+  <div class="section-note">All bets close by July 1, 2026. Odds reflect the model's implied probability (YES side shown).</div>
+  <div class="bets-grid" id="bets-grid"><!-- rendered by JS --></div>
+
+</div>
+
+<script>
+// ─── NEWS BAR ───────────────────────────────────────────────────
+fetch('./scores.json')
+  .then(r => r.json())
+  .then(d => {
+    if (d.headline) {
+      document.getElementById('news-bar-headline').innerHTML = d.headline;
+    }
+  })
+  .catch(() => {});
+
+// ─── PROJECTIONS ────────────────────────────────────────────────
+function winColor(pct) {
+  if (pct >= 25) return 'win-high';
+  if (pct >= 10) return 'win-mid';
+  return 'win-low';
+}
+
+fetch('./projections.json')
+  .then(r => r.json())
+  .then(data => {
+    const tbody = document.getElementById('proj-body');
+    if (!data.players || !data.players.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="loading-msg">Projections not yet available — check back after the next daily run.</td></tr>';
+      return;
+    }
+    const players = data.players.slice().sort((a, b) => b.projected_total - a.projected_total);
+    const genAt = data.generated_at ? data.generated_at.slice(0, 10) : '—';
+    const liveOdds = data.kalshi_markets_used && data.kalshi_markets_used.length;
+    tbody.innerHTML = players.map((p, i) => `
+      <tr>
+        <td class="rank-num num">${i + 1}</td>
+        <td><strong>${p.name}</strong></td>
+        <td class="num">${p.current_total.toFixed(1)}</td>
+        <td class="num" style="color:var(--blue)">+${p.projected_additional.toFixed(1)}</td>
+        <td class="num"><strong>${p.projected_total.toFixed(1)}</strong></td>
+        <td class="num" style="font-size:0.8em;color:var(--muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
+        <td class="num ${winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
+        <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
+      </tr>
+    `).join('') + `
+      <tr class="proj-footer">
+        <td colspan="8">As of ${genAt} · ${(data.n_simulations || 10000).toLocaleString()} simulations · ${liveOdds ? 'Live Kalshi odds' : 'Static odds'}</td>
+      </tr>`;
+  })
+  .catch(() => {
+    document.getElementById('proj-body').innerHTML =
+      '<tr><td colspan="8" class="loading-msg">Projections unavailable.</td></tr>';
+  });
+
+// ─── PROP BETS ──────────────────────────────────────────────────
+const BETS = [
+  {
+    sport: 'Tennis · Roland Garros',
+    title: '<em>Fryar</em>\'s pick Aryna Sabalenka wins the French Open',
+    desc: 'Sabalenka enters Roland Garros as one of the favorites. A win gives Fryar 4 pts.',
+    odds: 35,
+    closes: 'Jun 9',
+  },
+  {
+    sport: 'NHL · East Finals',
+    title: '<em>Jamzee</em>\'s Hurricanes advance to the Stanley Cup Finals',
+    desc: 'Carolina holds home-ice advantage in the East Conference Finals.',
+    odds: 55,
+    closes: '~Jun 12',
+  },
+  {
+    sport: 'NBA · East Finals',
+    title: '<em>Buckley</em>\'s Knicks win the East and reach the NBA Finals',
+    desc: 'New York leads the East Finals series 1-0. A Finals berth locks in bonus points.',
+    odds: 60,
+    closes: '~Jun 12',
+  },
+  {
+    sport: 'NHL · West Finals',
+    title: '<em>Tim</em>\'s Golden Knights win the West and reach the Cup Finals',
+    desc: 'Vegas stole Game 1 on the road against Korch\'s Avalanche.',
+    odds: 55,
+    closes: '~Jun 14',
+  },
+  {
+    sport: 'NBA · West Finals',
+    title: '<em>Wu</em>\'s Spurs reach the NBA Finals',
+    desc: 'San Antonio and Oklahoma City (Feder) are locked in a 1-1 West Finals series.',
+    odds: 50,
+    closes: '~Jun 15',
+  },
+  {
+    sport: 'Golf · US Open',
+    title: '<em>Wu</em>\'s pick Scottie Scheffler wins the US Open',
+    desc: 'Scheffler is the world #1 and heavy favorite at Oakmont. Win = 6 pts for Wu.',
+    odds: 32,
+    closes: 'Jun 22',
+  },
+  {
+    sport: 'Golf · US Open',
+    title: '<em>Molmen</em>\'s pick Rory McIlroy wins the US Open',
+    desc: 'McIlroy is chasing the career Grand Slam at Oakmont — heavily motivated.',
+    odds: 30,
+    closes: 'Jun 22',
+  },
+  {
+    sport: 'NHL · Stanley Cup Finals',
+    title: '<em>Korch</em>\'s Colorado Avalanche win the Stanley Cup',
+    desc: 'The Avs are projected favorites to reach and win the Cup despite losing Game 1 to Vegas.',
+    odds: 38,
+    closes: '~Jun 25',
+  },
+  {
+    sport: 'NBA · Finals',
+    title: 'The NBA Champion comes from the East (Buckley/Jens bracket)',
+    desc: 'If East wins, one of Buckley (Knicks) or Jens (Cavaliers) gets 13 pts.',
+    odds: 44,
+    closes: '~Jun 25',
+  },
+  {
+    sport: 'NBA · Final Standings',
+    title: '<em>Wu</em> finishes with more NBA pts than <em>Feder</em> by end of Finals',
+    desc: 'Wu has Spurs, Feder has Thunder — both in West Finals. Whoever advances further wins this bet.',
+    odds: 53,
+    closes: '~Jun 25',
+  },
+  {
+    sport: 'MLB · Through July 1',
+    title: '<em>Jens</em>\'s Yankees have a better record than <em>Tim</em>\'s Cubs on July 1',
+    desc: 'Yankees are the AL favorites; Cubs are battling for a Wild Card spot. Track W-L% on July 1.',
+    odds: 48,
+    closes: 'Jul 1',
+  },
+];
+
+const grid = document.getElementById('bets-grid');
+grid.innerHTML = BETS.map((b, i) => `
+  <div class="bet-card">
+    <div class="bet-sport">${b.sport}</div>
+    <div class="bet-title">${b.title}</div>
+    <div class="bet-desc">${b.desc}</div>
+    <div class="bet-meta">
+      <div>
+        <span class="bet-odds odds-yes">${b.odds}%</span>
+        <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">YES</span>
+        <span class="bet-odds odds-no" style="margin-left:10px">${100 - b.odds}%</span>
+        <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">NO</span>
+      </div>
+      <div class="bet-close">Closes ${b.closes}</div>
+    </div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

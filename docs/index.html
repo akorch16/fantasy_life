@@ -64,6 +64,22 @@
     }
     .nav-link:hover { color: var(--text); }
 
+    /* ─── SITE NAV BAR ─── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+      gap: 0;
+    }
+    .site-nav .nav-link {
+      padding: 9px 14px;
+      border-bottom: 2px solid transparent;
+      font-size: 0.68rem;
+    }
+    .site-nav .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
+    .site-nav .nav-link.active { color: var(--blue); border-bottom-color: var(--blue); }
+
     /* ─── BUCKLEY FAN SITE OVERLAY ─── */
     #buckley-overlay {
       display: none;
@@ -292,7 +308,7 @@
     .player-row.expanded { background: var(--surface); }
 
     .player-row td {
-      padding: 9px 12px;
+      padding: 14px 12px;
       vertical-align: middle;
     }
 
@@ -301,15 +317,14 @@
       font-family: 'DM Mono', monospace;
       font-size: 0.8rem;
       color: var(--muted);
-      width: 48px;
-      white-space: nowrap;
+      width: 44px;
     }
 
     .rank-1 { }
     .rank-2 { }
     .rank-3 { }
 
-    .place-change { font-size:0.55rem; font-family:'DM Mono',monospace; letter-spacing:0.02em; display:inline; margin-left:2px; vertical-align:middle; }
+    .place-change { font-size:0.55rem; font-family:'DM Mono',monospace; letter-spacing:0.02em; display:block; margin-top:2px; }
     .place-change.up   { color: var(--green); }
     .place-change.down { color: var(--red); }
     .place-change.flat { color: var(--dim); }
@@ -848,12 +863,15 @@
     <div class="header-logo-img" id="header-logo-img-wrap" onclick="openBuckley()" style="cursor:pointer;"></div>
     <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
   </div>
-  <div style="display:flex;align-items:center;gap:20px;">
-    <a href="./rules.html" class="nav-link">Rules</a>
-    <a href="./calendar.html" class="nav-link">Calendar</a>
-    <a href="./trips.html" class="nav-link">Trips</a>
-  </div>
 </header>
+
+<nav class="site-nav">
+  <a href="./index.html" class="nav-link active">Leaderboard</a>
+  <a href="./rules.html" class="nav-link">Rules</a>
+  <a href="./calendar.html" class="nav-link">Calendar</a>
+  <a href="./trips.html" class="nav-link">Trips</a>
+  <a href="./sportsbook.html" class="nav-link">Sportsbook</a>
+</nav>
 
 <div class="news-bar" id="news-bar">
   <span class="news-bar-label">📡 FL News</span>
@@ -890,7 +908,6 @@
       <button class="filter-btn" data-cat="musician" onclick="setFilter('musician', this)">Musician</button>
       <button class="filter-btn" data-cat="country" onclick="setFilter('country', this)">Country</button>
       <button class="filter-btn" data-cat="stock" onclick="setFilter('stock', this)">Stock</button>
-      <button class="filter-btn" data-cat="projections" onclick="setFilter('projections', this)">Projections</button>
     </div>
   </div>
 
@@ -906,25 +923,6 @@
     </thead>
     <tbody id="standings-body">
       <!-- Rendered by JS from window.SCORES_DATA -->
-    </tbody>
-  </table>
-
-  <!-- ─── PROJECTIONS TABLE ─── -->
-  <table class="standings-table" id="projections-table" style="display:none">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Player</th>
-        <th class="pts" title="Current total points">Now</th>
-        <th class="pts" title="Expected additional points from remaining events">+Exp</th>
-        <th class="pts" title="Projected year-end total (median)">Proj</th>
-        <th class="pts" title="10th–90th percentile range">Range</th>
-        <th class="pts" title="Win probability">Win%</th>
-        <th class="pts" title="Top-4 finish probability">Top4%</th>
-      </tr>
-    </thead>
-    <tbody id="projections-body">
-      <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">Loading projections…</td></tr>
     </tbody>
   </table>
 
@@ -1180,13 +1178,13 @@ function renderTable() {
     if (isTodd) {
       const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '<td></td>';
       tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}${currentFilter === 'all' ? placeChangeHtml(player.place_change) : ''}</td>
+        <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td>
           <div class="player-name todd-name"><span class="todd-lock-icon">🔒</span> Todd</div>
-          <div class="todd-teaser">premium required</div>
+          <div class="todd-teaser">Score hidden — premium subscription required</div>
         </td>
-        <td class="score-cell todd-score">??</td>
         ${extraCols}
+        <td class="score-cell todd-score">??</td>
         <td class="expand-cell">$</td>
       `;
     } else if (currentFilter === 'all') {
@@ -1209,7 +1207,7 @@ function renderTable() {
         : '–';
 
       tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}</td>
+        <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td>
           <div class="player-name">${player.name}</div>
           <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${pick}</div>
@@ -1382,53 +1380,8 @@ function setFilter(cat, btn) {
   document.querySelectorAll('.breakdown-row.open').forEach(r => r.classList.remove('open'));
   document.querySelectorAll('.player-row.expanded').forEach(r => r.classList.remove('expanded'));
   const standingsEl = document.getElementById('standings-table');
-  const projEl = document.getElementById('projections-table');
-  if (cat === 'projections') {
-    if (standingsEl) standingsEl.style.display = 'none';
-    if (projEl) projEl.style.display = '';
-    loadAndRenderProjections();
-  } else {
-    if (standingsEl) standingsEl.style.display = '';
-    if (projEl) projEl.style.display = 'none';
-    renderTable();
-  }
-}
-
-let _projData = null;
-function loadAndRenderProjections() {
-  if (_projData) { _renderProjections(_projData); return; }
-  fetch('./projections.json')
-    .then(r => r.json())
-    .then(data => { _projData = data; _renderProjections(data); })
-    .catch(() => {
-      const tbody = document.getElementById('projections-body');
-      if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">Projections unavailable.</td></tr>';
-    });
-}
-
-function _winColor(pct) {
-  if (pct >= 25) return 'color:#22c55e';
-  if (pct >= 10) return 'color:#eab308';
-  return 'color:var(--text-muted)';
-}
-
-function _renderProjections(data) {
-  const tbody = document.getElementById('projections-body');
-  if (!tbody) return;
-  const players = (data.players || []).slice().sort((a, b) => b.projected_total - a.projected_total);
-  const genAt = data.generated_at ? data.generated_at.slice(0, 10) : '';
-  tbody.innerHTML = players.map((p, i) => `
-    <tr class="player-row">
-      <td>${i + 1}</td>
-      <td><strong>${p.name}</strong></td>
-      <td class="pts">${p.current_total.toFixed(1)}</td>
-      <td class="pts">+${p.projected_additional.toFixed(1)}</td>
-      <td class="pts"><strong>${p.projected_total.toFixed(1)}</strong></td>
-      <td class="pts" style="font-size:0.8em;color:var(--text-muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
-      <td class="pts" style="${_winColor(p.win_pct)}">${p.win_pct.toFixed(2)}%</td>
-      <td class="pts" style="${_winColor(p.top4_pct)}">${p.top4_pct.toFixed(2)}%</td>
-    </tr>
-  `).join('') + `<tr><td colspan="8" style="text-align:center;font-size:0.75em;color:var(--text-muted);padding:0.5rem">As of ${genAt} · ${(data.n_simulations||10000).toLocaleString()} simulations · ${data.kalshi_markets_used && data.kalshi_markets_used.length ? 'Live Kalshi odds' : 'Static odds'}</td></tr>`;
+  if (standingsEl) standingsEl.style.display = '';
+  renderTable();
 }
 
 // ============================================================
