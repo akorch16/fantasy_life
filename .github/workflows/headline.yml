@@ -1,0 +1,36 @@
+name: Daily FL Headline
+
+on:
+  schedule:
+    - cron: '0 7 * * *'   # 2 AM EST = 07:00 UTC
+  workflow_dispatch:        # "Run workflow" button in GitHub Actions UI
+
+jobs:
+  headline:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt requests
+
+      - name: Generate FL News headline
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python3 headline.py
+
+      - name: Commit & push headline
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/scores.json
+          git diff --staged --quiet || git commit -m "chore: FL News headline $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
