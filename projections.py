@@ -998,6 +998,16 @@ def run():
     with open(PROJECTIONS_PATH, "w") as f:
         json.dump(output, f, separators=(",", ":"))
 
+    # Sync odds into Buckley Bucks markets (no-op if Supabase not configured)
+    try:
+        from db import upsert_market
+        for p in players_out:
+            upsert_market("win",  p["name"], p["win_pct"])
+            upsert_market("top4", p["name"], p["top4_pct"])
+        print("Buckley Bucks markets synced")
+    except Exception as _e:
+        print(f"Note: BB market sync skipped ({_e})")
+
     print(f"\n── Results ─────────────────────────────────────────────────────")
     print(f"{'Player':10} {'Curr':7} {'+Exp':7} {'Proj':7} {'P10':7} {'P90':7} {'Win%':6} {'Top4%':6}")
     for p in players_out:

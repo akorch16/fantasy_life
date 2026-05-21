@@ -4,13 +4,18 @@ Run: python app.py
 Visit: http://localhost:5000
 """
 import os, json, time, threading
+import bcrypt
 import stripe
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for
 from scoring import compute_all_scores
-from db import get_all_bonuses, add_bonus, delete_bonus, freeze_category, unfreeze_category, get_last_updated
+from db import (get_all_bonuses, add_bonus, delete_bonus, freeze_category, unfreeze_category,
+                get_last_updated, get_account_by_email, create_account, get_balance,
+                update_balance, get_open_markets, upsert_market, place_bet,
+                get_bets_for_account, settle_market, get_all_markets)
 from draft_picks_2026 import PLAYERS
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-insecure-change-me')
 
 ADMIN_TOKEN = os.environ.get('ADMIN_TOKEN', '')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
@@ -223,12 +228,203 @@ def api_check_unlock():
         return _cors(jsonify({}))
     if not STRIPE_SECRET_KEY:
         return _cors(jsonify({'unlocked': False}))
-    session_id = request.args.get('session_id', '')
-    if not session_id.startswith('cs_'):
+    stripe_session_id = request.args.get('session_id', '')
+    if not stripe_session_id.startswith('cs_'):
         return _cors(jsonify({'unlocked': False}))
     try:
-        session = stripe.checkout.Session.retrieve(session_id)
-        unlocked = session.payment_status == 'paid'
+        stripe_session = stripe.checkout.Session.retrieve(stripe_session_id)
+        unlocked = stripe_session.payment_status == 'paid'
     except stripe.StripeError:
         unlocked = False
     return _cors(jsonify({'unlocked': unlocked}))
+
+
+# ── Buckley Bucks sportsbook ─────────────────────────────────────────────────
+
+def _bb_account():
+    """Return the logged-in bb_account dict from session, or None."""
+    bb = session.get('bb')
+    if not bb:
+        return None
+    return bb
+
+
+def _bb_required():
+    """Return (account, None) or (None, redirect_response)."""
+    bb = _bb_account()
+    if not bb:
+        return None, redirect(url_for('sportsbook_login'))
+    return bb, None
+
+
+@app.route('/sportsbook')
+def sportsbook():
+    bb = _bb_account()
+    if not bb:
+        return redirect(url_for('sportsbook_login'))
+    markets = get_open_markets()
+    balance = get_balance(bb['account_id'])
+    bets = get_bets_for_account(bb['account_id'])
+    return render_template('sportsbook.html',
+                           account=bb, balance=balance,
+                           markets=markets, bets=bets)
+
+
+@app.route('/sportsbook/login', methods=['GET', 'POST'])
+def sportsbook_login():
+    error = None
+    if request.method == 'POST':
+        email = (request.form.get('email') or '').strip().lower()
+        password = request.form.get('password') or ''
+        acct = get_account_by_email(email)
+        if acct and bcrypt.checkpw(password.encode(), acct['password_hash'].encode()):
+            session['bb'] = {
+                'account_id': acct['id'],
+                'player_name': acct['player_name'],
+                'email': acct['email'],
+            }
+            return redirect(url_for('sportsbook'))
+        error = 'Invalid email or password.'
+    return render_template('sportsbook.html', page='login', error=error)
+
+
+@app.route('/sportsbook/register', methods=['GET', 'POST'])
+def sportsbook_register():
+    error = None
+    if request.method == 'POST':
+        email = (request.form.get('email') or '').strip().lower()
+        player_name = request.form.get('player_name') or ''
+        password = request.form.get('password') or ''
+        confirm = request.form.get('confirm') or ''
+
+        if player_name not in PLAYERS:
+            error = 'Select your name from the league roster.'
+        elif not email or '@' not in email:
+            error = 'Enter a valid email address.'
+        elif len(password) < 6:
+            error = 'Password must be at least 6 characters.'
+        elif password != confirm:
+            error = 'Passwords do not match.'
+        elif get_account_by_email(email):
+            error = 'An account with that email already exists.'
+        else:
+            pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+            acct_id = create_account(email, player_name, pw_hash)
+            if acct_id:
+                session['bb'] = {
+                    'account_id': acct_id,
+                    'player_name': player_name,
+                    'email': email,
+                }
+                return redirect(url_for('sportsbook'))
+            error = 'Registration failed — try again.'
+    return render_template('sportsbook.html', page='register', error=error, players=PLAYERS)
+
+
+@app.route('/sportsbook/logout', methods=['POST'])
+def sportsbook_logout():
+    session.pop('bb', None)
+    return redirect(url_for('sportsbook_login'))
+
+
+@app.route('/api/bb/bet', methods=['POST'])
+def api_bb_bet():
+    bb, redir = _bb_required()
+    if redir:
+        return jsonify({'error': 'Not logged in'}), 401
+    data = request.get_json() or {}
+    market_id = data.get('market_id', '')
+    try:
+        stake = float(data.get('stake', 0))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Invalid stake'}), 400
+
+    if stake < 10:
+        return jsonify({'error': 'Minimum bet is 10 BB'}), 400
+
+    balance = get_balance(bb['account_id'])
+    if stake > balance:
+        return jsonify({'error': f'Insufficient balance ({balance:.0f} BB)'}), 400
+
+    # Look up market odds
+    markets = get_open_markets()
+    market = next((m for m in markets if m['id'] == market_id), None)
+    if not market:
+        return jsonify({'error': 'Market not found or closed'}), 404
+
+    odds_pct = float(market['odds_pct'])
+    if odds_pct <= 0:
+        return jsonify({'error': 'Market has invalid odds'}), 400
+
+    payout = round(stake * (100.0 / odds_pct), 2)
+    bet_id = place_bet(bb['account_id'], market_id, stake, odds_pct, payout)
+    if not bet_id:
+        return jsonify({'error': 'Bet failed — check your balance'}), 500
+
+    new_balance = get_balance(bb['account_id'])
+    return jsonify({'ok': True, 'bet_id': bet_id, 'payout': payout, 'balance': new_balance})
+
+
+@app.route('/api/bb/settle', methods=['POST'])
+def api_bb_settle():
+    if not _is_admin():
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    scores_path = os.path.join(os.path.dirname(__file__), 'docs', 'scores.json')
+    try:
+        with open(scores_path) as f:
+            scores = json.load(f)
+    except Exception as e:
+        return jsonify({'error': f'Could not read scores.json: {e}'}), 500
+
+    players_sorted = sorted(scores.get('players', []),
+                            key=lambda p: p.get('total', 0), reverse=True)
+    if not players_sorted:
+        return jsonify({'error': 'No player data in scores.json'}), 400
+
+    winner = players_sorted[0]['name']
+    top4 = {p['name'] for p in players_sorted[:4]}
+
+    all_markets = get_all_markets()
+    total_paid = 0
+    results = []
+    for m in all_markets:
+        if m['status'] == 'settled':
+            continue
+        if m['type'] == 'win':
+            hit = m['subject'] == winner
+        elif m['type'] == 'top4':
+            hit = m['subject'] in top4
+        else:
+            continue
+        n = settle_market(m['id'], hit)
+        total_paid += n
+        results.append({'market': f"{m['type']}:{m['subject']}", 'result': hit, 'bets': n})
+
+    return jsonify({'ok': True, 'winner': winner, 'top4': list(top4),
+                    'markets_settled': len(results), 'bets_processed': total_paid,
+                    'details': results})
+
+
+@app.route('/api/bb/sync-markets', methods=['POST'])
+def api_bb_sync_markets():
+    if not _is_admin():
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    proj_path = os.path.join(os.path.dirname(__file__), 'docs', 'projections.json')
+    try:
+        with open(proj_path) as f:
+            proj = json.load(f)
+    except Exception as e:
+        return jsonify({'error': f'Could not read projections.json: {e}'}), 500
+
+    synced = 0
+    for p in proj.get('players', []):
+        name = p.get('name', '')
+        if not name:
+            continue
+        upsert_market('win', name, p.get('win_pct', 0))
+        upsert_market('top4', name, p.get('top4_pct', 0))
+        synced += 1
+
+    return jsonify({'ok': True, 'players_synced': synced})
