@@ -122,6 +122,23 @@ Headline:"""
         return None
 
 
+COST_PER_RUN_USD = 0.009   # Haiku ~200 tokens in + ~200 out ≈ $0.009
+MIN_HOURS_BETWEEN_RUNS = 20  # never call the API more than once per ~day
+
+
+def _hours_since_last_headline(data: dict) -> float:
+    """Return hours since the last headline was generated, or infinity if unknown."""
+    ts = data.get('headline_generated_at')
+    if not ts:
+        return float('inf')
+    try:
+        from datetime import datetime, timezone
+        last = datetime.fromisoformat(ts.replace('Z', '+00:00'))
+        return (datetime.now(timezone.utc) - last).total_seconds() / 3600
+    except Exception:
+        return float('inf')
+
+
 def main():
     if not SCORES_PATH.exists():
         print(f'✗ {SCORES_PATH} not found — run scoring.py first')
@@ -129,6 +146,13 @@ def main():
 
     with open(SCORES_PATH) as f:
         data = json.load(f)
+
+    # ── Dedup guard: never hit the API more than once per MIN_HOURS_BETWEEN_RUNS ──
+    hours_ago = _hours_since_last_headline(data)
+    if hours_ago < MIN_HOURS_BETWEEN_RUNS:
+        print(f'⏭ Headline already generated {hours_ago:.1f}h ago — skipping API call (limit: {MIN_HOURS_BETWEEN_RUNS}h)')
+        print(f'  Estimated cost avoided: ${COST_PER_RUN_USD:.3f}')
+        sys.exit(0)
 
     print('Searching for today\'s sports news...')
     news = search_news()
@@ -143,11 +167,13 @@ def main():
         print('– Headline generation failed; existing headline unchanged')
         sys.exit(0)  # non-fatal — leaderboard still works without a new headline
 
+    from datetime import datetime, timezone
     data['headline'] = headline
+    data['headline_generated_at'] = datetime.now(timezone.utc).isoformat()
     with open(SCORES_PATH, 'w') as f:
         json.dump(data, f)
 
-    print(f'✓ Headline updated: {headline[:120]}')
+    print(f'✓ Headline updated (est. cost: ${COST_PER_RUN_USD:.3f}): {headline[:100]}')
 
 
 if __name__ == '__main__':
