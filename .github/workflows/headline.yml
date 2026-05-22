@@ -22,6 +22,7 @@ jobs:
         run: pip install -r requirements.txt requests
 
       - name: Generate FL News headline
+        continue-on-error: true   # API credit exhaustion must not fail the workflow
         env:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

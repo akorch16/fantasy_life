@@ -140,8 +140,8 @@ def main():
     print('Generating FL News headline via Claude Haiku...')
     headline = generate_headline(data, news)
     if not headline:
-        print('✗ Headline generation failed — keeping existing headline')
-        sys.exit(1)
+        print('– Headline generation failed; existing headline unchanged')
+        sys.exit(0)  # non-fatal — leaderboard still works without a new headline
 
     data['headline'] = headline
     with open(SCORES_PATH, 'w') as f:
