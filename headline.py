@@ -93,21 +93,20 @@ def generate_headline(scores_data: dict, news_snippets: str) -> str | None:
             '\n(No live news available — invent plausible events based on the season.)\n'
         )
 
-        prompt = f"""You write punchy multi-sentence "FL News" ticker headlines for Fantasy Life 2026 — a 13-person fantasy league.
+        prompt = f"""You write punchy multi-sentence "FL News" sports ticker headlines for Fantasy Life 2026 — a 13-person fantasy league where each player drafted real sports teams/athletes.
 
 Draft picks (FL player → their team/pick):
 {DRAFT_SUMMARY}
-
-Current standings:
-{standings}
 {news_block}
 Rules:
 - 3–5 sentences, max 60 words total
-- Each sentence = one sport/event; reference real news if provided
-- Tie real-world events to FL players who own those teams/picks
-- Use <em> tags ONLY around FL player names (Tim, Wu, Jens, Todd, etc.) — NOT around team or athlete names
-- Be specific: scores, series leads, W/L records where known
-- Output ONLY the headline text, no quotes, no labels
+- This is a SPORTS NEWS ticker, not a scoreboard — never mention FL standings, point totals, or league positions
+- Each sentence covers one sport/event; use real news if provided, otherwise invent plausible recent results
+- Format: "Team (<em>FLPlayer</em>) result." — team/athlete name first, FL owner in <em> tags in parentheses
+- Example: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals."
+- Use <em> tags ONLY around FL player names — never around team names or athlete names
+- Be specific: include series scores (3-1), standings records, or stats where known
+- Output ONLY the headline text, no quotes, no labels, no preamble
 
 Headline:"""
 
