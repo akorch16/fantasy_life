@@ -237,6 +237,19 @@
       color: var(--muted);
       line-height: 1.4;
     }
+    .live-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-left: 5px;
+      vertical-align: middle;
+      display: inline-block;
+    }
+    .live-badge.kalshi { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .live-badge.model  { background: rgba(45,125,210,0.15); color: var(--blue);  border: 1px solid rgba(45,125,210,0.3); }
 
     /* ─── EMPTY / LOADING STATES ─── */
     .loading-msg {
@@ -328,6 +341,7 @@ fetch('./projections.json')
     const tbody = document.getElementById('proj-body');
     if (!data.players || !data.players.length) {
       tbody.innerHTML = '<tr><td colspan="8" class="loading-msg">Projections not yet available — check back after the next daily run.</td></tr>';
+      renderBets(null);
       return;
     }
     const players = data.players.slice().sort((a, b) => b.projected_total - a.projected_total);
@@ -348,17 +362,21 @@ fetch('./projections.json')
       <tr class="proj-footer">
         <td colspan="8">As of ${genAt} · ${(data.n_simulations || 10000).toLocaleString()} simulations · ${liveOdds ? 'Live Kalshi odds' : 'Static odds'}</td>
       </tr>`;
+    renderBets(data.prop_odds || null);
   })
   .catch(() => {
     document.getElementById('proj-body').innerHTML =
       '<tr><td colspan="8" class="loading-msg">Projections unavailable.</td></tr>';
+    renderBets(null);
   });
 
 // ─── PROP BETS ──────────────────────────────────────────────────
 // All bets are player vs. player. YES side is listed first.
+// `id` must match the key in projections.json `prop_odds`.
 const BETS = [
   // ── TENNIS · ROLAND GARROS (closes Jun 9) ──
   {
+    id: 'rg-w-fryar-v-feder',
     sport: 'Tennis · Roland Garros',
     title: '<em>Fryar</em> (Sabalenka) goes further than <em>Feder</em> (Swiatek)',
     desc: 'Whoever\'s pick advances to a later round at Roland Garros earns this bet. Swiatek is the 4-time RG champion; Sabalenka won the last two Australian Opens.',
@@ -366,6 +384,7 @@ const BETS = [
     closes: 'Jun 9',
   },
   {
+    id: 'rg-w-fryar-v-wu',
     sport: 'Tennis · Roland Garros',
     title: '<em>Fryar</em> (Sabalenka) goes further than <em>Wu</em> (Gauff)',
     desc: 'Gauff reached the RG final in 2024. Sabalenka has been the more dominant player on clay this season.',
@@ -373,6 +392,7 @@ const BETS = [
     closes: 'Jun 9',
   },
   {
+    id: 'rg-m-todd-v-shep',
     sport: 'Tennis · Roland Garros',
     title: '<em>Todd</em> (Alcaraz) goes further than <em>Shep</em> (Djokovic)',
     desc: 'Alcaraz won Roland Garros in 2024 and is at his peak on clay. Djokovic enters with injury concerns after knee surgery.',
@@ -381,6 +401,7 @@ const BETS = [
   },
   // ── NBA · EAST FINALS (closes ~Jun 12) ──
   {
+    id: 'nba-ecf-buckley-v-jens',
     sport: 'NBA · East Finals',
     title: '<em>Buckley</em> (Knicks) beats <em>Jens</em> (Cavaliers) — Knicks win East',
     desc: 'New York leads the series 1-0. The winner reaches the NBA Finals for a shot at 13 pts.',
@@ -389,6 +410,7 @@ const BETS = [
   },
   // ── NHL · WEST FINALS (closes ~Jun 14) ──
   {
+    id: 'nhl-wcf-tim-v-korch',
     sport: 'NHL · West Finals',
     title: '<em>Tim</em> (Golden Knights) beats <em>Korch</em> (Avalanche) — Vegas wins West',
     desc: 'Vegas stole Game 1 on the road in Colorado. The winner earns a Cup Finals berth and a big pts jump.',
@@ -397,6 +419,7 @@ const BETS = [
   },
   // ── NBA · WEST FINALS (closes ~Jun 15) ──
   {
+    id: 'nba-wcf-wu-v-feder',
     sport: 'NBA · West Finals',
     title: '<em>Wu</em> (Spurs) beats <em>Feder</em> (Thunder) — San Antonio wins West',
     desc: 'Series tied 1-1. Whoever advances faces Buckley or Jens in the Finals. This is pure 50/50.',
@@ -405,6 +428,7 @@ const BETS = [
   },
   // ── GOLF · US OPEN (closes Jun 22) ──
   {
+    id: 'uso-wu-v-molmen',
     sport: 'Golf · US Open',
     title: '<em>Wu</em> (Scheffler) finishes higher than <em>Molmen</em> (McIlroy)',
     desc: 'World #1 vs. Grand Slam hunter. Scheffler has been dominant all year; McIlroy is chasing the career Slam at Oakmont.',
@@ -412,6 +436,7 @@ const BETS = [
     closes: 'Jun 22',
   },
   {
+    id: 'uso-molmen-v-feder',
     sport: 'Golf · US Open',
     title: '<em>Molmen</em> (McIlroy) finishes higher than <em>Feder</em> (DeChambeau)',
     desc: 'DeChambeau is the defending US Open champion. McIlroy is highly motivated. DeChambeau\'s bomb-and-gouge style fits Oakmont well.',
@@ -419,6 +444,7 @@ const BETS = [
     closes: 'Jun 22',
   },
   {
+    id: 'uso-tim-v-shep',
     sport: 'Golf · US Open',
     title: '<em>Tim</em> (Schauffele) finishes higher than <em>Shep</em> (Rahm)',
     desc: 'Schauffele won the 2024 US Open and is in top form. Rahm has been inconsistent since his LIV switch.',
@@ -427,6 +453,7 @@ const BETS = [
   },
   // ── NHL · SEASON FINAL (closes ~Jun 25) ──
   {
+    id: 'nhl-sf-tim-v-jamzee',
     sport: 'NHL · Season Final',
     title: '<em>Tim</em> (Golden Knights) finishes with more NHL pts than <em>Jamzee</em> (Hurricanes)',
     desc: 'Tim needs to win the West Finals first, then face Jamzee\'s Hurricanes in the Cup Finals. Whoever\'s team advances further wins this bet.',
@@ -434,6 +461,7 @@ const BETS = [
     closes: '~Jun 25',
   },
   {
+    id: 'nhl-sf-korch-v-jamzee',
     sport: 'NHL · Season Final',
     title: '<em>Korch</em> (Avalanche) finishes with more NHL pts than <em>Jamzee</em> (Hurricanes)',
     desc: 'Korch must first beat Tim\'s Golden Knights to stay alive. If he does, he likely faces Jamzee\'s Canes in the Cup Finals.',
@@ -442,6 +470,7 @@ const BETS = [
   },
   // ── NBA · SEASON FINAL (closes ~Jun 25) ──
   {
+    id: 'nba-sf-buckley-v-wu',
     sport: 'NBA · Season Final',
     title: '<em>Buckley</em> (Knicks) finishes with more NBA pts than <em>Wu</em> (Spurs)',
     desc: 'Buckley leads 1-0 in the East Finals; Wu is 1-1 in the West. Both could reach the Finals — or one could be bounced early.',
@@ -449,6 +478,7 @@ const BETS = [
     closes: '~Jun 25',
   },
   {
+    id: 'nba-fin-east-v-west',
     sport: 'NBA · Season Final',
     title: 'East (<em>Buckley</em>/<em>Jens</em>) beats West (<em>Wu</em>/<em>Feder</em>) in NBA Finals',
     desc: 'One player from each side will meet in the Finals. An East title means Buckley or Jens gets 13 pts; a West title means Wu or Feder does.',
@@ -457,6 +487,7 @@ const BETS = [
   },
   // ── MLB · THROUGH JULY 1 ──
   {
+    id: 'mlb-jens-v-tim',
     sport: 'MLB · Through July 1',
     title: '<em>Jens</em> (Yankees) has a better W-L% than <em>Tim</em> (Cubs) on July 1',
     desc: 'AL powerhouse vs. NL Wild Card hopeful. Yankees have the deeper roster and better run differential.',
@@ -464,6 +495,7 @@ const BETS = [
     closes: 'Jul 1',
   },
   {
+    id: 'mlb-wu-v-mitchell',
     sport: 'MLB · Through July 1',
     title: '<em>Wu</em> (Dodgers) has a better W-L% than <em>Mitchell</em> (Phillies) on July 1',
     desc: 'LA is the defending World Series champ. Philadelphia finished strong in 2025. Two of the best rosters in baseball.',
@@ -471,6 +503,7 @@ const BETS = [
     closes: 'Jul 1',
   },
   {
+    id: 'mlb-feder-v-jamzee',
     sport: 'MLB · Through July 1',
     title: '<em>Feder</em> (Mets) has a better W-L% than <em>Jamzee</em> (Mariners) on July 1',
     desc: 'The Mets spent big in the offseason and are NL East contenders. Seattle is rebuilding but has pitching.',
@@ -479,6 +512,7 @@ const BETS = [
   },
   // ── MLS · THROUGH JULY 1 ──
   {
+    id: 'mls-buckley-v-molmen',
     sport: 'MLS · Through July 1',
     title: '<em>Buckley</em> (LAFC) leads <em>Molmen</em> (LA Galaxy) in Western Conf on July 1',
     desc: 'El Tráfico — the LA derby. LAFC and the Galaxy are perennial Western Conference rivals battling for supremacy.',
@@ -486,6 +520,7 @@ const BETS = [
     closes: 'Jul 1',
   },
   {
+    id: 'mls-theo-v-shep',
     sport: 'MLS · Through July 1',
     title: '<em>Theo</em> (Inter Miami) leads <em>Shep</em> (Orlando City) in Eastern Conf on July 1',
     desc: 'The Florida derby. Inter Miami has the star power; Orlando City has been the scrappier club.',
@@ -494,6 +529,7 @@ const BETS = [
   },
   // ── NASCAR · THROUGH JULY 1 ──
   {
+    id: 'nascar-molmen-v-korch',
     sport: 'NASCAR · Through July 1',
     title: '<em>Molmen</em> (Kyle Larson) has more NASCAR pts than <em>Korch</em> (William Byron)',
     desc: 'Hendrick Motorsports teammates and rivals. Both are championship-level drivers — this is decided race by race.',
@@ -501,6 +537,7 @@ const BETS = [
     closes: 'Jul 1',
   },
   {
+    id: 'nascar-fryar-v-tim',
     sport: 'NASCAR · Through July 1',
     title: '<em>Fryar</em> (Ryan Blaney) has more NASCAR pts than <em>Tim</em> (Bubba Wallace)',
     desc: 'Blaney is a legitimate championship contender; Wallace has been inconsistent. Blaney should be the strong favorite here.',
@@ -509,23 +546,35 @@ const BETS = [
   },
 ];
 
-const grid = document.getElementById('bets-grid');
-grid.innerHTML = BETS.map((b, i) => `
+function renderBets(propOdds) {
+  const grid = document.getElementById('bets-grid');
+  grid.innerHTML = BETS.map(b => {
+    const live = propOdds && propOdds[b.id];
+    const yesPct = live ? live.yes_pct : b.odds;
+    const noPct = 100 - yesPct;
+    const src = live && live.source !== 'static' ? live.source : null;
+    const badge = src === 'kalshi'
+      ? `<span class="live-badge kalshi">⚡ live</span>`
+      : src === 'model'
+      ? `<span class="live-badge model">~ model</span>`
+      : '';
+    return `
   <div class="bet-card">
     <div class="bet-sport">${b.sport}</div>
     <div class="bet-title">${b.title}</div>
     <div class="bet-desc">${b.desc}</div>
     <div class="bet-meta">
       <div>
-        <span class="bet-odds odds-yes">${b.odds}%</span>
-        <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">YES</span>
-        <span class="bet-odds odds-no" style="margin-left:10px">${100 - b.odds}%</span>
+        <span class="bet-odds odds-yes">${yesPct}%</span>
+        <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">YES</span>${badge}
+        <span class="bet-odds odds-no" style="margin-left:10px">${noPct}%</span>
         <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">NO</span>
       </div>
       <div class="bet-close">Closes ${b.closes}</div>
     </div>
-  </div>
-`).join('');
+  </div>`;
+  }).join('');
+}
 </script>
 </body>
 </html>
