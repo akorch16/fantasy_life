@@ -84,18 +84,17 @@ def search_news() -> str:
 
 
 def generate_headline(scores_data: dict, news_snippets: str) -> str | None:
-    """Generate a fresh FL News ticker headline via Claude Haiku."""
+    """Generate a fresh FL News ticker headline via Claude Sonnet."""
+    if not news_snippets:
+        print('  – No snippets returned; skipping to avoid hallucination')
+        return None
     try:
         import anthropic
         from datetime import date
         client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
 
         today = date.today().strftime('%B %d, %Y')
-
-        if news_snippets:
-            news_block = f'\nNews snippets from the last 3 days (today is {today}):\n{news_snippets}\n'
-        else:
-            news_block = f'\n(No live news snippets available for {today}. Output nothing — return an empty string.)\n'
+        news_block = f'\nNews snippets from the last 3 days (today is {today}):\n{news_snippets}\n'
 
         prompt = f"""You write punchy multi-sentence "FL News" sports ticker headlines for Fantasy Life 2026 — a 13-person fantasy league where each player drafted real sports teams/athletes.
 
@@ -103,21 +102,22 @@ Draft picks (FL player → their team/pick):
 {DRAFT_SUMMARY}
 {news_block}
 CRITICAL rules:
-- ONLY report facts that are explicitly stated in the news snippets above. Do NOT use knowledge from training data or infer results not in the snippets.
-- If a snippet does not explicitly state who won or what the result was, skip that story.
-- Only include events that happened in the last 3 days (today is {today}). Ignore any snippet that seems like older news.
+- ONLY report facts explicitly stated in the snippets above. Do NOT add any result, score, or outcome not written in a snippet.
+- If a snippet mentions a team but doesn't clearly state the result, skip it.
+- Never cross sports: an NBA team cannot win a Stanley Cup; an NHL team cannot win an NBA title.
+- Only include events from the last 3 days (today is {today}).
 - 3–5 sentences, max 60 words total
-- This is a SPORTS NEWS ticker, not a scoreboard — never mention FL standings, point totals, or league positions
+- This is a SPORTS NEWS ticker — never mention FL standings, point totals, or league positions
 - Format: "Team (<em>FLPlayer</em>) result." — team/athlete name first, FL owner in <em> tags in parentheses
 - Example: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals."
 - Use <em> tags ONLY around FL player names — never around team names or athlete names
-- Be specific: include series scores (e.g. 3-1) if the snippet gives them
+- Be specific: include series scores (e.g. 3-1) only if the snippet gives them
 - Output ONLY the headline text, no quotes, no labels, no preamble
 
 Headline:"""
 
         msg = client.messages.create(
-            model='claude-haiku-4-5-20251001',
+            model='claude-sonnet-4-6',
             max_tokens=200,
             messages=[{'role': 'user', 'content': prompt}],
         )
@@ -127,7 +127,7 @@ Headline:"""
         return None
 
 
-COST_PER_RUN_USD = 0.009   # Haiku ~200 tokens in + ~200 out ≈ $0.009
+COST_PER_RUN_USD = 0.04   # Sonnet ~1k tokens in + ~200 out ≈ $0.04
 MIN_HOURS_BETWEEN_RUNS = 20  # never call the API more than once per ~day
 
 
