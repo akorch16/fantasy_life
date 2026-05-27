@@ -332,20 +332,20 @@ def compute_baseline_golf():
     return result
 
 
-# MLS 2026 standings as of Apr 30 2026 (week ~10)
+# MLS 2026 standings as of May 27 2026 (pre-World Cup break, week ~14)
 MLS_2026_STANDINGS_STATIC = {"standings": [
-    {"team": "Vancouver Whitecaps",  "points": 24},
-    {"team": "LAFC",                 "points": 20},
-    {"team": "Inter Miami",          "points": 19},
-    {"team": "Seattle Sounders",     "points": 19},
-    {"team": "Minnesota United",     "points": 17},
-    {"team": "Charlotte FC",         "points": 14},
-    {"team": "New York Red Bulls",   "points": 12},
-    {"team": "Columbus Crew",        "points": 12},
-    {"team": "FC Cincinnati",        "points": 12},
-    {"team": "LA Galaxy",            "points": 12},
-    {"team": "San Diego FC",         "points": 11},
-    {"team": "Orlando City",         "points": 7},
+    {"team": "Vancouver Whitecaps",  "points": 32},
+    {"team": "Inter Miami",          "points": 28},
+    {"team": "LAFC",                 "points": 24},
+    {"team": "Seattle Sounders",     "points": 24},
+    {"team": "Minnesota United",     "points": 22},
+    {"team": "Charlotte FC",         "points": 21},
+    {"team": "LA Galaxy",            "points": 20},
+    {"team": "New York Red Bulls",   "points": 19},
+    {"team": "San Diego FC",         "points": 17},
+    {"team": "FC Cincinnati",        "points": 16},
+    {"team": "Columbus Crew",        "points": 16},
+    {"team": "Orlando City",         "points": 14},
     {"team": "Philadelphia Union",   "points": 5},
 ]}
 
