@@ -484,15 +484,16 @@ def compute_baseline_musician():
 
 def compute_baseline_country():
     picks = DRAFT_PICKS_2026.get('Country', {})
-    data = load_data('country')
-    if not data:
-        import json as _json
-        _path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'country.json')
-        try:
-            with open(_path) as _f:
-                data = _json.load(_f)
-        except Exception:
-            pass
+    # Primary: local file (IMF WEO data, updated April + October each year)
+    # Supabase is NOT used for Country — it holds stale scraped data.
+    import json as _json
+    _path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'country.json')
+    data = None
+    try:
+        with open(_path) as _f:
+            data = _json.load(_f)
+    except Exception:
+        data = load_data('country')  # fallback only if file is missing
 
     raw_values = {}
     for player, country in picks.items():
