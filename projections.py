@@ -490,7 +490,63 @@ KNOWN_SERIES = {
     "tennis_wb_w": ["TENNISWB-W", "WIM-WOMEN"],
     "tennis_uso_m": ["TENNISUSO-M", "USO-MEN"],
     "tennis_uso_w": ["TENNISUSO-W", "USO-WOMEN"],
+    # Conference finals — for sportsbook prop live odds
+    "nba_ecf": ["NBAECF-2026", "NBA-EAST-FINALS", "NBAECF", "KXNBA-ECF"],
+    "nba_wcf": ["NBAWCF-2026", "NBA-WEST-FINALS", "NBAWCF", "KXNBA-WCF"],
+    "nhl_wcf": ["NHLWCF-2026", "NHL-WEST-FINALS", "NHLWCF", "KXNHL-WCF"],
 }
+
+
+def _h2h(a, b):
+    """Head-to-head YES probability (0–100 int) for first player given win probs."""
+    total = a + b
+    return round(a / total * 100) if total > 0 else None
+
+
+# Prop definitions: (id, static_yes_pct, fn(odds)->int|None, source_category_label)
+# fn returns a computed YES% from odds dict, or None to use static.
+# source_category_label must match a string in markets_used to be marked "kalshi".
+_PROP_DEFS = [
+    ("rg-w-fryar-v-feder",     38, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Feder",0)), "Tennis-FO-Women"),
+    ("rg-w-fryar-v-wu",        52, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Wu",0)),    "Tennis-FO-Women"),
+    ("rg-m-todd-v-shep",       58, None, None),  # Alcaraz withdrew — static
+    ("nba-ecf-buckley-v-jens", 60, lambda o: _h2h(o.get("nba_conf_finals_east",{}).get("Buckley",0), o.get("nba_conf_finals_east",{}).get("Jens",0)),     "NBA-ECF"),
+    ("nhl-wcf-tim-v-korch",    55, lambda o: _h2h(o.get("nhl_conf_finals_west",{}).get("Tim",0),     o.get("nhl_conf_finals_west",{}).get("Korch",0)),    "NHL-WCF"),
+    ("nba-wcf-wu-v-feder",     50, lambda o: _h2h(o.get("nba_conf_finals_west",{}).get("Wu",0),      o.get("nba_conf_finals_west",{}).get("Feder",0)),    "NBA-WCF"),
+    ("uso-wu-v-molmen",        52, lambda o: _h2h(o.get("golf_uso_win",{}).get("Wu",0),              o.get("golf_uso_win",{}).get("Molmen",0)),            "Golf-USOpen-win"),
+    ("uso-molmen-v-feder",     48, lambda o: _h2h(o.get("golf_uso_win",{}).get("Molmen",0),          o.get("golf_uso_win",{}).get("Feder",0)),             "Golf-USOpen-win"),
+    ("uso-tim-v-shep",         60, lambda o: _h2h(o.get("golf_uso_win",{}).get("Tim",0),             o.get("golf_uso_win",{}).get("Shep",0)),              "Golf-USOpen-win"),
+    ("nhl-sf-tim-v-jamzee",    52, None, None),
+    ("nhl-sf-korch-v-jamzee",  48, None, None),
+    ("nba-sf-buckley-v-wu",    55, None, None),
+    ("nba-fin-east-v-west",    44, lambda o: (round((o.get("nba_champ",{}).get("Buckley",0) + o.get("nba_champ",{}).get("Jens",0)) * 100) or None), "NBA-championship"),
+    ("mlb-jens-v-tim",         48, None, None),
+    ("mlb-wu-v-mitchell",      55, None, None),
+    ("mlb-feder-v-jamzee",     54, None, None),
+    ("mls-buckley-v-molmen",   52, None, None),
+    ("mls-theo-v-shep",        55, None, None),
+    ("nascar-molmen-v-korch",  53, None, None),
+    ("nascar-fryar-v-tim",     65, None, None),
+]
+
+
+def compute_prop_odds(odds, markets_used):
+    """Returns {prop_id: {yes_pct, source}} for all 20 sportsbook props."""
+    live_cats = set(markets_used)
+    result = {}
+    for prop_id, static_pct, fn, src_cat in _PROP_DEFS:
+        computed = None
+        if fn is not None:
+            try:
+                computed = fn(odds)
+            except Exception:
+                computed = None
+        if computed and 0 < computed < 100:
+            source = "kalshi" if (src_cat and src_cat in live_cats) else "model"
+            result[prop_id] = {"yes_pct": computed, "source": source}
+        else:
+            result[prop_id] = {"yes_pct": static_pct, "source": "static"}
+    return result
 
 
 def _try_kalshi_series(series_list, picks_dict, label):
@@ -515,11 +571,17 @@ def build_odds(markets_used):
             markets_used.append(label)
         return merged
 
-    odds["nba_champ"]           = get("nba_champ", NBA_PICKS, "nba", "NBA-championship")
-    odds["nba_conf_finals_west"] = FALLBACK["nba_conf_finals_west"]
-    odds["nba_conf_finals_east"] = FALLBACK["nba_conf_finals_east"]
-    odds["nhl_champ"]           = get("nhl_champ", NHL_PICKS, "nhl", "NHL-StanleyCup")
-    odds["nhl_conf_finals_west"] = FALLBACK["nhl_conf_finals_west"]
+    odds["nba_champ"]            = get("nba_champ", NBA_PICKS, "nba", "NBA-championship")
+    odds["nba_conf_finals_west"] = get("nba_conf_finals_west",
+                                       {"Wu": "San Antonio Spurs", "Feder": "Oklahoma City Thunder"},
+                                       "nba_wcf", "NBA-WCF")
+    odds["nba_conf_finals_east"] = get("nba_conf_finals_east",
+                                       {"Buckley": "New York Knicks", "Jens": "Cleveland Cavaliers"},
+                                       "nba_ecf", "NBA-ECF")
+    odds["nhl_champ"]            = get("nhl_champ", NHL_PICKS, "nhl", "NHL-StanleyCup")
+    odds["nhl_conf_finals_west"] = get("nhl_conf_finals_west",
+                                       {"Korch": "Colorado Avalanche", "Tim": "Vegas Golden Knights"},
+                                       "nhl_wcf", "NHL-WCF")
     odds["nhl_conf_finals_east"] = FALLBACK["nhl_conf_finals_east"]
     odds["mlb_champ"]           = get("mlb_champ", MLB_PICKS, "mlb", "MLB-WorldSeries")
     odds["mls_champ"]           = get("mls_champ", MLS_PICKS, "mls", "MLS-Cup")
@@ -988,11 +1050,14 @@ def run():
     # Sort by projected total
     players_out.sort(key=lambda x: -x["projected_total"])
 
+    prop_odds = compute_prop_odds(odds, markets_used)
+
     output = {
         "generated_at":    datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "kalshi_markets_used": markets_used,
         "n_simulations":   N_SIMS,
         "players":         players_out,
+        "prop_odds":       prop_odds,
     }
 
     with open(PROJECTIONS_PATH, "w") as f:
