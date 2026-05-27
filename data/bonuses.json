@@ -1,23 +1,35 @@
 {
   "_note": "These values OVERRIDE Supabase for matching (category, player) pairs. Edit here instead of Supabase for auditability. Values are final intended totals, not additive offsets.",
-  "Tennis": {
-    "Todd":  4.0,
-    "Shep":  2.5,
-    "Fryar": 2.5
+  "Actor": {
+    "Tim":    9.0,
+    "Wu":     4.0,
+    "Jamzee": 4.0,
+    "Todd":   4.0
   },
   "Actress": {
     "Jamzee": 4.0,
     "Molmen": 13.0,
+    "Todd":   2.5,
     "Theo":   0.0
   },
-  "NCAAF": {
-    "Fryar": 2.5
+  "Country": {
+    "Fryar": 13.0,
+    "Wu":     9.0,
+    "Jens":   2.5
+  },
+  "Golf": {
+    "Molmen": 6.0,
+    "Wu":     2.5,
+    "Shep":   2.5
   },
   "Musician": {
-    "Fryar": 4.0,
-    "Korch": 13.0,
-    "Wu":    3.0,
-    "Jens":  6.0
+    "Feder":   13.0,
+    "Fryar":    4.0,
+    "Korch":   13.0,
+    "Mitchell":13.0,
+    "Tim":     13.0,
+    "Wu":       3.0,
+    "Jens":     6.0
   },
   "NCAAB": {
     "Tim":     2.5,
@@ -28,10 +40,29 @@
     "Korch":   4.0,
     "Jamzee": 13.0
   },
-  "Golf": {
-    "Molmen": 6.0,
-    "Wu":     2.5,
-    "Shep":   2.5
+  "NCAAF": {
+    "Buckley":  6.5,
+    "Fryar":    2.5,
+    "Jamzee":   4.0,
+    "Korch":   13.0,
+    "Mitchell": 4.0,
+    "Molmen":   4.0,
+    "Theo":     4.0,
+    "Todd":     6.5,
+    "Wu":       9.0
+  },
+  "NFL": {
+    "Feder":    9.0,
+    "Fryar":    4.0,
+    "Jamzee":   4.0,
+    "Jens":     4.0,
+    "Korch":    2.5,
+    "Mitchell": 6.5,
+    "Molmen":   6.5,
+    "Shep":     2.5,
+    "Tim":     13.0,
+    "Todd":     4.0,
+    "Wu":       2.5
   },
   "NHL": {
     "Shep":    2.5,
@@ -53,5 +84,10 @@
     "Theo":   4.0,
     "Feder":  6.5,
     "Buckley":6.5
+  },
+  "Tennis": {
+    "Todd":  4.0,
+    "Shep":  2.5,
+    "Fryar": 2.5
   }
 }
