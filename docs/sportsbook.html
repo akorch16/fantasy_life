@@ -250,6 +250,19 @@
     }
     .live-badge.kalshi { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
     .live-badge.model  { background: rgba(45,125,210,0.15); color: var(--blue);  border: 1px solid rgba(45,125,210,0.3); }
+    .bet-settled { opacity: 0.55; }
+    .settled-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-left: 5px;
+      vertical-align: middle;
+      display: inline-block;
+      background: rgba(245,158,11,0.15); color: var(--gold); border: 1px solid rgba(245,158,11,0.3);
+    }
 
     /* ─── EMPTY / LOADING STATES ─── */
     .loading-msg {
@@ -395,36 +408,39 @@ const BETS = [
     id: 'rg-m-todd-v-shep',
     sport: 'Tennis · Roland Garros',
     title: '<em>Todd</em> (Alcaraz) goes further than <em>Shep</em> (Djokovic)',
-    desc: 'Alcaraz won Roland Garros in 2024 and is at his peak on clay. Djokovic enters with injury concerns after knee surgery.',
-    odds: 58,
+    desc: 'Alcaraz withdrew with a wrist injury in the second round. Djokovic advanced. Shep wins this bet.',
+    odds: 0,
     closes: 'Jun 9',
+    settled: true,
   },
   // ── NBA · EAST FINALS (closes ~Jun 12) ──
   {
     id: 'nba-ecf-buckley-v-jens',
     sport: 'NBA · East Finals',
     title: '<em>Buckley</em> (Knicks) beats <em>Jens</em> (Cavaliers) — Knicks win East',
-    desc: 'New York leads the series 1-0. The winner reaches the NBA Finals for a shot at 13 pts.',
-    odds: 60,
+    desc: 'Knicks swept the Cavaliers 4-0 to win the Eastern Conference Finals. Buckley wins this bet.',
+    odds: 100,
     closes: '~Jun 12',
+    settled: true,
   },
   // ── NHL · WEST FINALS (closes ~Jun 14) ──
   {
     id: 'nhl-wcf-tim-v-korch',
     sport: 'NHL · West Finals',
     title: '<em>Tim</em> (Golden Knights) beats <em>Korch</em> (Avalanche) — Vegas wins West',
-    desc: 'Vegas stole Game 1 on the road in Colorado. The winner earns a Cup Finals berth and a big pts jump.',
-    odds: 55,
+    desc: 'Golden Knights swept the Avalanche 4-0 to advance to the Stanley Cup Finals. Tim wins this bet.',
+    odds: 100,
     closes: '~Jun 14',
+    settled: true,
   },
   // ── NBA · WEST FINALS (closes ~Jun 15) ──
   {
     id: 'nba-wcf-wu-v-feder',
     sport: 'NBA · West Finals',
     title: '<em>Wu</em> (Spurs) beats <em>Feder</em> (Thunder) — San Antonio wins West',
-    desc: 'Series tied 1-1. Whoever advances faces Buckley or Jens in the Finals. This is pure 50/50.',
-    odds: 50,
-    closes: '~Jun 15',
+    desc: 'Thunder lead the series 3-2 heading into Game 6. The Spurs need to win two straight to deny Feder a Finals spot against Buckley\'s Knicks.',
+    odds: 35,
+    closes: '~Jun 2',
   },
   // ── GOLF · US OPEN (closes Jun 22) ──
   {
@@ -456,33 +472,34 @@ const BETS = [
     id: 'nhl-sf-tim-v-jamzee',
     sport: 'NHL · Season Final',
     title: '<em>Tim</em> (Golden Knights) finishes with more NHL pts than <em>Jamzee</em> (Hurricanes)',
-    desc: 'Tim needs to win the West Finals first, then face Jamzee\'s Hurricanes in the Cup Finals. Whoever\'s team advances further wins this bet.',
-    odds: 52,
+    desc: 'Tim (Golden Knights) is confirmed in the Cup Finals after a sweep. Jamzee (Hurricanes) leads the ECF 3-1 and could meet Tim in the Finals — Tim is slight favorite to win it all.',
+    odds: 60,
     closes: '~Jun 25',
   },
   {
     id: 'nhl-sf-korch-v-jamzee',
     sport: 'NHL · Season Final',
     title: '<em>Korch</em> (Avalanche) finishes with more NHL pts than <em>Jamzee</em> (Hurricanes)',
-    desc: 'Korch must first beat Tim\'s Golden Knights to stay alive. If he does, he likely faces Jamzee\'s Canes in the Cup Finals.',
-    odds: 48,
+    desc: 'Korch (Avalanche) was swept 4-0 by Tim\'s Golden Knights in the Western Conference Finals. Jamzee wins this bet.',
+    odds: 0,
     closes: '~Jun 25',
+    settled: true,
   },
   // ── NBA · SEASON FINAL (closes ~Jun 25) ──
   {
     id: 'nba-sf-buckley-v-wu',
     sport: 'NBA · Season Final',
     title: '<em>Buckley</em> (Knicks) finishes with more NBA pts than <em>Wu</em> (Spurs)',
-    desc: 'Buckley leads 1-0 in the East Finals; Wu is 1-1 in the West. Both could reach the Finals — or one could be bounced early.',
-    odds: 55,
+    desc: 'Buckley (Knicks) is confirmed in the NBA Finals after sweeping the East. Wu (Spurs) faces elimination in Game 6 of the WCF — even if Wu advances, he still needs to beat Buckley.',
+    odds: 75,
     closes: '~Jun 25',
   },
   {
     id: 'nba-fin-east-v-west',
     sport: 'NBA · Season Final',
-    title: 'East (<em>Buckley</em>/<em>Jens</em>) beats West (<em>Wu</em>/<em>Feder</em>) in NBA Finals',
-    desc: 'One player from each side will meet in the Finals. An East title means Buckley or Jens gets 13 pts; a West title means Wu or Feder does.',
-    odds: 44,
+    title: 'East (<em>Buckley</em>/Knicks) beats West (<em>Feder</em>/<em>Wu</em>) in NBA Finals',
+    desc: 'Buckley (Knicks) locked up the East with a sweep. The West winner — Feder (Thunder, 3-2 lead) or Wu (Spurs) — will face New York. An East title means Buckley gets 13 pts.',
+    odds: 45,
     closes: '~Jun 25',
   },
   // ── MLB · THROUGH JULY 1 ──
@@ -553,13 +570,16 @@ function renderBets(propOdds) {
     const yesPct = live ? live.yes_pct : b.odds;
     const noPct = 100 - yesPct;
     const src = live && live.source !== 'static' ? live.source : null;
-    const badge = src === 'kalshi'
+    const badge = b.settled
+      ? `<span class="settled-badge">settled</span>`
+      : src === 'kalshi'
       ? `<span class="live-badge kalshi">⚡ live</span>`
       : src === 'model'
       ? `<span class="live-badge model">~ model</span>`
       : '';
+    const closeStr = b.settled ? 'Settled' : `Closes ${b.closes}`;
     return `
-  <div class="bet-card">
+  <div class="bet-card${b.settled ? ' bet-settled' : ''}">
     <div class="bet-sport">${b.sport}</div>
     <div class="bet-title">${b.title}</div>
     <div class="bet-desc">${b.desc}</div>
@@ -570,7 +590,7 @@ function renderBets(propOdds) {
         <span class="bet-odds odds-no" style="margin-left:10px">${noPct}%</span>
         <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">NO</span>
       </div>
-      <div class="bet-close">Closes ${b.closes}</div>
+      <div class="bet-close">${closeStr}</div>
     </div>
   </div>`;
   }).join('');
