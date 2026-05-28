@@ -77,7 +77,7 @@ Output ONLY the headline. No explanation, no preamble.
 After outputting the headline, deploy it live:
 
 1. Read `docs/scores.json` to get current content.
-2. Update only the `headline` field with the generated headline text.
+2. Update the `headline` field AND set `headline_generated_at` to the current UTC ISO timestamp. This prevents the automated `headline.py` workflow from overwriting the manually-generated headline within the next 20 hours.
 3. Write the updated JSON back to `docs/scores.json`.
 4. Create and push a hotfix branch, then create a PR and merge it immediately:
 
