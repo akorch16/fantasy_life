@@ -45,73 +45,79 @@ MLS: Tim=Charlotte, Wu=Minnesota, Jens=SanDiego, Todd=NYRedBulls, Mitchell=Phill
 
 
 def search_news() -> str:
-    """Fetch today's sports headlines via Tavily free tier."""
+    """Fetch recent sports headlines via Tavily — 3 targeted searches, last 3 days only."""
     api_key = os.environ.get('TAVILY_API_KEY', '')
     if not api_key:
         return ''
+    # Focused queries for active competitions only
+    queries = [
+        'NBA playoffs 2026 series results scores',
+        'NHL playoffs 2026 series results scores',
+        'Roland Garros French Open tennis 2026 results',
+    ]
     try:
         import requests
-        resp = requests.post(
-            'https://api.tavily.com/search',
-            json={
-                'api_key': api_key,
-                'query': 'NBA NHL MLB tennis golf playoffs results scores today 2026',
-                'search_depth': 'basic',
-                'max_results': 6,
-                'include_answer': False,
-            },
-            timeout=20,
-        )
-        resp.raise_for_status()
-        results = resp.json().get('results', [])
-        snippets = '\n'.join(
-            f"- {r.get('title', '')}: {r.get('content', '')[:250]}"
-            for r in results
-            if r.get('title')
-        )
-        return snippets
+        seen, all_snippets = set(), []
+        for query in queries:
+            resp = requests.post(
+                'https://api.tavily.com/search',
+                json={
+                    'api_key': api_key,
+                    'query': query,
+                    'search_depth': 'basic',
+                    'max_results': 3,
+                    'include_answer': False,
+                    'days': 3,
+                },
+                timeout=20,
+            )
+            resp.raise_for_status()
+            for r in resp.json().get('results', []):
+                title = r.get('title', '')
+                if title and title not in seen:
+                    seen.add(title)
+                    all_snippets.append(f"- {title}: {r.get('content', '')[:300]}")
+        return '\n'.join(all_snippets)
     except Exception as e:
         print(f'  ⚠ Tavily search failed: {e}')
         return ''
 
 
 def generate_headline(scores_data: dict, news_snippets: str) -> str | None:
-    """Generate a fresh FL News ticker headline via Claude Haiku."""
+    """Generate a fresh FL News ticker headline via Claude Sonnet."""
+    if not news_snippets:
+        print('  – No snippets returned; skipping to avoid hallucination')
+        return None
     try:
         import anthropic
+        from datetime import date
         client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
 
-        players = scores_data.get('players', [])
-        standings = '\n'.join(
-            f"  {p['place']}. {p['name']}: {p['total']} pts"
-            for p in players
-        )
-
-        news_block = (
-            f'\nRecent sports news (use these for real event references):\n{news_snippets}\n'
-            if news_snippets else
-            '\n(No live news available — invent plausible events based on the season.)\n'
-        )
+        today = date.today().strftime('%B %d, %Y')
+        news_block = f'\nNews snippets from the last 3 days (today is {today}):\n{news_snippets}\n'
 
         prompt = f"""You write punchy multi-sentence "FL News" sports ticker headlines for Fantasy Life 2026 — a 13-person fantasy league where each player drafted real sports teams/athletes.
 
 Draft picks (FL player → their team/pick):
 {DRAFT_SUMMARY}
 {news_block}
-Rules:
+CRITICAL rules:
+- ONLY report facts explicitly stated in the snippets above. Do NOT add any result, score, or outcome not written in a snippet.
+- If a snippet mentions a team but doesn't clearly state the result, skip it.
+- Never cross sports: an NBA team cannot win a Stanley Cup; an NHL team cannot win an NBA title.
+- Only include events from the last 3 days (today is {today}).
 - 3–5 sentences, max 60 words total
-- This is a SPORTS NEWS ticker, not a scoreboard — never mention FL standings, point totals, or league positions
-- Each sentence covers one sport/event; use real news if provided, otherwise invent plausible recent results
+- This is a SPORTS NEWS ticker — never mention FL standings, point totals, or league positions
 - Format: "Team (<em>FLPlayer</em>) result." — team/athlete name first, FL owner in <em> tags in parentheses
 - Example: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals."
 - Use <em> tags ONLY around FL player names — never around team names or athlete names
-- Be specific: include series scores (3-1), standings records, or stats where known
+- Be specific: include series scores (e.g. 3-1) only if the snippet gives them
 - Output ONLY the headline text, no quotes, no labels, no preamble
 
 Headline:"""
 
         msg = client.messages.create(
-            model='claude-haiku-4-5-20251001',
+            model='claude-sonnet-4-6',
             max_tokens=200,
             messages=[{'role': 'user', 'content': prompt}],
         )
@@ -121,7 +127,7 @@ Headline:"""
         return None
 
 
-COST_PER_RUN_USD = 0.009   # Haiku ~200 tokens in + ~200 out ≈ $0.009
+COST_PER_RUN_USD = 0.04   # Sonnet ~1k tokens in + ~200 out ≈ $0.04
 MIN_HOURS_BETWEEN_RUNS = 20  # never call the API more than once per ~day
 
 
