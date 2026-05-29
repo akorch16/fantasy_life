@@ -54,6 +54,35 @@
     }
     .logo span { color: var(--blue); }
 
+    /* ─── BALANCE CHIP ─── */
+    .balance-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+    }
+    .balance-name {
+      color: var(--gold);
+      font-weight: 500;
+    }
+    .balance-amount {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .balance-change-btn {
+      font-size: 0.6rem;
+      color: var(--muted);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 6px;
+      background: none;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .balance-change-btn:hover { color: var(--text); border-color: var(--dim); }
+
     /* ─── SITE NAV BAR ─── */
     .site-nav {
       background: var(--surface);
@@ -178,6 +207,99 @@
       border-top: 1px solid var(--border);
     }
 
+    /* ─── ACTIVE BETS PANEL ─── */
+    .active-bets-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .active-bets-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .active-bets-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .active-bets-summary {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+    .active-bets-summary .bb-num { color: var(--gold); }
+    .active-bet-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 0.5rem 1rem;
+      align-items: center;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.78rem;
+    }
+    .active-bet-row:last-child { border-bottom: none; }
+    .active-bet-row.settled-won { background: rgba(34,197,94,0.04); }
+    .active-bet-row.settled-lost { background: rgba(239,68,68,0.04); opacity: 0.7; }
+    .active-bet-info { min-width: 0; }
+    .active-bet-sport {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .active-bet-title {
+      font-size: 0.78rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+    }
+    .active-bet-title em { font-style: normal; color: var(--gold); }
+    .active-bet-side {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .side-yes { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .side-no  { background: rgba(239,68,68,0.15);  color: var(--red);   border: 1px solid rgba(239,68,68,0.3); }
+    .active-bet-amounts {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .active-bet-wager { color: var(--muted); }
+    .active-bet-return { color: var(--text); font-weight: 500; }
+    .active-bet-outcome {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .outcome-won { color: var(--green); }
+    .outcome-lost { color: var(--red); }
+    .active-bet-close {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+
     /* ─── PROP BETS GRID ─── */
     .bets-grid {
       display: grid;
@@ -216,7 +338,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: auto;
       padding-top: 0.5rem;
       border-top: 1px solid var(--border);
     }
@@ -264,6 +385,302 @@
       background: rgba(245,158,11,0.15); color: var(--gold); border: 1px solid rgba(245,158,11,0.3);
     }
 
+    /* ─── BET BUTTONS ─── */
+    .bet-actions {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: auto;
+    }
+    .bet-btn {
+      flex: 1;
+      border: 1px solid;
+      border-radius: 6px;
+      padding: 6px 8px;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: background 0.1s;
+    }
+    .bet-btn-yes {
+      background: rgba(34,197,94,0.08);
+      border-color: rgba(34,197,94,0.35);
+      color: var(--green);
+    }
+    .bet-btn-yes:hover { background: rgba(34,197,94,0.18); }
+    .bet-btn-no {
+      background: rgba(239,68,68,0.08);
+      border-color: rgba(239,68,68,0.35);
+      color: var(--red);
+    }
+    .bet-btn-no:hover { background: rgba(239,68,68,0.18); }
+    .bet-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+    .bet-btn .btn-pct {
+      font-size: 0.9rem;
+      font-family: 'Bebas Neue', sans-serif;
+    }
+
+    /* card position display (already have a bet on this) */
+    .bet-position {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-top: auto;
+    }
+    .bet-position strong { color: var(--text); }
+    .bet-position .pos-won { color: var(--green); font-weight: 600; }
+    .bet-position .pos-lost { color: var(--red); font-weight: 600; }
+
+    /* ─── WAGER MODAL ─── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: min(480px, calc(100vw - 2rem));
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .modal-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+    .modal-sport {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    .modal-bet-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .modal-bet-title em { font-style: normal; color: var(--gold); }
+    .modal-odds-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    .modal-side-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .modal-side-yes { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .modal-side-no  { background: rgba(239,68,68,0.15);  color: var(--red);   border: 1px solid rgba(239,68,68,0.3); }
+    .modal-input-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .modal-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .modal-amount-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.95rem;
+      padding: 7px 10px;
+      outline: none;
+    }
+    .modal-amount-input:focus { border-color: var(--blue); }
+    .modal-allin-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gold);
+      border: 1px solid rgba(245,158,11,0.35);
+      background: rgba(245,158,11,0.08);
+      border-radius: 5px;
+      padding: 4px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .modal-allin-btn:hover { background: rgba(245,158,11,0.18); }
+    .modal-preview {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+    .modal-preview .preview-win { color: var(--green); font-weight: 600; font-size: 0.82rem; }
+    .modal-preview .preview-profit { color: var(--green); }
+    .modal-preview .preview-balance { color: var(--text); }
+    .modal-footer {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+    .modal-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid;
+    }
+    .modal-btn-cancel {
+      background: none;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    .modal-btn-cancel:hover { border-color: var(--dim); color: var(--text); }
+    .modal-btn-place {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+    }
+    .modal-btn-place:hover { background: #e08e00; border-color: #e08e00; }
+    .modal-btn-place:disabled { opacity: 0.35; cursor: default; }
+    .modal-error {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--red);
+      display: none;
+    }
+    .modal-error.visible { display: block; }
+
+    /* ─── PLAYER PICKER MODAL ─── */
+    .picker-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 600;
+    }
+    .picker-overlay.hidden { display: none; }
+    .picker-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+      width: min(520px, calc(100vw - 2rem));
+      text-align: center;
+    }
+    .picker-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+    .picker-sub {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .picker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .picker-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 10px 6px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s;
+    }
+    .picker-btn:hover { background: var(--border); border-color: var(--gold); color: var(--gold); }
+    .picker-reset-note {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+    .picker-reset-note a { color: var(--muted); text-decoration: underline; cursor: pointer; }
+
+    /* ─── TOAST STACK ─── */
+    .toast-stack {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 0.5rem;
+      z-index: 700;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      max-width: 320px;
+      animation: slideIn 0.2s ease;
+      pointer-events: all;
+      line-height: 1.5;
+    }
+    .toast.toast-won { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.07); }
+    .toast.toast-lost { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.06); }
+    .toast.toast-placed { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+    .toast .toast-head { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+    .toast-won .toast-head { color: var(--green); }
+    .toast-lost .toast-head { color: var(--red); }
+    .toast-placed .toast-head { color: var(--gold); }
+    .toast .toast-body { color: var(--text); }
+    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
     /* ─── EMPTY / LOADING STATES ─── */
     .loading-msg {
       text-align: center;
@@ -279,6 +696,12 @@
 <header>
   <div style="display:flex;align-items:center;gap:12px;">
     <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
+  </div>
+  <div class="balance-chip" id="balance-chip" style="display:none">
+    <span class="balance-name" id="balance-name"></span>
+    <span style="color:var(--muted)">·</span>
+    <span class="balance-amount" id="balance-amount"></span>
+    <button class="balance-change-btn" onclick="openPicker(true)">change</button>
   </div>
 </header>
 
@@ -325,10 +748,58 @@
 
   <!-- ─── PROP BETS ─── -->
   <div class="section-header">Prop Bets</div>
-  <div class="section-note">20 player-vs-player props, all closing by July 1, 2026. Odds shown for the YES side (first named player wins the head-to-head).</div>
-  <div class="bets-grid" id="bets-grid"><!-- rendered by JS --></div>
+  <div class="section-note" id="bets-note">20 player-vs-player props, all closing by July 1, 2026. Odds shown for the YES side (first named player wins the head-to-head).</div>
 
+  <!-- Active bets panel, shown only when user has bets -->
+  <div id="active-bets-panel" style="display:none"></div>
+
+  <div class="bets-grid" id="bets-grid"><!-- rendered by JS --></div>
 </div>
+
+<!-- ─── WAGER MODAL ─── -->
+<div class="modal-overlay hidden" id="wager-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div>
+      <div class="modal-sport" id="modal-sport"></div>
+      <div class="modal-bet-title" id="modal-bet-title"></div>
+    </div>
+    <div class="modal-odds-row">
+      <span id="modal-side-badge"></span>
+      <span id="modal-odds-text"></span>
+    </div>
+    <div>
+      <div class="modal-label" style="margin-bottom:6px">Wager amount (BB)</div>
+      <div class="modal-input-row">
+        <input class="modal-amount-input" id="modal-amount" type="number" min="1" placeholder="0" oninput="updatePreview()" />
+        <button class="modal-allin-btn" onclick="setAllIn()">ALL IN</button>
+      </div>
+      <div class="modal-error" id="modal-error"></div>
+    </div>
+    <div class="modal-preview" id="modal-preview">
+      Enter an amount to see your potential return.
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeWagerModal()">Cancel</button>
+      <button class="modal-btn modal-btn-place" id="modal-place-btn" onclick="confirmBet()" disabled>Place Bet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PLAYER PICKER MODAL ─── -->
+<div class="picker-overlay hidden" id="picker-overlay">
+  <div class="picker-card">
+    <div class="picker-heading">Who Are You?</div>
+    <div class="picker-sub">Pick your FL identity. You'll start with <strong>1,000 Buckley Bucks</strong>.</div>
+    <div class="picker-grid" id="picker-grid"></div>
+    <div class="picker-reset-note" id="picker-reset-note" style="display:none">
+      Changing your identity will reset your balance and bets.<br>
+      <a onclick="confirmReset()">Confirm reset</a> &nbsp;·&nbsp; <a onclick="closePicker()">Cancel</a>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST CONTAINER ─── -->
+<div class="toast-stack" id="toast-stack"></div>
 
 <script>
 // ─── NEWS BAR ───────────────────────────────────────────────────
@@ -384,8 +855,6 @@ fetch('./projections.json')
   });
 
 // ─── PROP BETS ──────────────────────────────────────────────────
-// All bets are player vs. player. YES side is listed first.
-// `id` must match the key in projections.json `prop_odds`.
 const BETS = [
   // ── TENNIS · ROLAND GARROS (closes Jun 9) ──
   {
@@ -433,7 +902,7 @@ const BETS = [
     closes: '~Jun 14',
     settled: true,
   },
-  // ── NBA · WEST FINALS (closes ~Jun 15) ──
+  // ── NBA · WEST FINALS (closes ~Jun 2) ──
   {
     id: 'nba-wcf-wu-v-feder',
     sport: 'NBA · West Finals',
@@ -563,13 +1032,166 @@ const BETS = [
   },
 ];
 
+// ─── STATE MANAGEMENT ──────────────────────────────────────────
+const STORAGE_KEY = 'fl_sb_state';
+const PLAYER_KEY  = 'fl_sb_player';
+const STARTING_BB = 1000;
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function initState(player) {
+  const state = { balance: STARTING_BB, bets: [] };
+  localStorage.setItem(PLAYER_KEY, player);
+  saveState(state);
+  return state;
+}
+
+function getPlayer() {
+  return localStorage.getItem(PLAYER_KEY) || null;
+}
+
+// Payout = round(wager * 100 / odds), where odds is the YES% for the chosen side
+function calcReturn(wager, yesPct, side) {
+  const effectiveOdds = side === 'yes' ? yesPct : (100 - yesPct);
+  if (effectiveOdds <= 0) return null;
+  return Math.round(wager * 100 / effectiveOdds);
+}
+
+// ─── SETTLEMENT ────────────────────────────────────────────────
+// Returns array of newly-settled bet results to show as toasts
+function settleBets() {
+  const state = loadState();
+  if (!state || !state.bets.length) return [];
+
+  const results = [];
+  let changed = false;
+
+  state.bets.forEach(bet => {
+    if (bet.settledOutcome) return;
+    const def = BETS.find(b => b.id === bet.id);
+    if (!def || !def.settled) return;
+
+    // odds=100 → YES won; odds=0 → NO won
+    const yesWon = def.odds === 100;
+    const noWon  = def.odds === 0;
+    if (!yesWon && !noWon) return; // partially settled, skip
+
+    const won = (yesWon && bet.side === 'yes') || (noWon && bet.side === 'no');
+    bet.settledOutcome = won ? 'won' : 'lost';
+    if (won) state.balance += bet.potentialReturn;
+    results.push({ ...bet, won });
+    changed = true;
+  });
+
+  if (changed) saveState(state);
+  return results;
+}
+
+// ─── BALANCE RENDER ────────────────────────────────────────────
+function renderBalance() {
+  const player = getPlayer();
+  const state  = loadState();
+  const chip   = document.getElementById('balance-chip');
+  if (!player || !state) { chip.style.display = 'none'; return; }
+  chip.style.display = 'flex';
+  document.getElementById('balance-name').textContent   = player;
+  document.getElementById('balance-amount').textContent = fmtBB(state.balance);
+}
+
+function fmtBB(n) {
+  return n.toLocaleString() + ' BB';
+}
+
+// ─── ACTIVE BETS PANEL ─────────────────────────────────────────
+function renderActiveBets() {
+  const panel  = document.getElementById('active-bets-panel');
+  const player = getPlayer();
+  const state  = loadState();
+
+  if (!player || !state || !state.bets.length) {
+    panel.style.display = 'none';
+    return;
+  }
+
+  const active   = state.bets.filter(b => !b.settledOutcome);
+  const settled  = state.bets.filter(b => b.settledOutcome);
+  const wagered  = active.reduce((s, b) => s + b.wager, 0);
+
+  let summaryText = '';
+  if (active.length) summaryText += `${active.length} open &nbsp;·&nbsp; <span class="bb-num">${wagered.toLocaleString()} BB</span> at risk`;
+  if (settled.length) {
+    const wonCount  = settled.filter(b => b.settledOutcome === 'won').length;
+    const lostCount = settled.length - wonCount;
+    if (summaryText) summaryText += ' &nbsp;·&nbsp; ';
+    summaryText += `${wonCount}W ${lostCount}L settled`;
+  }
+
+  const rows = state.bets.map(bet => {
+    const sideClass = bet.side === 'yes' ? 'side-yes' : 'side-no';
+    const sideLabel = bet.side.toUpperCase();
+    let outcomeHtml = '';
+    let rowClass = '';
+    if (bet.settledOutcome === 'won') {
+      const profit = bet.potentialReturn - bet.wager;
+      outcomeHtml = `<span class="active-bet-outcome outcome-won">+${profit.toLocaleString()} BB</span>`;
+      rowClass = 'settled-won';
+    } else if (bet.settledOutcome === 'lost') {
+      outcomeHtml = `<span class="active-bet-outcome outcome-lost">−${bet.wager.toLocaleString()} BB</span>`;
+      rowClass = 'settled-lost';
+    } else {
+      outcomeHtml = `<div class="active-bet-close">Closes ${bet.closes}</div>`;
+    }
+    return `
+      <div class="active-bet-row ${rowClass}">
+        <div class="active-bet-info">
+          <div class="active-bet-sport">${bet.sport}</div>
+          <div class="active-bet-title">${bet.title}</div>
+        </div>
+        <span class="active-bet-side ${sideClass}">${sideLabel}</span>
+        <div class="active-bet-amounts">
+          <div class="active-bet-wager">${bet.wager.toLocaleString()} BB</div>
+          <div class="active-bet-return">→ ${bet.potentialReturn.toLocaleString()} BB</div>
+        </div>
+        ${outcomeHtml}
+      </div>`;
+  }).join('');
+
+  panel.style.display = '';
+  panel.innerHTML = `
+    <div class="active-bets-panel">
+      <div class="active-bets-header">
+        <span class="active-bets-title">Your Bets</span>
+        <span class="active-bets-summary">${summaryText}</span>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+// ─── BET CARDS ─────────────────────────────────────────────────
+let _currentPropOdds = null;
+
 function renderBets(propOdds) {
-  const grid = document.getElementById('bets-grid');
+  _currentPropOdds = propOdds;
+  const grid  = document.getElementById('bets-grid');
+  const state = loadState();
+  const hasPick = !!getPlayer();
+
   grid.innerHTML = BETS.map(b => {
-    const live = propOdds && propOdds[b.id];
-    const yesPct = live ? live.yes_pct : b.odds;
-    const noPct = 100 - yesPct;
-    const src = live && live.source !== 'static' ? live.source : null;
+    const live    = propOdds && propOdds[b.id];
+    const yesPct  = b.settled ? b.odds : (live ? live.yes_pct : b.odds);
+    const noPct   = 100 - yesPct;
+    const src     = live && live.source !== 'static' ? live.source : null;
+
+    // Badge (top-right of meta row)
     const badge = b.settled
       ? `<span class="settled-badge">settled</span>`
       : src === 'kalshi'
@@ -577,7 +1199,46 @@ function renderBets(propOdds) {
       : src === 'model'
       ? `<span class="live-badge model">~ model</span>`
       : '';
+
     const closeStr = b.settled ? 'Settled' : `Closes ${b.closes}`;
+
+    // Check if this user already has a bet on this prop
+    const existingBet = state && state.bets.find(bt => bt.id === b.id);
+
+    let bottomSection;
+    if (b.settled) {
+      // Show outcome if user bet on this
+      if (existingBet) {
+        const won = existingBet.settledOutcome === 'won';
+        const lost = existingBet.settledOutcome === 'lost';
+        if (won) {
+          const profit = existingBet.potentialReturn - existingBet.wager;
+          bottomSection = `<div class="bet-position"><span class="pos-won">WON +${profit.toLocaleString()} BB</span> — ${existingBet.wager.toLocaleString()} BB on ${existingBet.side.toUpperCase()}</div>`;
+        } else if (lost) {
+          bottomSection = `<div class="bet-position"><span class="pos-lost">LOST −${existingBet.wager.toLocaleString()} BB</span> — bet ${existingBet.side.toUpperCase()}</div>`;
+        } else {
+          bottomSection = `<div class="bet-position">You bet <strong>${existingBet.wager.toLocaleString()} BB</strong> on ${existingBet.side.toUpperCase()} — awaiting resolution</div>`;
+        }
+      } else {
+        bottomSection = '';
+      }
+    } else if (!hasPick) {
+      // No identity set — show read-only odds, prompt to pick
+      bottomSection = `<div class="bet-actions">
+        <button class="bet-btn bet-btn-yes" onclick="openPicker(false)"><span class="btn-pct">${yesPct}%</span> YES</button>
+        <button class="bet-btn bet-btn-no"  onclick="openPicker(false)"><span class="btn-pct">${noPct}%</span> NO</button>
+      </div>`;
+    } else if (existingBet) {
+      // Already bet — show position
+      bottomSection = `<div class="bet-position">You bet <strong>${existingBet.wager.toLocaleString()} BB</strong> on ${existingBet.side.toUpperCase()} · returns <strong>${existingBet.potentialReturn.toLocaleString()} BB</strong> if correct</div>`;
+    } else {
+      // Open bet — show YES/NO buttons
+      bottomSection = `<div class="bet-actions">
+        <button class="bet-btn bet-btn-yes" onclick="openWagerModal('${b.id}','yes',${yesPct})"><span class="btn-pct">${yesPct}%</span> YES</button>
+        <button class="bet-btn bet-btn-no"  onclick="openWagerModal('${b.id}','no',${yesPct})"><span class="btn-pct">${noPct}%</span> NO</button>
+      </div>`;
+    }
+
     return `
   <div class="bet-card${b.settled ? ' bet-settled' : ''}">
     <div class="bet-sport">${b.sport}</div>
@@ -592,9 +1253,231 @@ function renderBets(propOdds) {
       </div>
       <div class="bet-close">${closeStr}</div>
     </div>
+    ${bottomSection}
   </div>`;
   }).join('');
 }
+
+// ─── WAGER MODAL ───────────────────────────────────────────────
+let _wagerCtx = null;
+
+function openWagerModal(betId, side, yesPct) {
+  const def = BETS.find(b => b.id === betId);
+  if (!def) return;
+  _wagerCtx = { betId, side, yesPct };
+
+  document.getElementById('modal-sport').textContent    = def.sport;
+  document.getElementById('modal-bet-title').innerHTML  = def.title;
+
+  const sideBadge = document.getElementById('modal-side-badge');
+  sideBadge.className = 'modal-side-badge ' + (side === 'yes' ? 'modal-side-yes' : 'modal-side-no');
+  sideBadge.textContent = side.toUpperCase();
+
+  const oddsForSide = side === 'yes' ? yesPct : (100 - yesPct);
+  document.getElementById('modal-odds-text').textContent = `implied ${oddsForSide}% chance`;
+
+  document.getElementById('modal-amount').value = '';
+  document.getElementById('modal-error').classList.remove('visible');
+  document.getElementById('modal-place-btn').disabled = true;
+  document.getElementById('modal-preview').innerHTML = 'Enter an amount to see your potential return.';
+
+  document.getElementById('wager-overlay').classList.remove('hidden');
+  document.getElementById('modal-amount').focus();
+}
+
+function closeWagerModal() {
+  document.getElementById('wager-overlay').classList.add('hidden');
+  _wagerCtx = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('wager-overlay')) closeWagerModal();
+}
+
+function setAllIn() {
+  const state = loadState();
+  if (!state) return;
+  document.getElementById('modal-amount').value = state.balance;
+  updatePreview();
+}
+
+function updatePreview() {
+  if (!_wagerCtx) return;
+  const input  = document.getElementById('modal-amount');
+  const errEl  = document.getElementById('modal-error');
+  const prevEl = document.getElementById('modal-preview');
+  const btn    = document.getElementById('modal-place-btn');
+  const state  = loadState();
+
+  const raw = parseInt(input.value, 10);
+  errEl.classList.remove('visible');
+  btn.disabled = true;
+
+  if (!raw || raw < 1) {
+    prevEl.innerHTML = 'Enter an amount to see your potential return.';
+    return;
+  }
+  if (!state || raw > state.balance) {
+    errEl.textContent = `You only have ${state ? state.balance.toLocaleString() : 0} BB.`;
+    errEl.classList.add('visible');
+    prevEl.innerHTML = '';
+    return;
+  }
+
+  const ret    = calcReturn(raw, _wagerCtx.yesPct, _wagerCtx.side);
+  if (!ret) {
+    errEl.textContent = 'Cannot bet on this side (odds unavailable).';
+    errEl.classList.add('visible');
+    return;
+  }
+  const profit = ret - raw;
+  const newBal = state.balance - raw;
+
+  prevEl.innerHTML = `
+    <div>Wager: ${raw.toLocaleString()} BB</div>
+    <div>If correct: <span class="preview-win">${ret.toLocaleString()} BB</span> &nbsp;<span class="preview-profit">(+${profit.toLocaleString()} profit)</span></div>
+    <div>Balance after bet: <span class="preview-balance">${newBal.toLocaleString()} BB</span></div>`;
+  btn.disabled = false;
+}
+
+function confirmBet() {
+  if (!_wagerCtx) return;
+  const input = document.getElementById('modal-amount');
+  const wager = parseInt(input.value, 10);
+  const state = loadState();
+  if (!state || !wager || wager < 1 || wager > state.balance) return;
+
+  const def = BETS.find(b => b.id === _wagerCtx.betId);
+  if (!def) return;
+
+  const ret = calcReturn(wager, _wagerCtx.yesPct, _wagerCtx.side);
+  if (!ret) return;
+
+  state.balance -= wager;
+  state.bets.push({
+    id: def.id,
+    side: _wagerCtx.side,
+    wager,
+    oddsAtBet: _wagerCtx.yesPct,
+    potentialReturn: ret,
+    timestamp: new Date().toISOString(),
+    closes: def.closes,
+    sport: def.sport,
+    title: def.title,
+    settled: false,
+    settledOutcome: null,
+  });
+  saveState(state);
+
+  closeWagerModal();
+  renderBalance();
+  renderActiveBets();
+  renderBets(_currentPropOdds);
+
+  const sideLabel = _wagerCtx.side.toUpperCase();
+  showToast('placed', `Bet placed — ${sideLabel} · ${wager.toLocaleString()} BB → ${ret.toLocaleString()} BB`, 4000);
+}
+
+// ─── TOASTS ────────────────────────────────────────────────────
+function showToast(type, msg, durationMs) {
+  const stack = document.getElementById('toast-stack');
+  const el    = document.createElement('div');
+  const heads = { won: 'Bet Settled — Won', lost: 'Bet Settled — Lost', placed: 'Bet Placed' };
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<div class="toast-head">${heads[type] || ''}</div><div class="toast-body">${msg}</div>`;
+  stack.appendChild(el);
+  setTimeout(() => el.remove(), durationMs || 5000);
+}
+
+// ─── PLAYER PICKER ─────────────────────────────────────────────
+const FL_PLAYERS = ['Tim','Wu','Jens','Todd','Mitchell','Shep','Theo','Feder','Fryar','Korch','Molmen','Jamzee','Buckley'];
+let _pickerIsReset = false;
+
+function openPicker(isReset) {
+  _pickerIsReset = !!isReset;
+  const resetNote = document.getElementById('picker-reset-note');
+  resetNote.style.display = isReset ? '' : 'none';
+
+  const grid = document.getElementById('picker-grid');
+  grid.innerHTML = FL_PLAYERS.map(p =>
+    `<button class="picker-btn" onclick="pickPlayer('${p}')">${p}</button>`
+  ).join('');
+
+  document.getElementById('picker-overlay').classList.remove('hidden');
+}
+
+function closePicker() {
+  document.getElementById('picker-overlay').classList.add('hidden');
+}
+
+function pickPlayer(name) {
+  if (_pickerIsReset) {
+    // Just picked confirm, handled via confirmReset
+    document.getElementById('picker-reset-note').style.display = '';
+    // Store pending name, wait for confirmReset
+    document.getElementById('picker-reset-note').dataset.pending = name;
+    // Update buttons to show selection
+    document.querySelectorAll('.picker-btn').forEach(b => {
+      b.style.borderColor = b.textContent === name ? 'var(--gold)' : '';
+      b.style.color = b.textContent === name ? 'var(--gold)' : '';
+    });
+    return;
+  }
+  // Fresh pick (no existing state)
+  initState(name);
+  closePicker();
+  renderBalance();
+  renderActiveBets();
+  renderBets(_currentPropOdds);
+}
+
+function confirmReset() {
+  const note    = document.getElementById('picker-reset-note');
+  const pending = note.dataset.pending;
+  const name    = pending || FL_PLAYERS[0];
+  initState(name);
+  closePicker();
+  renderBalance();
+  renderActiveBets();
+  renderBets(_currentPropOdds);
+}
+
+// ─── KEYBOARD SHORTCUTS ────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeWagerModal();
+    if (!_pickerIsReset) closePicker();
+  }
+  if (e.key === 'Enter' && !document.getElementById('wager-overlay').classList.contains('hidden')) {
+    const btn = document.getElementById('modal-place-btn');
+    if (!btn.disabled) confirmBet();
+  }
+});
+
+// ─── INIT ───────────────────────────────────────────────────────
+(function init() {
+  const player = getPlayer();
+  const state  = loadState();
+
+  if (!player || !state) {
+    // First visit: show picker after a short delay
+    setTimeout(() => openPicker(false), 300);
+  } else {
+    // Settle any newly resolved bets before rendering
+    const settled = settleBets();
+    settled.forEach(r => {
+      if (r.won) {
+        const profit = r.potentialReturn - r.wager;
+        showToast('won', `${r.sport} · +${profit.toLocaleString()} BB`, 7000);
+      } else {
+        showToast('lost', `${r.sport} · −${r.wager.toLocaleString()} BB`, 7000);
+      }
+    });
+    renderBalance();
+    renderActiveBets();
+    // renderBets will be called by the projections fetch
+  }
+})();
 </script>
 </body>
 </html>
