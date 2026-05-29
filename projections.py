@@ -20,6 +20,7 @@ SCORES_PATH      = os.path.join(os.path.dirname(__file__), "docs", "scores.json"
 PROJECTIONS_PATH = os.path.join(os.path.dirname(__file__), "docs", "projections.json")
 KALSHI_BASE      = "https://api.kalshi.com/trade-api/v2"
 KALSHI_KEY       = os.environ.get("KALSHI_API_KEY", "")
+_KALSHI_KEY_WARNED = False
 N_SIMS           = 10_000
 
 # ─── Draft picks (subsets needed for projection lookups) ──────────────────
@@ -222,7 +223,11 @@ MILESTONES = {
 
 # ─── Kalshi API ──────────────────────────────────────────────────────────────
 def _kalshi_get(path, params=None):
+    global _KALSHI_KEY_WARNED
     if not KALSHI_KEY:
+        if not _KALSHI_KEY_WARNED:
+            print("  ✗ Kalshi: KALSHI_API_KEY not set — all props will use static fallback odds")
+            _KALSHI_KEY_WARNED = True
         return None
     try:
         r = requests.get(
@@ -240,8 +245,14 @@ def _kalshi_get(path, params=None):
 
 
 def _fetch_markets_for_series(series_ticker):
-    data = _kalshi_get("/markets", {"series_ticker": series_ticker, "limit": 200, "status": "open"})
-    return data.get("markets", []) if data else []
+    # Pass 1: query by series_ticker without status filter (avoids missing in-progress markets)
+    data = _kalshi_get("/markets", {"series_ticker": series_ticker, "limit": 200})
+    markets = data.get("markets", []) if data else []
+    if markets:
+        return markets
+    # Pass 2: try the /events/{ticker}/markets endpoint (Kalshi v2 multi-outcome events)
+    data2 = _kalshi_get(f"/events/{series_ticker}/markets", {"limit": 200})
+    return data2.get("markets", []) if data2 else []
 
 
 def _name_matches(kalshi_title, pick_name):
@@ -277,14 +288,22 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
     """Fetch win-probability dict {player: float} from Kalshi, or {} on failure."""
     markets = _fetch_markets_for_series(series_ticker)
     if not markets:
-        print(f"  ℹ {label}: no Kalshi markets found for series '{series_ticker}'")
-        return {}
+        print(f"  ℹ {label}: no markets for series '{series_ticker}' — trying keyword search")
+        # Keyword fallback: search by label-derived keyword (e.g. "NBA-WCF" → "NBA West")
+        keyword = series_ticker.replace("-", " ").replace("_", " ")
+        data = _kalshi_get("/markets", {"keyword": keyword, "limit": 50})
+        markets = data.get("markets", []) if data else []
+        if not markets:
+            print(f"  ✗ {label}: no markets found via keyword '{keyword}' either")
+            return {}
+        print(f"  ℹ {label}: found {len(markets)} markets via keyword search")
     probs = _extract_probs(markets, picks_dict)
     if probs:
         found = ", ".join(f"{p}={v:.1%}" for p, v in sorted(probs.items()))
         print(f"  ✓ Kalshi {label}: {found}")
     else:
-        print(f"  ℹ Kalshi {label}: markets found but no picks matched")
+        print(f"  ℹ Kalshi {label}: markets found but no picks matched (titles: "
+              + ", ".join(repr(m.get("title","?")) for m in markets[:3]) + ")")
     return probs
 
 
@@ -294,13 +313,14 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
 
 FALLBACK = {
     # NBA Finals set: Buckley (Knicks) swept ECF 4-0. WCF: Feder (Thunder) lead 3-2.
+    # Scaled to WCF 57/43 (Feder/Wu) — Kalshi as of 2026-05-29
     "nba_champ": {
-        "Buckley": 0.45, "Feder": 0.35, "Wu": 0.20,
+        "Buckley": 0.45, "Feder": 0.30, "Wu": 0.25,
     },
     # NBA: which player's team reaches Finals (needed for runner_up modelling)
-    # WCF: Feder (Thunder) lead 3-2 — ~65/35
+    # WCF: Feder (Thunder) lead 3-2 — Kalshi ~57/43 as of 2026-05-29
     # ECF: SETTLED — Buckley (Knicks) swept Cavaliers 4-0
-    "nba_conf_finals_west": {"Feder": 0.65, "Wu": 0.35},
+    "nba_conf_finals_west": {"Feder": 0.57, "Wu": 0.43},
     "nba_conf_finals_east": {"Buckley": 1.0},  # SETTLED: Knicks swept Cavaliers 4-0
 
     # NHL Cup Finals set: Tim (Golden Knights) swept WCF 4-0. Jamzee (Hurricanes) lead ECF 3-1.
@@ -491,9 +511,10 @@ KNOWN_SERIES = {
     "tennis_uso_m": ["TENNISUSO-M", "USO-MEN"],
     "tennis_uso_w": ["TENNISUSO-W", "USO-WOMEN"],
     # Conference finals — for sportsbook prop live odds
-    "nba_ecf": ["NBAECF-2026", "NBA-EAST-FINALS", "NBAECF", "KXNBA-ECF"],
-    "nba_wcf": ["NBAWCF-2026", "NBA-WEST-FINALS", "NBAWCF", "KXNBA-WCF"],
-    "nhl_wcf": ["NHLWCF-2026", "NHL-WEST-FINALS", "NHLWCF", "KXNHL-WCF"],
+    # Tickers are tried left-to-right; add new Kalshi names to the front each season
+    "nba_ecf": ["KXNBA-EASTCONF", "NBAPLAYOFFS-EAST", "NBAECF-2026", "NBA-EAST-FINALS", "NBAECF", "KXNBA-ECF"],
+    "nba_wcf": ["KXNBA-WESTCONF", "NBAPLAYOFFS-WEST", "NBAWCF-2026", "NBA-WEST-FINALS", "NBAWCF", "KXNBA-WCF"],
+    "nhl_wcf": ["KXNHL-WESTCONF", "NHLPLAYOFFS-WEST", "NHLWCF-2026", "NHL-WEST-FINALS", "NHLWCF", "KXNHL-WCF"],
 }
 
 
@@ -1092,5 +1113,39 @@ def run():
         print("Note: all odds from static fallback (no KALSHI_API_KEY or no markets matched)")
 
 
+def probe():
+    """
+    Diagnostic mode: attempt every Kalshi series fetch and print what's found.
+    Run: KALSHI_API_KEY=xxx python projections.py --probe
+    Does NOT write any files.
+    """
+    print("── Kalshi Probe ────────────────────────────────────────────────────")
+    if not KALSHI_KEY:
+        print("  ✗ KALSHI_API_KEY is not set. Export it and re-run.")
+        return
+    print(f"  Key: ...{KALSHI_KEY[-6:]}")
+    probe_targets = [
+        ("NBA-WCF",  KNOWN_SERIES["nba_wcf"],  {"Wu": "San Antonio Spurs", "Feder": "Oklahoma City Thunder"}),
+        ("NBA-ECF",  KNOWN_SERIES["nba_ecf"],  {"Buckley": "New York Knicks", "Jens": "Cleveland Cavaliers"}),
+        ("NHL-WCF",  KNOWN_SERIES["nhl_wcf"],  {"Korch": "Colorado Avalanche", "Tim": "Vegas Golden Knights"}),
+        ("NBA-champ", KNOWN_SERIES["nba"],     {p: t for p, t in NBA_PICKS.items()}),
+        ("NHL-champ", KNOWN_SERIES["nhl"],     {p: t for p, t in NHL_PICKS.items()}),
+        ("MLB-champ", KNOWN_SERIES["mlb"],     {p: t for p, t in MLB_PICKS.items()}),
+        ("Tennis-FO-W", KNOWN_SERIES["tennis_fo_w"], {p: t for p, t in TENNIS_WOMEN.items()}),
+    ]
+    for label, tickers, picks in probe_targets:
+        result = _try_kalshi_series(tickers, picks, label)
+        if result:
+            found = ", ".join(f"{p}={v:.1%}" for p, v in sorted(result.items()))
+            print(f"  ✓ {label}: {found}")
+        else:
+            print(f"  ✗ {label}: no data (tried: {tickers})")
+    print("────────────────────────────────────────────────────────────────────")
+
+
 if __name__ == "__main__":
-    run()
+    import sys
+    if "--probe" in sys.argv:
+        probe()
+    else:
+        run()
