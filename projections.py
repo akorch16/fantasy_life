@@ -806,7 +806,11 @@ def _simulate_playoffs_conf(conf_west_probs, conf_east_probs, champ_probs):
     """
     west_players = list(conf_west_probs.keys())
     west_winner = _weighted_sample(conf_west_probs) or west_players[0]
-    west_loser = west_players[1] if west_winner == west_players[0] else west_players[0]
+    # If only one pick remains in the west (series already settled), there is no loser to assign
+    if len(west_players) > 1:
+        west_loser = west_players[1] if west_winner == west_players[0] else west_players[0]
+    else:
+        west_loser = None
 
     # ECF may include an "OTHER" team (not a pick)
     east_pick_players = list(conf_east_probs.keys())
@@ -820,7 +824,8 @@ def _simulate_playoffs_conf(conf_west_probs, conf_east_probs, champ_probs):
     results = {}
 
     # Conference losers stay at semi (no change)
-    results[west_loser] = "semi"
+    if west_loser:
+        results[west_loser] = "semi"
     for p in east_pick_losers:
         results[p] = "semi"
 
