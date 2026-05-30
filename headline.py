@@ -128,7 +128,7 @@ Headline:"""
 
 
 COST_PER_RUN_USD = 0.04   # Sonnet ~1k tokens in + ~200 out ≈ $0.04
-MIN_HOURS_BETWEEN_RUNS = 20  # never call the API more than once per ~day
+MIN_HOURS_BETWEEN_RUNS = 30  # scoring.py runs at 08:00; headline.yml runs at 07:00 next day (~23h gap)
 
 
 def _hours_since_last_headline(data: dict) -> float:
@@ -166,7 +166,7 @@ def main():
     else:
         print('  – No Tavily key set or search skipped; generating without live news')
 
-    print('Generating FL News headline via Claude Haiku...')
+    print('Generating FL News headline via Claude Sonnet...')
     headline = generate_headline(data, news)
     if not headline:
         print('– Headline generation failed; existing headline unchanged')

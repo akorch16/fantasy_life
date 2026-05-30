@@ -840,6 +840,7 @@ if __name__ == '__main__':
     new_headline = generate_news_headline(data)
     if new_headline:
         data['headline'] = new_headline
+        data['headline_generated_at'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
         with open(out_path, 'w') as f:
             json.dump(data, f)
         print(f'  ✓ Headline: {new_headline[:80]}')
