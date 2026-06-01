@@ -415,7 +415,14 @@ def compute_baseline_nascar():
 
 def compute_baseline_actor_actress(category):
     picks = DRAFT_PICKS_2026.get(category, {})
-    data = load_data(category.lower())
+    import json as _json
+    _path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', f'{category.lower()}.json')
+    data = None
+    try:
+        with open(_path) as _f:
+            data = _json.load(_f)
+    except Exception:
+        data = load_data(category.lower())
 
     raw_values = {}
     movies_by_player = {}
