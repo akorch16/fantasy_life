@@ -371,18 +371,51 @@
     }
     .live-badge.kalshi { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
     .live-badge.model  { background: rgba(45,125,210,0.15); color: var(--blue);  border: 1px solid rgba(45,125,210,0.3); }
-    .bet-settled { opacity: 0.55; }
-    .settled-badge {
+    /* closed bet cards */
+    .bet-card.closed-yes { border-color: var(--green); border-width: 2px; }
+    .bet-card.closed-no  { border-color: var(--red);   border-width: 2px; }
+
+    /* CLOSED badge (replaces old settled-badge) */
+    .closed-badge {
       font-family: 'DM Mono', monospace;
       font-size: 0.58rem;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      padding: 2px 5px;
+      padding: 2px 7px;
       border-radius: 3px;
-      margin-left: 5px;
-      vertical-align: middle;
+      margin-left: 6px;
+      font-weight: 700;
       display: inline-block;
-      background: rgba(245,158,11,0.15); color: var(--gold); border: 1px solid rgba(245,158,11,0.3);
+      vertical-align: middle;
+    }
+    .closed-badge-yes { background: rgba(34,197,94,0.15);  color: var(--green); border: 1px solid rgba(34,197,94,0.4); }
+    .closed-badge-no  { background: rgba(239,68,68,0.15);  color: var(--red);   border: 1px solid rgba(239,68,68,0.4); }
+
+    /* winner result strip at top of closed card */
+    .winner-banner {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin-bottom: 2px;
+    }
+    .winner-banner-yes { background: rgba(34,197,94,0.1);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+    .winner-banner-no  { background: rgba(239,68,68,0.1);  color: var(--red);   border: 1px solid rgba(239,68,68,0.25); }
+
+    /* prominent close date for open bets */
+    .bet-close-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text);
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      white-space: nowrap;
     }
 
     /* ─── BET BUTTONS ─── */
@@ -721,7 +754,20 @@
 
 <div class="container">
   <div class="page-title">🎲 Sportsbook</div>
-  <div class="page-subtitle">Monte Carlo projections + prop bets for Fantasy Life 2026. Updated daily.</div>
+  <div class="page-subtitle">Prop bets + Monte Carlo projections for Fantasy Life 2026. Updated daily.</div>
+
+  <!-- My Bets panel (shown only when user has bets) -->
+  <div id="active-bets-panel" style="display:none"></div>
+
+  <!-- ─── OPEN BETS ─── -->
+  <div class="section-header">Open Bets</div>
+  <div class="section-note">17 active props, sorted by close date. Odds shown for YES (first player wins).</div>
+  <div class="bets-grid" id="bets-grid-open"><!-- rendered by JS --></div>
+
+  <!-- ─── CLOSED BETS ─── -->
+  <div class="section-header">Closed Bets</div>
+  <div class="section-note">Settled props. Green border = YES won · Red border = NO won.</div>
+  <div class="bets-grid" id="bets-grid-closed"><!-- rendered by JS --></div>
 
   <!-- ─── PROJECTIONS ─── -->
   <div class="section-header">Season Projections</div>
@@ -746,14 +792,6 @@
     </table>
   </div>
 
-  <!-- ─── PROP BETS ─── -->
-  <div class="section-header">Prop Bets</div>
-  <div class="section-note" id="bets-note">22 player-vs-player props, all closing by July 1, 2026. Odds shown for the YES side (first named player wins the head-to-head).</div>
-
-  <!-- Active bets panel, shown only when user has bets -->
-  <div id="active-bets-panel" style="display:none"></div>
-
-  <div class="bets-grid" id="bets-grid"><!-- rendered by JS --></div>
 </div>
 
 <!-- ─── WAGER MODAL ─── -->
@@ -862,46 +900,56 @@ const BETS = [
     id: 'rg-m-shep-v-todd',
     sport: 'Tennis · Roland Garros',
     title: 'Djokovic (<em>Shep</em>) advanced further than Alcaraz (<em>Todd</em>)',
-    desc: 'Alcaraz withdrew with a wrist injury in the second round. Djokovic advanced through the draw. Shep wins.',
+    desc: 'Alcaraz withdrew with a wrist injury in the second round. Djokovic advanced through the draw.',
     odds: 100,
     closes: 'Jun 7',
     settled: true,
+    winner: 'Shep',
+
   },
   {
     id: 'nba-ecf-buckley-v-jens',
     sport: 'NBA · East Finals',
     title: 'Knicks (<em>Buckley</em>) swept Cavaliers (<em>Jens</em>) to win the East',
-    desc: 'Knicks swept the Cavaliers 4-0 in the Eastern Conference Finals. Buckley wins.',
+    desc: 'Knicks swept the Cavaliers 4-0 in the Eastern Conference Finals.',
     odds: 100,
     closes: 'Jun 12',
     settled: true,
+    winner: 'Buckley',
+
   },
   {
     id: 'nba-wcf-wu-v-feder',
     sport: 'NBA · West Finals',
     title: 'Spurs (<em>Wu</em>) beat Thunder (<em>Feder</em>) to win the West',
-    desc: 'The Spurs rallied from a 3-2 series deficit, winning Games 6 and 7 to punch their ticket to the Finals. Wu wins.',
+    desc: 'The Spurs rallied from a 3-2 series deficit, winning Games 6 and 7 to punch their ticket to the Finals.',
     odds: 100,
     closes: 'Jun 7',
     settled: true,
+    winner: 'Wu',
+
   },
   {
     id: 'nhl-wcf-tim-v-korch',
     sport: 'NHL · West Finals',
     title: 'Golden Knights (<em>Tim</em>) swept Avalanche (<em>Korch</em>) to win the West',
-    desc: 'Vegas swept Colorado 4-0 to reach the Stanley Cup Finals. Tim wins.',
+    desc: 'Vegas swept Colorado 4-0 to reach the Stanley Cup Finals.',
     odds: 100,
     closes: 'Jun 14',
     settled: true,
+    winner: 'Tim',
+
   },
   {
     id: 'nhl-pts-jamzee-v-korch',
     sport: 'NHL · Season',
     title: 'Hurricanes (<em>Jamzee</em>) finish with more NHL pts than Avalanche (<em>Korch</em>)',
-    desc: 'Korch\'s Avalanche were swept in the second round. Jamzee\'s Hurricanes advanced to the Stanley Cup Finals. Jamzee wins.',
+    desc: 'Korch\'s Avalanche were swept in the second round. Jamzee\'s Hurricanes advanced to the Stanley Cup Finals.',
     odds: 100,
     closes: 'Jun 14',
     settled: true,
+    winner: 'Jamzee',
+
   },
 
   // ── ROLAND GARROS · Finals (closes Jun 7) ─────────────────────
@@ -927,8 +975,9 @@ const BETS = [
     id: 'nhl-fin-tim-v-jamzee',
     sport: 'NHL · Stanley Cup Finals',
     title: 'Golden Knights (<em>Tim</em>) win the Stanley Cup over Hurricanes (<em>Jamzee</em>)',
-    desc: 'Vegas swept into the Finals and opens as a slight favorite. Carolina survived a tough East. The winner upgrades from 9 pts to 13 — a four-point swing.',
-    odds: 55,
+    desc: 'Hurricanes are favored at ~59% (Kalshi). Carolina went 12-1 in the playoffs before the Finals; Vegas swept the West. Winner upgrades from 9 pts to 13 — a four-point swing.',
+    odds: 42,
+
     closes: '~Jun 17',
   },
 
@@ -937,8 +986,9 @@ const BETS = [
     id: 'nba-fin-wu-v-buckley',
     sport: 'NBA · Finals',
     title: 'Spurs (<em>Wu</em>) win the NBA Championship over Knicks (<em>Buckley</em>)',
-    desc: 'A rematch of the 1999 Finals. Wembanyama vs. Brunson. The Spurs were underdogs every round and kept winning. Winner gets 13 pts; the loser holds at 9.',
-    odds: 47,
+    desc: 'Spurs are favored at ~63% (Kalshi). A rematch of the 1999 Finals — Wembanyama vs. Brunson. San Antonio won the West in a Game 7 road upset and holds home-court advantage. Winner gets 13 pts; loser holds at 9.',
+    odds: 63,
+
     closes: '~Jun 19',
   },
 
@@ -1212,83 +1262,107 @@ function renderActiveBets() {
 // ─── BET CARDS ─────────────────────────────────────────────────
 let _currentPropOdds = null;
 
-function renderBets(propOdds) {
-  _currentPropOdds = propOdds;
-  const grid  = document.getElementById('bets-grid');
-  const state = loadState();
-  const hasPick = !!getPlayer();
+function parseCloseDate(str) {
+  const clean = (str || '').replace(/[~≈]/g, '').trim();
+  const months = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+  const parts = clean.split(' ');
+  return (months[parts[0]] || 0) * 100 + (parseInt(parts[1]) || 0);
+}
 
-  grid.innerHTML = BETS.map(b => {
-    const live    = propOdds && propOdds[b.id];
-    const yesPct  = b.settled ? b.odds : (live ? live.yes_pct : b.odds);
-    const noPct   = 100 - yesPct;
-    const src     = live && live.source !== 'static' ? live.source : null;
+function renderBetCard(b, propOdds, state, hasPick) {
+  const live   = propOdds && propOdds[b.id];
+  const yesPct = b.settled ? b.odds : (live ? live.yes_pct : b.odds);
+  const noPct  = 100 - yesPct;
+  const src    = live && live.source !== 'static' ? live.source : null;
 
-    // Badge (top-right of meta row)
-    const badge = b.settled
-      ? `<span class="settled-badge">settled</span>`
-      : src === 'kalshi'
-      ? `<span class="live-badge kalshi">⚡ live</span>`
-      : src === 'model'
-      ? `<span class="live-badge model">~ model</span>`
-      : '';
+  let badge = '';
+  if (!b.settled) {
+    if (src === 'kalshi') badge = `<span class="live-badge kalshi">⚡ live</span>`;
+    else if (src === 'model') badge = `<span class="live-badge model">~ model</span>`;
+  }
 
-    const closeStr = b.settled ? 'Settled' : `Closes ${b.closes}`;
+  const existingBet = state && state.bets.find(bt => bt.id === b.id);
 
-    // Check if this user already has a bet on this prop
-    const existingBet = state && state.bets.find(bt => bt.id === b.id);
-
-    let bottomSection;
-    if (b.settled) {
-      // Show outcome if user bet on this
-      if (existingBet) {
-        const won = existingBet.settledOutcome === 'won';
-        const lost = existingBet.settledOutcome === 'lost';
-        if (won) {
-          const profit = existingBet.potentialReturn - existingBet.wager;
-          bottomSection = `<div class="bet-position"><span class="pos-won">WON +${profit.toLocaleString()} BB</span> — ${existingBet.wager.toLocaleString()} BB on ${existingBet.side.toUpperCase()}</div>`;
-        } else if (lost) {
-          bottomSection = `<div class="bet-position"><span class="pos-lost">LOST −${existingBet.wager.toLocaleString()} BB</span> — bet ${existingBet.side.toUpperCase()}</div>`;
-        } else {
-          bottomSection = `<div class="bet-position">You bet <strong>${existingBet.wager.toLocaleString()} BB</strong> on ${existingBet.side.toUpperCase()} — awaiting resolution</div>`;
-        }
+  let bottomSection = '';
+  if (b.settled) {
+    if (existingBet) {
+      const won = existingBet.settledOutcome === 'won';
+      const lost = existingBet.settledOutcome === 'lost';
+      if (won) {
+        const profit = existingBet.potentialReturn - existingBet.wager;
+        bottomSection = `<div class="bet-position"><span class="pos-won">WON +${profit.toLocaleString()} BB</span> — ${existingBet.wager.toLocaleString()} BB on ${existingBet.side.toUpperCase()}</div>`;
+      } else if (lost) {
+        bottomSection = `<div class="bet-position"><span class="pos-lost">LOST −${existingBet.wager.toLocaleString()} BB</span> — bet ${existingBet.side.toUpperCase()}</div>`;
       } else {
-        bottomSection = '';
+        bottomSection = `<div class="bet-position">You bet <strong>${existingBet.wager.toLocaleString()} BB</strong> on ${existingBet.side.toUpperCase()} — awaiting resolution</div>`;
       }
-    } else if (!hasPick) {
-      // No identity set — show read-only odds, prompt to pick
-      bottomSection = `<div class="bet-actions">
-        <button class="bet-btn bet-btn-yes" onclick="openPicker(false)"><span class="btn-pct">${yesPct}%</span> YES</button>
-        <button class="bet-btn bet-btn-no"  onclick="openPicker(false)"><span class="btn-pct">${noPct}%</span> NO</button>
-      </div>`;
-    } else if (existingBet) {
-      // Already bet — show position
-      bottomSection = `<div class="bet-position">You bet <strong>${existingBet.wager.toLocaleString()} BB</strong> on ${existingBet.side.toUpperCase()} · returns <strong>${existingBet.potentialReturn.toLocaleString()} BB</strong> if correct</div>`;
-    } else {
-      // Open bet — show YES/NO buttons
-      bottomSection = `<div class="bet-actions">
-        <button class="bet-btn bet-btn-yes" onclick="openWagerModal('${b.id}','yes',${yesPct})"><span class="btn-pct">${yesPct}%</span> YES</button>
-        <button class="bet-btn bet-btn-no"  onclick="openWagerModal('${b.id}','no',${yesPct})"><span class="btn-pct">${noPct}%</span> NO</button>
-      </div>`;
     }
+  } else if (!hasPick) {
+    bottomSection = `<div class="bet-actions">
+      <button class="bet-btn bet-btn-yes" onclick="openPicker(false)"><span class="btn-pct">${yesPct}%</span> YES</button>
+      <button class="bet-btn bet-btn-no"  onclick="openPicker(false)"><span class="btn-pct">${noPct}%</span> NO</button>
+    </div>`;
+  } else if (existingBet) {
+    bottomSection = `<div class="bet-position">You bet <strong>${existingBet.wager.toLocaleString()} BB</strong> on ${existingBet.side.toUpperCase()} · returns <strong>${existingBet.potentialReturn.toLocaleString()} BB</strong> if correct</div>`;
+  } else {
+    bottomSection = `<div class="bet-actions">
+      <button class="bet-btn bet-btn-yes" onclick="openWagerModal('${b.id}','yes',${yesPct})"><span class="btn-pct">${yesPct}%</span> YES</button>
+      <button class="bet-btn bet-btn-no"  onclick="openWagerModal('${b.id}','no',${yesPct})"><span class="btn-pct">${noPct}%</span> NO</button>
+    </div>`;
+  }
 
+  if (b.settled) {
+    const yesWon   = b.odds === 100;
+    const clsCard  = yesWon ? 'closed-yes' : 'closed-no';
+    const clsBadge = yesWon ? 'closed-badge-yes' : 'closed-badge-no';
+    const clsBanner = yesWon ? 'winner-banner-yes' : 'winner-banner-no';
+    const winnerText = b.winner
+      ? `✓ ${b.winner.toUpperCase()} WINS`
+      : (yesWon ? '✓ YES WINS' : '✓ NO WINS');
     return `
-  <div class="bet-card${b.settled ? ' bet-settled' : ''}">
-    <div class="bet-sport">${b.sport}</div>
+  <div class="bet-card ${clsCard}">
+    <div class="winner-banner ${clsBanner}">${winnerText}</div>
+    <div class="bet-sport">${b.sport} <span class="closed-badge ${clsBadge}">CLOSED</span></div>
+    <div class="bet-title">${b.title}</div>
+    <div class="bet-desc">${b.desc}</div>
+    ${bottomSection}
+  </div>`;
+  }
+
+  return `
+  <div class="bet-card">
+    <div class="bet-sport">${b.sport}${badge}</div>
     <div class="bet-title">${b.title}</div>
     <div class="bet-desc">${b.desc}</div>
     <div class="bet-meta">
       <div>
         <span class="bet-odds odds-yes">${yesPct}%</span>
-        <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">YES</span>${badge}
+        <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">YES</span>
         <span class="bet-odds odds-no" style="margin-left:10px">${noPct}%</span>
         <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">NO</span>
       </div>
-      <div class="bet-close">${closeStr}</div>
+      <div class="bet-close-badge">Closes ${b.closes}</div>
     </div>
     ${bottomSection}
   </div>`;
-  }).join('');
+}
+
+function renderBets(propOdds) {
+  _currentPropOdds = propOdds;
+  const state   = loadState();
+  const hasPick = !!getPlayer();
+
+  const openBets   = BETS.filter(b => !b.settled);
+  const closedBets = BETS.filter(b =>  b.settled);
+
+  // Sort open bets by close date ascending
+  openBets.sort((a, b) => parseCloseDate(a.closes) - parseCloseDate(b.closes));
+
+  document.getElementById('bets-grid-open').innerHTML =
+    openBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+
+  document.getElementById('bets-grid-closed').innerHTML =
+    closedBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
 }
 
 // ─── WAGER MODAL ───────────────────────────────────────────────

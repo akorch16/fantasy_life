@@ -312,23 +312,20 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
 # "OTHER" = probability the winner is a team/player not in any pick.
 
 FALLBACK = {
-    # NBA Finals set: Buckley (Knicks) swept ECF 4-0. WCF: Feder (Thunder) lead 3-2.
-    # Scaled to WCF 57/43 (Feder/Wu) — Kalshi as of 2026-05-29
+    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Kalshi as of 2026-06-01: Wu ~63%, Buckley ~37%
     "nba_champ": {
-        "Buckley": 0.45, "Feder": 0.30, "Wu": 0.25,
+        "Wu": 0.63, "Buckley": 0.37,
     },
-    # NBA: which player's team reaches Finals (needed for runner_up modelling)
-    # WCF: Feder (Thunder) lead 3-2 — Kalshi ~57/43 as of 2026-05-29
-    # ECF: SETTLED — Buckley (Knicks) swept Cavaliers 4-0
-    "nba_conf_finals_west": {"Feder": 0.57, "Wu": 0.43},
+    # WCF: SETTLED — Spurs (Wu) won Game 7 over Thunder (Feder)
+    "nba_conf_finals_west": {"Wu": 1.0},
     "nba_conf_finals_east": {"Buckley": 1.0},  # SETTLED: Knicks swept Cavaliers 4-0
 
-    # NHL Cup Finals set: Tim (Golden Knights) swept WCF 4-0. Jamzee (Hurricanes) lead ECF 3-1.
+    # NHL Finals: Golden Knights (Tim) vs Hurricanes (Jamzee). Kalshi as of 2026-06-01: Jamzee ~59%, Tim ~42%
     "nhl_champ": {
-        "Tim": 0.53, "Jamzee": 0.39,  # ~8% to OTHER (Canadiens)
+        "Jamzee": 0.59, "Tim": 0.42,
     },
     "nhl_conf_finals_west": {"Tim": 1.0},  # SETTLED: Golden Knights swept Avalanche 4-0
-    "nhl_conf_finals_east": {"Jamzee": 0.82},  # Hurricanes lead ECF 3-1 (~18% to Canadiens)
+    "nhl_conf_finals_east": {"Jamzee": 1.0},  # SETTLED: Hurricanes won ECF
 
     # MLB World Series (regular season, May 2026)
     "mlb_champ": {
@@ -497,8 +494,9 @@ def _expected_bonus_conf_finals(p_champ, p_finalist):
 # ─── Kalshi fetch + merge ─────────────────────────────────────────────────────
 KNOWN_SERIES = {
     # Kalshi series tickers to try; fallback gracefully if 403/empty.
-    "nba":    ["NBACHAMP", "KXNBA",  "NBA-CHAMPION"],
-    "nhl":    ["NHLCHAMP", "KXNHL",  "NHL-CUP"],
+    # KXNBA-26 / KXNHL-26 are the confirmed 2025-26 event tickers (series: KXNBA / KXNHL).
+    "nba":    ["KXNBA-26", "KXNBA", "NBACHAMP", "NBA-CHAMPION"],
+    "nhl":    ["KXNHL-26", "KXNHL", "NHLCHAMP", "NHL-CUP"],
     "mlb":    ["MLBCHAMP", "KXMLB",  "MLB-WS"],
     "mls":    ["MLSCUP",   "KXMLS"],
     "nascar": ["NASCARWIN","KXNASC", "NASCAR-CUP"],
@@ -528,26 +526,42 @@ def _h2h(a, b):
 # fn returns a computed YES% from odds dict, or None to use static.
 # source_category_label must match a string in markets_used to be marked "kalshi".
 _PROP_DEFS = [
-    ("rg-w-fryar-v-feder",     38, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Feder",0)), "Tennis-FO-Women"),
-    ("rg-w-fryar-v-wu",        52, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Wu",0)),    "Tennis-FO-Women"),
-    ("rg-m-todd-v-shep",        0, None, None),  # SETTLED: Alcaraz withdrew; Shep wins
-    ("nba-ecf-buckley-v-jens", 100, lambda o: _h2h(o.get("nba_conf_finals_east",{}).get("Buckley",0), o.get("nba_conf_finals_east",{}).get("Jens",0)),     "NBA-ECF"),
-    ("nhl-wcf-tim-v-korch",    100, lambda o: _h2h(o.get("nhl_conf_finals_west",{}).get("Tim",0),     o.get("nhl_conf_finals_west",{}).get("Korch",0)),    "NHL-WCF"),
-    ("nba-wcf-wu-v-feder",      35, lambda o: _h2h(o.get("nba_conf_finals_west",{}).get("Wu",0),      o.get("nba_conf_finals_west",{}).get("Feder",0)),    "NBA-WCF"),
-    ("uso-wu-v-molmen",        52, lambda o: _h2h(o.get("golf_uso_win",{}).get("Wu",0),              o.get("golf_uso_win",{}).get("Molmen",0)),            "Golf-USOpen-win"),
-    ("uso-molmen-v-feder",     48, lambda o: _h2h(o.get("golf_uso_win",{}).get("Molmen",0),          o.get("golf_uso_win",{}).get("Feder",0)),             "Golf-USOpen-win"),
-    ("uso-tim-v-shep",         60, lambda o: _h2h(o.get("golf_uso_win",{}).get("Tim",0),             o.get("golf_uso_win",{}).get("Shep",0)),              "Golf-USOpen-win"),
-    ("nhl-sf-tim-v-jamzee",    60, None, None),  # Tim confirmed Cup Finals; Jamzee leads ECF 3-1
-    ("nhl-sf-korch-v-jamzee",   0, None, None),  # SETTLED: Korch eliminated; Jamzee wins
-    ("nba-sf-buckley-v-wu",    75, None, None),  # Buckley confirmed Finals; Wu facing elim in WCF
-    ("nba-fin-east-v-west",    45, lambda o: (round(o.get("nba_champ",{}).get("Buckley",0) * 100) or None), "NBA-championship"),
-    ("mlb-jens-v-tim",         48, None, None),
-    ("mlb-wu-v-mitchell",      55, None, None),
-    ("mlb-feder-v-jamzee",     54, None, None),
-    ("mls-buckley-v-molmen",   52, None, None),
-    ("mls-theo-v-shep",        55, None, None),
-    ("nascar-molmen-v-korch",  53, None, None),
-    ("nascar-fryar-v-tim",     65, None, None),
+    # ── Settled (static) ─────────────────────────────────────────────────────────
+    ("rg-m-shep-v-todd",        100, None, None),  # SETTLED: Alcaraz withdrew; Shep wins
+    ("nba-ecf-buckley-v-jens",  100, None, None),  # SETTLED: Knicks swept Cavaliers 4-0
+    ("nba-wcf-wu-v-feder",      100, None, None),  # SETTLED: Spurs won WCF Game 7
+    ("nhl-wcf-tim-v-korch",     100, None, None),  # SETTLED: Golden Knights swept Avalanche
+    ("nhl-pts-jamzee-v-korch",  100, None, None),  # SETTLED: Hurricanes advanced; Korch out
+
+    # ── Tennis · Roland Garros Women's ───────────────────────────────────────────
+    ("rg-w-fryar-v-feder",  38, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Feder",0)), "Tennis-FO-Women"),
+    ("rg-w-fryar-v-wu",     55, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Wu",0)),    "Tennis-FO-Women"),
+
+    # ── NHL Finals (Kalshi: Jamzee/Hurricanes ~59%, Tim/Golden Knights ~42%) ──────
+    ("nhl-fin-tim-v-jamzee", 42, lambda o: _h2h(o.get("nhl_champ",{}).get("Tim",0), o.get("nhl_champ",{}).get("Jamzee",0)), "NHL-StanleyCup"),
+
+    # ── NBA Finals (Kalshi: Wu/Spurs ~63%, Buckley/Knicks ~37%) ──────────────────
+    ("nba-fin-wu-v-buckley", 63, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
+
+    # ── US Open Golf ─────────────────────────────────────────────────────────────
+    ("uso-wu-v-molmen",    52, lambda o: _h2h(o.get("golf_uso_win",{}).get("Wu",0),     o.get("golf_uso_win",{}).get("Molmen",0)), "Golf-USOpen-win"),
+    ("uso-molmen-v-feder", 48, lambda o: _h2h(o.get("golf_uso_win",{}).get("Molmen",0), o.get("golf_uso_win",{}).get("Feder",0)), "Golf-USOpen-win"),
+    ("uso-tim-v-shep",     62, lambda o: _h2h(o.get("golf_uso_win",{}).get("Tim",0),    o.get("golf_uso_win",{}).get("Shep",0)),  "Golf-USOpen-win"),
+
+    # ── MLB / MLS / NASCAR (model only) ──────────────────────────────────────────
+    ("mlb-jens-v-tim",        54, None, None),
+    ("mlb-wu-v-mitchell",     55, None, None),
+    ("mlb-feder-v-korch",     58, None, None),
+    ("mls-buckley-v-molmen",  52, None, None),
+    ("mls-theo-v-shep",       57, None, None),
+    ("nascar-molmen-v-korch", 53, None, None),
+
+    # ── Total Points · By July 1 (model only) ────────────────────────────────────
+    ("pts-wu-v-korch",      47, None, None),
+    ("pts-tim-v-molmen",    55, None, None),
+    ("pts-jamzee-v-fryar",  44, None, None),
+    ("pts-mitchell-v-todd", 65, None, None),
+    ("pts-buckley-v-theo",  80, None, None),
 ]
 
 
