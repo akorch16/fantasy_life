@@ -1,57 +1,84 @@
 {
   "scores": [
     {
-      "name": "Zendaya",
-      "composite_score": 445.2
-    },
-    {
-      "name": "Emma Stone",
-      "composite_score": 398.7
-    },
-    {
-      "name": "Sydney Sweeney",
-      "composite_score": 354.1
-    },
-    {
-      "name": "Anya Taylor-Joy",
-      "composite_score": 312.5
-    },
-    {
-      "name": "Florence Pugh",
-      "composite_score": 287.3
-    },
-    {
-      "name": "Cynthia Erivo",
-      "composite_score": 245.8
-    },
-    {
-      "name": "Anne Hathaway",
-      "composite_score": 198.2
-    },
-    {
       "name": "Ariana Grande",
-      "composite_score": 176.4
+      "composite_score": 0,
+      "movies": [
+        { "title": "Focker-in-Law", "release_date": "2026-11-25" }
+      ]
     },
     {
-      "name": "Charlize Theron",
-      "composite_score": 134.7
-    },
-    {
-      "name": "Teyana Taylor",
-      "composite_score": 98.3
-    },
-    {
-      "name": "Tessa Thompson",
-      "composite_score": 76.5
-    },
-    {
-      "name": "Jessie Buckley",
-      "composite_score": 54.2
+      "name": "Zendaya",
+      "composite_score": 36.96,
+      "movies": [
+        { "title": "The Drama", "release_date": "2026-04-03", "box_office": 48000000, "rt_score": 77, "composite": 36.96 },
+        { "title": "The Odyssey", "release_date": "2026-07-17" },
+        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31" },
+        { "title": "Dune: Part Three", "release_date": "2026-12-18" }
+      ]
     },
     {
       "name": "Amanda Seyfried",
-      "composite_score": 42.8
+      "composite_score": 0
+    },
+    {
+      "name": "Teyana Taylor",
+      "composite_score": 0
+    },
+    {
+      "name": "Charlize Theron",
+      "composite_score": 0,
+      "movies": [
+        { "title": "The Odyssey", "release_date": "2026-07-17" }
+      ]
+    },
+    {
+      "name": "Tessa Thompson",
+      "composite_score": 0
+    },
+    {
+      "name": "Sydney Sweeney",
+      "composite_score": 0
+    },
+    {
+      "name": "Cynthia Erivo",
+      "composite_score": 0
+    },
+    {
+      "name": "Florence Pugh",
+      "composite_score": 0,
+      "movies": [
+        { "title": "Avengers: Doomsday", "release_date": "2026-12-18" },
+        { "title": "Dune: Part Three", "release_date": "2026-12-18" }
+      ]
+    },
+    {
+      "name": "Anne Hathaway",
+      "composite_score": 163.27,
+      "movies": [
+        { "title": "Mother Mary", "release_date": "2026-04-24", "box_office": 2900000, "rt_score": 70, "composite": 2.03 },
+        { "title": "The Devil Wears Prada 2", "release_date": "2026-05-01", "box_office": 209400000, "rt_score": 77, "composite": 161.24 },
+        { "title": "The Odyssey", "release_date": "2026-07-17" },
+        { "title": "The End of Oak Street", "release_date": "2026-08-14" },
+        { "title": "Verity", "release_date": "2026-10-02" }
+      ]
+    },
+    {
+      "name": "Jessie Buckley",
+      "composite_score": 0
+    },
+    {
+      "name": "Emma Stone",
+      "composite_score": 0
+    },
+    {
+      "name": "Anya Taylor-Joy",
+      "composite_score": 183.61,
+      "movies": [
+        { "title": "The Super Mario Galaxy Movie", "release_date": "2026-04-01", "box_office": 427000000, "rt_score": 43, "composite": 183.61 },
+        { "title": "Dune: Part Three", "release_date": "2026-12-18" }
+      ]
     }
   ],
-  "_updated": "2026-03-06T23:14:42.786986"
+  "_updated": "2026-06-01"
 }

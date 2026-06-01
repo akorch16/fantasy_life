@@ -1253,12 +1253,9 @@ function renderTable() {
           else if (total >= 6) { tierClass = 'tier-mid'; ptsColorClass = 'pts-mid'; }
           else { tierClass = 'tier-low'; ptsColorClass = 'pts-low'; }
         }
-        const staleTag = (cat === 'golf' && window.GOLF_DATA_STALE)
-          ? ' <span class="stale-badge" title="Rankings may be outdated">⚠</span>'
-          : '';
         return `
           <div class="cat-item ${tierClass}">
-            <span class="cat-name">${CAT_LABELS[cat]}${staleTag}</span>
+            <span class="cat-name">${CAT_LABELS[cat]}</span>
             <span class="cat-pick">${pick}</span>
             <span class="cat-pts ${ptsColorClass}">${ptsDisplay}</span>
           </div>
