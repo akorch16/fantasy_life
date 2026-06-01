@@ -105,21 +105,6 @@
     .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
     .nav-link.active { color: var(--gold); border-bottom-color: var(--gold); }
 
-    /* ─── NEWS BAR ─── */
-    .news-bar {
-      background: #0d1117;
-      border-bottom: 1px solid #1e2a1e;
-      padding: 6px 16px;
-      font-size: 0.7rem;
-      font-family: 'DM Mono', monospace;
-      letter-spacing: 0.04em;
-      line-height: 1.6;
-    }
-    .news-bar-label { color: var(--gold); font-weight: 600; }
-    .news-bar-sep { color: var(--muted); }
-    .news-bar-updated { color: var(--muted); font-size: 0.68rem; }
-    .news-bar-headline { color: #c9d1d9; }
-    .news-bar-headline em { color: var(--gold); font-style: normal; font-weight: 600; }
 
     /* ─── MAIN LAYOUT ─── */
     .container {
@@ -746,11 +731,6 @@
   <a href="./sportsbook.html" class="nav-link active">Sportsbook</a>
 </nav>
 
-<div class="news-bar" id="news-bar">
-  <span class="news-bar-label">📡 FL News</span>
-  <span class="news-bar-sep"> — </span>
-  <span class="news-bar-headline" id="news-bar-headline"><span style="opacity:0.4">Loading…</span></span>
-</div>
 
 <div class="container">
   <div class="page-title">🎲 Sportsbook</div>
@@ -840,15 +820,6 @@
 <div class="toast-stack" id="toast-stack"></div>
 
 <script>
-// ─── NEWS BAR ───────────────────────────────────────────────────
-fetch('./scores.json')
-  .then(r => r.json())
-  .then(d => {
-    if (d.headline) {
-      document.getElementById('news-bar-headline').innerHTML = d.headline;
-    }
-  })
-  .catch(() => {});
 
 // ─── PROJECTIONS ────────────────────────────────────────────────
 function winColor(pct) {
