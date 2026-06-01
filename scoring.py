@@ -748,6 +748,7 @@ if __name__ == '__main__':
     existing_headline = ''
     existing_headline_ts = None
     score_history: list = []
+    prev: dict = {}
     try:
         with open(out_path) as _f:
             prev = json.load(_f)
@@ -767,6 +768,22 @@ if __name__ == '__main__':
     data['headline'] = existing_headline
     if existing_headline_ts:
         data['headline_generated_at'] = existing_headline_ts
+
+    # Guard: if Supabase was unavailable, preserve previous non-None category values
+    # rather than overwriting good CI data with None. Local-file-backed categories
+    # (actor, actress, country, static sports) are always recomputed and take priority.
+    if not _bulk_standings and prev.get('players'):
+        prev_map = {p['name']: p for p in prev['players']}
+        for player in data.get('players', []):
+            prev_p = prev_map.get(player['name'], {})
+            for cat, cat_data in player.get('categories', {}).items():
+                if cat_data.get('raw_value') is None:
+                    prev_cat = prev_p.get('categories', {}).get(cat, {})
+                    if prev_cat.get('raw_value') is not None:
+                        cat_data['raw_value']    = prev_cat['raw_value']
+                        cat_data['rank']         = prev_cat.get('rank')
+                        cat_data['baseline_pts'] = prev_cat.get('baseline_pts', 0)
+        print('  ℹ Supabase unavailable — preserved previous values for live categories')
 
     # Build lookup of new scores/places
     new_totals = {p['name']: p['total'] for p in data.get('players', [])}
