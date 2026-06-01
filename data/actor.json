@@ -28,9 +28,9 @@
     },
     {
       "name": "Robert Pattinson",
-      "composite_score": 36.19,
+      "composite_score": 36.96,
       "movies": [
-        { "title": "The Drama", "release_date": "2026-03-27", "box_office": 47000000, "rt_score": 77, "composite": 36.19 }
+        { "title": "The Drama", "release_date": "2026-04-03", "box_office": 48000000, "rt_score": 77, "composite": 36.96 }
       ]
     },
     {
