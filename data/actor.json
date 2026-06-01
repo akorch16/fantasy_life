@@ -2,22 +2,34 @@
   "scores": [
     {
       "name": "Timothee Chalamet",
-      "composite_score": 0
+      "composite_score": 0,
+      "movies": [
+        { "title": "Dune: Part Three", "release_date": "2026-12-18" }
+      ]
     },
     {
       "name": "Pedro Pascal",
       "composite_score": 87.94,
       "movies": [
-        { "title": "Star Wars: The Mandalorian & Grogu", "release_date": "2026-05-22", "box_office": 137400000, "rt_score": 64, "composite": 87.94 }
+        { "title": "Star Wars: The Mandalorian & Grogu", "release_date": "2026-05-22", "box_office": 137400000, "rt_score": 64, "composite": 87.94 },
+        { "title": "Avengers: Doomsday", "release_date": "2026-12-18" }
       ]
     },
     {
       "name": "Tom Holland",
-      "composite_score": 0
+      "composite_score": 0,
+      "movies": [
+        { "title": "The Odyssey", "release_date": "2026-07-17" },
+        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31" }
+      ]
     },
     {
       "name": "Dwayne Johnson",
-      "composite_score": 0
+      "composite_score": 0,
+      "movies": [
+        { "title": "Moana", "release_date": "2026-07-10" },
+        { "title": "Jumanji: Open World", "release_date": "2026-12-25" }
+      ]
     },
     {
       "name": "Chris Hemsworth",
@@ -30,12 +42,16 @@
       "name": "Robert Pattinson",
       "composite_score": 36.96,
       "movies": [
-        { "title": "The Drama", "release_date": "2026-04-03", "box_office": 48000000, "rt_score": 77, "composite": 36.96 }
+        { "title": "The Drama", "release_date": "2026-04-03", "box_office": 48000000, "rt_score": 77, "composite": 36.96 },
+        { "title": "The Odyssey", "release_date": "2026-07-17" }
       ]
     },
     {
       "name": "Matt Damon",
-      "composite_score": 0
+      "composite_score": 0,
+      "movies": [
+        { "title": "The Odyssey", "release_date": "2026-07-17" }
+      ]
     },
     {
       "name": "Leonardo DiCaprio",
@@ -45,12 +61,17 @@
       "name": "Jeremy Allen White",
       "composite_score": 87.94,
       "movies": [
-        { "title": "Star Wars: The Mandalorian & Grogu", "release_date": "2026-05-22", "box_office": 137400000, "rt_score": 64, "composite": 87.94 }
+        { "title": "Star Wars: The Mandalorian & Grogu", "release_date": "2026-05-22", "box_office": 137400000, "rt_score": 64, "composite": 87.94 },
+        { "title": "The Social Reckoning", "release_date": "2026-10-09" }
       ]
     },
     {
       "name": "Jon Bernthal",
-      "composite_score": 0
+      "composite_score": 0,
+      "movies": [
+        { "title": "The Odyssey", "release_date": "2026-07-17" },
+        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31" }
+      ]
     },
     {
       "name": "George Clooney",
