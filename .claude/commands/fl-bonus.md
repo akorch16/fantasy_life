@@ -12,6 +12,8 @@ Called with a plain-English description of the event, e.g.:
 
 If the input is ambiguous (unclear category, unclear milestone, or multiple picks could match), ask before writing.
 
+**Never infer a result that wasn't explicitly stated.** If the user says "update the finals teams" without naming them, ask who the two finalists are — do not guess based on series leads, odds, or prior context. A team that led 3-2 may still have lost.
+
 ---
 
 ## Draft Picks Reference
