@@ -6,7 +6,10 @@
     },
     {
       "name": "Pedro Pascal",
-      "composite_score": 0
+      "composite_score": 87.94,
+      "movies": [
+        { "title": "Star Wars: The Mandalorian & Grogu", "release_date": "2026-05-22", "box_office": 137400000, "rt_score": 64, "composite": 87.94 }
+      ]
     },
     {
       "name": "Tom Holland",
@@ -59,5 +62,5 @@
       "composite_score": 0
     }
   ],
-  "_updated": "2026-05-07"
+  "_updated": "2026-06-01"
 }
