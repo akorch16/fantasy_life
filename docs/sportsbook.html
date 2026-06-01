@@ -748,7 +748,7 @@
 
   <!-- ─── PROP BETS ─── -->
   <div class="section-header">Prop Bets</div>
-  <div class="section-note" id="bets-note">20 player-vs-player props, all closing by July 1, 2026. Odds shown for the YES side (first named player wins the head-to-head).</div>
+  <div class="section-note" id="bets-note">22 player-vs-player props, all closing by July 1, 2026. Odds shown for the YES side (first named player wins the head-to-head).</div>
 
   <!-- Active bets panel, shown only when user has bets -->
   <div id="active-bets-panel" style="display:none"></div>
@@ -856,178 +856,211 @@ fetch('./projections.json')
 
 // ─── PROP BETS ──────────────────────────────────────────────────
 const BETS = [
-  // ── TENNIS · ROLAND GARROS (closes Jun 9) ──
+
+  // ── SETTLED ──────────────────────────────────────────────────
+  {
+    id: 'rg-m-shep-v-todd',
+    sport: 'Tennis · Roland Garros',
+    title: 'Djokovic (<em>Shep</em>) advanced further than Alcaraz (<em>Todd</em>)',
+    desc: 'Alcaraz withdrew with a wrist injury in the second round. Djokovic advanced through the draw. Shep wins.',
+    odds: 100,
+    closes: 'Jun 7',
+    settled: true,
+  },
+  {
+    id: 'nba-ecf-buckley-v-jens',
+    sport: 'NBA · East Finals',
+    title: 'Knicks (<em>Buckley</em>) swept Cavaliers (<em>Jens</em>) to win the East',
+    desc: 'Knicks swept the Cavaliers 4-0 in the Eastern Conference Finals. Buckley wins.',
+    odds: 100,
+    closes: 'Jun 12',
+    settled: true,
+  },
+  {
+    id: 'nba-wcf-wu-v-feder',
+    sport: 'NBA · West Finals',
+    title: 'Spurs (<em>Wu</em>) beat Thunder (<em>Feder</em>) to win the West',
+    desc: 'The Spurs rallied from a 3-2 series deficit, winning Games 6 and 7 to punch their ticket to the Finals. Wu wins.',
+    odds: 100,
+    closes: 'Jun 7',
+    settled: true,
+  },
+  {
+    id: 'nhl-wcf-tim-v-korch',
+    sport: 'NHL · West Finals',
+    title: 'Golden Knights (<em>Tim</em>) swept Avalanche (<em>Korch</em>) to win the West',
+    desc: 'Vegas swept Colorado 4-0 to reach the Stanley Cup Finals. Tim wins.',
+    odds: 100,
+    closes: 'Jun 14',
+    settled: true,
+  },
+  {
+    id: 'nhl-pts-jamzee-v-korch',
+    sport: 'NHL · Season',
+    title: 'Hurricanes (<em>Jamzee</em>) finish with more NHL pts than Avalanche (<em>Korch</em>)',
+    desc: 'Korch\'s Avalanche were swept in the second round. Jamzee\'s Hurricanes advanced to the Stanley Cup Finals. Jamzee wins.',
+    odds: 100,
+    closes: 'Jun 14',
+    settled: true,
+  },
+
+  // ── ROLAND GARROS · Finals (closes Jun 7) ─────────────────────
   {
     id: 'rg-w-fryar-v-feder',
     sport: 'Tennis · Roland Garros',
-    title: '<em>Fryar</em> (Sabalenka) goes further than <em>Feder</em> (Swiatek)',
-    desc: 'Whoever\'s pick advances to a later round at Roland Garros earns this bet. Swiatek is the 4-time RG champion; Sabalenka won the last two Australian Opens.',
+    title: 'Sabalenka (<em>Fryar</em>) goes further than Swiatek (<em>Feder</em>)',
+    desc: 'Swiatek is the four-time Roland Garros champion. Sabalenka has been the more dominant clay-court player this season. Women\'s final is June 6.',
     odds: 38,
-    closes: 'Jun 9',
+    closes: 'Jun 7',
   },
   {
     id: 'rg-w-fryar-v-wu',
     sport: 'Tennis · Roland Garros',
-    title: '<em>Fryar</em> (Sabalenka) goes further than <em>Wu</em> (Gauff)',
-    desc: 'Gauff reached the RG final in 2024. Sabalenka has been the more dominant player on clay this season.',
-    odds: 52,
-    closes: 'Jun 9',
+    title: 'Sabalenka (<em>Fryar</em>) goes further than Gauff (<em>Wu</em>)',
+    desc: 'Gauff reached the Roland Garros final in 2024. Sabalenka is ranked higher and has been stronger on clay this season. Women\'s final is June 6.',
+    odds: 55,
+    closes: 'Jun 7',
   },
+
+  // ── STANLEY CUP FINALS (closes ~Jun 17) ───────────────────────
   {
-    id: 'rg-m-todd-v-shep',
-    sport: 'Tennis · Roland Garros',
-    title: '<em>Todd</em> (Alcaraz) goes further than <em>Shep</em> (Djokovic)',
-    desc: 'Alcaraz withdrew with a wrist injury in the second round. Djokovic advanced. Shep wins this bet.',
-    odds: 0,
-    closes: 'Jun 9',
-    settled: true,
+    id: 'nhl-fin-tim-v-jamzee',
+    sport: 'NHL · Stanley Cup Finals',
+    title: 'Golden Knights (<em>Tim</em>) win the Stanley Cup over Hurricanes (<em>Jamzee</em>)',
+    desc: 'Vegas swept into the Finals and opens as a slight favorite. Carolina survived a tough East. The winner upgrades from 9 pts to 13 — a four-point swing.',
+    odds: 55,
+    closes: '~Jun 17',
   },
-  // ── NBA · EAST FINALS (closes ~Jun 12) ──
+
+  // ── NBA FINALS (closes ~Jun 19) ───────────────────────────────
   {
-    id: 'nba-ecf-buckley-v-jens',
-    sport: 'NBA · East Finals',
-    title: '<em>Buckley</em> (Knicks) beats <em>Jens</em> (Cavaliers) — Knicks win East',
-    desc: 'Knicks swept the Cavaliers 4-0 to win the Eastern Conference Finals. Buckley wins this bet.',
-    odds: 100,
-    closes: '~Jun 12',
-    settled: true,
+    id: 'nba-fin-wu-v-buckley',
+    sport: 'NBA · Finals',
+    title: 'Spurs (<em>Wu</em>) win the NBA Championship over Knicks (<em>Buckley</em>)',
+    desc: 'A rematch of the 1999 Finals. Wembanyama vs. Brunson. The Spurs were underdogs every round and kept winning. Winner gets 13 pts; the loser holds at 9.',
+    odds: 47,
+    closes: '~Jun 19',
   },
-  // ── NHL · WEST FINALS (closes ~Jun 14) ──
-  {
-    id: 'nhl-wcf-tim-v-korch',
-    sport: 'NHL · West Finals',
-    title: '<em>Tim</em> (Golden Knights) beats <em>Korch</em> (Avalanche) — Vegas wins West',
-    desc: 'Golden Knights swept the Avalanche 4-0 to advance to the Stanley Cup Finals. Tim wins this bet.',
-    odds: 100,
-    closes: '~Jun 14',
-    settled: true,
-  },
-  // ── NBA · WEST FINALS (closes ~Jun 2) ──
-  {
-    id: 'nba-wcf-wu-v-feder',
-    sport: 'NBA · West Finals',
-    title: '<em>Wu</em> (Spurs) beats <em>Feder</em> (Thunder) — San Antonio wins West',
-    desc: 'Thunder lead the series 3-2 heading into Game 6. The Spurs need to win two straight to deny Feder a Finals spot against Buckley\'s Knicks.',
-    odds: 35,
-    closes: '~Jun 2',
-  },
-  // ── GOLF · US OPEN (closes Jun 22) ──
+
+  // ── US OPEN GOLF (closes Jun 22) ──────────────────────────────
   {
     id: 'uso-wu-v-molmen',
     sport: 'Golf · US Open',
-    title: '<em>Wu</em> (Scheffler) finishes higher than <em>Molmen</em> (McIlroy)',
-    desc: 'World #1 vs. Grand Slam hunter. Scheffler has been dominant all year; McIlroy is chasing the career Slam at Oakmont.',
+    title: 'Scheffler (<em>Wu</em>) finishes higher than McIlroy (<em>Molmen</em>) at Oakmont',
+    desc: 'World #1 vs. Grand Slam hunter. Scheffler has been dominant all year. McIlroy is chasing the career Slam at Oakmont — the extra motivation is real.',
     odds: 52,
     closes: 'Jun 22',
   },
   {
     id: 'uso-molmen-v-feder',
     sport: 'Golf · US Open',
-    title: '<em>Molmen</em> (McIlroy) finishes higher than <em>Feder</em> (DeChambeau)',
-    desc: 'DeChambeau is the defending US Open champion. McIlroy is highly motivated. DeChambeau\'s bomb-and-gouge style fits Oakmont well.',
+    title: 'McIlroy (<em>Molmen</em>) finishes higher than DeChambeau (<em>Feder</em>) at Oakmont',
+    desc: 'DeChambeau is the defending US Open champ and Oakmont suits his power game. McIlroy has the career-Slam motivation. Nearly a coin flip.',
     odds: 48,
     closes: 'Jun 22',
   },
   {
     id: 'uso-tim-v-shep',
     sport: 'Golf · US Open',
-    title: '<em>Tim</em> (Schauffele) finishes higher than <em>Shep</em> (Rahm)',
-    desc: 'Schauffele won the 2024 US Open and is in top form. Rahm has been inconsistent since his LIV switch.',
-    odds: 60,
+    title: 'Schauffele (<em>Tim</em>) finishes higher than Rahm (<em>Shep</em>) at Oakmont',
+    desc: 'Schauffele won the 2024 US Open and has been in peak form all season. Rahm has been inconsistent since his LIV switch.',
+    odds: 62,
     closes: 'Jun 22',
   },
-  // ── NHL · SEASON FINAL (closes ~Jun 25) ──
-  {
-    id: 'nhl-sf-tim-v-jamzee',
-    sport: 'NHL · Season Final',
-    title: '<em>Tim</em> (Golden Knights) finishes with more NHL pts than <em>Jamzee</em> (Hurricanes)',
-    desc: 'Tim (Golden Knights) is confirmed in the Cup Finals after a sweep. Jamzee (Hurricanes) leads the ECF 3-1 and could meet Tim in the Finals — Tim is slight favorite to win it all.',
-    odds: 60,
-    closes: '~Jun 25',
-  },
-  {
-    id: 'nhl-sf-korch-v-jamzee',
-    sport: 'NHL · Season Final',
-    title: '<em>Korch</em> (Avalanche) finishes with more NHL pts than <em>Jamzee</em> (Hurricanes)',
-    desc: 'Korch (Avalanche) was swept 4-0 by Tim\'s Golden Knights in the Western Conference Finals. Jamzee wins this bet.',
-    odds: 0,
-    closes: '~Jun 25',
-    settled: true,
-  },
-  // ── NBA · SEASON FINAL (closes ~Jun 25) ──
-  {
-    id: 'nba-sf-buckley-v-wu',
-    sport: 'NBA · Season Final',
-    title: '<em>Buckley</em> (Knicks) finishes with more NBA pts than <em>Wu</em> (Spurs)',
-    desc: 'Buckley (Knicks) is confirmed in the NBA Finals after sweeping the East. Wu (Spurs) faces elimination in Game 6 of the WCF — even if Wu advances, he still needs to beat Buckley.',
-    odds: 75,
-    closes: '~Jun 25',
-  },
-  {
-    id: 'nba-fin-east-v-west',
-    sport: 'NBA · Season Final',
-    title: 'East (<em>Buckley</em>/Knicks) beats West (<em>Feder</em>/<em>Wu</em>) in NBA Finals',
-    desc: 'Buckley (Knicks) locked up the East with a sweep. The West winner — Feder (Thunder, 3-2 lead) or Wu (Spurs) — will face New York. An East title means Buckley gets 13 pts.',
-    odds: 45,
-    closes: '~Jun 25',
-  },
-  // ── MLB · THROUGH JULY 1 ──
+
+  // ── MLB · THROUGH JULY 1 ──────────────────────────────────────
   {
     id: 'mlb-jens-v-tim',
     sport: 'MLB · Through July 1',
-    title: '<em>Jens</em> (Yankees) has a better W-L% than <em>Tim</em> (Cubs) on July 1',
-    desc: 'AL powerhouse vs. NL Wild Card hopeful. Yankees have the deeper roster and better run differential.',
-    odds: 48,
+    title: 'Yankees (<em>Jens</em>) have better W-L% than Cubs (<em>Tim</em>) on July 1',
+    desc: 'AL East powerhouse against an NL Central hopeful. Yankees have the deeper rotation and stronger run differential through two months.',
+    odds: 54,
     closes: 'Jul 1',
   },
   {
     id: 'mlb-wu-v-mitchell',
     sport: 'MLB · Through July 1',
-    title: '<em>Wu</em> (Dodgers) has a better W-L% than <em>Mitchell</em> (Phillies) on July 1',
-    desc: 'LA is the defending World Series champ. Philadelphia finished strong in 2025. Two of the best rosters in baseball.',
+    title: 'Dodgers (<em>Wu</em>) have better W-L% than Phillies (<em>Mitchell</em>) on July 1',
+    desc: 'Defending World Series champs against one of the NL\'s best lineups. Two elite rosters — slight edge to LA\'s depth.',
     odds: 55,
     closes: 'Jul 1',
   },
   {
-    id: 'mlb-feder-v-jamzee',
+    id: 'mlb-feder-v-korch',
     sport: 'MLB · Through July 1',
-    title: '<em>Feder</em> (Mets) has a better W-L% than <em>Jamzee</em> (Mariners) on July 1',
-    desc: 'The Mets spent big in the offseason and are NL East contenders. Seattle is rebuilding but has pitching.',
-    odds: 54,
+    title: 'Mets (<em>Feder</em>) have better W-L% than Blue Jays (<em>Korch</em>) on July 1',
+    desc: 'The Mets invested heavily in the offseason. Toronto is in a rebuild. New York should hold the edge going into the All-Star break.',
+    odds: 58,
     closes: 'Jul 1',
   },
-  // ── MLS · THROUGH JULY 1 ──
+
+  // ── MLS · THROUGH JULY 1 ──────────────────────────────────────
   {
     id: 'mls-buckley-v-molmen',
     sport: 'MLS · Through July 1',
-    title: '<em>Buckley</em> (LAFC) leads <em>Molmen</em> (LA Galaxy) in Western Conf on July 1',
-    desc: 'El Tráfico — the LA derby. LAFC and the Galaxy are perennial Western Conference rivals battling for supremacy.',
+    title: 'LAFC (<em>Buckley</em>) leads LA Galaxy (<em>Molmen</em>) in Western Conf on July 1',
+    desc: 'El Tráfico in the standings. LAFC and the Galaxy are perennial Western Conference rivals — LAFC has the attacking edge this season.',
     odds: 52,
     closes: 'Jul 1',
   },
   {
     id: 'mls-theo-v-shep',
     sport: 'MLS · Through July 1',
-    title: '<em>Theo</em> (Inter Miami) leads <em>Shep</em> (Orlando City) in Eastern Conf on July 1',
-    desc: 'The Florida derby. Inter Miami has the star power; Orlando City has been the scrappier club.',
-    odds: 55,
+    title: 'Inter Miami (<em>Theo</em>) leads Orlando City (<em>Shep</em>) in Eastern Conf on July 1',
+    desc: 'The Florida derby. Miami has the star power and spending; Orlando has been scrappy but inconsistent. Miami favored.',
+    odds: 57,
     closes: 'Jul 1',
   },
-  // ── NASCAR · THROUGH JULY 1 ──
+
+  // ── NASCAR · THROUGH JULY 1 ───────────────────────────────────
   {
     id: 'nascar-molmen-v-korch',
     sport: 'NASCAR · Through July 1',
-    title: '<em>Molmen</em> (Kyle Larson) has more NASCAR pts than <em>Korch</em> (William Byron)',
-    desc: 'Hendrick Motorsports teammates and rivals. Both are championship-level drivers — this is decided race by race.',
+    title: 'Larson (<em>Molmen</em>) leads Byron (<em>Korch</em>) in cup points on July 1',
+    desc: 'Hendrick Motorsports teammates battling inside the same garage. Both are championship-level drivers — this flips race by race through summer.',
     odds: 53,
     closes: 'Jul 1',
   },
+
+  // ── TOTAL POINTS · BY JULY 1 ──────────────────────────────────
   {
-    id: 'nascar-fryar-v-tim',
-    sport: 'NASCAR · Through July 1',
-    title: '<em>Fryar</em> (Ryan Blaney) has more NASCAR pts than <em>Tim</em> (Bubba Wallace)',
-    desc: 'Blaney is a legitimate championship contender; Wallace has been inconsistent. Blaney should be the strong favorite here.',
+    id: 'pts-wu-v-korch',
+    sport: 'Total Points · By July 1',
+    title: '<em>Wu</em> will have more total points than <em>Korch</em> by July 1',
+    desc: 'Wu (155 pts) trails Korch (157 pts) by just 2. Projections give Wu 158 and Korch 163 at season end — but Wu\'s Spurs winning the NBA title adds 4 pts and flips the lead. Without a title, Korch holds.',
+    odds: 47,
+    closes: 'Jul 1',
+  },
+  {
+    id: 'pts-tim-v-molmen',
+    sport: 'Total Points · By July 1',
+    title: '<em>Tim</em> will have more total points than <em>Molmen</em> by July 1',
+    desc: 'Tim (148 pts) trails Molmen (149 pts) by 1. Tim\'s Golden Knights winning the Stanley Cup adds 4 pts and flips the lead. Molmen\'s stock picks and MLS are stagnant. Even odds on the Cup swing this.',
+    odds: 55,
+    closes: 'Jul 1',
+  },
+  {
+    id: 'pts-jamzee-v-fryar',
+    sport: 'Total Points · By July 1',
+    title: '<em>Jamzee</em> will have more total points than <em>Fryar</em> by July 1',
+    desc: 'Jamzee (132 pts) and Fryar (132.5 pts) are separated by half a point. Jamzee\'s Hurricanes winning the Cup adds 4 pts and flips the ledger. Projections actually favor Fryar by season end (155 vs 138) — this is purely a Cup swing.',
+    odds: 44,
+    closes: 'Jul 1',
+  },
+  {
+    id: 'pts-mitchell-v-todd',
+    sport: 'Total Points · By July 1',
+    title: '<em>Mitchell</em> will have more total points than <em>Todd</em> by July 1',
+    desc: 'Mitchell (140.5 pts) leads Todd (137.5 pts) by 3. Mandalorian box office already baked in. Todd has no big July 1 events pending. Mitchell holds the edge barring a big MLB or NASCAR shift.',
     odds: 65,
+    closes: 'Jul 1',
+  },
+  {
+    id: 'pts-buckley-v-theo',
+    sport: 'Total Points · By July 1',
+    title: '<em>Buckley</em> will have more total points than <em>Theo</em> by July 1',
+    desc: 'Buckley (128.5 pts) leads Theo (117.5 pts) by 11. Projections have Buckley at 132 and Theo at 126 at season end. Even if the Knicks lose the Finals, Buckley stays comfortably ahead.',
+    odds: 80,
     closes: 'Jul 1',
   },
 ];
