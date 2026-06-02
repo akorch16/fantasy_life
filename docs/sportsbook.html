@@ -748,7 +748,6 @@
 
   <!-- ─── OPEN BETS ─── -->
   <div class="section-header">Open Bets</div>
-  <div class="section-note">17 active props, sorted by close date. Odds shown for YES (first player wins).</div>
   <div class="bets-grid" id="bets-grid-open"><!-- rendered by JS --></div>
 
   <!-- ─── CLOSED BETS ─── -->
@@ -1254,7 +1253,6 @@ function renderBetCard(b, propOdds, state, hasPick) {
   let badge = '';
   if (!b.settled) {
     if (src === 'kalshi') badge = `<span class="live-badge kalshi">⚡ live</span>`;
-    else if (src === 'model') badge = `<span class="live-badge model">~ model</span>`;
   }
 
   const existingBet = state && state.bets.find(bt => bt.id === b.id);
