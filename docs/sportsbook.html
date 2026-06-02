@@ -310,7 +310,7 @@
     }
     .sport-tag {
       font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--purple);
@@ -874,7 +874,7 @@ const BETS = [
   // ── SETTLED ──────────────────────────────────────────────────
   {
     id: 'rg-m-shep-v-todd',
-    sport: 'Tennis · Roland Garros',
+    sport: 'Tennis · French Open',
     title: 'Djokovic (<em>Shep</em>) advanced further than Alcaraz (<em>Todd</em>)',
     desc: 'Alcaraz withdrew with a wrist injury in the second round. Djokovic advanced through the draw.',
     odds: 100,
@@ -931,17 +931,17 @@ const BETS = [
   // ── ROLAND GARROS · Finals (closes Jun 7) ─────────────────────
   {
     id: 'rg-w-fryar-v-feder',
-    sport: 'Tennis · Roland Garros',
+    sport: 'Tennis · French Open',
     title: 'Sabalenka (<em>Fryar</em>) goes further than Swiatek (<em>Feder</em>)',
-    desc: 'Swiatek is the four-time Roland Garros champion. Sabalenka has been the more dominant clay-court player this season. Women\'s final is June 6.',
+    desc: 'Swiatek is the four-time French Open champion. Sabalenka has been the more dominant clay-court player this season. Women\'s final is June 6.',
     odds: 38,
     closes: 'Jun 7',
   },
   {
     id: 'rg-w-fryar-v-wu',
-    sport: 'Tennis · Roland Garros',
+    sport: 'Tennis · French Open',
     title: 'Sabalenka (<em>Fryar</em>) goes further than Gauff (<em>Wu</em>)',
-    desc: 'Gauff reached the Roland Garros final in 2024. Sabalenka is ranked higher and has been stronger on clay this season. Women\'s final is June 6.',
+    desc: 'Gauff reached the French Open final in 2024. Sabalenka is ranked higher and has been stronger on clay this season. Women\'s final is June 6.',
     odds: 55,
     closes: 'Jun 7',
   },
@@ -972,23 +972,23 @@ const BETS = [
   {
     id: 'uso-wu-v-molmen',
     sport: 'Golf · US Open',
-    title: 'Scheffler (<em>Wu</em>) finishes higher than McIlroy (<em>Molmen</em>) at Oakmont',
-    desc: 'World #1 vs. Grand Slam hunter. Scheffler has been dominant all year. McIlroy is chasing the career Slam at Oakmont — the extra motivation is real.',
+    title: 'Scheffler (<em>Wu</em>) finishes higher than McIlroy (<em>Molmen</em>) at the US Open',
+    desc: 'World #1 vs. Grand Slam hunter. Scheffler has been dominant all year. McIlroy is chasing the career Slam at the US Open — the extra motivation is real.',
     odds: 52,
     closes: 'Jun 22',
   },
   {
     id: 'uso-molmen-v-feder',
     sport: 'Golf · US Open',
-    title: 'McIlroy (<em>Molmen</em>) finishes higher than DeChambeau (<em>Feder</em>) at Oakmont',
-    desc: 'DeChambeau is the defending US Open champ and Oakmont suits his power game. McIlroy has the career-Slam motivation. Nearly a coin flip.',
+    title: 'McIlroy (<em>Molmen</em>) finishes higher than DeChambeau (<em>Feder</em>) at the US Open',
+    desc: 'DeChambeau is the defending US Open champ and the course suits his power game. McIlroy has the career-Slam motivation. Nearly a coin flip.',
     odds: 48,
     closes: 'Jun 22',
   },
   {
     id: 'uso-tim-v-shep',
     sport: 'Golf · US Open',
-    title: 'Schauffele (<em>Tim</em>) finishes higher than Rahm (<em>Shep</em>) at Oakmont',
+    title: 'Schauffele (<em>Tim</em>) finishes higher than Rahm (<em>Shep</em>) at the US Open',
     desc: 'Schauffele won the 2024 US Open and has been in peak form all season. Rahm has been inconsistent since his LIV switch.',
     odds: 62,
     closes: 'Jun 22',
@@ -1307,7 +1307,8 @@ function renderBetCard(b, propOdds, state, hasPick) {
 
   return `
   <div class="bet-card">
-    <div class="bet-sport"><span class="sport-tag">${b.sport}</span>${badge}</div>
+    <div class="bet-sport"><span class="sport-tag">${b.sport.split(' · ')[0]}</span>${badge}</div>
+
     <div class="bet-title">${b.title}</div>
     <div class="bet-desc">${b.desc}</div>
     <div class="bet-meta">
