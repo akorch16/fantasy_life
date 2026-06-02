@@ -769,6 +769,7 @@
           <th class="num" title="Top-4 probability">Top4%</th>
           <th class="num" title="Current total points">Now</th>
           <th class="num" title="10th–90th percentile projected range">Range</th>
+
         </tr>
       </thead>
       <tbody id="proj-body">
@@ -853,6 +854,7 @@ fetch('./projections.json')
         <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
         <td class="num">${p.current_total.toFixed(1)}</td>
         <td class="num" style="color:var(--muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
+
       </tr>
     `).join('') + `
       <tr class="proj-footer">
