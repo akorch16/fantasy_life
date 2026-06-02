@@ -20,6 +20,7 @@
       --red: #ef4444;
       --gold: #f59e0b;
       --accent: #f59e0b;
+      --purple: #a855f7;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -303,11 +304,21 @@
     }
     .bet-card:hover { border-color: var(--blue-dim); }
     .bet-sport {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sport-tag {
       font-family: 'DM Mono', monospace;
       font-size: 0.62rem;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
+      letter-spacing: 0.08em;
+      color: var(--purple);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      background: rgba(168, 85, 247, 0.08);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
     }
     .bet-title {
       font-size: 0.9rem;
@@ -390,17 +401,13 @@
     .winner-banner-yes { background: rgba(34,197,94,0.1);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
     .winner-banner-no  { background: rgba(239,68,68,0.1);  color: var(--red);   border: 1px solid rgba(239,68,68,0.25); }
 
-    /* prominent close date for open bets */
-    .bet-close-badge {
+    /* close date at bottom-right of open bet card */
+    .bet-close-footer {
       font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      font-weight: 600;
-      color: var(--text);
-      padding: 3px 8px;
-      border-radius: 4px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      white-space: nowrap;
+      font-size: 0.62rem;
+      color: var(--muted);
+      text-align: right;
+      margin-top: 4px;
     }
 
     /* ─── BET BUTTONS ─── */
@@ -1293,7 +1300,7 @@ function renderBetCard(b, propOdds, state, hasPick) {
     return `
   <div class="bet-card ${clsCard}">
     <div class="winner-banner ${clsBanner}">${winnerText}</div>
-    <div class="bet-sport">${b.sport} <span class="closed-badge ${clsBadge}">CLOSED</span></div>
+    <div class="bet-sport"><span class="sport-tag">${b.sport}</span> <span class="closed-badge ${clsBadge}">CLOSED</span></div>
     <div class="bet-title">${b.title}</div>
     <div class="bet-desc">${b.desc}</div>
     ${bottomSection}
@@ -1302,19 +1309,17 @@ function renderBetCard(b, propOdds, state, hasPick) {
 
   return `
   <div class="bet-card">
-    <div class="bet-sport">${b.sport}${badge}</div>
+    <div class="bet-sport"><span class="sport-tag">${b.sport}</span>${badge}</div>
     <div class="bet-title">${b.title}</div>
     <div class="bet-desc">${b.desc}</div>
     <div class="bet-meta">
-      <div>
-        <span class="bet-odds odds-yes">${yesPct}%</span>
-        <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">YES</span>
-        <span class="bet-odds odds-no" style="margin-left:10px">${noPct}%</span>
-        <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">NO</span>
-      </div>
-      <div class="bet-close-badge">Closes ${b.closes}</div>
+      <span class="bet-odds odds-yes">${yesPct}%</span>
+      <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">YES</span>
+      <span class="bet-odds odds-no" style="margin-left:10px">${noPct}%</span>
+      <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">NO</span>
     </div>
     ${bottomSection}
+    <div class="bet-close-footer">Closes ${b.closes}</div>
   </div>`;
 }
 
