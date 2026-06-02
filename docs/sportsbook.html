@@ -111,7 +111,7 @@
     .container {
       max-width: 1000px;
       margin: 0 auto;
-      padding: 2rem 1.5rem;
+      padding: 2rem 1rem;
     }
 
     .page-title {
@@ -152,44 +152,44 @@
     .proj-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
     }
     .proj-table th {
       background: var(--surface2);
       color: var(--muted);
       font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 8px 12px;
+      letter-spacing: 0.05em;
+      padding: 6px 8px;
       text-align: left;
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
     }
     .proj-table th.num { text-align: right; }
     .proj-table td {
-      padding: 9px 12px;
+      padding: 7px 8px;
       border-bottom: 1px solid var(--border);
       vertical-align: middle;
     }
-    .proj-table td.num { text-align: right; font-family: 'DM Mono', monospace; }
+    .proj-table td.num { text-align: right; font-family: 'DM Mono', monospace; font-size: 0.78rem; }
     .proj-table tr:last-child td { border-bottom: none; }
     .proj-table tr:hover td { background: var(--surface2); }
     .rank-num {
       font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--muted);
-      width: 32px;
+      width: 24px;
     }
     .win-high { color: var(--green); }
     .win-mid  { color: #eab308; }
     .win-low  { color: var(--muted); }
     .proj-footer td {
-      font-size: 0.72rem;
+      font-size: 0.65rem;
       color: var(--muted);
       font-family: 'DM Mono', monospace;
       text-align: center;
-      padding: 0.6rem;
+      padding: 0.5rem;
       border-top: 1px solid var(--border);
     }
 
@@ -767,14 +767,12 @@
           <th>Player</th>
           <th class="num" title="Win probability">Win%</th>
           <th class="num" title="Top-4 probability">Top4%</th>
-          <th class="num" title="10th–90th percentile range">Range</th>
           <th class="num" title="Current total points">Now</th>
-          <th class="num" title="Expected additional points from remaining events">+Exp</th>
-          <th class="num" title="Projected year-end total (median)">Proj</th>
+          <th class="num" title="10th–90th percentile projected range">Range</th>
         </tr>
       </thead>
       <tbody id="proj-body">
-        <tr><td colspan="8" class="loading-msg">Loading projections…</td></tr>
+        <tr><td colspan="6" class="loading-msg">Loading projections…</td></tr>
       </tbody>
     </table>
   </div>
@@ -853,14 +851,12 @@ fetch('./projections.json')
         <td><strong>${p.name}</strong></td>
         <td class="num ${winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
         <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
-        <td class="num" style="font-size:0.8em;color:var(--muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
         <td class="num">${p.current_total.toFixed(1)}</td>
-        <td class="num" style="color:var(--blue)">+${p.projected_additional.toFixed(1)}</td>
-        <td class="num"><strong>${p.projected_total.toFixed(1)}</strong></td>
+        <td class="num" style="color:var(--muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
       </tr>
     `).join('') + `
       <tr class="proj-footer">
-        <td colspan="8">As of ${genAt} · ${(data.n_simulations || 10000).toLocaleString()} simulations · ${liveOdds ? 'Live Kalshi odds' : 'Static odds'}</td>
+        <td colspan="6">As of ${genAt} · ${(data.n_simulations || 10000).toLocaleString()} sims · ${liveOdds ? 'Live Kalshi' : 'Static odds'}</td>
       </tr>`;
     renderBets(data.prop_odds || null);
   })
