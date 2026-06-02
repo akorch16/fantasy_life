@@ -419,17 +419,18 @@
     .bet-btn {
       flex: 1;
       border: 1px solid;
-      border-radius: 6px;
-      padding: 6px 8px;
+      border-radius: 8px;
+      padding: 14px 8px;
       cursor: pointer;
       font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 2px;
       transition: background 0.1s;
     }
     .bet-btn-yes {
@@ -449,8 +450,9 @@
       cursor: default;
     }
     .bet-btn .btn-pct {
-      font-size: 0.9rem;
+      font-size: 2rem;
       font-family: 'Bebas Neue', sans-serif;
+      line-height: 1;
     }
 
     /* card position display (already have a bet on this) */
@@ -1309,12 +1311,6 @@ function renderBetCard(b, propOdds, state, hasPick) {
 
     <div class="bet-title">${b.title}</div>
     <div class="bet-desc">${b.desc}</div>
-    <div class="bet-meta">
-      <span class="bet-odds odds-yes">${yesPct}%</span>
-      <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">YES</span>
-      <span class="bet-odds odds-no" style="margin-left:10px">${noPct}%</span>
-      <span style="font-family:'DM Mono';font-size:0.65rem;color:var(--muted);margin-left:6px">NO</span>
-    </div>
     ${bottomSection}
     <div class="bet-close-footer">Closes ${b.closes}</div>
   </div>`;
