@@ -758,12 +758,12 @@
         <tr>
           <th class="rank-num">#</th>
           <th>Player</th>
+          <th class="num" title="Win probability">Win%</th>
+          <th class="num" title="Top-4 probability">Top4%</th>
+          <th class="num" title="10th–90th percentile range">Range</th>
           <th class="num" title="Current total points">Now</th>
           <th class="num" title="Expected additional points from remaining events">+Exp</th>
           <th class="num" title="Projected year-end total (median)">Proj</th>
-          <th class="num" title="10th–90th percentile range">Range</th>
-          <th class="num" title="Win probability">Win%</th>
-          <th class="num" title="Top-4 probability">Top4%</th>
         </tr>
       </thead>
       <tbody id="proj-body">
@@ -844,12 +844,12 @@ fetch('./projections.json')
       <tr>
         <td class="rank-num num">${i + 1}</td>
         <td><strong>${p.name}</strong></td>
+        <td class="num ${winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
+        <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
+        <td class="num" style="font-size:0.8em;color:var(--muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
         <td class="num">${p.current_total.toFixed(1)}</td>
         <td class="num" style="color:var(--blue)">+${p.projected_additional.toFixed(1)}</td>
         <td class="num"><strong>${p.projected_total.toFixed(1)}</strong></td>
-        <td class="num" style="font-size:0.8em;color:var(--muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
-        <td class="num ${winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
-        <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
       </tr>
     `).join('') + `
       <tr class="proj-footer">
