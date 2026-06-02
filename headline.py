@@ -27,33 +27,47 @@ Tennis: Tim=Keys, Wu=Gauff, Jens=Paolini, Todd=Alcaraz, Mitchell=Fritz, Shep=Djo
 Golf: Tim=Schauffele, Wu=Scheffler, Jens=Henley, Todd=Cantlay, Mitchell=Spaun,
       Shep=Rahm, Theo=JThomas, Feder=DeChambeau, Fryar=Hovland, Korch=Fleetwood,
       Molmen=McIlroy, Jamzee=Aberg, Buckley=Morikawa
-Stock: Tim=COIN(L), Wu=LULU(L), Jens=SOFI(L), Todd=NVDA(L), Mitchell=CVNA(S),
-       Shep=TSLA(S), Theo=CMG(L), Feder=PLTR(L), Fryar=AVGO(L), Korch=SMCI(L),
-       Molmen=TTWO(L), Jamzee=INTC(L), Buckley=NEE(L)
-Actress: Tim=Grande, Wu=Zendaya, Jens=Seyfried, Todd=TeyanaTaylor, Mitchell=Theron,
-         Shep=Thompson, Theo=Sweeney, Feder=Erivo, Fryar=Pugh, Korch=Hathaway,
-         Molmen=JessieBuckley, Jamzee=Stone, Buckley=TaylorJoy
-Musician: Tim=Lamar, Wu=FKATwigs, Jens=Carpenter, Todd=Rodrigo, Mitchell=BadBunny,
-          Shep=Drake, Theo=BTS, Feder=LadyGaga, Fryar=Bieber, Korch=SZA,
-          Molmen=TaylorSwift, Jamzee=TheWeeknd, Buckley=Beyonce
 NASCAR: Tim=Wallace, Wu=Bell, Jens=Briscoe, Todd=Elliott, Mitchell=VanGisbergen,
         Shep=Suarez, Theo=Hamlin, Feder=Reddick, Fryar=Blaney, Korch=Byron,
         Molmen=Larson, Jamzee=Logano, Buckley=Chastain
 MLS: Tim=Charlotte, Wu=Minnesota, Jens=SanDiego, Todd=NYRedBulls, Mitchell=Philly,
      Shep=Orlando, Theo=InterMiami, Feder=Vancouver, Fryar=Columbus, Korch=Cincinnati,
-     Molmen=LAGalaxy, Jamzee=Seattle, Buckley=LAFC"""
+     Molmen=LAGalaxy, Jamzee=Seattle, Buckley=LAFC
+Stock: Tim=COIN(L), Wu=LULU(L), Jens=SOFI(L), Todd=NVDA(L), Mitchell=CVNA(S),
+       Shep=TSLA(S), Theo=CMG(L), Feder=PLTR(L), Fryar=AVGO(L), Korch=SMCI(L),
+       Molmen=TTWO(L), Jamzee=INTC(L), Buckley=NEE(L)
+Actor: Tim=SeanPenn, Wu=WagnerMoura, Jens=Clooney, Todd=DiCaprio, Mitchell=PedroPascal,
+       Shep=JeremyAllenWhite, Theo=DwayneJohnson, Feder=TomHolland, Fryar=Hemsworth,
+       Korch=JonBernthal, Molmen=MattDamon, Jamzee=Chalamet, Buckley=Pattinson
+Actress: Tim=ArianaGrande, Wu=Zendaya, Jens=Seyfried, Todd=TeyanaTaylor, Mitchell=Theron,
+         Shep=TessaThompson, Theo=SydneySweeney, Feder=CynthiaErivo, Fryar=FlorencePugh,
+         Korch=AnneHathaway, Molmen=JessieBuckley, Jamzee=EmmaStone, Buckley=AnyaTaylorJoy
+Musician: Tim=KendrickLamar, Wu=FKATwigs, Jens=SabrinaCarpenter, Todd=OliviaRodrigo,
+          Mitchell=BadBunny, Shep=Drake, Theo=BTS, Feder=LadyGaga, Fryar=JustinBieber,
+          Korch=SZA, Molmen=TaylorSwift, Jamzee=TheWeeknd, Buckley=Beyonce
+Country(FIFAWorldCup): Tim=Netherlands, Wu=USA, Jens=Germany, Todd=Guinea, Mitchell=SouthSudan,
+                       Shep=France, Theo=Switzerland, Feder=Brazil, Fryar=Norway, Korch=Guyana,
+                       Molmen=Argentina, Jamzee=Spain, Buckley=Canada"""
 
 
 def search_news() -> str:
-    """Fetch recent sports headlines via Tavily — 3 targeted searches, last 3 days only."""
+    """Fetch recent news via Tavily — 7 targeted searches across sports, entertainment, finance, and World Cup."""
     api_key = os.environ.get('TAVILY_API_KEY', '')
     if not api_key:
         return ''
-    # Focused queries for active competitions only
     queries = [
-        'NBA playoffs 2026 series results scores',
-        'NHL playoffs 2026 series results scores',
-        'Roland Garros French Open tennis 2026 results',
+        # Sports
+        'NBA Finals NHL Stanley Cup 2026 results scores',
+        'Roland Garros US Open golf tennis 2026 results',
+        'MLB MLS NASCAR standings results 2026',
+        # FIFA World Cup
+        'FIFA World Cup 2026 results group stage standings',
+        # Music & movies
+        'Billboard Hot 100 music box office movies 2026',
+        # Stocks
+        'NVDA TSLA COIN PLTR AVGO SMCI LULU INTC NEE stock market 2026',
+        # Actor / actress news
+        'Pedro Pascal Zendaya Anne Hathaway Timothee Chalamet Jeremy Allen White movies 2026',
     ]
     try:
         import requests
@@ -96,22 +110,23 @@ def generate_headline(scores_data: dict, news_snippets: str) -> str | None:
         today = date.today().strftime('%B %d, %Y')
         news_block = f'\nNews snippets from the last 3 days (today is {today}):\n{news_snippets}\n'
 
-        prompt = f"""You write punchy multi-sentence "FL News" sports ticker headlines for Fantasy Life 2026 — a 13-person fantasy league where each player drafted real sports teams/athletes.
+        prompt = f"""You write punchy multi-sentence "FL News" ticker headlines for Fantasy Life 2026 — a 13-person fantasy league where each player drafted real sports teams, athletes, musicians, actors, and stocks.
 
-Draft picks (FL player → their team/pick):
+Draft picks (FL player → their pick) — cover ALL categories, not just sports:
 {DRAFT_SUMMARY}
 {news_block}
 CRITICAL rules:
 - ONLY report facts explicitly stated in the snippets above. Do NOT add any result, score, or outcome not written in a snippet.
-- If a snippet mentions a team but doesn't clearly state the result, skip it.
-- Never cross sports: an NBA team cannot win a Stanley Cup; an NHL team cannot win an NBA title.
+- If a snippet mentions a pick but doesn't clearly state the result or move, skip it.
+- Never cross categories: an NBA team cannot win a Stanley Cup; a stock ticker is not a song chart.
 - Only include events from the last 3 days (today is {today}).
 - 3–5 sentences, max 60 words total
-- This is a SPORTS NEWS ticker — never mention FL standings, point totals, or league positions
-- Format: "Team (<em>FLPlayer</em>) result." — team/athlete name first, FL owner in <em> tags in parentheses
-- Example: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals."
-- Use <em> tags ONLY around FL player names — never around team names or athlete names
-- Be specific: include series scores (e.g. 3-1) only if the snippet gives them
+- Never mention FL standings, point totals, or league positions
+- Cover a MIX of categories — aim for at least 2 different categories (e.g. one sports + one music/stock/movie/WorldCup)
+- Format: "Pick (<em>FLPlayer</em>) result." — pick name first, FL owner in <em> tags in parentheses
+- Examples: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals." / "NVDA (<em>Todd</em>) surges 9% on earnings." / "USA (<em>Wu</em>) blank Morocco 2-0 in World Cup opener." / "Taylor Swift (<em>Molmen</em>) hits #1 with new single."
+- Use <em> tags ONLY around FL player names — never around pick names
+- Be specific: include series scores or % moves only if the snippet gives them
 - Output ONLY the headline text, no quotes, no labels, no preamble
 
 Headline:"""
