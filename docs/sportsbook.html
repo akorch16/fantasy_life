@@ -862,6 +862,7 @@
 <!-- ─── TOAST CONTAINER ─── -->
 <div class="toast-stack" id="toast-stack"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 
 // ─── PROJECTIONS ────────────────────────────────────────────────
@@ -1063,6 +1064,15 @@ const STARTING_BB = 1000;
 const ALL_PLAYERS = ['Tim','Wu','Jens','Todd','Mitchell','Shep','Theo',
                      'Feder','Fryar','Korch','Molmen','Jamzee','Buckley'];
 
+// ── SUPABASE (shared leaderboard) ──────────────────────────────
+// After creating your Supabase project, replace these two values.
+// Then run docs/sb-schema.sql in the Supabase SQL editor.
+const SB_URL  = 'https://YOUR_PROJECT.supabase.co';
+const SB_ANON = 'YOUR_ANON_KEY';
+const SB_ON   = typeof supabase !== 'undefined' && !SB_URL.includes('YOUR_PROJECT');
+const sbClient = SB_ON ? supabase.createClient(SB_URL, SB_ANON) : null;
+let _sbLeaderboard = null;  // { players: [{name,balance}], bets: [{player,wager,...}] }
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -1072,12 +1082,14 @@ function loadState() {
 
 function saveState(state) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  sbSyncState(state);  // fire and forget
 }
 
 function initState(player) {
   const state = { balance: STARTING_BB, bets: [] };
   localStorage.setItem(PLAYER_KEY, player);
   saveState(state);
+  sbResetPlayer(player);  // fire and forget
   return state;
 }
 
@@ -1122,6 +1134,75 @@ function settleBets() {
   return results;
 }
 
+// ─── SUPABASE HELPERS ──────────────────────────────────────────
+
+// Push current player's balance + all bets to Supabase (non-blocking)
+function sbSyncState(state) {
+  if (!sbClient) return;
+  const player = getPlayer();
+  if (!player) return;
+  const betsPayload = state.bets.map(b => ({
+    player,
+    bet_id:          b.id,
+    side:            b.side,
+    wager:           b.wager,
+    potential_return: b.potentialReturn,
+    sport:           b.sport || '',
+    settled_outcome: b.settledOutcome || null,
+  }));
+  const ops = [
+    sbClient.from('sb_players')
+      .upsert({ name: player, balance: state.balance, updated_at: new Date().toISOString() }),
+  ];
+  if (betsPayload.length) {
+    ops.push(sbClient.from('sb_bets').upsert(betsPayload, { onConflict: 'player,bet_id' }));
+  }
+  Promise.all(ops).catch(() => {});
+}
+
+// Clear a player's bets and reset their balance (called on identity reset)
+function sbResetPlayer(player) {
+  if (!sbClient) return;
+  Promise.all([
+    sbClient.from('sb_bets').delete().eq('player', player),
+    sbClient.from('sb_players').upsert({ name: player, balance: STARTING_BB, updated_at: new Date().toISOString() }),
+  ]).catch(() => {});
+}
+
+// Fetch all players + open bets for the leaderboard, then re-render
+async function sbRefreshLeaderboard() {
+  if (!sbClient) return;
+  const [{ data: players }, { data: bets }] = await Promise.all([
+    sbClient.from('sb_players').select('name, balance'),
+    sbClient.from('sb_bets').select('player, wager, potential_return').is('settled_outcome', null),
+  ]).catch(() => [{ data: null }, { data: null }]);
+  if (!players) return;
+  _sbLeaderboard = { players, bets: bets || [] };
+  renderBBLeaderboard();
+}
+
+// Pull this player's Supabase balance into localStorage (cross-device sync)
+async function sbHydrate(player) {
+  if (!sbClient) return;
+  const { data } = await sbClient.from('sb_players')
+    .select('balance').eq('name', player).maybeSingle().catch(() => ({ data: null }));
+  if (!data) return;
+  const local = loadState();
+  if (local && data.balance !== local.balance) {
+    local.balance = data.balance;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(local));
+  }
+}
+
+// Subscribe to sb_players + sb_bets for real-time leaderboard updates
+function sbSubscribeLeaderboard() {
+  if (!sbClient) return;
+  sbClient.channel('sb-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'sb_players' }, sbRefreshLeaderboard)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'sb_bets' },    sbRefreshLeaderboard)
+    .subscribe();
+}
+
 // ─── BALANCE RENDER ────────────────────────────────────────────
 function renderBalance() {
   const player = getPlayer();
@@ -1145,24 +1226,26 @@ function renderBBLeaderboard() {
 
   const rows = ALL_PLAYERS.map(p => {
     const isMe = p === player;
-    let balanceCell, wageredCell, toWinCell;
+    let balance = STARTING_BB, wagered = 0, toWin = 0;
 
-    if (isMe && myState) {
-      const open    = myState.bets.filter(b => !b.settledOutcome);
-      const wagered = open.reduce((s, b) => s + b.wager, 0);
-      const toWin   = open.reduce((s, b) => s + b.potentialReturn, 0) - wagered;
-      balanceCell = `<span class="bb-balance">${myState.balance.toLocaleString()} BB</span>`;
-      wageredCell = wagered > 0
-        ? `${wagered.toLocaleString()} BB`
-        : `<span class="bb-dim">—</span>`;
-      toWinCell = toWin > 0
-        ? `<span class="bb-pos">+${toWin.toLocaleString()} BB</span>`
-        : `<span class="bb-dim">—</span>`;
-    } else {
-      balanceCell = `<span class="bb-dim">1,000 BB</span>`;
-      wageredCell = `<span class="bb-dim">—</span>`;
-      toWinCell   = `<span class="bb-dim">—</span>`;
+    if (_sbLeaderboard) {
+      // Live Supabase data — real numbers for everyone
+      const sbP  = _sbLeaderboard.players.find(x => x.name === p);
+      balance    = sbP ? sbP.balance : STARTING_BB;
+      const open = _sbLeaderboard.bets.filter(b => b.player === p);
+      wagered    = open.reduce((s, b) => s + b.wager, 0);
+      toWin      = open.reduce((s, b) => s + b.potential_return, 0) - wagered;
+    } else if (isMe && myState) {
+      // Supabase not configured — show own data only
+      balance = myState.balance;
+      const open = myState.bets.filter(b => !b.settledOutcome);
+      wagered    = open.reduce((s, b) => s + b.wager, 0);
+      toWin      = open.reduce((s, b) => s + b.potentialReturn, 0) - wagered;
     }
+
+    const balanceCell = `<span class="${isMe ? 'bb-balance' : (balance < STARTING_BB ? 'bb-pos' : '')}">${balance.toLocaleString()} BB</span>`;
+    const wageredCell = wagered > 0 ? `${wagered.toLocaleString()} BB` : `<span class="bb-dim">—</span>`;
+    const toWinCell   = toWin > 0   ? `<span class="bb-pos">+${toWin.toLocaleString()} BB</span>` : `<span class="bb-dim">—</span>`;
 
     return `<tr class="${isMe ? 'bb-me' : ''}">
       <td class="bb-name">${p}${isMe ? '<span class="bb-me-marker">▲</span>' : ''}</td>
@@ -1548,14 +1631,21 @@ document.addEventListener('keydown', e => {
 });
 
 // ─── INIT ───────────────────────────────────────────────────────
-(function init() {
+(async function init() {
   const player = getPlayer();
   const state  = loadState();
+
+  // Start Supabase realtime subscription + initial leaderboard fetch
+  sbSubscribeLeaderboard();
+  sbRefreshLeaderboard();
 
   if (!player || !state) {
     // First visit: show picker after a short delay
     setTimeout(() => openPicker(false), 300);
   } else {
+    // Sync balance from Supabase (cross-device consistency)
+    await sbHydrate(player);
+
     // Settle any newly resolved bets before rendering
     const settled = settleBets();
     settled.forEach(r => {
