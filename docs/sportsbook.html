@@ -137,6 +137,39 @@
       padding-bottom: 0.5rem;
       border-bottom: 1px solid var(--border);
     }
+
+    /* ─── BB LEADERBOARD ─── */
+    .bb-leaderboard-wrap {
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
+    .bb-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'DM Mono', monospace;
+    }
+    .bb-table th {
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .bb-table th.r { text-align: right; }
+    .bb-table td {
+      font-size: 0.78rem;
+      padding: 7px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .bb-table td.r { text-align: right; }
+    .bb-table .bb-name { font-weight: 500; }
+    .bb-table .bb-me-marker { font-size: 0.5rem; color: var(--gold); vertical-align: middle; margin-left: 4px; }
+    .bb-table tr.bb-me { background: rgba(245,158,11,0.05); }
+    .bb-table .bb-balance { color: var(--gold); font-weight: 600; }
+    .bb-table .bb-dim { color: var(--muted); }
+    .bb-table .bb-pos { color: var(--green); }
     .section-note {
       font-size: 0.78rem;
       color: var(--muted);
@@ -745,6 +778,9 @@
   <div class="page-title">🎲 Sportsbook</div>
   <div class="page-subtitle">Prop bets + Monte Carlo projections for Fantasy Life 2026. Updated daily.</div>
 
+  <!-- ─── BB LEADERBOARD ─── -->
+  <div class="bb-leaderboard-wrap" id="bb-leaderboard"></div>
+
   <!-- My Bets panel (shown only when user has bets) -->
   <div id="active-bets-panel" style="display:none"></div>
 
@@ -1024,6 +1060,8 @@ const BETS = [
 const STORAGE_KEY = 'fl_sb_state';
 const PLAYER_KEY  = 'fl_sb_player';
 const STARTING_BB = 1000;
+const ALL_PLAYERS = ['Tim','Wu','Jens','Todd','Mitchell','Shep','Theo',
+                     'Feder','Fryar','Korch','Molmen','Jamzee','Buckley'];
 
 function loadState() {
   try {
@@ -1097,6 +1135,54 @@ function renderBalance() {
 
 function fmtBB(n) {
   return n.toLocaleString() + ' BB';
+}
+
+function renderBBLeaderboard() {
+  const el = document.getElementById('bb-leaderboard');
+  if (!el) return;
+  const player  = getPlayer();
+  const myState = loadState();
+
+  const rows = ALL_PLAYERS.map(p => {
+    const isMe = p === player;
+    let balanceCell, wageredCell, toWinCell;
+
+    if (isMe && myState) {
+      const open    = myState.bets.filter(b => !b.settledOutcome);
+      const wagered = open.reduce((s, b) => s + b.wager, 0);
+      const toWin   = open.reduce((s, b) => s + b.potentialReturn, 0) - wagered;
+      balanceCell = `<span class="bb-balance">${myState.balance.toLocaleString()} BB</span>`;
+      wageredCell = wagered > 0
+        ? `${wagered.toLocaleString()} BB`
+        : `<span class="bb-dim">—</span>`;
+      toWinCell = toWin > 0
+        ? `<span class="bb-pos">+${toWin.toLocaleString()} BB</span>`
+        : `<span class="bb-dim">—</span>`;
+    } else {
+      balanceCell = `<span class="bb-dim">1,000 BB</span>`;
+      wageredCell = `<span class="bb-dim">—</span>`;
+      toWinCell   = `<span class="bb-dim">—</span>`;
+    }
+
+    return `<tr class="${isMe ? 'bb-me' : ''}">
+      <td class="bb-name">${p}${isMe ? '<span class="bb-me-marker">▲</span>' : ''}</td>
+      <td class="r">${balanceCell}</td>
+      <td class="r">${wageredCell}</td>
+      <td class="r">${toWinCell}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `<table class="bb-table">
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th class="r">Balance</th>
+        <th class="r">Wagered</th>
+        <th class="r">To Win</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
 }
 
 // ─── ACTIVE BETS PANEL ─────────────────────────────────────────
@@ -1375,6 +1461,7 @@ function confirmBet() {
 
   closeWagerModal();
   renderBalance();
+  renderBBLeaderboard();
   renderActiveBets();
   renderBets(_currentPropOdds);
 
@@ -1431,6 +1518,7 @@ function pickPlayer(name) {
   initState(name);
   closePicker();
   renderBalance();
+  renderBBLeaderboard();
   renderActiveBets();
   renderBets(_currentPropOdds);
 }
@@ -1442,6 +1530,7 @@ function confirmReset() {
   initState(name);
   closePicker();
   renderBalance();
+  renderBBLeaderboard();
   renderActiveBets();
   renderBets(_currentPropOdds);
 }
@@ -1478,6 +1567,7 @@ document.addEventListener('keydown', e => {
       }
     });
     renderBalance();
+    renderBBLeaderboard();
     renderActiveBets();
     // renderBets will be called by the projections fetch
   }
