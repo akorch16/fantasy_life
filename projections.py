@@ -312,9 +312,9 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
 # "OTHER" = probability the winner is a team/player not in any pick.
 
 FALLBACK = {
-    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Kalshi as of 2026-06-01: Wu ~63%, Buckley ~37%
+    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Kalshi as of 2026-06-04: Buckley ~54%, Wu ~46% (NYK won Game 1)
     "nba_champ": {
-        "Wu": 0.63, "Buckley": 0.37,
+        "Wu": 0.47, "Buckley": 0.54,
     },
     # WCF: SETTLED — Spurs (Wu) won Game 7 over Thunder (Feder)
     "nba_conf_finals_west": {"Wu": 1.0},
@@ -540,8 +540,8 @@ _PROP_DEFS = [
     # ── NHL Finals (Kalshi: Jamzee/Hurricanes ~59%, Tim/Golden Knights ~42%) ──────
     ("nhl-fin-tim-v-jamzee", 42, lambda o: _h2h(o.get("nhl_champ",{}).get("Tim",0), o.get("nhl_champ",{}).get("Jamzee",0)), "NHL-StanleyCup"),
 
-    # ── NBA Finals (Kalshi: Wu/Spurs ~63%, Buckley/Knicks ~37%) ──────────────────
-    ("nba-fin-wu-v-buckley", 63, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
+    # ── NBA Finals (Kalshi: Buckley/Knicks ~54%, Wu/Spurs ~46% after NYK won Game 1) ─
+    ("nba-fin-wu-v-buckley", 47, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
 
     # ── US Open Golf ─────────────────────────────────────────────────────────────
     ("uso-wu-v-molmen",    52, lambda o: _h2h(o.get("golf_uso_win",{}).get("Wu",0),     o.get("golf_uso_win",{}).get("Molmen",0)), "Golf-USOpen-win"),
