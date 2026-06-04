@@ -779,6 +779,7 @@
   <div class="page-subtitle">Prop bets + Monte Carlo projections for Fantasy Life 2026. Updated daily.</div>
 
   <!-- ─── BB LEADERBOARD ─── -->
+  <div class="section-header">Buckley Bucks Leaderboard</div>
   <div class="bb-leaderboard-wrap" id="bb-leaderboard"></div>
 
   <!-- My Bets panel (shown only when user has bets) -->
@@ -1067,8 +1068,8 @@ const ALL_PLAYERS = ['Tim','Wu','Jens','Todd','Mitchell','Shep','Theo',
 // ── SUPABASE (shared leaderboard) ──────────────────────────────
 // After creating your Supabase project, replace these two values.
 // Then run docs/sb-schema.sql in the Supabase SQL editor.
-const SB_URL  = 'https://YOUR_PROJECT.supabase.co';
-const SB_ANON = 'YOUR_ANON_KEY';
+const SB_URL  = 'https://xpekhpufucjvhhsxhmeo.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwZWtocHVmdWNqdmhoc3hobWVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNDg4MzMsImV4cCI6MjA4ODkyNDgzM30.dyvhXCdVwVAgsNHGV9olc8D3fh_8Ia-_IF6tIoK9ZoE';
 const SB_ON   = typeof supabase !== 'undefined' && !SB_URL.includes('YOUR_PROJECT');
 const sbClient = SB_ON ? supabase.createClient(SB_URL, SB_ANON) : null;
 let _sbLeaderboard = null;  // { players: [{name,balance}], bets: [{player,wager,...}] }
