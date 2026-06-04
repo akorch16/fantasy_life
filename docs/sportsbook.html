@@ -526,6 +526,28 @@
     .bet-position .pos-won { color: var(--green); font-weight: 600; }
     .bet-position .pos-lost { color: var(--red); font-weight: 600; }
 
+    /* ─── ALL BETS PANEL ─── */
+    .all-bet-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem 1rem;
+      align-items: center;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.78rem;
+    }
+    .all-bet-row:last-child { border-bottom: none; }
+    .all-bet-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      white-space: nowrap;
+    }
+    .all-bet-player { color: var(--gold); font-weight: 500; }
+    .all-bet-wager  { color: var(--muted); }
+
     /* ─── WAGER MODAL ─── */
     .modal-overlay {
       position: fixed;
@@ -807,8 +829,13 @@
   <div class="section-header">Buckley Bucks Leaderboard</div>
   <div class="bb-leaderboard-wrap" id="bb-leaderboard"></div>
 
-  <!-- My Bets panel (shown only when user has bets) -->
-  <div id="active-bets-panel" style="display:none"></div>
+  <!-- ─── YOUR BETS ─── -->
+  <div class="section-header">Your Bets</div>
+  <div id="active-bets-panel"></div>
+
+  <!-- ─── ALL BETS ─── -->
+  <div class="section-header">All Bets</div>
+  <div id="all-bets-panel"></div>
 
   <!-- ─── OPEN BETS ─── -->
   <div class="section-header">Open Bets</div>
@@ -818,28 +845,6 @@
   <div class="section-header">Closed Bets</div>
   <div class="section-note">Settled props. Green border = YES won · Red border = NO won.</div>
   <div class="bets-grid" id="bets-grid-closed"><!-- rendered by JS --></div>
-
-  <!-- ─── PROJECTIONS ─── -->
-  <div class="section-header">Season Projections</div>
-  <div class="section-note">10,000-simulation Monte Carlo model using Kalshi championship odds. Ranked by projected year-end total.</div>
-  <div class="proj-table-wrap">
-    <table class="proj-table" id="proj-table">
-      <thead>
-        <tr>
-          <th class="rank-num">#</th>
-          <th>Player</th>
-          <th class="num" title="Win probability">Win%</th>
-          <th class="num" title="Top-4 probability">Top4%</th>
-          <th class="num" title="Current total points">Now</th>
-          <th class="num" title="10th–90th percentile projected range">Range</th>
-
-        </tr>
-      </thead>
-      <tbody id="proj-body">
-        <tr><td colspan="6" class="loading-msg">Loading projections…</td></tr>
-      </tbody>
-    </table>
-  </div>
 
 </div>
 
@@ -891,46 +896,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 
-// ─── PROJECTIONS ────────────────────────────────────────────────
-function winColor(pct) {
-  if (pct >= 25) return 'win-high';
-  if (pct >= 10) return 'win-mid';
-  return 'win-low';
-}
-
+// ─── LOAD PROP ODDS ─────────────────────────────────────────────
 fetch('./projections.json')
   .then(r => r.json())
-  .then(data => {
-    const tbody = document.getElementById('proj-body');
-    if (!data.players || !data.players.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="loading-msg">Projections not yet available — check back after the next daily run.</td></tr>';
-      renderBets(null);
-      return;
-    }
-    const players = data.players.slice().sort((a, b) => b.projected_total - a.projected_total);
-    const genAt = data.generated_at ? data.generated_at.slice(0, 10) : '—';
-    const liveOdds = data.kalshi_markets_used && data.kalshi_markets_used.length;
-    tbody.innerHTML = players.map((p, i) => `
-      <tr>
-        <td class="rank-num num">${i + 1}</td>
-        <td><strong>${p.name}</strong></td>
-        <td class="num ${winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
-        <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
-        <td class="num">${p.current_total.toFixed(1)}</td>
-        <td class="num" style="color:var(--muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
-
-      </tr>
-    `).join('') + `
-      <tr class="proj-footer">
-        <td colspan="6">As of ${genAt} · ${(data.n_simulations || 10000).toLocaleString()} sims · ${liveOdds ? 'Live Kalshi' : 'Static odds'}</td>
-      </tr>`;
-    renderBets(data.prop_odds || null);
-  })
-  .catch(() => {
-    document.getElementById('proj-body').innerHTML =
-      '<tr><td colspan="8" class="loading-msg">Projections unavailable.</td></tr>';
-    renderBets(null);
-  });
+  .then(data => { renderBets(data.prop_odds || null); })
+  .catch(() => { renderBets(null); });
 
 // ─── PROP BETS ──────────────────────────────────────────────────
 const BETS = [
@@ -1169,19 +1139,20 @@ function sbSyncState(state) {
   if (!player) return;
   const betsPayload = state.bets.map(b => ({
     player,
-    bet_id:          b.id,
-    side:            b.side,
-    wager:           b.wager,
+    bet_id:           b.id,
+    side:             b.side,
+    wager:            b.wager,
     potential_return: b.potentialReturn,
-    sport:           b.sport || '',
-    settled_outcome: b.settledOutcome || null,
+    sport:            b.sport || '',
+    settled_outcome:  b.settledOutcome || null,
+    placed_at:        b.timestamp,
   }));
   const ops = [
     sbClient.from('sb_players')
       .upsert({ name: player, balance: state.balance, updated_at: new Date().toISOString() }),
   ];
   if (betsPayload.length) {
-    ops.push(sbClient.from('sb_bets').upsert(betsPayload, { onConflict: 'player,bet_id' }));
+    ops.push(sbClient.from('sb_bets').upsert(betsPayload, { onConflict: 'player,bet_id,placed_at' }));
   }
   Promise.all(ops).catch(() => {});
 }
@@ -1198,13 +1169,18 @@ function sbResetPlayer(player) {
 // Fetch all players + open bets for the leaderboard, then re-render
 async function sbRefreshLeaderboard() {
   if (!sbClient) return;
-  const [{ data: players }, { data: bets }] = await Promise.all([
-    sbClient.from('sb_players').select('name, balance'),
-    sbClient.from('sb_bets').select('player, wager, potential_return').is('settled_outcome', null),
-  ]).catch(() => [{ data: null }, { data: null }]);
-  if (!players) return;
-  _sbLeaderboard = { players, bets: bets || [] };
-  renderBBLeaderboard();
+  try {
+    const [{ data: players }, { data: bets }, { data: allBets }] = await Promise.all([
+      sbClient.from('sb_players').select('name, balance'),
+      sbClient.from('sb_bets').select('player, wager, potential_return').is('settled_outcome', null),
+      sbClient.from('sb_bets').select('player, bet_id, side, wager, settled_outcome').order('placed_at', { ascending: false }),
+    ]);
+    if (!players) return;
+    _sbLeaderboard = { players, bets: bets || [] };
+    _sbAllBets = allBets || [];
+    renderBBLeaderboard();
+    renderAllBets();
+  } catch (e) {}
 }
 
 // Pull this player's Supabase balance into localStorage (cross-device sync)
@@ -1300,14 +1276,18 @@ function renderActiveBets() {
   const player = getPlayer();
   const state  = loadState();
 
-  if (!player || !state || !state.bets.length) {
-    panel.style.display = 'none';
+  if (!player) {
+    panel.innerHTML = '<div class="section-note">Choose your FL identity to see your bets.</div>';
+    return;
+  }
+  if (!state || !state.bets.length) {
+    panel.innerHTML = '<div class="section-note">No bets placed yet.</div>';
     return;
   }
 
-  const active   = state.bets.filter(b => !b.settledOutcome);
-  const settled  = state.bets.filter(b => b.settledOutcome);
-  const wagered  = active.reduce((s, b) => s + b.wager, 0);
+  const active  = state.bets.filter(b => !b.settledOutcome);
+  const settled = state.bets.filter(b => b.settledOutcome);
+  const wagered = active.reduce((s, b) => s + b.wager, 0);
 
   let summaryText = '';
   if (active.length) summaryText += `${active.length} open &nbsp;·&nbsp; <span class="bb-num">${wagered.toLocaleString()} BB</span> at risk`;
@@ -1348,15 +1328,52 @@ function renderActiveBets() {
       </div>`;
   }).join('');
 
-  panel.style.display = '';
   panel.innerHTML = `
     <div class="active-bets-panel">
       <div class="active-bets-header">
-        <span class="active-bets-title">Your Bets</span>
         <span class="active-bets-summary">${summaryText}</span>
       </div>
       ${rows}
     </div>`;
+}
+
+// ─── ALL BETS PANEL ────────────────────────────────────────────
+let _sbAllBets = [];
+
+function renderAllBets() {
+  const panel = document.getElementById('all-bets-panel');
+  if (!panel) return;
+
+  if (!_sbAllBets || !_sbAllBets.length) {
+    panel.innerHTML = '<div class="section-note">No bets placed yet.</div>';
+    return;
+  }
+
+  const rows = _sbAllBets.map(b => {
+    const sideClass = b.side === 'yes' ? 'side-yes' : 'side-no';
+    const sideLabel = (b.side || '').toUpperCase();
+    const betDef = BETS.find(bd => bd.id === b.bet_id);
+    const title = betDef ? betDef.title : b.bet_id;
+    const sport = betDef ? betDef.sport.split(' · ')[0] : '';
+    let outcomeHtml = '';
+    if (b.settled_outcome === 'won') outcomeHtml = `<span class="outcome-won">WON</span>`;
+    else if (b.settled_outcome === 'lost') outcomeHtml = `<span class="outcome-lost">LOST</span>`;
+    return `
+      <div class="all-bet-row">
+        <div class="active-bet-info">
+          <div class="active-bet-sport">${sport}</div>
+          <div class="active-bet-title">${title}</div>
+        </div>
+        <div class="all-bet-meta">
+          <span class="active-bet-side ${sideClass}">${sideLabel}</span>
+          <span class="all-bet-player">${b.player}</span>
+          <span class="all-bet-wager">${(b.wager || 0).toLocaleString()} BB</span>
+          ${outcomeHtml}
+        </div>
+      </div>`;
+  }).join('');
+
+  panel.innerHTML = `<div class="active-bets-panel">${rows}</div>`;
 }
 
 // ─── BET CARDS ─────────────────────────────────────────────────
@@ -1380,7 +1397,8 @@ function renderBetCard(b, propOdds, state, hasPick) {
     if (src === 'kalshi') badge = `<span class="live-badge kalshi">⚡ live</span>`;
   }
 
-  const existingBet = state && state.bets.find(bt => bt.id === b.id);
+  const existingBets = state ? state.bets.filter(bt => bt.id === b.id) : [];
+  const existingBet  = existingBets[0];
 
   let bottomSection = '';
   if (b.settled) {
@@ -1401,13 +1419,19 @@ function renderBetCard(b, propOdds, state, hasPick) {
       <button class="bet-btn bet-btn-yes" onclick="openPicker(false)"><span class="btn-pct">${yesPct}%</span> YES</button>
       <button class="bet-btn bet-btn-no"  onclick="openPicker(false)"><span class="btn-pct">${noPct}%</span> NO</button>
     </div>`;
-  } else if (existingBet) {
-    bottomSection = `<div class="bet-position">You bet <strong>${existingBet.wager.toLocaleString()} BB</strong> on ${existingBet.side.toUpperCase()} · returns <strong>${existingBet.potentialReturn.toLocaleString()} BB</strong> if correct</div>`;
   } else {
     bottomSection = `<div class="bet-actions">
       <button class="bet-btn bet-btn-yes" onclick="openWagerModal('${b.id}','yes',${yesPct})"><span class="btn-pct">${yesPct}%</span> YES</button>
       <button class="bet-btn bet-btn-no"  onclick="openWagerModal('${b.id}','no',${yesPct})"><span class="btn-pct">${noPct}%</span> NO</button>
     </div>`;
+    if (existingBets.length > 0) {
+      const yesW = existingBets.filter(ub => ub.side === 'yes').reduce((s, ub) => s + ub.wager, 0);
+      const noW  = existingBets.filter(ub => ub.side === 'no').reduce((s, ub) => s + ub.wager, 0);
+      const parts = [];
+      if (yesW > 0) parts.push(`${yesW.toLocaleString()} BB YES`);
+      if (noW  > 0) parts.push(`${noW.toLocaleString()} BB NO`);
+      bottomSection += `<div class="bet-position" style="margin-top:0.4rem">Your position: ${parts.join(' · ')}</div>`;
+    }
   }
 
   if (b.settled) {
