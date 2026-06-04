@@ -14,13 +14,19 @@ import os
 import math
 import random
 import datetime
+import time
+import base64
 import requests
 
 SCORES_PATH      = os.path.join(os.path.dirname(__file__), "docs", "scores.json")
 PROJECTIONS_PATH = os.path.join(os.path.dirname(__file__), "docs", "projections.json")
-KALSHI_BASE      = "https://api.kalshi.com/trade-api/v2"
-KALSHI_KEY       = os.environ.get("KALSHI_API_KEY", "")
-_KALSHI_KEY_WARNED = False
+KALSHI_BASE      = "https://trading-api.kalshi.com/trade-api/v2"
+# Kalshi v2 uses RSA-PSS signed requests (not Bearer tokens).
+# Set both env vars: KALSHI_API_KEY_ID (UUID) and KALSHI_PRIVATE_KEY (PEM string).
+KALSHI_KEY_ID    = os.environ.get("KALSHI_API_KEY_ID", "")
+KALSHI_PEM       = os.environ.get("KALSHI_PRIVATE_KEY", "")
+_KALSHI_PRIVATE_KEY  = None   # loaded lazily on first use
+_KALSHI_KEY_WARNED   = False
 N_SIMS           = 10_000
 
 # ─── Draft picks (subsets needed for projection lookups) ──────────────────
@@ -222,17 +228,61 @@ MILESTONES = {
 }
 
 # ─── Kalshi API ──────────────────────────────────────────────────────────────
+def _load_kalshi_private_key():
+    """Load and cache the RSA private key from KALSHI_PRIVATE_KEY env var (PEM string)."""
+    global _KALSHI_PRIVATE_KEY
+    if _KALSHI_PRIVATE_KEY is not None:
+        return _KALSHI_PRIVATE_KEY
+    if not KALSHI_PEM:
+        return None
+    try:
+        from cryptography.hazmat.primitives import serialization
+        _KALSHI_PRIVATE_KEY = serialization.load_pem_private_key(
+            KALSHI_PEM.encode(), password=None
+        )
+        return _KALSHI_PRIVATE_KEY
+    except Exception as e:
+        print(f"  ✗ Kalshi: failed to load private key: {e}")
+        return None
+
+
+def _kalshi_sign(path: str) -> dict:
+    """Return signed auth headers for a GET request to the given path (no query string)."""
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.asymmetric import padding as asym_padding
+    ts = str(int(time.time() * 1000))
+    message = f"{ts}GET/trade-api/v2{path}"
+    key = _load_kalshi_private_key()
+    sig = key.sign(
+        message.encode(),
+        asym_padding.PSS(
+            mgf=asym_padding.MGF1(hashes.SHA256()),
+            salt_length=asym_padding.PSS.DIGEST_LENGTH,
+        ),
+        hashes.SHA256(),
+    )
+    return {
+        "KALSHI-ACCESS-KEY":       KALSHI_KEY_ID,
+        "KALSHI-ACCESS-TIMESTAMP": ts,
+        "KALSHI-ACCESS-SIGNATURE": base64.b64encode(sig).decode(),
+        "Accept":                  "application/json",
+    }
+
+
 def _kalshi_get(path, params=None):
     global _KALSHI_KEY_WARNED
-    if not KALSHI_KEY:
+    if not KALSHI_KEY_ID or not KALSHI_PEM:
         if not _KALSHI_KEY_WARNED:
-            print("  ✗ Kalshi: KALSHI_API_KEY not set — all props will use static fallback odds")
+            missing = []
+            if not KALSHI_KEY_ID: missing.append("KALSHI_API_KEY_ID")
+            if not KALSHI_PEM:    missing.append("KALSHI_PRIVATE_KEY")
+            print(f"  ✗ Kalshi: {', '.join(missing)} not set — all props will use static fallback odds")
             _KALSHI_KEY_WARNED = True
         return None
     try:
         r = requests.get(
             f"{KALSHI_BASE}{path}",
-            headers={"Authorization": f"Bearer {KALSHI_KEY}", "Accept": "application/json"},
+            headers=_kalshi_sign(path),
             params=params or {},
             timeout=8,
         )
@@ -1131,20 +1181,28 @@ def run():
     if markets_used:
         print(f"Live Kalshi markets: {', '.join(markets_used)}")
     else:
-        print("Note: all odds from static fallback (no KALSHI_API_KEY or no markets matched)")
+        print("Note: all odds from static fallback (no Kalshi credentials or no markets matched)")
 
 
 def probe():
     """
     Diagnostic mode: attempt every Kalshi series fetch and print what's found.
-    Run: KALSHI_API_KEY=xxx python projections.py --probe
+    Run: KALSHI_API_KEY_ID=xxx KALSHI_PRIVATE_KEY="$(cat key.pem)" python projections.py --probe
     Does NOT write any files.
     """
     print("── Kalshi Probe ────────────────────────────────────────────────────")
-    if not KALSHI_KEY:
-        print("  ✗ KALSHI_API_KEY is not set. Export it and re-run.")
+    if not KALSHI_KEY_ID or not KALSHI_PEM:
+        missing = []
+        if not KALSHI_KEY_ID: missing.append("KALSHI_API_KEY_ID")
+        if not KALSHI_PEM:    missing.append("KALSHI_PRIVATE_KEY")
+        print(f"  ✗ Not set: {', '.join(missing)}. Export both and re-run.")
         return
-    print(f"  Key: ...{KALSHI_KEY[-6:]}")
+    key = _load_kalshi_private_key()
+    if not key:
+        print("  ✗ Failed to load private key from KALSHI_PRIVATE_KEY.")
+        return
+    print(f"  Key ID: {KALSHI_KEY_ID}")
+    print(f"  Private key loaded: {key.key_size}-bit RSA")
     probe_targets = [
         ("NBA-WCF",  KNOWN_SERIES["nba_wcf"],  {"Wu": "San Antonio Spurs", "Feder": "Oklahoma City Thunder"}),
         ("NBA-ECF",  KNOWN_SERIES["nba_ecf"],  {"Buckley": "New York Knicks", "Jens": "Cleveland Cavaliers"}),
