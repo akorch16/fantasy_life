@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projections — Fantasy Life 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161d;
+      --surface2: #1a1e28;
+      --border: #232733;
+      --blue: #2d7dd2;
+      --blue-dim: #1a4a82;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --dim: #3a3f50;
+      --green: #22c55e;
+      --red: #ef4444;
+      --gold: #f59e0b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--blue); }
+
+    .header-logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center top;
+      background-image: url('./todd.jpg');
+      display: block;
+    }
+
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .nav-link:hover { color: var(--text); }
+
+    /* ─── SITE NAV BAR ─── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+    .site-nav .nav-link {
+      padding: 9px 14px;
+      border-bottom: 2px solid transparent;
+      font-size: 0.68rem;
+    }
+    .site-nav .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
+    .site-nav .nav-link.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+    /* ─── PAGE LAYOUT ─── */
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .page-subtitle {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    /* ─── SECTION ─── */
+    .section-header {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+      padding: 12px 0 8px;
+      border-top: 1px solid var(--border);
+      margin-top: 32px;
+      margin-bottom: 2px;
+    }
+    .section-header:first-of-type { margin-top: 0; border-top: none; }
+
+    .section-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* ─── PROJECTIONS TABLE ─── */
+    .proj-table-wrap {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .proj-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .proj-table thead th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .proj-table td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .proj-table tbody tr:last-of-type td { border-bottom: none; }
+    .proj-table tbody tr:hover { background: var(--surface2); }
+    .proj-table .num { text-align: right; font-family: 'DM Mono', monospace; }
+    .proj-table .rank-num { text-align: center; color: var(--muted); width: 32px; }
+
+    .win-high { color: var(--green); font-weight: 600; }
+    .win-mid  { color: var(--gold); }
+    .win-low  { color: var(--muted); }
+
+    .proj-footer td {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      padding: 8px 12px !important;
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+    }
+
+    .loading-msg {
+      text-align: center;
+      color: var(--muted);
+      padding: 32px 0;
+      font-size: 0.82rem;
+    }
+
+    /* ─── CATEGORY BREAKDOWN TABLE ─── */
+    .breakdown-wrap {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-top: 12px;
+    }
+    .breakdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    .breakdown-table thead th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 7px 10px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .breakdown-table thead th:first-child { text-align: left; }
+    .breakdown-table td {
+      padding: 7px 10px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+    }
+    .breakdown-table td:first-child { text-align: left; color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 500; }
+    .breakdown-table tbody tr:last-child td { border-bottom: none; }
+    .breakdown-table tbody tr:hover { background: var(--surface2); }
+    .breakdown-table .bright { color: var(--text); }
+
+    /* ─── ODDS SOURCE PILL ─── */
+    .odds-pill {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.05em;
+      padding: 2px 7px;
+      border-radius: 10px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .odds-pill.live { background: #14532d; color: var(--green); }
+    .odds-pill.static { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="./index.html" class="header-logo-img"></a>
+    <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
+  </div>
+</header>
+
+<nav class="site-nav">
+  <a href="./index.html" class="nav-link">Leaderboard</a>
+  <a href="./projections.html" class="nav-link active">Projections</a>
+  <a href="./rules.html" class="nav-link">Rules</a>
+  <a href="./calendar.html" class="nav-link">Calendar</a>
+  <a href="./trips.html" class="nav-link">Trips</a>
+  <a href="./sportsbook.html" class="nav-link">Sportsbook</a>
+</nav>
+
+<div class="page">
+
+  <div class="page-title">Season Projections</div>
+  <div class="page-subtitle" id="proj-subtitle">10,000-sim Monte Carlo · Updated daily</div>
+
+  <!-- ─── STANDINGS TABLE ─── -->
+  <div class="section-header" style="margin-top:0;border-top:none;">Projected Standings</div>
+  <div class="section-note">Ranked by projected year-end total. Range = 10th–90th percentile.</div>
+  <div class="proj-table-wrap">
+    <table class="proj-table" id="proj-table">
+      <thead>
+        <tr>
+          <th class="rank-num">#</th>
+          <th>Player</th>
+          <th class="num" title="Win probability">Win%</th>
+          <th class="num" title="Top-4 probability">Top4%</th>
+          <th class="num" title="Current total points">Now</th>
+          <th class="num" title="Expected points still to be earned">+Exp</th>
+          <th class="num" title="Median projected year-end total">Proj</th>
+          <th class="num" title="10th–90th percentile range">Range</th>
+        </tr>
+      </thead>
+      <tbody id="proj-body">
+        <tr><td colspan="8" class="loading-msg">Loading projections…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─── CATEGORY BREAKDOWN ─── -->
+  <div class="section-header">Expected Additional Points by Category</div>
+  <div class="section-note">How many more points each player is projected to earn from in-progress categories.</div>
+  <div class="breakdown-wrap">
+    <table class="breakdown-table" id="breakdown-table">
+      <thead id="breakdown-head">
+        <tr><th>Player</th><th>Loading…</th></tr>
+      </thead>
+      <tbody id="breakdown-body">
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+function winColor(pct) {
+  if (pct >= 25) return 'win-high';
+  if (pct >= 10) return 'win-mid';
+  return 'win-low';
+}
+
+fetch('./projections.json')
+  .then(r => r.json())
+  .then(data => {
+    const players = data.players.slice().sort((a, b) => b.projected_total - a.projected_total);
+    const genAt = data.generated_at ? data.generated_at.slice(0, 10) : '—';
+    const liveOdds = data.kalshi_markets_used && data.kalshi_markets_used.length;
+    const nSims = (data.n_simulations || 10000).toLocaleString();
+
+    // Update subtitle
+    const pill = liveOdds
+      ? `<span class="odds-pill live">Live Kalshi</span>`
+      : `<span class="odds-pill static">Static odds</span>`;
+    document.getElementById('proj-subtitle').innerHTML =
+      `${nSims}-sim Monte Carlo · As of ${genAt} ${pill}`;
+
+    // Main standings table
+    document.getElementById('proj-body').innerHTML =
+      players.map((p, i) => `
+        <tr>
+          <td class="rank-num num">${i + 1}</td>
+          <td><strong>${p.name}</strong></td>
+          <td class="num ${winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
+          <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
+          <td class="num">${p.current_total.toFixed(1)}</td>
+          <td class="num" style="color:var(--blue)">${p.projected_additional > 0 ? '+' : ''}${p.projected_additional.toFixed(1)}</td>
+          <td class="num"><strong>${p.projected_total.toFixed(1)}</strong></td>
+          <td class="num" style="color:var(--muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
+        </tr>
+      `).join('') + `
+        <tr class="proj-footer">
+          <td colspan="8">As of ${genAt} · ${nSims} sims · ${liveOdds ? 'Live Kalshi odds' : 'Static fallback odds'}</td>
+        </tr>`;
+
+    // Category breakdown table
+    // Collect all categories that appear in any player's category_expected
+    const catSet = new Set();
+    players.forEach(p => Object.keys(p.category_expected || {}).forEach(c => catSet.add(c)));
+    const cats = [...catSet].sort();
+
+    // Sort players by projected total for breakdown too
+    const CAT_LABELS = {
+      nba: 'NBA', nhl: 'NHL', mlb: 'MLB', mls: 'MLS',
+      nascar: 'NASCAR', golf: 'Golf', tennis: 'Tennis',
+      film: 'Film', actor: 'Actor', actress: 'Actress',
+      stocks: 'Stocks', fifa: 'FIFA', music: 'Music',
+    };
+
+    document.getElementById('breakdown-head').innerHTML =
+      `<tr><th>Player</th>${cats.map(c => `<th>${CAT_LABELS[c] || c}</th>`).join('')}<th>Total</th></tr>`;
+
+    document.getElementById('breakdown-body').innerHTML =
+      players.map(p => {
+        const exp = p.category_expected || {};
+        const total = Object.values(exp).reduce((s, v) => s + v, 0);
+        const cells = cats.map(c => {
+          const v = exp[c];
+          if (!v || v < 0.01) return `<td>—</td>`;
+          const cls = v >= 2 ? ' class="bright"' : '';
+          return `<td${cls}>${v.toFixed(1)}</td>`;
+        }).join('');
+        return `<tr><td>${p.name}</td>${cells}<td class="bright">${total.toFixed(1)}</td></tr>`;
+      }).join('');
+  })
+  .catch(() => {
+    document.getElementById('proj-body').innerHTML =
+      '<tr><td colspan="8" class="loading-msg">Could not load projections.</td></tr>';
+  });
+</script>
+
+</body>
+</html>
