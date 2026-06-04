@@ -288,8 +288,8 @@
   </div>
 
   <!-- ─── CATEGORY BREAKDOWN ─── -->
-  <div class="section-header">Expected Additional Points by Category</div>
-  <div class="section-note">How many more points each player is projected to earn from in-progress categories.</div>
+  <div class="section-header">Expected Point Change by Category</div>
+  <div class="section-note">Expected delta from current score per category. Bonus sports (NBA/NHL/etc.) are always ≥ 0. Roto categories (Actor/Actress/Stock/Country) can be negative if a player is projected to drop in rankings.</div>
   <div class="breakdown-wrap">
     <table class="breakdown-table" id="breakdown-table">
       <thead id="breakdown-head">
@@ -333,7 +333,7 @@ fetch('./projections.json')
           <td class="num ${winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
           <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
           <td class="num">${p.current_total.toFixed(1)}</td>
-          <td class="num" style="color:var(--blue)">${p.projected_additional > 0 ? '+' : ''}${p.projected_additional.toFixed(1)}</td>
+          <td class="num" style="color:${p.projected_additional >= 0 ? 'var(--blue)' : 'var(--red)'}">${p.projected_additional > 0 ? '+' : ''}${p.projected_additional.toFixed(1)}</td>
           <td class="num"><strong>${p.projected_total.toFixed(1)}</strong></td>
           <td class="num" style="color:var(--muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
         </tr>
@@ -365,11 +365,14 @@ fetch('./projections.json')
         const total = Object.values(exp).reduce((s, v) => s + v, 0);
         const cells = cats.map(c => {
           const v = exp[c];
-          if (!v || v < 0.01) return `<td>—</td>`;
-          const cls = v >= 2 ? ' class="bright"' : '';
-          return `<td${cls}>${v.toFixed(1)}</td>`;
+          if (v === undefined || v === null || Math.abs(v) < 0.01) return `<td>—</td>`;
+          const style = v < 0 ? ' style="color:var(--red)"' : v >= 2 ? ' style="color:var(--text)"' : '';
+          const sign = v > 0 ? '+' : '';
+          return `<td${style}>${sign}${v.toFixed(1)}</td>`;
         }).join('');
-        return `<tr><td>${p.name}</td>${cells}<td class="bright">${total.toFixed(1)}</td></tr>`;
+        const totalStyle = total >= 0 ? ' class="bright"' : ' style="color:var(--red)"';
+        const totalSign = total > 0 ? '+' : '';
+        return `<tr><td>${p.name}</td>${cells}<td${totalStyle}>${totalSign}${total.toFixed(1)}</td></tr>`;
       }).join('');
   })
   .catch(() => {
