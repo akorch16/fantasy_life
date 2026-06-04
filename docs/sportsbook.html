@@ -55,6 +55,17 @@
     }
     .logo span { color: var(--blue); }
 
+    .header-logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center top;
+      background-image: url('./todd.jpg');
+    }
+
     /* ─── BALANCE CHIP ─── */
     .balance-chip {
       display: flex;
@@ -84,15 +95,6 @@
     }
     .balance-change-btn:hover { color: var(--text); border-color: var(--dim); }
 
-    /* ─── SITE NAV BAR ─── */
-    .site-nav {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 20px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0;
-    }
     .nav-link {
       font-family: 'DM Mono', monospace;
       font-size: 0.68rem;
@@ -105,7 +107,27 @@
       display: inline-block;
     }
     .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
-    .nav-link.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* ─── SITE NAV BAR ─── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0;
+      position: sticky;
+      top: 52px;
+      z-index: 99;
+    }
+    .site-nav .nav-link {
+      padding: 9px 13px;
+      border-bottom: 2px solid transparent;
+      font-size: 0.68rem;
+    }
+    .site-nav .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
+    .site-nav .nav-link.active { color: var(--blue); border-bottom-color: var(--blue); }
 
 
     /* ─── MAIN LAYOUT ─── */
@@ -756,6 +778,7 @@
 
 <header>
   <div style="display:flex;align-items:center;gap:12px;">
+    <div class="header-logo-img"></div>
     <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
   </div>
   <div class="balance-chip" id="balance-chip" style="display:none">
@@ -768,10 +791,10 @@
 
 <nav class="site-nav">
   <a href="./index.html" class="nav-link">Leaderboard</a>
-  <a href="./projections.html" class="nav-link">Projections</a>
   <a href="./rules.html" class="nav-link">Rules</a>
   <a href="./calendar.html" class="nav-link">Calendar</a>
   <a href="./trips.html" class="nav-link">Trips</a>
+  <a href="./projections.html" class="nav-link">Projections</a>
   <a href="./sportsbook.html" class="nav-link active">Sportsbook</a>
 </nav>
 
