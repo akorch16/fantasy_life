@@ -288,22 +288,14 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
     """Fetch win-probability dict {player: float} from Kalshi, or {} on failure."""
     markets = _fetch_markets_for_series(series_ticker)
     if not markets:
-        print(f"  ℹ {label}: no markets for series '{series_ticker}' — trying keyword search")
-        # Keyword fallback: search by label-derived keyword (e.g. "NBA-WCF" → "NBA West")
-        keyword = series_ticker.replace("-", " ").replace("_", " ")
-        data = _kalshi_get("/markets", {"keyword": keyword, "limit": 50})
-        markets = data.get("markets", []) if data else []
-        if not markets:
-            print(f"  ✗ {label}: no markets found via keyword '{keyword}' either")
-            return {}
-        print(f"  ℹ {label}: found {len(markets)} markets via keyword search")
+        return {}
     probs = _extract_probs(markets, picks_dict)
     if probs:
         found = ", ".join(f"{p}={v:.1%}" for p, v in sorted(probs.items()))
-        print(f"  ✓ Kalshi {label}: {found}")
+        print(f"  ✓ Kalshi {label} [{series_ticker}]: {found}")
     else:
-        print(f"  ℹ Kalshi {label}: markets found but no picks matched (titles: "
-              + ", ".join(repr(m.get("title","?")) for m in markets[:3]) + ")")
+        print(f"  ℹ Kalshi {label} [{series_ticker}]: markets found but no picks matched "
+              "(titles: " + ", ".join(repr(m.get("title","?")) for m in markets[:3]) + ")")
     return probs
 
 
@@ -589,6 +581,21 @@ def _try_kalshi_series(series_list, picks_dict, label):
         result = fetch_kalshi_championship_probs(ticker, picks_dict, label)
         if result:
             return result
+    # Last resort: keyword search using the human-readable label (e.g. "NBA championship")
+    keyword = label.replace("-", " ").replace("_", " ")
+    print(f"  ℹ {label}: all tickers failed — keyword search '{keyword}'")
+    data = _kalshi_get("/markets", {"keyword": keyword, "limit": 50})
+    markets = data.get("markets", []) if data else []
+    if markets:
+        probs = _extract_probs(markets, picks_dict)
+        if probs:
+            found = ", ".join(f"{p}={v:.1%}" for p, v in sorted(probs.items()))
+            print(f"  ✓ Kalshi {label} [keyword]: {found}")
+            return probs
+        print(f"  ✗ {label}: keyword search found {len(markets)} markets but no picks matched "
+              "(titles: " + ", ".join(repr(m.get("title","?")) for m in markets[:3]) + ")")
+    else:
+        print(f"  ✗ {label}: no markets found via keyword search either")
     return {}
 
 
