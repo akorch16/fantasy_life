@@ -24,7 +24,7 @@ create table if not exists sb_bets (
   sport            text,
   settled_outcome  text,                   -- null | 'won' | 'lost'
   placed_at        timestamptz default now(),
-  constraint sb_bets_unique unique (player, bet_id)
+  constraint sb_bets_unique unique (player, bet_id, placed_at)
 );
 
 create index if not exists sb_bets_player_idx on sb_bets(player);
