@@ -1141,7 +1141,7 @@ def run():
             "projected_p90":      sr["projected_p90"],
             "win_pct":            sr["win_pct"],
             "top4_pct":           sr["top4_pct"],
-            "category_expected":  {k: round(v, 2) for k, v in cat_exp.items() if v > 0.01},
+            "category_expected":  {k: round(v, 2) for k, v in cat_exp.items() if abs(v) > 0.01},
         })
 
     # Sort by projected total
