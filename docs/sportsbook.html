@@ -1231,7 +1231,7 @@ function renderBBLeaderboard() {
       const open = _sbLeaderboard.bets.filter(b => b.player === p);
       wagered    = open.reduce((s, b) => s + b.wager, 0);
       toWin      = open.reduce((s, b) => s + b.potential_return, 0);
-      balance    = (sbP ? sbP.balance : STARTING_BB) - wagered;
+      balance    = sbP ? sbP.balance : STARTING_BB;
     } else if (isMe && myState) {
       // Supabase not configured — show own data only
       balance = myState.balance;
