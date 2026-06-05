@@ -50,24 +50,27 @@ Country(FIFAWorldCup): Tim=Netherlands, Wu=USA, Jens=Germany, Todd=Guinea, Mitch
                        Molmen=Argentina, Jamzee=Spain, Buckley=Canada"""
 
 
-def search_news() -> str:
-    """Fetch recent news via Tavily — 7 targeted searches across sports, entertainment, finance, and World Cup."""
+def search_news(debug: bool = False) -> str:
+    """Fetch recent news via Tavily — separate query per active event so no category starves another."""
     api_key = os.environ.get('TAVILY_API_KEY', '')
     if not api_key:
         return ''
     queries = [
-        # Sports
-        'NBA Finals NHL Stanley Cup 2026 results scores',
-        'Roland Garros US Open golf tennis 2026 results',
+        # ── Active playoff series get their own slot ──────────────────────
+        'NBA Finals 2026 game score result',
+        'NHL Stanley Cup Finals 2026 game score result',
+        # ── Other sports ──────────────────────────────────────────────────
+        'Roland Garros French Open tennis 2026 results',
+        'US Open golf 2026 results leaderboard',
         'MLB MLS NASCAR standings results 2026',
-        # FIFA World Cup
+        # ── FIFA World Cup ────────────────────────────────────────────────
         'FIFA World Cup 2026 results group stage standings',
-        # Music & movies
-        'Billboard Hot 100 music box office movies 2026',
-        # Stocks
+        # ── Music (recent chart moves only) ──────────────────────────────
+        'Billboard Hot 100 number one song this week 2026',
+        # ── Stocks ───────────────────────────────────────────────────────
         'NVDA TSLA COIN PLTR AVGO SMCI LULU INTC NEE stock market 2026',
-        # Actor / actress news
-        'Pedro Pascal Zendaya Anne Hathaway Timothee Chalamet Jeremy Allen White movies 2026',
+        # ── Movies: recent box office, NOT celebrity gossip ───────────────
+        'box office results opening weekend June 2026',
     ]
     try:
         import requests
@@ -86,11 +89,19 @@ def search_news() -> str:
                 timeout=20,
             )
             resp.raise_for_status()
-            for r in resp.json().get('results', []):
+            results = resp.json().get('results', [])
+            if debug:
+                print(f'\n  [QUERY] {query}')
+            for r in results:
                 title = r.get('title', '')
+                content = r.get('content', '')
                 if title and title not in seen:
                     seen.add(title)
-                    all_snippets.append(f"- {title}: {r.get('content', '')[:300]}")
+                    snippet = f"- {title}: {content[:300]}"
+                    all_snippets.append(snippet)
+                    if debug:
+                        print(f'    → {title}')
+                        print(f'       {content[:200]}')
         return '\n'.join(all_snippets)
     except Exception as e:
         print(f'  ⚠ Tavily search failed: {e}')
@@ -160,6 +171,10 @@ def _hours_since_last_headline(data: dict) -> float:
 
 
 def main():
+    debug   = '--debug'    in sys.argv
+    dry_run = '--dry-run'  in sys.argv
+    force   = '--force'    in sys.argv  # skip the 24h dedup guard
+
     if not SCORES_PATH.exists():
         print(f'✗ {SCORES_PATH} not found — run scoring.py first')
         sys.exit(1)
@@ -169,23 +184,38 @@ def main():
 
     # ── Dedup guard: never hit the API more than once per MIN_HOURS_BETWEEN_RUNS ──
     hours_ago = _hours_since_last_headline(data)
-    if hours_ago < MIN_HOURS_BETWEEN_RUNS:
+    if hours_ago < MIN_HOURS_BETWEEN_RUNS and not force and not dry_run:
         print(f'⏭ Headline already generated {hours_ago:.1f}h ago — skipping API call (limit: {MIN_HOURS_BETWEEN_RUNS}h)')
         print(f'  Estimated cost avoided: ${COST_PER_RUN_USD:.3f}')
+        print(f'  Use --force to override.')
         sys.exit(0)
 
     print('Searching for today\'s sports news...')
-    news = search_news()
+    news = search_news(debug=debug)
     if news:
-        print(f'  ✓ Got {len(news.splitlines())} snippets from Tavily')
+        print(f'\n  ✓ Got {len(news.splitlines())} snippets from Tavily')
+        if not debug:
+            # brief summary — show just titles so CI logs are useful
+            for line in news.splitlines():
+                print(f'    {line[:120]}')
     else:
         print('  – No Tavily key set or search skipped; generating without live news')
 
-    print('Generating FL News headline via Claude Sonnet...')
+    if dry_run:
+        print('\n[--dry-run] Generating headline (will NOT write to scores.json)...')
+    else:
+        print('\nGenerating FL News headline via Claude Sonnet...')
+
     headline = generate_headline(data, news)
     if not headline:
         print('– Headline generation failed; existing headline unchanged')
-        sys.exit(0)  # non-fatal — leaderboard still works without a new headline
+        sys.exit(0)
+
+    print(f'\n  Full headline:\n  {headline}')
+
+    if dry_run:
+        print(f'\n[--dry-run] Would write headline above. scores.json unchanged.')
+        sys.exit(0)
 
     from datetime import datetime, timezone
     data['headline'] = headline
@@ -193,7 +223,7 @@ def main():
     with open(SCORES_PATH, 'w') as f:
         json.dump(data, f)
 
-    print(f'✓ Headline updated (est. cost: ${COST_PER_RUN_USD:.3f}): {headline[:100]}')
+    print(f'\n✓ Headline updated (est. cost: ${COST_PER_RUN_USD:.3f})')
 
 
 if __name__ == '__main__':

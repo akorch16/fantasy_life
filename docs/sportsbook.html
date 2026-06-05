@@ -823,7 +823,6 @@
 
 <div class="container">
   <div class="page-title">🎲 Sportsbook</div>
-  <div class="page-subtitle">Prop bets + Monte Carlo projections for Fantasy Life 2026. Updated daily.</div>
 
   <!-- ─── BB LEADERBOARD ─── -->
   <div class="section-header">Buckley Bucks Leaderboard</div>
@@ -1010,6 +1009,16 @@ const BETS = [
     closes: 'Jul 1',
   },
 
+  // ── STOCKS · BY JULY 1 ───────────────────────────────────────
+  {
+    id: 'stocks-fryar-avgo-v-mitchell-cvna',
+    sport: 'Stocks · By July 1',
+    title: 'AVGO long (<em>Fryar</em>) outperforms CVNA short (<em>Mitchell</em>) by July 1',
+    desc: 'Fryar\'s AVGO long (+20.5% YTD) leads Mitchell\'s CVNA short (+17.3% YTD) by ~3 pts. YES wins if AVGO\'s YTD gain stays ahead of CVNA\'s YTD drop on July 1. AVGO has AI tailwinds; CVNA short has short-squeeze risk.',
+    odds: 57,
+    closes: 'Jul 1',
+  },
+
   // ── TOTAL POINTS · BY JULY 1 ──────────────────────────────────
   {
     id: 'pts-wu-v-korch',
@@ -1179,6 +1188,7 @@ async function sbRefreshLeaderboard() {
     _sbLeaderboard = { players, bets: bets || [] };
     _sbAllBets = allBets || [];
     renderBBLeaderboard();
+    renderActiveBets();
     renderAllBets();
   } catch (e) {}
 }
@@ -1597,6 +1607,8 @@ function confirmBet() {
   renderBBLeaderboard();
   renderActiveBets();
   renderBets(_currentPropOdds);
+  // Re-fetch Supabase after a short delay so All Bets reflects the new row
+  setTimeout(() => sbRefreshLeaderboard(), 800);
 
   const sideLabel = _wagerCtx.side.toUpperCase();
   showToast('placed', `Bet placed — ${sideLabel} · ${wager.toLocaleString()} BB → ${ret.toLocaleString()} BB`, 4000);
