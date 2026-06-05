@@ -694,44 +694,6 @@ def name_matches(pick_name, data_name):
     return False
 
 
-def generate_news_headline(scores_data: dict) -> str | None:
-    """Generate an FL News ticker headline via Claude. Returns None on failure."""
-    try:
-        import anthropic
-        client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
-
-        players = scores_data.get('players', [])
-        standings = '\n'.join(
-            f"{p['place']}. {p['name']}: {p['total']} pts"
-            for p in players
-        )
-
-        msg = client.messages.create(
-            model='claude-haiku-4-5-20251001',
-            max_tokens=120,
-            messages=[{
-                'role': 'user',
-                'content': f"""You write punchy one-sentence "FL News" ticker headlines for Fantasy Life 2026, a 13-person fantasy sports league covering NBA, NHL, MLB, Tennis, Golf, Actress, Actor, Musician, Stock, Country GDP, NASCAR, MLS, NCAAB, NCAAF, and NFL.
-
-Current standings:
-{standings}
-
-Rules:
-- One sentence only, max 25 words
-- Find the most interesting story: tight race, big lead, dramatic surge, collapse, notable gap
-- Use <em> tags around player names
-- End with a fitting emoji
-- Output ONLY the headline, no quotes, no explanation
-
-Headline:""",
-            }],
-        )
-        return msg.content[0].text.strip()
-    except Exception as e:
-        print(f'  ✗ generate_news_headline: {e}')
-        return None
-
-
 if __name__ == '__main__':
     import json, os
     out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'docs')
@@ -740,13 +702,16 @@ if __name__ == '__main__':
 
     import datetime
 
-    # Read previous scores.json to preserve headline and weekly baseline
+    # Read previous scores.json to preserve headline fields and weekly baseline.
+    # headline and headline_generated_at are owned by headline.py — never overwrite them here.
     existing_headline = ''
+    existing_headline_ts = None
     weekly_baseline: dict = {}
     try:
         with open(out_path) as _f:
             prev = json.load(_f)
             existing_headline = prev.get('headline', '')
+            existing_headline_ts = prev.get('headline_generated_at')
             weekly_baseline = prev.get('weekly_baseline', {})
     except Exception:
         pass
@@ -754,6 +719,8 @@ if __name__ == '__main__':
     print('Computing scores...')
     data = compute_all_scores()
     data['headline'] = existing_headline
+    if existing_headline_ts:
+        data['headline_generated_at'] = existing_headline_ts
 
     # Build lookup of new scores/places
     new_totals = {p['name']: p['total'] for p in data.get('players', [])}
@@ -784,19 +751,8 @@ if __name__ == '__main__':
             p['week_delta'] = None
             p['place_change'] = None
 
-    # Write scores first — headline failure must never block the leaderboard
     with open(out_path, 'w') as f:
         json.dump(data, f)
     n = len(data.get('players', []))
     print(f'✓ Wrote {out_path}  ({n} players, last_updated={data.get("last_updated")})')
-
-    # Attempt headline update as a separate non-critical step
-    print('Generating FL News headline...')
-    new_headline = generate_news_headline(data)
-    if new_headline:
-        data['headline'] = new_headline
-        with open(out_path, 'w') as f:
-            json.dump(data, f)
-        print(f'  ✓ Headline: {new_headline[:80]}')
-    else:
-        print(f'  – Keeping existing headline')
+    print(f'  Headline preserved (managed by headline.py / headline.yml)')
