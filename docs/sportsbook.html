@@ -1163,7 +1163,7 @@ function sbSyncState(state) {
   if (betsPayload.length) {
     ops.push(sbClient.from('sb_bets').upsert(betsPayload, { onConflict: 'player,bet_id,placed_at' }));
   }
-  Promise.all(ops).catch(() => {});
+  Promise.all(ops).catch(err => console.warn('[sbSyncState] Supabase error:', err));
 }
 
 // Clear a player's bets and reset their balance (called on identity reset)
@@ -1354,12 +1354,25 @@ function renderAllBets() {
   const panel = document.getElementById('all-bets-panel');
   if (!panel) return;
 
-  if (!_sbAllBets || !_sbAllBets.length) {
+  // Merge Supabase data with local bets so the current player always shows up
+  const combined = [...(_sbAllBets || [])];
+  const localPlayer = getPlayer();
+  const localState  = loadState();
+  if (localPlayer && localState && localState.bets.length) {
+    localState.bets.forEach(b => {
+      const already = combined.some(r => r.player === localPlayer && r.bet_id === b.id && r.placed_at === b.timestamp);
+      if (!already) {
+        combined.push({ player: localPlayer, bet_id: b.id, side: b.side, wager: b.wager, settled_outcome: b.settledOutcome || null });
+      }
+    });
+  }
+
+  if (!combined.length) {
     panel.innerHTML = '<div class="section-note">No bets placed yet.</div>';
     return;
   }
 
-  const rows = _sbAllBets.map(b => {
+  const rows = combined.map(b => {
     const sideClass = b.side === 'yes' ? 'side-yes' : 'side-no';
     const sideLabel = (b.side || '').toUpperCase();
     const betDef = BETS.find(bd => bd.id === b.bet_id);
