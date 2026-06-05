@@ -823,7 +823,6 @@
 
 <div class="container">
   <div class="page-title">🎲 Sportsbook</div>
-  <div class="page-subtitle">Prop bets + Monte Carlo projections for Fantasy Life 2026. Updated daily.</div>
 
   <!-- ─── BB LEADERBOARD ─── -->
   <div class="section-header">Buckley Bucks Leaderboard</div>
@@ -1189,6 +1188,7 @@ async function sbRefreshLeaderboard() {
     _sbLeaderboard = { players, bets: bets || [] };
     _sbAllBets = allBets || [];
     renderBBLeaderboard();
+    renderActiveBets();
     renderAllBets();
   } catch (e) {}
 }
@@ -1607,6 +1607,8 @@ function confirmBet() {
   renderBBLeaderboard();
   renderActiveBets();
   renderBets(_currentPropOdds);
+  // Re-fetch Supabase after a short delay so All Bets reflects the new row
+  setTimeout(() => sbRefreshLeaderboard(), 800);
 
   const sideLabel = _wagerCtx.side.toUpperCase();
   showToast('placed', `Bet placed — ${sideLabel} · ${wager.toLocaleString()} BB → ${ret.toLocaleString()} BB`, 4000);
