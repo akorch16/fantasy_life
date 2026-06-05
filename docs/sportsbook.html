@@ -1166,7 +1166,7 @@ async function sbRefreshLeaderboard() {
     const [{ data: players }, { data: bets }, { data: allBets }] = await Promise.all([
       sbClient.from('sb_players').select('name, balance'),
       sbClient.from('sb_bets').select('player, wager, potential_return').is('settled_outcome', null),
-      sbClient.from('sb_bets').select('player, bet_id, side, wager, settled_outcome').order('placed_at', { ascending: false }),
+      sbClient.from('sb_bets').select('player, bet_id, side, wager, settled_outcome, placed_at').order('placed_at', { ascending: false }),
     ]);
     if (!players) return;
     _sbLeaderboard = { players, bets: bets || [] };
