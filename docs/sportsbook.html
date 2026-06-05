@@ -1240,13 +1240,13 @@ function renderBBLeaderboard() {
     }
 
     const balanceCell = `<span class="${isMe ? 'bb-balance' : (balance < STARTING_BB ? 'bb-pos' : '')}">${balance.toLocaleString()} BB</span>`;
-    const wageredCell = wagered > 0 ? `${wagered.toLocaleString()} BB` : `<span class="bb-dim">—</span>`;
-    const toWinCell   = toWin > 0   ? `<span class="bb-pos">+${toWin.toLocaleString()} BB</span>` : `<span class="bb-dim">—</span>`;
+    const toWinCell   = wagered > 0
+      ? `${wagered.toLocaleString()} BB <span class="bb-pos">+${toWin.toLocaleString()} BB</span>`
+      : `<span class="bb-dim">—</span>`;
 
     return `<tr class="${isMe ? 'bb-me' : ''}">
       <td class="bb-name">${p}${isMe ? '<span class="bb-me-marker">▲</span>' : ''}</td>
       <td class="r">${balanceCell}</td>
-      <td class="r">${wageredCell}</td>
       <td class="r">${toWinCell}</td>
     </tr>`;
   }).join('');
@@ -1256,8 +1256,7 @@ function renderBBLeaderboard() {
       <tr>
         <th>Player</th>
         <th class="r">Balance</th>
-        <th class="r">Wagered</th>
-        <th class="r">To Win</th>
+        <th class="r">At Risk · To Win</th>
       </tr>
     </thead>
     <tbody>${rows}</tbody>
