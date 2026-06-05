@@ -1041,6 +1041,7 @@ const BETS = [
 const STORAGE_KEY = 'fl_sb_state';
 const PLAYER_KEY  = 'fl_sb_player';
 const STARTING_BB = 1000;
+const RESET_AFTER = '2026-06-05T20:00:00Z'; // clear bets placed before this
 const ALL_PLAYERS = ['Tim','Wu','Jens','Todd','Mitchell','Shep','Theo',
                      'Feder','Fryar','Korch','Molmen','Jamzee','Buckley'];
 
@@ -1684,6 +1685,12 @@ document.addEventListener('keydown', e => {
 (async function init() {
   const player = getPlayer();
   const state  = loadState();
+
+  // Wipe any bets placed before the last reset (keeps balance clean)
+  if (state && state.bets && state.bets.some(b => b.timestamp < RESET_AFTER)) {
+    const fresh = { balance: STARTING_BB, bets: [] };
+    saveState(fresh);
+  }
 
   // Start Supabase realtime subscription + initial leaderboard fetch
   sbSubscribeLeaderboard();
