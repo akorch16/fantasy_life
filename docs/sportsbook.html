@@ -170,6 +170,7 @@
       width: 100%;
       border-collapse: collapse;
       font-family: 'DM Mono', monospace;
+      table-layout: fixed;
     }
     .bb-table th {
       font-size: 0.58rem;
@@ -177,13 +178,13 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--muted);
-      padding: 6px 10px;
+      padding: 8px 10px;
       border-bottom: 1px solid var(--border);
     }
     .bb-table th.r { text-align: right; }
     .bb-table td {
       font-size: 0.78rem;
-      padding: 7px 10px;
+      padding: 8px 10px;
       border-bottom: 1px solid rgba(255,255,255,0.03);
     }
     .bb-table td.r { text-align: right; }
@@ -1227,10 +1228,10 @@ function renderBBLeaderboard() {
     if (_sbLeaderboard) {
       // Live Supabase data — real numbers for everyone
       const sbP  = _sbLeaderboard.players.find(x => x.name === p);
-      balance    = sbP ? sbP.balance : STARTING_BB;
       const open = _sbLeaderboard.bets.filter(b => b.player === p);
       wagered    = open.reduce((s, b) => s + b.wager, 0);
       toWin      = open.reduce((s, b) => s + b.potential_return, 0);
+      balance    = (sbP ? sbP.balance : STARTING_BB) - wagered;
     } else if (isMe && myState) {
       // Supabase not configured — show own data only
       balance = myState.balance;
@@ -1254,9 +1255,9 @@ function renderBBLeaderboard() {
   el.innerHTML = `<table class="bb-table">
     <thead>
       <tr>
-        <th>Player</th>
-        <th class="r">Balance</th>
-        <th class="r">At Risk · To Win</th>
+        <th style="width:30%">Player</th>
+        <th class="r" style="width:25%">Balance</th>
+        <th class="r" style="width:45%">Wagered · To Win</th>
       </tr>
     </thead>
     <tbody>${rows}</tbody>
