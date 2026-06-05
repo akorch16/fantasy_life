@@ -1228,10 +1228,10 @@ function renderBBLeaderboard() {
     if (_sbLeaderboard) {
       // Live Supabase data — real numbers for everyone
       const sbP  = _sbLeaderboard.players.find(x => x.name === p);
-      balance    = sbP ? sbP.balance : STARTING_BB;
       const open = _sbLeaderboard.bets.filter(b => b.player === p);
       wagered    = open.reduce((s, b) => s + b.wager, 0);
       toWin      = open.reduce((s, b) => s + b.potential_return, 0);
+      balance    = (sbP ? sbP.balance : STARTING_BB) - wagered;
     } else if (isMe && myState) {
       // Supabase not configured — show own data only
       balance = myState.balance;
