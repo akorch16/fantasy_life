@@ -845,6 +845,7 @@
   <div class="section-header">Closed Bets</div>
   <div class="section-note">Settled props. Green border = YES won · Red border = NO won.</div>
   <div class="bets-grid" id="bets-grid-closed"><!-- rendered by JS --></div>
+  <div id="closed-bets-panel"></div>
 
 </div>
 
@@ -1339,7 +1340,8 @@ function renderActiveBets() {
 let _sbAllBets = [];
 
 function renderAllBets() {
-  const panel = document.getElementById('all-bets-panel');
+  const panel       = document.getElementById('all-bets-panel');
+  const closedPanel = document.getElementById('closed-bets-panel');
   if (!panel) return;
 
   // Merge Supabase data with local bets so the current player always shows up
@@ -1355,36 +1357,44 @@ function renderAllBets() {
     });
   }
 
-  if (!combined.length) {
-    panel.innerHTML = '<div class="section-note">No bets placed yet.</div>';
-    return;
+  const openBets   = combined.filter(b => !b.settled_outcome);
+  const settledBets = combined.filter(b => b.settled_outcome);
+
+  function buildRows(bets) {
+    return bets.map(b => {
+      const sideClass = b.side === 'yes' ? 'side-yes' : 'side-no';
+      const sideLabel = (b.side || '').toUpperCase();
+      const betDef = BETS.find(bd => bd.id === b.bet_id);
+      const title = betDef ? betDef.title : b.bet_id;
+      const sport = betDef ? betDef.sport.split(' · ')[0] : '';
+      let outcomeHtml = '';
+      if (b.settled_outcome === 'won') outcomeHtml = `<span class="outcome-won">WON</span>`;
+      else if (b.settled_outcome === 'lost') outcomeHtml = `<span class="outcome-lost">LOST</span>`;
+      return `
+        <div class="all-bet-row">
+          <div class="active-bet-info">
+            <div class="active-bet-sport">${sport}</div>
+            <div class="active-bet-title">${title}</div>
+          </div>
+          <div class="all-bet-meta">
+            <span class="active-bet-side ${sideClass}">${sideLabel}</span>
+            <span class="all-bet-player">${b.player}</span>
+            <span class="all-bet-wager">${(b.wager || 0).toLocaleString()} BB</span>
+            ${outcomeHtml}
+          </div>
+        </div>`;
+    }).join('');
   }
 
-  const rows = combined.map(b => {
-    const sideClass = b.side === 'yes' ? 'side-yes' : 'side-no';
-    const sideLabel = (b.side || '').toUpperCase();
-    const betDef = BETS.find(bd => bd.id === b.bet_id);
-    const title = betDef ? betDef.title : b.bet_id;
-    const sport = betDef ? betDef.sport.split(' · ')[0] : '';
-    let outcomeHtml = '';
-    if (b.settled_outcome === 'won') outcomeHtml = `<span class="outcome-won">WON</span>`;
-    else if (b.settled_outcome === 'lost') outcomeHtml = `<span class="outcome-lost">LOST</span>`;
-    return `
-      <div class="all-bet-row">
-        <div class="active-bet-info">
-          <div class="active-bet-sport">${sport}</div>
-          <div class="active-bet-title">${title}</div>
-        </div>
-        <div class="all-bet-meta">
-          <span class="active-bet-side ${sideClass}">${sideLabel}</span>
-          <span class="all-bet-player">${b.player}</span>
-          <span class="all-bet-wager">${(b.wager || 0).toLocaleString()} BB</span>
-          ${outcomeHtml}
-        </div>
-      </div>`;
-  }).join('');
+  panel.innerHTML = openBets.length
+    ? `<div class="active-bets-panel">${buildRows(openBets)}</div>`
+    : '<div class="section-note">No open bets yet.</div>';
 
-  panel.innerHTML = `<div class="active-bets-panel">${rows}</div>`;
+  if (closedPanel) {
+    closedPanel.innerHTML = settledBets.length
+      ? `<div class="active-bets-panel">${buildRows(settledBets)}</div>`
+      : '';
+  }
 }
 
 // ─── BET CARDS ─────────────────────────────────────────────────
