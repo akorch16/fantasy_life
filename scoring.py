@@ -774,6 +774,14 @@ if __name__ == '__main__':
             for _entry in _sb_settled:
                 _db.settle_sb_bet(_entry['id'], _entry['outcome'])
 
+        # Recalculate every player's balance from their actual bet records.
+        # Self-heals any corruption (e.g. client-side RESET_AFTER overwriting Supabase balance).
+        _all_sb_players = ['Tim','Wu','Jens','Todd','Mitchell','Shep','Theo',
+                           'Feder','Fryar','Korch','Molmen','Jamzee','Buckley']
+        print('Recalculating BB balances...')
+        for _p in _all_sb_players:
+            _db.recalculate_sb_balance(_p)
+
     print('Computing scores...')
     data = compute_all_scores()
     data['headline'] = existing_headline
