@@ -494,6 +494,45 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
     return count
 
 
+def recalculate_sb_balance(player: str, starting_bb: int = 1000) -> bool:
+    """Recompute a player's BB balance from their actual bet records and update Supabase.
+    balance = starting_bb - sum(all wagers) + sum(won potential_returns)
+    Open bets are already deducted at placement time, so they're included in all wagers.
+    Returns True on success."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return False
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/sb_bets',
+            headers=_headers(),
+            params={'player': f'eq.{player}', 'select': 'wager,potential_return,settled_outcome'},
+            timeout=_TIMEOUT,
+        )
+        bets = r.json() if isinstance(r.json(), list) else []
+    except Exception as e:
+        print(f'  ✗ recalculate_sb_balance fetch ({player}): {e}')
+        return False
+
+    total_wagered = sum(b['wager'] for b in bets)
+    total_won     = sum(b['potential_return'] for b in bets if b.get('settled_outcome') == 'won')
+    new_balance   = starting_bb - total_wagered + total_won
+
+    try:
+        requests.patch(
+            f'{SUPABASE_URL}/rest/v1/sb_players',
+            headers=_headers(),
+            params={'name': f'eq.{player}'},
+            json={'balance': new_balance, 'updated_at': datetime.utcnow().isoformat()},
+            timeout=_TIMEOUT,
+        )
+        print(f'  ✓ {player} BB balance recalculated → {new_balance} BB '
+              f'(wagered={total_wagered}, won_returns={total_won})')
+        return True
+    except Exception as e:
+        print(f'  ✗ recalculate_sb_balance patch ({player}): {e}')
+        return False
+
+
 def get_all_markets() -> list:
     if not SUPABASE_URL or not SUPABASE_KEY:
         return []

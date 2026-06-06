@@ -1708,10 +1708,13 @@ document.addEventListener('keydown', e => {
   const player = getPlayer();
   const state  = loadState();
 
-  // Wipe any bets placed before the last reset (keeps balance clean)
+  // Wipe any bets placed before the last reset (keeps balance clean).
+  // Write directly to localStorage — do NOT call saveState/sbSyncState here,
+  // or it would overwrite the Supabase balance with 1000 BB, erasing any
+  // settled winnings that scoring.py already credited.
   if (state && state.bets && state.bets.some(b => b.timestamp < RESET_AFTER)) {
-    const fresh = { balance: STARTING_BB, bets: [] };
-    saveState(fresh);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ balance: STARTING_BB, bets: [] }));
+    // sbHydrate (below) will restore the correct balance from Supabase
   }
 
   // Start Supabase realtime subscription + initial leaderboard fetch
