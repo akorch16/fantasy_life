@@ -910,9 +910,10 @@ const BETS = [
     id: 'rg-w-fryar-v-feder',
     sport: 'Tennis · French Open',
     title: 'Sabalenka (<em>Fryar</em>) goes further than Swiatek (<em>Feder</em>)',
-    desc: 'Swiatek is the four-time French Open champion. Sabalenka has been the more dominant clay-court player this season. Women\'s final is June 6.',
-    odds: 38,
+    desc: 'Sabalenka won the French Open title, eliminating Swiatek in the semifinals. YES wins — Fryar collects.',
+    odds: 100,
     closes: 'Jun 7',
+    settled: true,
   },
 
   // ── STANLEY CUP FINALS (closes ~Jun 17) ───────────────────────
@@ -1221,24 +1222,27 @@ function renderBBLeaderboard() {
   const player  = getPlayer();
   const myState = loadState();
 
-  const rows = ALL_PLAYERS.map(p => {
+  // Build player data first so we can sort by balance
+  const playerData = ALL_PLAYERS.map(p => {
     const isMe = p === player;
     let balance = STARTING_BB, wagered = 0, toWin = 0;
 
     if (_sbLeaderboard) {
-      // Live Supabase data — real numbers for everyone
       const sbP  = _sbLeaderboard.players.find(x => x.name === p);
       const open = _sbLeaderboard.bets.filter(b => b.player === p);
       wagered    = open.reduce((s, b) => s + b.wager, 0);
       toWin      = open.reduce((s, b) => s + b.potential_return, 0);
       balance    = sbP ? sbP.balance : STARTING_BB;
     } else if (isMe && myState) {
-      // Supabase not configured — show own data only
       balance = myState.balance;
       const open = myState.bets.filter(b => !b.settledOutcome);
       wagered    = open.reduce((s, b) => s + b.wager, 0);
       toWin      = open.reduce((s, b) => s + b.potentialReturn, 0);
     }
+    return { p, isMe, balance, wagered, toWin };
+  }).sort((a, b) => b.balance - a.balance);
+
+  const rows = playerData.map(({ p, isMe, balance, wagered, toWin }) => {
 
     const balanceCell = `<span class="${isMe ? 'bb-balance' : (balance < STARTING_BB ? 'bb-pos' : '')}">${balance.toLocaleString()} BB</span>`;
     const toWinCell   = wagered > 0
