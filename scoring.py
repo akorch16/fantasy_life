@@ -763,6 +763,17 @@ if __name__ == '__main__':
     except Exception:
         pass
 
+    # Settle any resolved sportsbook bets centrally so all players get credited
+    _sb_settled_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'sb_settled.json')
+    if os.path.exists(_sb_settled_path):
+        import db as _db
+        with open(_sb_settled_path) as _f:
+            _sb_settled = json.load(_f)
+        if _sb_settled:
+            print('Settling sportsbook bets...')
+            for _entry in _sb_settled:
+                _db.settle_sb_bet(_entry['id'], _entry['outcome'])
+
     print('Computing scores...')
     data = compute_all_scores()
     data['headline'] = existing_headline

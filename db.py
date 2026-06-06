@@ -432,6 +432,68 @@ def settle_market(market_id: str, result: bool) -> int:
     return count
 
 
+def settle_sb_bet(bet_id: str, outcome: str) -> int:
+    """Settle all sb_bets rows for a sportsbook prop.
+    outcome: 'yes' or 'no'
+    Credits potential_return to each winner's sb_players balance.
+    Returns number of bets processed."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return 0
+    settled_at = datetime.utcnow().isoformat()
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/sb_bets',
+            headers=_headers(),
+            params={
+                'bet_id': f'eq.{bet_id}',
+                'settled_outcome': 'is.null',
+                'select': 'id,player,side,wager,potential_return',
+            },
+            timeout=_TIMEOUT,
+        )
+        bets = r.json() if isinstance(r.json(), list) else []
+    except Exception as e:
+        print(f'  ✗ settle_sb_bet fetch ({bet_id}): {e}')
+        return 0
+
+    count = 0
+    for bet in bets:
+        won = bet['side'] == outcome
+        settled_outcome = 'won' if won else 'lost'
+        requests.patch(
+            f'{SUPABASE_URL}/rest/v1/sb_bets',
+            headers=_headers(),
+            params={'id': f'eq.{bet["id"]}'},
+            json={'settled_outcome': settled_outcome},
+            timeout=_TIMEOUT,
+        )
+        if won:
+            try:
+                r2 = requests.get(
+                    f'{SUPABASE_URL}/rest/v1/sb_players',
+                    headers=_headers(),
+                    params={'name': f'eq.{bet["player"]}', 'select': 'balance'},
+                    timeout=_TIMEOUT,
+                )
+                rows = r2.json()
+                if rows:
+                    new_bal = rows[0]['balance'] + bet['potential_return']
+                    requests.patch(
+                        f'{SUPABASE_URL}/rest/v1/sb_players',
+                        headers=_headers(),
+                        params={'name': f'eq.{bet["player"]}'},
+                        json={'balance': new_bal, 'updated_at': settled_at},
+                        timeout=_TIMEOUT,
+                    )
+            except Exception as e:
+                print(f'  ✗ settle_sb_bet balance update ({bet["player"]}): {e}')
+        count += 1
+
+    if count:
+        print(f'  ✓ Settled {count} BB bet(s) for {bet_id!r} (outcome={outcome})')
+    return count
+
+
 def get_all_markets() -> list:
     if not SUPABASE_URL or not SUPABASE_KEY:
         return []
