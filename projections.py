@@ -21,10 +21,11 @@ import requests
 SCORES_PATH      = os.path.join(os.path.dirname(__file__), "docs", "scores.json")
 PROJECTIONS_PATH = os.path.join(os.path.dirname(__file__), "docs", "projections.json")
 KALSHI_BASE      = "https://trading-api.kalshi.com/trade-api/v2"
-# Kalshi v2 uses RSA-PSS signed requests (not Bearer tokens).
-# Set both env vars: KALSHI_API_KEY_ID (UUID) and KALSHI_PRIVATE_KEY (PEM string).
+# Auth priority: (1) RSA-PSS via KALSHI_API_KEY_ID + KALSHI_PRIVATE_KEY,
+# (2) Bearer token via KALSHI_API_KEY, (3) unauthenticated (public endpoints).
 KALSHI_KEY_ID    = os.environ.get("KALSHI_API_KEY_ID", "")
-KALSHI_PEM       = os.environ.get("KALSHI_PRIVATE_KEY", "")
+KALSHI_PEM       = os.environ.get("KALSHI_PRIVATE_KEY", "").replace('\\n', '\n')
+KALSHI_API_KEY   = os.environ.get("KALSHI_API_KEY", "")
 _KALSHI_PRIVATE_KEY  = None   # loaded lazily on first use
 _KALSHI_KEY_WARNED   = False
 N_SIMS           = 10_000
@@ -271,26 +272,40 @@ def _kalshi_sign(path: str) -> dict:
 
 def _kalshi_get(path, params=None):
     global _KALSHI_KEY_WARNED
-    if not KALSHI_KEY_ID or not KALSHI_PEM:
-        if not _KALSHI_KEY_WARNED:
-            missing = []
-            if not KALSHI_KEY_ID: missing.append("KALSHI_API_KEY_ID")
-            if not KALSHI_PEM:    missing.append("KALSHI_PRIVATE_KEY")
-            print(f"  ✗ Kalshi: {', '.join(missing)} not set — all props will use static fallback odds")
-            _KALSHI_KEY_WARNED = True
-        return None
+    url = f"{KALSHI_BASE}{path}"
+
+    # Attempt 1: RSA-PSS signed request
+    if KALSHI_KEY_ID and KALSHI_PEM:
+        try:
+            r = requests.get(url, headers=_kalshi_sign(path), params=params or {}, timeout=8)
+            if r.status_code == 200:
+                return r.json()
+            print(f"  ✗ Kalshi RSA {path}: HTTP {r.status_code}")
+        except Exception as e:
+            print(f"  ✗ Kalshi RSA {path}: {e}")
+
+    # Attempt 2: Bearer token (KALSHI_API_KEY)
+    if KALSHI_API_KEY:
+        try:
+            r = requests.get(url, headers={"Authorization": f"Bearer {KALSHI_API_KEY}"}, params=params or {}, timeout=8)
+            if r.status_code == 200:
+                return r.json()
+            print(f"  ✗ Kalshi Bearer {path}: HTTP {r.status_code}")
+        except Exception as e:
+            print(f"  ✗ Kalshi Bearer {path}: {e}")
+
+    # Attempt 3: unauthenticated (public market data)
     try:
-        r = requests.get(
-            f"{KALSHI_BASE}{path}",
-            headers=_kalshi_sign(path),
-            params=params or {},
-            timeout=8,
-        )
+        r = requests.get(url, params=params or {}, timeout=8)
         if r.status_code == 200:
             return r.json()
-        print(f"  ✗ Kalshi {path}: HTTP {r.status_code}")
+        if not _KALSHI_KEY_WARNED:
+            print(f"  ✗ Kalshi: unauthenticated request returned HTTP {r.status_code} — using static fallback")
+            _KALSHI_KEY_WARNED = True
     except Exception as e:
-        print(f"  ✗ Kalshi {path}: {e}")
+        if not _KALSHI_KEY_WARNED:
+            print(f"  ✗ Kalshi: {e} — using static fallback")
+            _KALSHI_KEY_WARNED = True
     return None
 
 
