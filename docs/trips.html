@@ -470,6 +470,27 @@
       .trip-photos img { height: auto; width: 100%; }
       .wins-grid { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ─── SITE NAV BAR ─── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0;
+      position: sticky;
+      top: 52px;
+      z-index: 99;
+    }
+    .site-nav .nav-link {
+      padding: 9px 13px;
+      border-bottom: 2px solid transparent;
+      font-size: 0.68rem;
+    }
+    .site-nav .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
+    .site-nav .nav-link.active { color: var(--blue); border-bottom-color: var(--blue); }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c0a91842667f4f16b87e22ebbce8e280"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
@@ -480,12 +501,15 @@
     <a href="./index.html" class="header-logo-img"></a>
     <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
   </div>
-  <div style="display:flex;align-items:center;gap:20px;">
-    <a href="./rules.html" class="nav-link">Rules</a>
-    <a href="./calendar.html" class="nav-link">Calendar</a>
-    <a href="./trips.html" class="nav-link active">Trips</a>
-  </div>
 </header>
+<nav class="site-nav">
+  <a href="./index.html" class="nav-link">Leaderboard</a>
+  <a href="./rules.html" class="nav-link">Rules</a>
+  <a href="./calendar.html" class="nav-link">Calendar</a>
+  <a href="./trips.html" class="nav-link active">Trips</a>
+  <a href="./projections.html" class="nav-link">Projections</a>
+  <a href="./sportsbook.html" class="nav-link">Sportsbook</a>
+</nav>
 
 <div class="page">
 

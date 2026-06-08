@@ -83,6 +83,19 @@
     <div class="status" id="freeze-status"></div>
   </div>
 
+  <!-- Buckley Bucks -->
+  <div class="section">
+    <h2>🪙 Buckley Bucks Sportsbook</h2>
+    <p style="color:var(--muted); font-size:0.85rem; margin-bottom:1rem">
+      Sync odds from the latest projections.json, or settle all open markets once the season ends.
+    </p>
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap">
+      <button class="btn btn-secondary" onclick="doSyncMarkets()">🔄 Sync Markets from Projections</button>
+      <button class="btn" onclick="doSettle()" style="background:#ef4444">🏁 Settle All Markets (season over)</button>
+    </div>
+    <div class="status" id="bb-status"></div>
+  </div>
+
   <!-- Add bonus points -->
   <div class="section">
     <h2>Add Bonus Points</h2>
@@ -235,6 +248,29 @@
       res.ok
         ? showStatus('freeze-status', `${action}: ${cat}`, 'ok')
         : showStatus('freeze-status', `Failed to ${action.toLowerCase()} ${cat}`, 'err');
+    }
+
+    async function doSyncMarkets() {
+      showStatus('bb-status', 'Syncing markets…', 'ok');
+      try {
+        const res = await fetch('/api/bb/sync-markets', {method:'POST', headers: authHeaders()});
+        const d = await res.json();
+        showStatus('bb-status', res.ok ? `Synced ${d.players_synced} players (26 markets)` : (d.error || 'Failed'), res.ok ? 'ok' : 'err');
+      } catch(e) { showStatus('bb-status', 'Error: ' + e, 'err'); }
+    }
+
+    async function doSettle() {
+      if (!confirm('Settle ALL open markets? This pays out winners. Cannot be undone.')) return;
+      showStatus('bb-status', 'Settling…', 'ok');
+      try {
+        const res = await fetch('/api/bb/settle', {method:'POST', headers: authHeaders()});
+        const d = await res.json();
+        if (res.ok) {
+          showStatus('bb-status', `Done. Winner: ${d.winner} · Top-4: ${d.top4.join(', ')} · ${d.bets_processed} bets settled`, 'ok');
+        } else {
+          showStatus('bb-status', d.error || 'Failed', 'err');
+        }
+      } catch(e) { showStatus('bb-status', 'Error: ' + e, 'err'); }
     }
 
     loadBonuses();

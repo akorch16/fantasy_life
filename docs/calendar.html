@@ -270,6 +270,27 @@
       .event-cat-badge { display: none; }
       .event-name { font-size: 0.95rem; white-space: normal; }
     }
+
+    /* ─── SITE NAV BAR ─── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0;
+      position: sticky;
+      top: 52px;
+      z-index: 99;
+    }
+    .site-nav .nav-link {
+      padding: 9px 13px;
+      border-bottom: 2px solid transparent;
+      font-size: 0.68rem;
+    }
+    .site-nav .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
+    .site-nav .nav-link.active { color: var(--blue); border-bottom-color: var(--blue); }
   </style>
 </head>
 <body>
@@ -279,12 +300,15 @@
     <a href="./index.html" class="header-logo-img"></a>
     <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
   </div>
-  <div style="display:flex;align-items:center;gap:20px;">
-    <a href="./rules.html" class="nav-link">Rules</a>
-    <a href="./calendar.html" class="nav-link active">Calendar</a>
-    <a href="./trips.html" class="nav-link">Trips</a>
-  </div>
 </header>
+<nav class="site-nav">
+  <a href="./index.html" class="nav-link">Leaderboard</a>
+  <a href="./rules.html" class="nav-link">Rules</a>
+  <a href="./calendar.html" class="nav-link active">Calendar</a>
+  <a href="./trips.html" class="nav-link">Trips</a>
+  <a href="./projections.html" class="nav-link">Projections</a>
+  <a href="./sportsbook.html" class="nav-link">Sportsbook</a>
+</nav>
 
 <div class="page">
 
@@ -297,70 +321,6 @@
     <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Upcoming</div>
   </div>
 
-  <!-- ── MAY ── -->
-  <div class="month-section">
-    <div class="month-header">
-      <div class="month-name">May</div>
-      <div class="month-line"></div>
-    </div>
-    <div class="events-list">
-      <div class="event-card status-live">
-        <div class="status-dot"></div>
-        <div class="event-cat-badge cat-actress">Film</div>
-        <div class="event-info">
-          <div class="event-name">The Devil Wears Prada 2</div>
-          <div class="event-detail">20th Century Studios — Hathaway (Korch) · Streep · Blunt · Tucci</div>
-        </div>
-        <div class="event-date">May 1</div>
-      </div>
-      <div class="event-card status-live">
-        <div class="status-dot"></div>
-        <div class="event-cat-badge cat-nba">NBA</div>
-        <div class="event-info">
-          <div class="event-name">NBA Playoffs — Second Round &amp; Conference Finals</div>
-          <div class="event-detail">Semis underway — Spurs vs Timberwolves, Knicks vs Cavaliers in East</div>
-        </div>
-        <div class="event-date">May →</div>
-      </div>
-      <div class="event-card status-live">
-        <div class="status-dot"></div>
-        <div class="event-cat-badge cat-nhl">NHL</div>
-        <div class="event-info">
-          <div class="event-name">NHL Playoffs — Second Round &amp; Conference Finals</div>
-          <div class="event-detail">Second round underway — Avalanche, Golden Knights, Hurricanes in action</div>
-        </div>
-        <div class="event-date">May →</div>
-      </div>
-      <div class="event-card status-upcoming">
-        <div class="status-dot"></div>
-        <div class="event-cat-badge cat-actor">Film</div>
-        <div class="event-info">
-          <div class="event-name">The Mandalorian &amp; Grogu</div>
-          <div class="event-detail">Lucasfilm — Pascal (Mitchell) · Allen White (Shep)</div>
-        </div>
-        <div class="event-date">May 22</div>
-      </div>
-      <div class="event-card status-upcoming">
-        <div class="status-dot"></div>
-        <div class="event-cat-badge cat-golf">Golf</div>
-        <div class="event-info">
-          <div class="event-name">PGA Championship</div>
-          <div class="event-detail">Major — Quail Hollow Club, Charlotte NC</div>
-        </div>
-        <div class="event-date">May 21–24</div>
-      </div>
-      <div class="event-card status-upcoming">
-        <div class="status-dot"></div>
-        <div class="event-cat-badge cat-tennis">Tennis</div>
-        <div class="event-info">
-          <div class="event-name">French Open (Roland Garros)</div>
-          <div class="event-detail">Grand Slam — Paris</div>
-        </div>
-        <div class="event-date">May 24 – Jun 7</div>
-      </div>
-    </div>
-  </div>
-
   <!-- ── JUNE ── -->
   <div class="month-section">
     <div class="month-header">
@@ -368,6 +328,33 @@
       <div class="month-line"></div>
     </div>
     <div class="events-list">
+      <div class="event-card status-live">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-tennis">Tennis</div>
+        <div class="event-info">
+          <div class="event-name">French Open (Roland Garros)</div>
+          <div class="event-detail">Grand Slam in progress — Women's final Jun 6 · Men's final Jun 7, Paris</div>
+        </div>
+        <div class="event-date">May 24 – Jun 7</div>
+      </div>
+      <div class="event-card status-live">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nhl">NHL</div>
+        <div class="event-info">
+          <div class="event-name">Stanley Cup Finals — Golden Knights vs Hurricanes</div>
+          <div class="event-detail">Game 1 Jun 2 at Carolina — Tim (Golden Knights) vs Jamzee (Hurricanes)</div>
+        </div>
+        <div class="event-date">Jun 2 – Jun 17</div>
+      </div>
+      <div class="event-card status-live">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nba">NBA</div>
+        <div class="event-info">
+          <div class="event-name">NBA Finals — Spurs vs Knicks</div>
+          <div class="event-detail">Game 1 Jun 3 on ABC — Wu (Spurs) vs Buckley (Knicks)</div>
+        </div>
+        <div class="event-date">Jun 3 – Jun 19</div>
+      </div>
       <div class="event-card status-upcoming">
         <div class="status-dot"></div>
         <div class="event-cat-badge cat-golf">Golf</div>
@@ -376,24 +363,6 @@
           <div class="event-detail">Major — Oakmont Country Club, PA</div>
         </div>
         <div class="event-date">Jun 18–21</div>
-      </div>
-      <div class="event-card status-upcoming">
-        <div class="status-dot"></div>
-        <div class="event-cat-badge cat-nba">NBA</div>
-        <div class="event-info">
-          <div class="event-name">NBA Finals</div>
-          <div class="event-detail">Championship series begins</div>
-        </div>
-        <div class="event-date">Jun (TBD)</div>
-      </div>
-      <div class="event-card status-upcoming">
-        <div class="status-dot"></div>
-        <div class="event-cat-badge cat-nhl">NHL</div>
-        <div class="event-info">
-          <div class="event-name">Stanley Cup Finals</div>
-          <div class="event-detail">NHL Championship series</div>
-        </div>
-        <div class="event-date">Jun (TBD)</div>
       </div>
       <div class="event-card status-upcoming">
         <div class="status-dot"></div>
@@ -622,7 +591,7 @@
         <div class="event-cat-badge cat-actress">Film</div>
         <div class="event-info">
           <div class="event-name">Avengers: Doomsday</div>
-          <div class="event-detail">Marvel — Florence Pugh (Fryar)</div>
+          <div class="event-detail">Marvel — Pascal (Mitchell) · Pugh (Fryar)</div>
         </div>
         <div class="event-date">Dec 18</div>
       </div>
@@ -666,6 +635,62 @@
   </div>
   <!-- ── COMPLETED MONTHS ── -->
   <div class="completed-months-header">Completed Months</div>
+
+  <!-- ── MAY ── -->
+  <div class="month-section month-past">
+    <div class="month-header">
+      <div class="month-name">May</div>
+      <div class="month-line"></div>
+    </div>
+    <div class="events-list">
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-actress">Film</div>
+        <div class="event-info">
+          <div class="event-name">The Devil Wears Prada 2</div>
+          <div class="event-detail">20th Century Studios — Hathaway (Korch) · Streep · Blunt · Tucci — $209M domestic</div>
+        </div>
+        <div class="event-date">May 1</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-golf">Golf</div>
+        <div class="event-info">
+          <div class="event-name">PGA Championship</div>
+          <div class="event-detail">Major — Quail Hollow Club, Charlotte NC</div>
+        </div>
+        <div class="event-date">May 21–24</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-actor">Film</div>
+        <div class="event-info">
+          <div class="event-name">The Mandalorian &amp; Grogu</div>
+          <div class="event-detail">Lucasfilm — Pascal (Mitchell) · Allen White (Shep) — $137M domestic</div>
+        </div>
+        <div class="event-date">May 22</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nba">NBA</div>
+        <div class="event-info">
+          <div class="event-name">NBA Conference Finals</div>
+          <div class="event-detail">Spurs (Wu) beat Thunder (Feder) in West · Knicks (Buckley) beat Cavaliers (Jens) in East</div>
+        </div>
+        <div class="event-date">May</div>
+      </div>
+      <div class="event-card status-past">
+        <div class="status-dot"></div>
+        <div class="event-cat-badge cat-nhl">NHL</div>
+        <div class="event-info">
+          <div class="event-name">NHL Conference Finals</div>
+          <div class="event-detail">Golden Knights (Tim) and Hurricanes (Jamzee) advance to Stanley Cup Finals</div>
+        </div>
+        <div class="event-date">May</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── JANUARY ── -->
   <div class="month-section month-past">
     <div class="month-header">

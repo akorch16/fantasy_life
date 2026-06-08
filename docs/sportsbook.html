@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sportsbook — Fantasy Life 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161d;
+      --surface2: #1a1e28;
+      --border: #232733;
+      --blue: #2d7dd2;
+      --blue-dim: #1a4a82;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --dim: #3a3f50;
+      --green: #22c55e;
+      --red: #ef4444;
+      --gold: #f59e0b;
+      --accent: #f59e0b;
+      --purple: #a855f7;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .logo span { color: var(--blue); }
+
+    .header-logo-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center top;
+      background-image: url('./todd.jpg');
+    }
+
+    /* ─── BALANCE CHIP ─── */
+    .balance-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+    }
+    .balance-name {
+      color: var(--gold);
+      font-weight: 500;
+    }
+    .balance-amount {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .balance-change-btn {
+      font-size: 0.6rem;
+      color: var(--muted);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 6px;
+      background: none;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .balance-change-btn:hover { color: var(--text); border-color: var(--dim); }
+
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 9px 14px;
+      border-bottom: 2px solid transparent;
+      display: inline-block;
+    }
+    .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
+
+    /* ─── SITE NAV BAR ─── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0;
+      position: sticky;
+      top: 52px;
+      z-index: 99;
+    }
+    .site-nav .nav-link {
+      padding: 9px 13px;
+      border-bottom: 2px solid transparent;
+      font-size: 0.68rem;
+    }
+    .site-nav .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
+    .site-nav .nav-link.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+
+    /* ─── MAIN LAYOUT ─── */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      margin-bottom: 0.25rem;
+    }
+    .page-subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    /* ─── SECTION HEADERS ─── */
+    .section-header {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ─── BB LEADERBOARD ─── */
+    .bb-leaderboard-wrap {
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
+    .bb-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'DM Mono', monospace;
+      table-layout: fixed;
+    }
+    .bb-table th {
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .bb-table th.r { text-align: right; }
+    .bb-table td {
+      font-size: 0.78rem;
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .bb-table td.r { text-align: right; }
+    .bb-table .bb-name { font-weight: 500; }
+    .bb-table .bb-me-marker { font-size: 0.5rem; color: var(--gold); vertical-align: middle; margin-left: 4px; }
+    .bb-table tr.bb-me { background: rgba(245,158,11,0.05); }
+    .bb-table .bb-balance { color: var(--gold); font-weight: 600; }
+    .bb-table .bb-dim { color: var(--muted); }
+    .bb-table .bb-pos { color: var(--green); }
+    .section-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ─── PROJECTIONS TABLE ─── */
+    .proj-table-wrap {
+      overflow-x: auto;
+      margin-bottom: 3rem;
+    }
+    .proj-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .proj-table th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .proj-table th.num { text-align: right; }
+    .proj-table td {
+      padding: 7px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .proj-table td.num { text-align: right; font-family: 'DM Mono', monospace; font-size: 0.78rem; }
+    .proj-table tr:last-child td { border-bottom: none; }
+    .proj-table tr:hover td { background: var(--surface2); }
+    .rank-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      width: 24px;
+    }
+    .win-high { color: var(--green); }
+    .win-mid  { color: #eab308; }
+    .win-low  { color: var(--muted); }
+    .proj-footer td {
+      font-size: 0.65rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      text-align: center;
+      padding: 0.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ─── ACTIVE BETS PANEL ─── */
+    .active-bets-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .active-bets-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .active-bets-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .active-bets-summary {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+    .active-bets-summary .bb-num { color: var(--gold); }
+    .active-bet-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 0.5rem 1rem;
+      align-items: center;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.78rem;
+    }
+    .active-bet-row:last-child { border-bottom: none; }
+    .active-bet-row.settled-won { background: rgba(34,197,94,0.04); }
+    .active-bet-row.settled-lost { background: rgba(239,68,68,0.04); opacity: 0.7; }
+    .active-bet-info { min-width: 0; }
+    .active-bet-sport {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .active-bet-title {
+      font-size: 0.78rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+    }
+    .active-bet-title em { font-style: normal; color: var(--gold); }
+    .active-bet-side {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .side-yes { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .side-no  { background: rgba(239,68,68,0.15);  color: var(--red);   border: 1px solid rgba(239,68,68,0.3); }
+    .active-bet-amounts {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .active-bet-wager { color: var(--muted); }
+    .active-bet-return { color: var(--text); font-weight: 500; }
+    .active-bet-outcome {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .outcome-won { color: var(--green); }
+    .outcome-lost { color: var(--red); }
+    .active-bet-close {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* ─── PROP BETS GRID ─── */
+    .bets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .bet-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .bet-card:hover { border-color: var(--blue-dim); }
+    .bet-sport {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sport-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--purple);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      background: rgba(168, 85, 247, 0.08);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .bet-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+    }
+    .bet-title em {
+      font-style: normal;
+      color: var(--gold);
+    }
+    .bet-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .bet-odds {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.35rem;
+      letter-spacing: 0.04em;
+    }
+    .odds-yes { color: var(--green); }
+    .odds-no  { color: var(--red); }
+    .bet-close {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+    .bet-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .live-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-left: 5px;
+      vertical-align: middle;
+      display: inline-block;
+    }
+    .live-badge.kalshi { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .live-badge.model  { background: rgba(45,125,210,0.15); color: var(--blue);  border: 1px solid rgba(45,125,210,0.3); }
+    /* closed bet cards */
+    .bet-card.closed-yes { border-color: var(--green); border-width: 2px; }
+    .bet-card.closed-no  { border-color: var(--red);   border-width: 2px; }
+
+    /* CLOSED badge (replaces old settled-badge) */
+    .closed-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+      margin-left: 6px;
+      font-weight: 700;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .closed-badge-yes { background: rgba(34,197,94,0.15);  color: var(--green); border: 1px solid rgba(34,197,94,0.4); }
+    .closed-badge-no  { background: rgba(239,68,68,0.15);  color: var(--red);   border: 1px solid rgba(239,68,68,0.4); }
+
+    /* winner result strip at top of closed card */
+    .winner-banner {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin-bottom: 2px;
+    }
+    .winner-banner-yes { background: rgba(34,197,94,0.1);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+    .winner-banner-no  { background: rgba(239,68,68,0.1);  color: var(--red);   border: 1px solid rgba(239,68,68,0.25); }
+
+    /* close date at bottom-right of open bet card */
+    .bet-close-footer {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    /* ─── BET BUTTONS ─── */
+    .bet-actions {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: auto;
+    }
+    .bet-btn {
+      flex: 1;
+      border: 1px solid;
+      border-radius: 8px;
+      padding: 10px 6px;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: background 0.1s;
+    }
+    .bet-btn-yes {
+      background: rgba(34,197,94,0.08);
+      border-color: rgba(34,197,94,0.35);
+      color: var(--green);
+    }
+    .bet-btn-yes:hover { background: rgba(34,197,94,0.18); }
+    .bet-btn-no {
+      background: rgba(239,68,68,0.08);
+      border-color: rgba(239,68,68,0.35);
+      color: var(--red);
+    }
+    .bet-btn-no:hover { background: rgba(239,68,68,0.18); }
+    .bet-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+    .bet-btn .btn-pct {
+      font-size: 1.4rem;
+      font-family: 'Bebas Neue', sans-serif;
+      line-height: 1;
+    }
+
+    /* card position display (already have a bet on this) */
+    .bet-position {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-top: auto;
+    }
+    .bet-position strong { color: var(--text); }
+    .bet-position .pos-won { color: var(--green); font-weight: 600; }
+    .bet-position .pos-lost { color: var(--red); font-weight: 600; }
+
+    /* ─── ALL BETS PANEL ─── */
+    .all-bet-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem 1rem;
+      align-items: center;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.78rem;
+    }
+    .all-bet-row:last-child { border-bottom: none; }
+    .all-bet-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      white-space: nowrap;
+    }
+    .all-bet-player { color: var(--gold); font-weight: 500; }
+    .all-bet-wager  { color: var(--muted); }
+
+    /* ─── WAGER MODAL ─── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: min(480px, calc(100vw - 2rem));
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .modal-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+    .modal-sport {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    .modal-bet-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .modal-bet-title em { font-style: normal; color: var(--gold); }
+    .modal-odds-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    .modal-side-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .modal-side-yes { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .modal-side-no  { background: rgba(239,68,68,0.15);  color: var(--red);   border: 1px solid rgba(239,68,68,0.3); }
+    .modal-input-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .modal-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .modal-amount-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.95rem;
+      padding: 7px 10px;
+      outline: none;
+    }
+    .modal-amount-input:focus { border-color: var(--blue); }
+    .modal-allin-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gold);
+      border: 1px solid rgba(245,158,11,0.35);
+      background: rgba(245,158,11,0.08);
+      border-radius: 5px;
+      padding: 4px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .modal-allin-btn:hover { background: rgba(245,158,11,0.18); }
+    .modal-preview {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+    .modal-preview .preview-win { color: var(--green); font-weight: 600; font-size: 0.82rem; }
+    .modal-preview .preview-profit { color: var(--green); }
+    .modal-preview .preview-balance { color: var(--text); }
+    .modal-footer {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+    .modal-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid;
+    }
+    .modal-btn-cancel {
+      background: none;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    .modal-btn-cancel:hover { border-color: var(--dim); color: var(--text); }
+    .modal-btn-place {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+    }
+    .modal-btn-place:hover { background: #e08e00; border-color: #e08e00; }
+    .modal-btn-place:disabled { opacity: 0.35; cursor: default; }
+    .modal-error {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--red);
+      display: none;
+    }
+    .modal-error.visible { display: block; }
+
+    /* ─── PLAYER PICKER MODAL ─── */
+    .picker-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 600;
+    }
+    .picker-overlay.hidden { display: none; }
+    .picker-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+      width: min(520px, calc(100vw - 2rem));
+      text-align: center;
+    }
+    .picker-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+    .picker-sub {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .picker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .picker-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 10px 6px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s;
+    }
+    .picker-btn:hover { background: var(--border); border-color: var(--gold); color: var(--gold); }
+    .picker-reset-note {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+    .picker-reset-note a { color: var(--muted); text-decoration: underline; cursor: pointer; }
+
+    /* ─── TOAST STACK ─── */
+    .toast-stack {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 0.5rem;
+      z-index: 700;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      max-width: 320px;
+      animation: slideIn 0.2s ease;
+      pointer-events: all;
+      line-height: 1.5;
+    }
+    .toast.toast-won { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.07); }
+    .toast.toast-lost { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.06); }
+    .toast.toast-placed { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+    .toast .toast-head { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+    .toast-won .toast-head { color: var(--green); }
+    .toast-lost .toast-head { color: var(--red); }
+    .toast-placed .toast-head { color: var(--gold); }
+    .toast .toast-body { color: var(--text); }
+    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ─── EMPTY / LOADING STATES ─── */
+    .loading-msg {
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="header-logo-img"></div>
+    <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
+  </div>
+  <div class="balance-chip" id="balance-chip" style="display:none">
+    <span class="balance-name" id="balance-name"></span>
+    <span style="color:var(--muted)">·</span>
+    <span class="balance-amount" id="balance-amount"></span>
+    <button class="balance-change-btn" onclick="openPicker(true)">change</button>
+  </div>
+</header>
+
+<nav class="site-nav">
+  <a href="./index.html" class="nav-link">Leaderboard</a>
+  <a href="./rules.html" class="nav-link">Rules</a>
+  <a href="./calendar.html" class="nav-link">Calendar</a>
+  <a href="./trips.html" class="nav-link">Trips</a>
+  <a href="./projections.html" class="nav-link">Projections</a>
+  <a href="./sportsbook.html" class="nav-link active">Sportsbook</a>
+</nav>
+
+
+<div class="container">
+  <div class="page-title">🎲 Sportsbook</div>
+
+  <!-- ─── BB LEADERBOARD ─── -->
+  <div class="section-header">Buckley Bucks Leaderboard</div>
+  <div class="bb-leaderboard-wrap" id="bb-leaderboard"></div>
+
+  <!-- ─── YOUR BETS ─── -->
+  <div class="section-header">Your Bets</div>
+  <div id="active-bets-panel"></div>
+
+  <!-- ─── ALL BETS ─── -->
+  <div class="section-header">All Bets</div>
+  <div id="all-bets-panel"></div>
+
+  <!-- ─── OPEN BETS ─── -->
+  <div class="section-header">Open Bets</div>
+  <div class="bets-grid" id="bets-grid-open"><!-- rendered by JS --></div>
+
+  <!-- ─── CLOSED BETS ─── -->
+  <div class="section-header">Closed Bets</div>
+  <div class="section-note">Settled props. Green border = YES won · Red border = NO won.</div>
+  <div class="bets-grid" id="bets-grid-closed"><!-- rendered by JS --></div>
+  <div id="closed-bets-panel"></div>
+
+</div>
+
+<!-- ─── WAGER MODAL ─── -->
+<div class="modal-overlay hidden" id="wager-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div>
+      <div class="modal-sport" id="modal-sport"></div>
+      <div class="modal-bet-title" id="modal-bet-title"></div>
+    </div>
+    <div class="modal-odds-row">
+      <span id="modal-side-badge"></span>
+      <span id="modal-odds-text"></span>
+    </div>
+    <div>
+      <div class="modal-label" style="margin-bottom:6px">Wager amount (BB)</div>
+      <div class="modal-input-row">
+        <input class="modal-amount-input" id="modal-amount" type="number" min="1" placeholder="0" oninput="updatePreview()" />
+        <button class="modal-allin-btn" onclick="setAllIn()">ALL IN</button>
+      </div>
+      <div class="modal-error" id="modal-error"></div>
+    </div>
+    <div class="modal-preview" id="modal-preview">
+      Enter an amount to see your potential return.
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-cancel" onclick="closeWagerModal()">Cancel</button>
+      <button class="modal-btn modal-btn-place" id="modal-place-btn" onclick="confirmBet()" disabled>Place Bet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PLAYER PICKER MODAL ─── -->
+<div class="picker-overlay hidden" id="picker-overlay">
+  <div class="picker-card">
+    <div class="picker-heading">Who Are You?</div>
+    <div class="picker-sub">Pick your FL identity. You'll start with <strong>1,000 Buckley Bucks</strong>.</div>
+    <div class="picker-grid" id="picker-grid"></div>
+    <div class="picker-reset-note" id="picker-reset-note" style="display:none">
+      Changing your identity will reset your balance and bets.<br>
+      <a onclick="confirmReset()">Confirm reset</a> &nbsp;·&nbsp; <a onclick="closePicker()">Cancel</a>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST CONTAINER ─── -->
+<div class="toast-stack" id="toast-stack"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+// ─── LOAD PROP ODDS ─────────────────────────────────────────────
+fetch('./projections.json')
+  .then(r => r.json())
+  .then(data => { renderBets(data.prop_odds || null); })
+  .catch(() => { renderBets(null); });
+
+// ─── PROP BETS ──────────────────────────────────────────────────
+const BETS = [
+
+  // ── ROLAND GARROS · Finals (closes Jun 7) ─────────────────────
+  {
+    id: 'rg-w-fryar-v-feder',
+    sport: 'Tennis · French Open',
+    title: 'Sabalenka (<em>Fryar</em>) goes further than Swiatek (<em>Feder</em>)',
+    desc: 'Sabalenka won the French Open title, eliminating Swiatek in the semifinals. YES wins — Fryar collects.',
+    odds: 100,
+    closes: 'Jun 7',
+    settled: true,
+  },
+
+  // ── STANLEY CUP FINALS (closes ~Jun 17) ───────────────────────
+  {
+    id: 'nhl-fin-tim-v-jamzee',
+    sport: 'NHL · Stanley Cup Finals',
+    title: 'Golden Knights (<em>Tim</em>) win the Stanley Cup over Hurricanes (<em>Jamzee</em>)',
+    desc: 'Hurricanes are favored at ~59% (Kalshi). Carolina went 12-1 in the playoffs before the Finals; Vegas swept the West. Winner upgrades from 9 pts to 13 — a four-point swing.',
+    odds: 42,
+
+    closes: '~Jun 17',
+  },
+
+  // ── NBA FINALS (closes ~Jun 19) ───────────────────────────────
+  {
+    id: 'nba-fin-wu-v-buckley',
+    sport: 'NBA · Finals',
+    title: 'Spurs (<em>Wu</em>) win the NBA Championship over Knicks (<em>Buckley</em>)',
+    desc: 'Knicks lead the series 2-0. New York is heavily favored (~82%) to close it out. Winner gets 13 pts; loser holds at 9.',
+    odds: 18,
+
+    closes: '~Jun 19',
+  },
+
+  // ── US OPEN GOLF (closes Jun 22) ──────────────────────────────
+  {
+    id: 'uso-wu-v-molmen',
+    sport: 'Golf · US Open',
+    title: 'Scheffler (<em>Wu</em>) finishes higher than McIlroy (<em>Molmen</em>) at the US Open',
+    desc: 'World #1 vs. Grand Slam hunter. Scheffler has been dominant all year. McIlroy is chasing the career Slam at the US Open — the extra motivation is real.',
+    odds: 52,
+    closes: 'Jun 22',
+  },
+  {
+    id: 'uso-tim-v-shep',
+    sport: 'Golf · US Open',
+    title: 'Schauffele (<em>Tim</em>) finishes higher than Rahm (<em>Shep</em>) at the US Open',
+    desc: 'Schauffele won the 2024 US Open and has been in peak form all season. Rahm has been inconsistent since his LIV switch.',
+    odds: 62,
+    closes: 'Jun 22',
+  },
+
+  // ── MLB · THROUGH JULY 1 ──────────────────────────────────────
+  {
+    id: 'mlb-wu-v-mitchell',
+    sport: 'MLB · Through July 1',
+    title: 'Dodgers (<em>Wu</em>) have better W-L% than Phillies (<em>Mitchell</em>) on July 1',
+    desc: 'Defending World Series champs against one of the NL\'s best lineups. Two elite rosters — slight edge to LA\'s depth.',
+    odds: 55,
+    closes: 'Jul 1',
+  },
+  {
+    id: 'mlb-jens-v-buckley',
+    sport: 'MLB · Through July 1',
+    title: 'Yankees (<em>Jens</em>) have better W-L% than Brewers (<em>Buckley</em>) on July 1',
+    desc: 'Brewers lead Yankees by just .020 in W-L% (.617 vs .597) — barely a game\'s pace. New York\'s lineup (Judge, Soto) is built for a summer surge; Milwaukee\'s hot start may cool off. A flip here swaps 2 fantasy points between Jens and Buckley.',
+    odds: 42,
+    closes: 'Jul 1',
+  },
+
+  // ── MLS · THROUGH JULY 1 ──────────────────────────────────────
+  {
+    id: 'mls-buckley-v-molmen',
+    sport: 'MLS · Through July 1',
+    title: 'LAFC (<em>Buckley</em>) leads LA Galaxy (<em>Molmen</em>) in Western Conf on July 1',
+    desc: 'El Tráfico in the standings. LAFC and the Galaxy are perennial Western Conference rivals — LAFC has the attacking edge this season.',
+    odds: 52,
+    closes: 'Jul 1',
+  },
+
+  // ── STOCKS · BY JULY 1 ───────────────────────────────────────
+  {
+    id: 'stocks-fryar-avgo-v-mitchell-cvna',
+    sport: 'Stocks · By July 1',
+    title: 'AVGO long (<em>Fryar</em>) outperforms CVNA short (<em>Mitchell</em>) by July 1',
+    desc: 'Fryar\'s AVGO long (+20.5% YTD) leads Mitchell\'s CVNA short (+17.3% YTD) by ~3 pts. YES wins if AVGO\'s YTD gain stays ahead of CVNA\'s YTD drop on July 1. AVGO has AI tailwinds; CVNA short has short-squeeze risk.',
+    odds: 57,
+    closes: 'Jul 1',
+  },
+
+  // ── TOTAL POINTS · BY JULY 1 ──────────────────────────────────
+  {
+    id: 'pts-wu-v-korch',
+    sport: 'Total Points · By July 1',
+    title: '<em>Wu</em> will have more total points than <em>Korch</em> by July 1',
+    desc: 'Wu (155 pts) trails Korch (157 pts) by just 2. Projections give Wu 158 and Korch 163 at season end — but Wu\'s Spurs winning the NBA title adds 4 pts and flips the lead. Without a title, Korch holds.',
+    odds: 47,
+    closes: 'Jul 1',
+  },
+  {
+    id: 'pts-tim-v-molmen',
+    sport: 'Total Points · By July 1',
+    title: '<em>Tim</em> will have more total points than <em>Molmen</em> by July 1',
+    desc: 'Tim (148 pts) trails Molmen (149 pts) by 1. Tim\'s Golden Knights winning the Stanley Cup adds 4 pts and flips the lead. Molmen\'s stock picks and MLS are stagnant. Even odds on the Cup swing this.',
+    odds: 55,
+    closes: 'Jul 1',
+  },
+  {
+    id: 'pts-jamzee-v-fryar',
+    sport: 'Total Points · By July 1',
+    title: '<em>Jamzee</em> will have more total points than <em>Fryar</em> by July 1',
+    desc: 'Jamzee (132 pts) and Fryar (132.5 pts) are separated by half a point. Jamzee\'s Hurricanes winning the Cup adds 4 pts and flips the ledger. Projections actually favor Fryar by season end (155 vs 138) — this is purely a Cup swing.',
+    odds: 44,
+    closes: 'Jul 1',
+  },
+  {
+    id: 'pts-mitchell-v-todd',
+    sport: 'Total Points · By July 1',
+    title: '<em>Mitchell</em> will have more total points than <em>Todd</em> by July 1',
+    desc: 'Mitchell (140.5 pts) leads Todd (137.5 pts) by 3. Mandalorian box office already baked in. Todd has no big July 1 events pending. Mitchell holds the edge barring a big MLB or NASCAR shift.',
+    odds: 65,
+    closes: 'Jul 1',
+  },
+  {
+    id: 'pts-buckley-v-theo',
+    sport: 'Total Points · By July 1',
+    title: '<em>Buckley</em> will have more total points than <em>Theo</em> by July 1',
+    desc: 'Buckley (128.5 pts) leads Theo (117.5 pts) by 11. Projections have Buckley at 132 and Theo at 126 at season end. Even if the Knicks lose the Finals, Buckley stays comfortably ahead.',
+    odds: 80,
+    closes: 'Jul 1',
+  },
+
+  // ── LONG SHOT ─────────────────────────────────────────────────
+  {
+    id: 'todd-wins-fl-2026',
+    sport: 'Fantasy Life · Season',
+    title: '<em>Todd</em> wins the 2026 Fantasy Life championship',
+    desc: 'Currently 5th (139.5 pts). Needs Cantlay (dead last in Golf) to go on a historic run, Guinea to win the World Cup, NVDA to somehow overtake INTC (+183%), and Olivia Rodrigo to dominate the charts. The vibes are immaculate. The math is not.',
+    odds: 1,
+    closes: 'Dec 31',
+  },
+];
+
+// ─── STATE MANAGEMENT ──────────────────────────────────────────
+const STORAGE_KEY = 'fl_sb_state';
+const PLAYER_KEY  = 'fl_sb_player';
+const STARTING_BB = 1000;
+const RESET_AFTER = '2026-06-05T20:00:00Z'; // clear bets placed before this
+const ALL_PLAYERS = ['Tim','Wu','Jens','Todd','Mitchell','Shep','Theo',
+                     'Feder','Fryar','Korch','Molmen','Jamzee','Buckley'];
+
+// ── SUPABASE (shared leaderboard) ──────────────────────────────
+// After creating your Supabase project, replace these two values.
+// Then run docs/sb-schema.sql in the Supabase SQL editor.
+const SB_URL  = 'https://xpekhpufucjvhhsxhmeo.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwZWtocHVmdWNqdmhoc3hobWVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNDg4MzMsImV4cCI6MjA4ODkyNDgzM30.dyvhXCdVwVAgsNHGV9olc8D3fh_8Ia-_IF6tIoK9ZoE';
+const SB_ON   = typeof supabase !== 'undefined' && !SB_URL.includes('YOUR_PROJECT');
+const sbClient = SB_ON ? supabase.createClient(SB_URL, SB_ANON) : null;
+let _sbLeaderboard = null;  // { players: [{name,balance}], bets: [{player,wager,...}] }
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  sbSyncState(state);  // fire and forget
+}
+
+function initState(player) {
+  const state = { balance: STARTING_BB, bets: [] };
+  localStorage.setItem(PLAYER_KEY, player);
+  saveState(state);
+  sbResetPlayer(player);  // fire and forget
+  return state;
+}
+
+function getPlayer() {
+  return localStorage.getItem(PLAYER_KEY) || null;
+}
+
+// Payout = round(wager * 100 / odds), where odds is the YES% for the chosen side
+function calcReturn(wager, yesPct, side) {
+  const effectiveOdds = side === 'yes' ? yesPct : (100 - yesPct);
+  if (effectiveOdds <= 0) return null;
+  return Math.round(wager * 100 / effectiveOdds);
+}
+
+// ─── SETTLEMENT ────────────────────────────────────────────────
+// Returns array of newly-settled bet results to show as toasts
+function settleBets() {
+  const state = loadState();
+  if (!state || !state.bets.length) return [];
+
+  const results = [];
+  let changed = false;
+
+  state.bets.forEach(bet => {
+    if (bet.settledOutcome) return;
+    const def = BETS.find(b => b.id === bet.id);
+    if (!def || !def.settled) return;
+
+    // odds=100 → YES won; odds=0 → NO won
+    const yesWon = def.odds === 100;
+    const noWon  = def.odds === 0;
+    if (!yesWon && !noWon) return; // partially settled, skip
+
+    const won = (yesWon && bet.side === 'yes') || (noWon && bet.side === 'no');
+    bet.settledOutcome = won ? 'won' : 'lost';
+    if (won) state.balance += bet.potentialReturn;
+    results.push({ ...bet, won });
+    changed = true;
+  });
+
+  if (changed) saveState(state);
+  return results;
+}
+
+// ─── SUPABASE HELPERS ──────────────────────────────────────────
+
+// Push current player's balance + all bets to Supabase (non-blocking)
+function sbSyncState(state) {
+  if (!sbClient) return;
+  const player = getPlayer();
+  if (!player) return;
+  const betsPayload = state.bets.map(b => ({
+    player,
+    bet_id:           b.id,
+    side:             b.side,
+    wager:            b.wager,
+    potential_return: b.potentialReturn,
+    sport:            b.sport || '',
+    settled_outcome:  b.settledOutcome || null,
+    placed_at:        b.timestamp,
+  }));
+  const ops = [
+    sbClient.from('sb_players')
+      .upsert({ name: player, balance: state.balance, updated_at: new Date().toISOString() }),
+  ];
+  if (betsPayload.length) {
+    ops.push(sbClient.from('sb_bets').upsert(betsPayload, { onConflict: 'player,bet_id,placed_at' }));
+  }
+  Promise.all(ops).catch(err => console.warn('[sbSyncState] Supabase error:', err));
+}
+
+// Clear a player's bets and reset their balance (called on identity reset)
+function sbResetPlayer(player) {
+  if (!sbClient) return;
+  Promise.all([
+    sbClient.from('sb_bets').delete().eq('player', player),
+    sbClient.from('sb_players').upsert({ name: player, balance: STARTING_BB, updated_at: new Date().toISOString() }),
+  ]).catch(() => {});
+}
+
+// Fetch all players + open bets for the leaderboard, then re-render
+async function sbRefreshLeaderboard() {
+  if (!sbClient) return;
+  try {
+    const [{ data: players }, { data: bets }, { data: allBets }] = await Promise.all([
+      sbClient.from('sb_players').select('name, balance'),
+      sbClient.from('sb_bets').select('player, wager, potential_return').is('settled_outcome', null),
+      sbClient.from('sb_bets').select('player, bet_id, side, wager, settled_outcome, placed_at').order('placed_at', { ascending: false }),
+    ]);
+    if (!players) return;
+    _sbLeaderboard = { players, bets: bets || [] };
+    _sbAllBets = allBets || [];
+    renderBBLeaderboard();
+    renderActiveBets();
+    renderAllBets();
+  } catch (e) {}
+}
+
+// Pull this player's Supabase balance into localStorage (cross-device sync)
+async function sbHydrate(player) {
+  if (!sbClient) return;
+  const { data } = await sbClient.from('sb_players')
+    .select('balance').eq('name', player).maybeSingle().catch(() => ({ data: null }));
+  if (!data) return;
+  const local = loadState();
+  if (local && data.balance !== local.balance) {
+    local.balance = data.balance;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(local));
+  }
+}
+
+// Subscribe to sb_players + sb_bets for real-time leaderboard updates
+function sbSubscribeLeaderboard() {
+  if (!sbClient) return;
+  sbClient.channel('sb-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'sb_players' }, sbRefreshLeaderboard)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'sb_bets' },    sbRefreshLeaderboard)
+    .subscribe();
+}
+
+// ─── BALANCE RENDER ────────────────────────────────────────────
+function renderBalance() {
+  const player = getPlayer();
+  const state  = loadState();
+  const chip   = document.getElementById('balance-chip');
+  if (!player || !state) { chip.style.display = 'none'; return; }
+  chip.style.display = 'flex';
+  document.getElementById('balance-name').textContent   = player;
+  document.getElementById('balance-amount').textContent = fmtBB(state.balance);
+}
+
+function fmtBB(n) {
+  return n.toLocaleString() + ' BB';
+}
+
+function renderBBLeaderboard() {
+  const el = document.getElementById('bb-leaderboard');
+  if (!el) return;
+  const player  = getPlayer();
+  const myState = loadState();
+
+  // Build player data first so we can sort by balance
+  const playerData = ALL_PLAYERS.map(p => {
+    const isMe = p === player;
+    let balance = STARTING_BB, wagered = 0, toWin = 0;
+
+    if (_sbLeaderboard) {
+      const sbP  = _sbLeaderboard.players.find(x => x.name === p);
+      const open = _sbLeaderboard.bets.filter(b => b.player === p);
+      wagered    = open.reduce((s, b) => s + b.wager, 0);
+      toWin      = open.reduce((s, b) => s + b.potential_return, 0);
+      balance    = sbP ? sbP.balance : STARTING_BB;
+    } else if (isMe && myState) {
+      balance = myState.balance;
+      const open = myState.bets.filter(b => !b.settledOutcome);
+      wagered    = open.reduce((s, b) => s + b.wager, 0);
+      toWin      = open.reduce((s, b) => s + b.potentialReturn, 0);
+    }
+    return { p, isMe, balance, wagered, toWin };
+  }).sort((a, b) => b.balance - a.balance);
+
+  const rows = playerData.map(({ p, isMe, balance, wagered, toWin }) => {
+
+    const balanceCell = `<span class="${isMe ? 'bb-balance' : (balance < STARTING_BB ? 'bb-pos' : '')}">${balance.toLocaleString()} BB</span>`;
+    const toWinCell   = wagered > 0
+      ? `${wagered.toLocaleString()} BB <span class="bb-pos">+${toWin.toLocaleString()} BB</span>`
+      : `<span class="bb-dim">—</span>`;
+
+    return `<tr class="${isMe ? 'bb-me' : ''}">
+      <td class="bb-name">${p}${isMe ? '<span class="bb-me-marker">▲</span>' : ''}</td>
+      <td class="r">${balanceCell}</td>
+      <td class="r">${toWinCell}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `<table class="bb-table">
+    <thead>
+      <tr>
+        <th style="width:30%">Player</th>
+        <th class="r" style="width:25%">Balance</th>
+        <th class="r" style="width:45%">Wagered · To Win</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ─── ACTIVE BETS PANEL ─────────────────────────────────────────
+function renderActiveBets() {
+  const panel  = document.getElementById('active-bets-panel');
+  const player = getPlayer();
+  const state  = loadState();
+
+  if (!player) {
+    panel.innerHTML = '<div class="section-note">Choose your FL identity to see your bets.</div>';
+    return;
+  }
+  if (!state || !state.bets.length) {
+    panel.innerHTML = '<div class="section-note">No bets placed yet.</div>';
+    return;
+  }
+
+  const active  = state.bets.filter(b => !b.settledOutcome);
+  const settled = state.bets.filter(b => b.settledOutcome);
+  const wagered = active.reduce((s, b) => s + b.wager, 0);
+
+  let summaryText = '';
+  if (active.length) summaryText += `${active.length} open &nbsp;·&nbsp; <span class="bb-num">${wagered.toLocaleString()} BB</span> at risk`;
+  if (settled.length) {
+    const wonCount  = settled.filter(b => b.settledOutcome === 'won').length;
+    const lostCount = settled.length - wonCount;
+    if (summaryText) summaryText += ' &nbsp;·&nbsp; ';
+    summaryText += `${wonCount}W ${lostCount}L settled`;
+  }
+
+  const rows = state.bets.map(bet => {
+    const sideClass = bet.side === 'yes' ? 'side-yes' : 'side-no';
+    const sideLabel = bet.side.toUpperCase();
+    let outcomeHtml = '';
+    let rowClass = '';
+    if (bet.settledOutcome === 'won') {
+      const profit = bet.potentialReturn - bet.wager;
+      outcomeHtml = `<span class="active-bet-outcome outcome-won">+${profit.toLocaleString()} BB</span>`;
+      rowClass = 'settled-won';
+    } else if (bet.settledOutcome === 'lost') {
+      outcomeHtml = `<span class="active-bet-outcome outcome-lost">−${bet.wager.toLocaleString()} BB</span>`;
+      rowClass = 'settled-lost';
+    } else {
+      outcomeHtml = `<div class="active-bet-close">Closes ${bet.closes}</div>`;
+    }
+    return `
+      <div class="active-bet-row ${rowClass}">
+        <div class="active-bet-info">
+          <div class="active-bet-sport">${bet.sport}</div>
+          <div class="active-bet-title">${bet.title}</div>
+        </div>
+        <span class="active-bet-side ${sideClass}">${sideLabel}</span>
+        <div class="active-bet-amounts">
+          <div class="active-bet-wager">${bet.wager.toLocaleString()} BB</div>
+          <div class="active-bet-return">→ ${bet.potentialReturn.toLocaleString()} BB</div>
+        </div>
+        ${outcomeHtml}
+      </div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="active-bets-panel">
+      <div class="active-bets-header">
+        <span class="active-bets-summary">${summaryText}</span>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+// ─── ALL BETS PANEL ────────────────────────────────────────────
+let _sbAllBets = [];
+
+function renderAllBets() {
+  const panel       = document.getElementById('all-bets-panel');
+  const closedPanel = document.getElementById('closed-bets-panel');
+  if (!panel) return;
+
+  // Merge Supabase data with local bets so the current player always shows up
+  const combined = [...(_sbAllBets || [])];
+  const localPlayer = getPlayer();
+  const localState  = loadState();
+  if (localPlayer && localState && localState.bets.length) {
+    localState.bets.forEach(b => {
+      const already = combined.some(r => r.player === localPlayer && r.bet_id === b.id && r.placed_at === b.timestamp);
+      if (!already) {
+        combined.push({ player: localPlayer, bet_id: b.id, side: b.side, wager: b.wager, settled_outcome: b.settledOutcome || null });
+      }
+    });
+  }
+
+  const openBets   = combined.filter(b => !b.settled_outcome);
+  const settledBets = combined.filter(b => b.settled_outcome);
+
+  function buildRows(bets) {
+    return bets.map(b => {
+      const sideClass = b.side === 'yes' ? 'side-yes' : 'side-no';
+      const sideLabel = (b.side || '').toUpperCase();
+      const betDef = BETS.find(bd => bd.id === b.bet_id);
+      const title = betDef ? betDef.title : b.bet_id;
+      const sport = betDef ? betDef.sport.split(' · ')[0] : '';
+      let outcomeHtml = '';
+      if (b.settled_outcome === 'won') outcomeHtml = `<span class="outcome-won">WON</span>`;
+      else if (b.settled_outcome === 'lost') outcomeHtml = `<span class="outcome-lost">LOST</span>`;
+      return `
+        <div class="all-bet-row">
+          <div class="active-bet-info">
+            <div class="active-bet-sport">${sport}</div>
+            <div class="active-bet-title">${title}</div>
+          </div>
+          <div class="all-bet-meta">
+            <span class="active-bet-side ${sideClass}">${sideLabel}</span>
+            <span class="all-bet-player">${b.player}</span>
+            <span class="all-bet-wager">${(b.wager || 0).toLocaleString()} BB</span>
+            ${outcomeHtml}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  panel.innerHTML = openBets.length
+    ? `<div class="active-bets-panel">${buildRows(openBets)}</div>`
+    : '<div class="section-note">No open bets yet.</div>';
+
+  if (closedPanel) {
+    closedPanel.innerHTML = settledBets.length
+      ? `<div class="active-bets-panel">${buildRows(settledBets)}</div>`
+      : '';
+  }
+}
+
+// ─── BET CARDS ─────────────────────────────────────────────────
+let _currentPropOdds = null;
+
+function parseCloseDate(str) {
+  const clean = (str || '').replace(/[~≈]/g, '').trim();
+  const months = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+  const parts = clean.split(' ');
+  return (months[parts[0]] || 0) * 100 + (parseInt(parts[1]) || 0);
+}
+
+function renderBetCard(b, propOdds, state, hasPick) {
+  const live   = propOdds && propOdds[b.id];
+  const yesPct = b.settled ? b.odds : (live ? live.yes_pct : b.odds);
+  const noPct  = 100 - yesPct;
+  const src    = live && live.source !== 'static' ? live.source : null;
+
+  let badge = '';
+  if (!b.settled) {
+    if (src === 'kalshi') badge = `<span class="live-badge kalshi">⚡ live</span>`;
+  }
+
+  const existingBets = state ? state.bets.filter(bt => bt.id === b.id) : [];
+  const existingBet  = existingBets[0];
+
+  let bottomSection = '';
+  if (b.settled) {
+    if (existingBet) {
+      const won = existingBet.settledOutcome === 'won';
+      const lost = existingBet.settledOutcome === 'lost';
+      if (won) {
+        const profit = existingBet.potentialReturn - existingBet.wager;
+        bottomSection = `<div class="bet-position"><span class="pos-won">WON +${profit.toLocaleString()} BB</span> — ${existingBet.wager.toLocaleString()} BB on ${existingBet.side.toUpperCase()}</div>`;
+      } else if (lost) {
+        bottomSection = `<div class="bet-position"><span class="pos-lost">LOST −${existingBet.wager.toLocaleString()} BB</span> — bet ${existingBet.side.toUpperCase()}</div>`;
+      } else {
+        bottomSection = `<div class="bet-position">You bet <strong>${existingBet.wager.toLocaleString()} BB</strong> on ${existingBet.side.toUpperCase()} — awaiting resolution</div>`;
+      }
+    }
+  } else if (!hasPick) {
+    bottomSection = `<div class="bet-actions">
+      <button class="bet-btn bet-btn-yes" onclick="openPicker(false)"><span class="btn-pct">${yesPct}%</span> YES</button>
+      <button class="bet-btn bet-btn-no"  onclick="openPicker(false)"><span class="btn-pct">${noPct}%</span> NO</button>
+    </div>`;
+  } else {
+    bottomSection = `<div class="bet-actions">
+      <button class="bet-btn bet-btn-yes" onclick="openWagerModal('${b.id}','yes',${yesPct})"><span class="btn-pct">${yesPct}%</span> YES</button>
+      <button class="bet-btn bet-btn-no"  onclick="openWagerModal('${b.id}','no',${yesPct})"><span class="btn-pct">${noPct}%</span> NO</button>
+    </div>`;
+    if (existingBets.length > 0) {
+      const yesW = existingBets.filter(ub => ub.side === 'yes').reduce((s, ub) => s + ub.wager, 0);
+      const noW  = existingBets.filter(ub => ub.side === 'no').reduce((s, ub) => s + ub.wager, 0);
+      const parts = [];
+      if (yesW > 0) parts.push(`${yesW.toLocaleString()} BB YES`);
+      if (noW  > 0) parts.push(`${noW.toLocaleString()} BB NO`);
+      bottomSection += `<div class="bet-position" style="margin-top:0.4rem">Your position: ${parts.join(' · ')}</div>`;
+    }
+  }
+
+  if (b.settled) {
+    const yesWon   = b.odds === 100;
+    const clsCard  = yesWon ? 'closed-yes' : 'closed-no';
+    const clsBadge = yesWon ? 'closed-badge-yes' : 'closed-badge-no';
+    const clsBanner = yesWon ? 'winner-banner-yes' : 'winner-banner-no';
+    const winnerText = b.winner
+      ? `✓ ${b.winner.toUpperCase()} WINS`
+      : (yesWon ? '✓ YES WINS' : '✓ NO WINS');
+    return `
+  <div class="bet-card ${clsCard}">
+    <div class="winner-banner ${clsBanner}">${winnerText}</div>
+    <div class="bet-sport"><span class="sport-tag">${b.sport}</span> <span class="closed-badge ${clsBadge}">CLOSED</span></div>
+    <div class="bet-title">${b.title}</div>
+    <div class="bet-desc">${b.desc}</div>
+    ${bottomSection}
+  </div>`;
+  }
+
+  return `
+  <div class="bet-card">
+    <div class="bet-sport"><span class="sport-tag">${b.sport.split(' · ')[0]}</span>${badge}</div>
+
+    <div class="bet-title">${b.title}</div>
+    <div class="bet-desc">${b.desc}</div>
+    ${bottomSection}
+    <div class="bet-close-footer">Closes ${b.closes}</div>
+  </div>`;
+}
+
+function renderBets(propOdds) {
+  _currentPropOdds = propOdds;
+  const state   = loadState();
+  const hasPick = !!getPlayer();
+
+  const openBets   = BETS.filter(b => !b.settled);
+  const closedBets = BETS.filter(b =>  b.settled);
+
+  // Sort open bets by close date ascending
+  openBets.sort((a, b) => parseCloseDate(a.closes) - parseCloseDate(b.closes));
+
+  document.getElementById('bets-grid-open').innerHTML =
+    openBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+
+  document.getElementById('bets-grid-closed').innerHTML =
+    closedBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+}
+
+// ─── WAGER MODAL ───────────────────────────────────────────────
+let _wagerCtx = null;
+
+function openWagerModal(betId, side, yesPct) {
+  const def = BETS.find(b => b.id === betId);
+  if (!def) return;
+  _wagerCtx = { betId, side, yesPct };
+
+  document.getElementById('modal-sport').textContent    = def.sport;
+  document.getElementById('modal-bet-title').innerHTML  = def.title;
+
+  const sideBadge = document.getElementById('modal-side-badge');
+  sideBadge.className = 'modal-side-badge ' + (side === 'yes' ? 'modal-side-yes' : 'modal-side-no');
+  sideBadge.textContent = side.toUpperCase();
+
+  const oddsForSide = side === 'yes' ? yesPct : (100 - yesPct);
+  document.getElementById('modal-odds-text').textContent = `implied ${oddsForSide}% chance`;
+
+  document.getElementById('modal-amount').value = '';
+  document.getElementById('modal-error').classList.remove('visible');
+  document.getElementById('modal-place-btn').disabled = true;
+  document.getElementById('modal-preview').innerHTML = 'Enter an amount to see your potential return.';
+
+  document.getElementById('wager-overlay').classList.remove('hidden');
+  document.getElementById('modal-amount').focus();
+}
+
+function closeWagerModal() {
+  document.getElementById('wager-overlay').classList.add('hidden');
+  _wagerCtx = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('wager-overlay')) closeWagerModal();
+}
+
+function setAllIn() {
+  const state = loadState();
+  if (!state) return;
+  document.getElementById('modal-amount').value = state.balance;
+  updatePreview();
+}
+
+function updatePreview() {
+  if (!_wagerCtx) return;
+  const input  = document.getElementById('modal-amount');
+  const errEl  = document.getElementById('modal-error');
+  const prevEl = document.getElementById('modal-preview');
+  const btn    = document.getElementById('modal-place-btn');
+  const state  = loadState();
+
+  const raw = parseInt(input.value, 10);
+  errEl.classList.remove('visible');
+  btn.disabled = true;
+
+  if (!raw || raw < 1) {
+    prevEl.innerHTML = 'Enter an amount to see your potential return.';
+    return;
+  }
+  if (!state || raw > state.balance) {
+    errEl.textContent = `You only have ${state ? state.balance.toLocaleString() : 0} BB.`;
+    errEl.classList.add('visible');
+    prevEl.innerHTML = '';
+    return;
+  }
+
+  const ret    = calcReturn(raw, _wagerCtx.yesPct, _wagerCtx.side);
+  if (!ret) {
+    errEl.textContent = 'Cannot bet on this side (odds unavailable).';
+    errEl.classList.add('visible');
+    return;
+  }
+  const profit = ret - raw;
+  const newBal = state.balance - raw;
+
+  prevEl.innerHTML = `
+    <div>Wager: ${raw.toLocaleString()} BB</div>
+    <div>If correct: <span class="preview-win">${ret.toLocaleString()} BB</span> &nbsp;<span class="preview-profit">(+${profit.toLocaleString()} profit)</span></div>
+    <div>Balance after bet: <span class="preview-balance">${newBal.toLocaleString()} BB</span></div>`;
+  btn.disabled = false;
+}
+
+function confirmBet() {
+  if (!_wagerCtx) return;
+  const input = document.getElementById('modal-amount');
+  const wager = parseInt(input.value, 10);
+  const state = loadState();
+  if (!state || !wager || wager < 1 || wager > state.balance) return;
+
+  const def = BETS.find(b => b.id === _wagerCtx.betId);
+  if (!def) return;
+
+  const ret = calcReturn(wager, _wagerCtx.yesPct, _wagerCtx.side);
+  if (!ret) return;
+
+  state.balance -= wager;
+  state.bets.push({
+    id: def.id,
+    side: _wagerCtx.side,
+    wager,
+    oddsAtBet: _wagerCtx.yesPct,
+    potentialReturn: ret,
+    timestamp: new Date().toISOString(),
+    closes: def.closes,
+    sport: def.sport,
+    title: def.title,
+    settled: false,
+    settledOutcome: null,
+  });
+  saveState(state);
+
+  closeWagerModal();
+  renderBalance();
+  renderBBLeaderboard();
+  renderActiveBets();
+  renderBets(_currentPropOdds);
+  // Re-fetch Supabase after a short delay so All Bets reflects the new row
+  setTimeout(() => sbRefreshLeaderboard(), 800);
+
+  const sideLabel = _wagerCtx.side.toUpperCase();
+  showToast('placed', `Bet placed — ${sideLabel} · ${wager.toLocaleString()} BB → ${ret.toLocaleString()} BB`, 4000);
+}
+
+// ─── TOASTS ────────────────────────────────────────────────────
+function showToast(type, msg, durationMs) {
+  const stack = document.getElementById('toast-stack');
+  const el    = document.createElement('div');
+  const heads = { won: 'Bet Settled — Won', lost: 'Bet Settled — Lost', placed: 'Bet Placed' };
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<div class="toast-head">${heads[type] || ''}</div><div class="toast-body">${msg}</div>`;
+  stack.appendChild(el);
+  setTimeout(() => el.remove(), durationMs || 5000);
+}
+
+// ─── PLAYER PICKER ─────────────────────────────────────────────
+const FL_PLAYERS = ['Tim','Wu','Jens','Todd','Mitchell','Shep','Theo','Feder','Fryar','Korch','Molmen','Jamzee','Buckley'];
+let _pickerIsReset = false;
+
+function openPicker(isReset) {
+  _pickerIsReset = !!isReset;
+  const resetNote = document.getElementById('picker-reset-note');
+  resetNote.style.display = isReset ? '' : 'none';
+
+  const grid = document.getElementById('picker-grid');
+  grid.innerHTML = FL_PLAYERS.map(p =>
+    `<button class="picker-btn" onclick="pickPlayer('${p}')">${p}</button>`
+  ).join('');
+
+  document.getElementById('picker-overlay').classList.remove('hidden');
+}
+
+function closePicker() {
+  document.getElementById('picker-overlay').classList.add('hidden');
+}
+
+function pickPlayer(name) {
+  if (_pickerIsReset) {
+    // Just picked confirm, handled via confirmReset
+    document.getElementById('picker-reset-note').style.display = '';
+    // Store pending name, wait for confirmReset
+    document.getElementById('picker-reset-note').dataset.pending = name;
+    // Update buttons to show selection
+    document.querySelectorAll('.picker-btn').forEach(b => {
+      b.style.borderColor = b.textContent === name ? 'var(--gold)' : '';
+      b.style.color = b.textContent === name ? 'var(--gold)' : '';
+    });
+    return;
+  }
+  // Fresh pick (no existing state)
+  initState(name);
+  closePicker();
+  renderBalance();
+  renderBBLeaderboard();
+  renderActiveBets();
+  renderBets(_currentPropOdds);
+}
+
+function confirmReset() {
+  const note    = document.getElementById('picker-reset-note');
+  const pending = note.dataset.pending;
+  const name    = pending || FL_PLAYERS[0];
+  initState(name);
+  closePicker();
+  renderBalance();
+  renderBBLeaderboard();
+  renderActiveBets();
+  renderBets(_currentPropOdds);
+}
+
+// ─── KEYBOARD SHORTCUTS ────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeWagerModal();
+    if (!_pickerIsReset) closePicker();
+  }
+  if (e.key === 'Enter' && !document.getElementById('wager-overlay').classList.contains('hidden')) {
+    const btn = document.getElementById('modal-place-btn');
+    if (!btn.disabled) confirmBet();
+  }
+});
+
+// ─── INIT ───────────────────────────────────────────────────────
+(async function init() {
+  const player = getPlayer();
+  const state  = loadState();
+
+  // Wipe any bets placed before the last reset (keeps balance clean).
+  // Write directly to localStorage — do NOT call saveState/sbSyncState here,
+  // or it would overwrite the Supabase balance with 1000 BB, erasing any
+  // settled winnings that scoring.py already credited.
+  if (state && state.bets && state.bets.some(b => b.timestamp < RESET_AFTER)) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ balance: STARTING_BB, bets: [] }));
+    // sbHydrate (below) will restore the correct balance from Supabase
+  }
+
+  // Start Supabase realtime subscription + initial leaderboard fetch
+  sbSubscribeLeaderboard();
+  sbRefreshLeaderboard();
+
+  if (!player || !state) {
+    // First visit: show picker after a short delay
+    setTimeout(() => openPicker(false), 300);
+  } else {
+    // Sync balance from Supabase (cross-device consistency)
+    await sbHydrate(player);
+
+    // Settle any newly resolved bets before rendering
+    const settled = settleBets();
+    settled.forEach(r => {
+      if (r.won) {
+        const profit = r.potentialReturn - r.wager;
+        showToast('won', `${r.sport} · +${profit.toLocaleString()} BB`, 7000);
+      } else {
+        showToast('lost', `${r.sport} · −${r.wager.toLocaleString()} BB`, 7000);
+      }
+    });
+    renderBalance();
+    renderBBLeaderboard();
+    renderActiveBets();
+    // renderBets will be called by the projections fetch
+  }
+})();
+</script>
+</body>
+</html>

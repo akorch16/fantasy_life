@@ -38,11 +38,13 @@ Search for the 5 most relevant sports/entertainment/finance stories from the las
 
 ### Step 1 — Find stories (use WebSearch)
 
-Search for recent news (last 3 days) across these categories, prioritizing stories that are actually newsworthy and affect the picks above. Run several targeted searches:
+Search for recent news (last 3 days) across ALL categories, prioritizing stories that are actually newsworthy and affect the picks above. Run several targeted searches:
 
-- Sports playoffs/standings/championships: NBA, NHL, MLB, NCAAB, NCAAF, Tennis, Golf, NASCAR, MLS
-- Entertainment: Grammy nominations/wins, Oscar nominations/wins, box office weekend results, Billboard chart moves
-- Finance: notable % moves for COIN, NVDA, TSLA, SMCI, PLTR, AVGO, CVNA, TTWO, INTC — and any macro news affecting them
+- **Sports:** NBA/NHL Finals, MLB standings, Roland Garros/Wimbledon/US Open tennis, US Open golf, NASCAR, MLS
+- **FIFA World Cup 2026:** group stage results, knockout round scores — check Netherlands, USA, Germany, France, Brazil, Argentina, Spain, Canada, Norway, Switzerland
+- **Music:** Billboard Hot 100 chart moves, new releases, tour/album announcements for Beyoncé, Taylor Swift, Sabrina Carpenter, Kendrick Lamar, Bad Bunny, Drake, Lady Gaga, Olivia Rodrigo, FKA Twigs, The Weeknd, SZA, Justin Bieber, BTS
+- **Movies/TV:** box office weekend results, Oscar/Golden Globe nominations, new trailers or releases starring Pedro Pascal, Zendaya, Anne Hathaway, Timothée Chalamet, Jeremy Allen White, Ariana Grande, Florence Pugh, Anya Taylor-Joy, Robert Pattinson, Tom Holland, Dwayne Johnson, Chris Hemsworth
+- **Stocks:** notable % moves (±3%+ preferred) for COIN, NVDA, TSLA, SMCI, PLTR, AVGO, CVNA, TTWO, INTC, LULU, SOFI, CMG, NEE
 
 Only surface stories that involve the actual picks listed above. Discard anything that doesn't map to a pick.
 
@@ -50,9 +52,10 @@ Only surface stories that involve the actual picks listed above. Discard anythin
 
 ### Step 2 — Pick the 5 best stories
 
-Select the 5 most headline-worthy events. Prefer:
+Select the 5 most headline-worthy events across a **mix of categories** — aim for at least 2 different categories. Prefer:
 - Playoff wins/eliminations, championships, finals appearances
-- Major award nominations (Oscars, Grammys, Golden Globes)
+- World Cup group stage results or knockout upsets
+- Major award nominations or wins (Oscars, Grammys, Golden Globes)
 - Box office #1 openings or songs debuting/charting high
 - Big stock moves (±5%+ preferred)
 - Big standings shifts (significant win streak, collapse, or clinching)
@@ -62,13 +65,14 @@ Select the 5 most headline-worthy events. Prefer:
 Write a single punchy FL News ticker headline that:
 - Is **~50 words** (40–60 is fine, not less than 40)
 - Covers all 5 stories, separated by periods (.)
+- Spans **at least 2 different categories** — mix sports with music, movies, stocks, or World Cup
 - Uses `<em>` tags around **league player names** (Korch, Fryar, etc.) — NOT around team or pick names
 - Attributes each story with the player who owns that pick in parentheses, e.g. `Avalanche (<em>Korch</em>) advance to the second round`
 - **No emoji anywhere in the headline**
 - Is written in present tense, punchy wire-service style — no fluff
 
 **Example format:**
-`Avalanche (<em>Korch</em>) sweep Blues. Beyoncé (<em>Buckley</em>) debuts at #1. NVDA (<em>Todd</em>) surges 8% on earnings. Cavaliers (<em>Jens</em>) clinch East. Lightning (<em>Fryar</em>) eliminated in Game 7.`
+`Spurs (<em>Wu</em>) take Game 1 of the NBA Finals. USA (<em>Wu</em>) blank Morocco 2-0 in World Cup group play. NVDA (<em>Todd</em>) surges 9% on earnings. Taylor Swift (<em>Molmen</em>) hits #1 with new single. Hurricanes (<em>Jamzee</em>) win Game 1 of the Stanley Cup Finals.`
 
 Output ONLY the headline. No explanation, no preamble.
 
@@ -77,7 +81,7 @@ Output ONLY the headline. No explanation, no preamble.
 After outputting the headline, deploy it live:
 
 1. Read `docs/scores.json` to get current content.
-2. Update only the `headline` field with the generated headline text.
+2. Update the `headline` field AND set `headline_generated_at` to the current UTC ISO timestamp. This prevents the automated `headline.py` workflow from overwriting the manually-generated headline within the next 20 hours.
 3. Write the updated JSON back to `docs/scores.json`.
 4. Create and push a hotfix branch, then create a PR and merge it immediately:
 

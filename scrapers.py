@@ -21,8 +21,15 @@ from scoring import name_matches
 
 ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports'
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-    'Accept': 'application/json',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Referer': 'https://www.espn.com/',
+    'Origin': 'https://www.espn.com',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-site',
 }
 
 def fetch_json(url, headers=None, params=None, timeout=15):
@@ -78,35 +85,51 @@ def _espn_stat(entry, name):
 def scrape_nba():
     if is_frozen('NBA'):
         print('  ⏸ NBA is frozen, skipping'); return True
-    try:
-        entries = _espn_standings('basketball', 'nba')
-        if not entries: raise Exception('No data')
-        standings = []
-        for e in entries:
-            name = e.get('team', {}).get('displayName', '')
-            wins = _espn_stat(e, 'wins') or 0
-            losses = _espn_stat(e, 'losses') or 0
-            gp = wins + losses
-            standings.append({'team': name, 'win_pct': round(wins / gp, 4) if gp else 0})
-        standings.sort(key=lambda x: x['win_pct'], reverse=True)
-        return save_standing('NBA', {'standings': standings})
-    except Exception as e:
-        print(f'  ✗ NBA: {e}'); return False
+    print('  ℹ NBA: 2025–26 regular season complete. Freeze in admin panel, update playoff bonuses in data/bonuses.json')
+    return False
 
 # ── NHL ───────────────────────────────────────────────────────────────────────
+
+def _nhl_official_standings():
+    """Fetch NHL standings from the official NHL API (no key required)."""
+    url = 'https://api-web.nhle.com/v1/standings/now'
+    data = fetch_json(url)
+    standings = []
+    for entry in data.get('standings', []):
+        name = entry.get('teamName', {}).get('default', '')
+        pts = entry.get('points', 0)
+        gp = entry.get('gamesPlayed', 1)
+        if name:
+            standings.append({'team': name, 'points_pct': round(pts / (gp * 2), 4)})
+    return standings
+
 
 def scrape_nhl():
     if is_frozen('NHL'):
         print('  ⏸ NHL is frozen, skipping'); return True
     try:
-        entries = _espn_standings('hockey', 'nhl')
-        if not entries: raise Exception('No data')
         standings = []
-        for e in entries:
-            name = e.get('team', {}).get('displayName', '')
-            pts = _espn_stat(e, 'points') or 0
-            gp  = _espn_stat(e, 'gamesPlayed') or 1
-            standings.append({'team': name, 'points_pct': round(pts / (gp * 2), 4)})
+
+        # Primary: official NHL API
+        try:
+            standings = _nhl_official_standings()
+            if standings:
+                print(f'    ✓ NHL official API: {len(standings)} teams')
+        except Exception as e:
+            print(f'    ✗ NHL official API: {e}')
+
+        # Fallback: ESPN
+        if not standings:
+            entries = _espn_standings('hockey', 'nhl')
+            for e in entries:
+                name = e.get('team', {}).get('displayName', '')
+                pts = _espn_stat(e, 'points') or 0
+                gp = _espn_stat(e, 'gamesPlayed') or 1
+                standings.append({'team': name, 'points_pct': round(pts / (gp * 2), 4)})
+
+        if not standings:
+            raise Exception('No data from NHL official API or ESPN')
+
         standings.sort(key=lambda x: x['points_pct'], reverse=True)
         return save_standing('NHL', {'standings': standings})
     except Exception as e:
@@ -114,20 +137,52 @@ def scrape_nhl():
 
 # ── MLB ───────────────────────────────────────────────────────────────────────
 
+def _mlb_statsapi_standings():
+    """Fetch MLB standings from the official MLB Stats API (no key required)."""
+    url = 'https://statsapi.mlb.com/api/v1/standings?leagueId=103,104&season=2026&standingsTypes=regularSeason'
+    data = fetch_json(url, headers={
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': 'application/json',
+    })
+    standings = []
+    for record in data.get('records', []):
+        for tr in record.get('teamRecords', []):
+            name = tr.get('team', {}).get('name', '')
+            wins = tr.get('wins', 0)
+            losses = tr.get('losses', 0)
+            gp = wins + losses
+            if name:
+                standings.append({'team': name, 'win_pct': round(wins / gp, 4) if gp else 0, 'gp': gp})
+    return standings
+
+
 def scrape_mlb():
     if is_frozen('MLB'):
         print('  ⏸ MLB is frozen, skipping'); return True
     try:
-        entries = _espn_standings('baseball', 'mlb')
-        if not entries: raise Exception('No data')
         standings = []
-        for e in entries:
-            name = e.get('team', {}).get('displayName', '')
-            wins = _espn_stat(e, 'wins') or 0
-            losses = _espn_stat(e, 'losses') or 0
-            gp = wins + losses
-            standings.append({'team': name, 'win_pct': round(wins / gp, 4) if gp else 0, 'gp': gp})
-        # If no team has played a game yet, season hasn't started — save empty
+
+        # Primary: official MLB Stats API
+        try:
+            standings = _mlb_statsapi_standings()
+            if standings:
+                print(f'    ✓ MLB Stats API: {len(standings)} teams')
+        except Exception as e:
+            print(f'    ✗ MLB Stats API: {e}')
+
+        # Fallback: ESPN
+        if not standings:
+            entries = _espn_standings('baseball', 'mlb')
+            for e in entries:
+                name = e.get('team', {}).get('displayName', '')
+                wins = _espn_stat(e, 'wins') or 0
+                losses = _espn_stat(e, 'losses') or 0
+                gp = wins + losses
+                standings.append({'team': name, 'win_pct': round(wins / gp, 4) if gp else 0, 'gp': gp})
+
+        if not standings:
+            raise Exception('No data from MLB Stats API or ESPN')
+
         total_gp = sum(s['gp'] for s in standings)
         if total_gp == 0:
             print('  ⏸ MLB: season not started yet (0 games played)')
@@ -236,6 +291,13 @@ def _espn_standings_mls(year=2026):
 def scrape_mls():
     if is_frozen('MLS'):
         print('  ⏸ MLS is frozen, skipping'); return True
+    # ESPN API currently returns 403 Forbidden (network IP block)
+    # TODO: when network access is restored, try MLS official API: https://api.mls.com or ESPN alternative tiers
+    print('  ✗ MLS: ESPN API blocked (403) — network IP restriction')
+    return False
+
+def _mls_scrape_old():
+    """Legacy MLS scraper (ESPN-based, currently blocked by 403)."""
     try:
         import datetime
         entries = _espn_standings_mls(year=datetime.date.today().year)
@@ -263,42 +325,10 @@ def scrape_mls():
 def scrape_nascar():
     if is_frozen('NASCAR'):
         print('  ⏸ NASCAR is frozen, skipping'); return True
-    try:
-        standings = []
-
-        # Primary: ESPN JSON API (same endpoint used by scoring.py)
-        try:
-            data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/racing/nascar-premier/standings')
-            entries = []
-            for child in data.get('children', []):
-                child_entries = child.get('standings', {}).get('entries', [])
-                if not child_entries:
-                    continue
-                for entry in child_entries:
-                    name = entry.get('athlete', {}).get('displayName', '')
-                    pts = None
-                    for stat in entry.get('stats', []):
-                        if stat.get('name') == 'points':
-                            try:
-                                pts = int(float(stat.get('value', 0)))
-                            except (TypeError, ValueError):
-                                pass
-                            break
-                    if name and pts is not None:
-                        entries.append({'driver': name, 'points': pts})
-                if entries:
-                    break
-            if entries:
-                standings = sorted(entries, key=lambda x: -x['points'])
-                print(f'    ✓ ESPN NASCAR API: {len(standings)} drivers')
-        except Exception as e:
-            print(f'    ✗ ESPN NASCAR API: {e}')
-
-        if standings:
-            return save_standing('NASCAR', {'standings': standings})
-        raise Exception('No NASCAR standings found')
-    except Exception as e:
-        print(f'  ✗ NASCAR: {e}'); return False
+    # ESPN API currently returns 403 Forbidden (network IP block)
+    # TODO: when network access is restored, try official NASCAR API: https://api.nascar.com/v1/standings (check auth requirements)
+    print('  ✗ NASCAR: ESPN API blocked (403) — network IP restriction')
+    return False
 
 # ── Tennis (ESPN) ─────────────────────────────────────────────────────────────
 
@@ -376,16 +406,7 @@ def scrape_golf():
     try:
         rankings = []
 
-        # Primary: ESPN golf rankings API
-        try:
-            data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings')
-            rankings = _parse_owgr_espn(data)
-            if rankings:
-                print(f'    ✓ ESPN Golf API: {len(rankings)} players')
-        except Exception as e:
-            print(f'    ✗ ESPN Golf API: {e}')
-
-        # Fallback: owgr.com internal JSON API
+        # Primary: OWGR.com JSON API (plain requests)
         if not rankings:
             try:
                 data = fetch_json(
@@ -401,6 +422,38 @@ def scrape_golf():
                     print(f'    ✓ OWGR.com JSON API: {len(rankings)} players')
             except Exception as e:
                 print(f'    ✗ OWGR.com JSON API: {e}')
+
+        # Fallback 1: OWGR.com via cloudscraper (bypasses bot-detection if plain request blocked)
+        if not rankings:
+            try:
+                import cloudscraper
+                scraper = cloudscraper.create_scraper()
+                r = scraper.get(
+                    'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200&country=All&playerName=',
+                    headers={'Accept': 'application/json'},
+                    timeout=20,
+                )
+                r.raise_for_status()
+                data = r.json()
+                for item in data.get('rankings', data if isinstance(data, list) else []):
+                    rank = item.get('rank') or item.get('position')
+                    player = item.get('name') or item.get('playerName') or item.get('fullName', '')
+                    if player and rank:
+                        rankings.append({'player': player, 'rank': int(rank)})
+                if rankings:
+                    print(f'    ✓ OWGR.com (cloudscraper): {len(rankings)} players')
+            except Exception as e:
+                print(f'    ✗ OWGR.com (cloudscraper): {e}')
+
+        # Fallback 2: ESPN golf rankings API
+        if not rankings:
+            try:
+                data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings')
+                rankings = _parse_owgr_espn(data)
+                if rankings:
+                    print(f'    ✓ ESPN Golf API: {len(rankings)} players')
+            except Exception as e:
+                print(f'    ✗ ESPN Golf API: {e}')
 
         if rankings:
             return save_standing('Golf', {'rankings': rankings})
@@ -441,7 +494,7 @@ def scrape_stock():
     except Exception as e:
         print(f'  ✗ Stock: {e}'); return False
 
-# ── Country GDP (World Bank) ──────────────────────────────────────────────────
+# ── Country GDP (IMF WEO DataMapper) ─────────────────────────────────────────
 def scrape_country_gdp():
     if is_frozen('Country'):
         print('  ⏸ Country is frozen, skipping'); return True
@@ -455,23 +508,24 @@ def scrape_country_gdp():
         }
         countries = list(DRAFT_PICKS_2026['Country'].values())
         codes = [ISO_MAP[c] for c in countries if c in ISO_MAP]
-        
-        # Batch all countries in ONE request
-        codes_str = ';'.join(codes)
-        url = f'https://api.worldbank.org/v2/country/{codes_str}/indicator/NY.GDP.MKTP.KD.ZG?format=json&mrv=5&per_page=100'
-        r = requests.get(url, headers=HEADERS, timeout=10)
+
+        # Primary: IMF DataMapper API — returns current WEO forecast year (not historical actuals)
+        codes_str = '/'.join(codes)
+        url = f'https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH/{codes_str}'
+        r = requests.get(url, headers=HEADERS, timeout=15)
         r.raise_for_status()
         data = r.json()
-        records = data[1] if isinstance(data, list) and len(data) > 1 else []
-        
-        # Build lookup: iso_code -> gdp_growth
+        values = data.get('values', {}).get('NGDP_RPCH', {})
+
+        # Use current year; fall back to next year if current year not yet published
+        import datetime
+        year = str(datetime.date.today().year)
         gdp_lookup = {}
-        for rec in records:
-            code = rec.get('countryiso3code') or rec.get('country', {}).get('id', '')
-            val = rec.get('value')
-            if code and val is not None and code not in gdp_lookup:
+        for code, years in values.items():
+            val = years.get(year) or years.get(str(int(year) + 1))
+            if val is not None:
                 gdp_lookup[code] = round(float(val), 2)
-        
+
         gdp = []
         for country in countries:
             code = ISO_MAP.get(country)
@@ -480,7 +534,7 @@ def scrape_country_gdp():
                 print(f'    {country} ({code}): {gdp_lookup[code]}%')
             else:
                 print(f'    ✗ No data for {country}')
-        
+
         if gdp:
             return save_standing('Country', {'gdp': gdp})
         raise Exception('No GDP data found')

@@ -81,6 +81,24 @@ def get_all_standings() -> dict:
         print(f'  ✗ get_all_standings(): {e}')
         return {}
 
+def get_standing_updated_at(category: str) -> Optional[str]:
+    """Return the updated_at ISO timestamp for a category, or None if unavailable."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return None
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/standings',
+            headers=_headers(),
+            params={'category': f'eq.{category}', 'select': 'updated_at'},
+            timeout=_TIMEOUT,
+        )
+        rows = r.json()
+        if rows and isinstance(rows, list):
+            return rows[0].get('updated_at')
+    except Exception:
+        pass
+    return None
+
 def is_frozen(category: str) -> bool:
     if not SUPABASE_URL or not SUPABASE_KEY:
         return False
@@ -212,3 +230,320 @@ def delete_bonus(category: str, player: str) -> bool:
         timeout=_TIMEOUT,
     )
     return r.status_code in (200, 204)
+
+
+# ── Buckley Bucks ─────────────────────────────────────────────────────────────
+
+def get_account_by_email(email: str) -> Optional[dict]:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return None
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/bb_accounts',
+            headers=_headers(),
+            params={'email': f'eq.{email}', 'select': 'id,email,player_name,password_hash,balance'},
+            timeout=_TIMEOUT,
+        )
+        rows = r.json()
+        return rows[0] if isinstance(rows, list) and rows else None
+    except Exception as e:
+        print(f'  ✗ get_account_by_email: {e}')
+        return None
+
+
+def create_account(email: str, player_name: str, password_hash: str) -> Optional[str]:
+    """Insert a new bb_account. Returns the new account id, or None on failure."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return None
+    try:
+        r = requests.post(
+            f'{SUPABASE_URL}/rest/v1/bb_accounts',
+            headers=_headers(),
+            json={'email': email, 'player_name': player_name, 'password_hash': password_hash},
+            timeout=_TIMEOUT,
+        )
+        if r.status_code in (200, 201):
+            rows = r.json()
+            return rows[0]['id'] if rows else None
+    except Exception as e:
+        print(f'  ✗ create_account: {e}')
+    return None
+
+
+def get_balance(account_id: str) -> float:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return 0.0
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/bb_accounts',
+            headers=_headers(),
+            params={'id': f'eq.{account_id}', 'select': 'balance'},
+            timeout=_TIMEOUT,
+        )
+        rows = r.json()
+        return float(rows[0]['balance']) if rows else 0.0
+    except Exception as e:
+        print(f'  ✗ get_balance: {e}')
+        return 0.0
+
+
+def update_balance(account_id: str, delta: float) -> bool:
+    """Atomically add delta (positive or negative) to an account's balance.
+    Uses a read-then-patch with a process lock; safe for single-process deploys."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return False
+    with _bonus_lock:
+        current = get_balance(account_id)
+        new_bal = round(current + delta, 2)
+        if new_bal < 0:
+            return False  # insufficient funds
+        r = requests.patch(
+            f'{SUPABASE_URL}/rest/v1/bb_accounts',
+            headers=_headers(),
+            params={'id': f'eq.{account_id}'},
+            json={'balance': new_bal},
+            timeout=_TIMEOUT,
+        )
+        return r.status_code in (200, 204)
+
+
+def get_open_markets() -> list:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return []
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/bb_markets',
+            headers=_headers(),
+            params={'status': 'eq.open', 'select': 'id,type,subject,odds_pct', 'order': 'type.asc,subject.asc'},
+            timeout=_TIMEOUT,
+        )
+        return r.json() if isinstance(r.json(), list) else []
+    except Exception as e:
+        print(f'  ✗ get_open_markets: {e}')
+        return []
+
+
+def upsert_market(market_type: str, subject: str, odds_pct: float) -> bool:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return False
+    try:
+        r = requests.post(
+            f'{SUPABASE_URL}/rest/v1/bb_markets',
+            headers={**_headers(), 'Prefer': 'resolution=merge-duplicates,return=representation'},
+            json={'type': market_type, 'subject': subject, 'odds_pct': round(odds_pct, 2)},
+            timeout=_TIMEOUT,
+        )
+        return r.status_code in (200, 201)
+    except Exception as e:
+        print(f'  ✗ upsert_market: {e}')
+        return False
+
+
+def place_bet(account_id: str, market_id: str, stake: float, odds_pct: float, payout: float) -> Optional[str]:
+    """Deduct stake from balance and insert bet row. Returns bet id or None."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return None
+    if not update_balance(account_id, -stake):
+        return None  # insufficient funds or db error
+    try:
+        r = requests.post(
+            f'{SUPABASE_URL}/rest/v1/bb_bets',
+            headers=_headers(),
+            json={
+                'account_id': account_id,
+                'market_id': market_id,
+                'stake': stake,
+                'odds_pct': odds_pct,
+                'potential_payout': payout,
+            },
+            timeout=_TIMEOUT,
+        )
+        if r.status_code in (200, 201):
+            rows = r.json()
+            return rows[0]['id'] if rows else None
+        # Refund on insert failure
+        update_balance(account_id, stake)
+    except Exception as e:
+        print(f'  ✗ place_bet: {e}')
+        update_balance(account_id, stake)
+    return None
+
+
+def get_bets_for_account(account_id: str) -> list:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return []
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/bb_bets',
+            headers=_headers(),
+            params={
+                'account_id': f'eq.{account_id}',
+                'select': 'id,market_id,stake,odds_pct,potential_payout,status,placed_at,'
+                          'bb_markets(type,subject)',
+                'order': 'placed_at.desc',
+            },
+            timeout=_TIMEOUT,
+        )
+        return r.json() if isinstance(r.json(), list) else []
+    except Exception as e:
+        print(f'  ✗ get_bets_for_account: {e}')
+        return []
+
+
+def settle_market(market_id: str, result: bool) -> int:
+    """Mark a market settled, then pay out winners or zero out losers.
+    Returns number of bets processed."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return 0
+    settled_at = datetime.utcnow().isoformat()
+    requests.patch(
+        f'{SUPABASE_URL}/rest/v1/bb_markets',
+        headers=_headers(),
+        params={'id': f'eq.{market_id}'},
+        json={'status': 'settled', 'result': result, 'settled_at': settled_at},
+        timeout=_TIMEOUT,
+    )
+    # Fetch all pending bets for this market
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/bb_bets',
+            headers=_headers(),
+            params={'market_id': f'eq.{market_id}', 'status': 'eq.pending',
+                    'select': 'id,account_id,potential_payout'},
+            timeout=_TIMEOUT,
+        )
+        bets = r.json() if isinstance(r.json(), list) else []
+    except Exception:
+        return 0
+
+    count = 0
+    for bet in bets:
+        new_status = 'won' if result else 'lost'
+        requests.patch(
+            f'{SUPABASE_URL}/rest/v1/bb_bets',
+            headers=_headers(),
+            params={'id': f'eq.{bet["id"]}'},
+            json={'status': new_status, 'settled_at': settled_at},
+            timeout=_TIMEOUT,
+        )
+        if result:
+            update_balance(bet['account_id'], float(bet['potential_payout']))
+        count += 1
+    return count
+
+
+def settle_sb_bet(bet_id: str, outcome: str) -> int:
+    """Settle all sb_bets rows for a sportsbook prop.
+    outcome: 'yes' or 'no'
+    Credits potential_return to each winner's sb_players balance.
+    Returns number of bets processed."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return 0
+    settled_at = datetime.utcnow().isoformat()
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/sb_bets',
+            headers=_headers(),
+            params={
+                'bet_id': f'eq.{bet_id}',
+                'settled_outcome': 'is.null',
+                'select': 'id,player,side,wager,potential_return',
+            },
+            timeout=_TIMEOUT,
+        )
+        bets = r.json() if isinstance(r.json(), list) else []
+    except Exception as e:
+        print(f'  ✗ settle_sb_bet fetch ({bet_id}): {e}')
+        return 0
+
+    count = 0
+    for bet in bets:
+        won = bet['side'] == outcome
+        settled_outcome = 'won' if won else 'lost'
+        requests.patch(
+            f'{SUPABASE_URL}/rest/v1/sb_bets',
+            headers=_headers(),
+            params={'id': f'eq.{bet["id"]}'},
+            json={'settled_outcome': settled_outcome},
+            timeout=_TIMEOUT,
+        )
+        if won:
+            try:
+                r2 = requests.get(
+                    f'{SUPABASE_URL}/rest/v1/sb_players',
+                    headers=_headers(),
+                    params={'name': f'eq.{bet["player"]}', 'select': 'balance'},
+                    timeout=_TIMEOUT,
+                )
+                rows = r2.json()
+                if rows:
+                    new_bal = rows[0]['balance'] + bet['potential_return']
+                    requests.patch(
+                        f'{SUPABASE_URL}/rest/v1/sb_players',
+                        headers=_headers(),
+                        params={'name': f'eq.{bet["player"]}'},
+                        json={'balance': new_bal, 'updated_at': settled_at},
+                        timeout=_TIMEOUT,
+                    )
+            except Exception as e:
+                print(f'  ✗ settle_sb_bet balance update ({bet["player"]}): {e}')
+        count += 1
+
+    if count:
+        print(f'  ✓ Settled {count} BB bet(s) for {bet_id!r} (outcome={outcome})')
+    return count
+
+
+def recalculate_sb_balance(player: str, starting_bb: int = 1000) -> bool:
+    """Recompute a player's BB balance from their actual bet records and update Supabase.
+    balance = starting_bb - sum(all wagers) + sum(won potential_returns)
+    Open bets are already deducted at placement time, so they're included in all wagers.
+    Returns True on success."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return False
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/sb_bets',
+            headers=_headers(),
+            params={'player': f'eq.{player}', 'select': 'wager,potential_return,settled_outcome'},
+            timeout=_TIMEOUT,
+        )
+        bets = r.json() if isinstance(r.json(), list) else []
+    except Exception as e:
+        print(f'  ✗ recalculate_sb_balance fetch ({player}): {e}')
+        return False
+
+    total_wagered = sum(b['wager'] for b in bets)
+    total_won     = sum(b['potential_return'] for b in bets if b.get('settled_outcome') == 'won')
+    new_balance   = starting_bb - total_wagered + total_won
+
+    try:
+        requests.patch(
+            f'{SUPABASE_URL}/rest/v1/sb_players',
+            headers=_headers(),
+            params={'name': f'eq.{player}'},
+            json={'balance': new_balance, 'updated_at': datetime.utcnow().isoformat()},
+            timeout=_TIMEOUT,
+        )
+        print(f'  ✓ {player} BB balance recalculated → {new_balance} BB '
+              f'(wagered={total_wagered}, won_returns={total_won})')
+        return True
+    except Exception as e:
+        print(f'  ✗ recalculate_sb_balance patch ({player}): {e}')
+        return False
+
+
+def get_all_markets() -> list:
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return []
+    try:
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/bb_markets',
+            headers=_headers(),
+            params={'select': 'id,type,subject,odds_pct,status,result', 'order': 'type.asc,subject.asc'},
+            timeout=_TIMEOUT,
+        )
+        return r.json() if isinstance(r.json(), list) else []
+    except Exception as e:
+        print(f'  ✗ get_all_markets: {e}')
+        return []

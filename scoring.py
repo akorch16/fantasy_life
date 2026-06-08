@@ -6,8 +6,10 @@ Reads all data from Supabase via db.py instead of local JSON files.
 
 import os
 
+from datetime import datetime, timezone
+
 from draft_picks_2026 import DRAFT_PICKS_2026, PLAYERS, TENNIS_GENDER
-from db import get_standing, get_all_standings, get_all_bonuses, get_last_updated
+from db import get_standing, get_all_standings, get_all_bonuses, get_last_updated, get_standing_updated_at
 
 SEASON = 2026
 PREMIUM_PLAYER = 'Todd'
@@ -273,31 +275,32 @@ def compute_baseline_tennis():
 
 
 # OWGR as of May 13, 2026 (static fallback — ESPN API blocked)
-GOLF_2026_OWGR_STATIC = {"rankings": [
+GOLF_2026_OWGR_STATIC = {"as_of": "2026-05-26", "rankings": [
     {"player": "Scottie Scheffler",   "rank": 1},
     {"player": "Rory McIlroy",        "rank": 2},
     {"player": "Cameron Young",       "rank": 3},
-    {"player": "Matt Fitzpatrick",    "rank": 4},
-    {"player": "Collin Morikawa",     "rank": 5},
-    {"player": "Tommy Fleetwood",     "rank": 6},
-    {"player": "Justin Rose",         "rank": 7},
-    {"player": "J.J. Spaun",          "rank": 8},
+    {"player": "Justin Rose",         "rank": 4},
+    {"player": "Matt Fitzpatrick",    "rank": 5},
+    {"player": "Collin Morikawa",     "rank": 6},
+    {"player": "Tommy Fleetwood",     "rank": 7},
+    {"player": "Xander Schauffele",   "rank": 8},
     {"player": "Russell Henley",      "rank": 9},
-    {"player": "Chris Gotterup",      "rank": 10},
-    {"player": "Xander Schauffele",   "rank": 11},
-    {"player": "Robert MacIntyre",    "rank": 12},
-    {"player": "Sepp Straka",         "rank": 13},
-    {"player": "Ben Griffin",         "rank": 14},
+    {"player": "J.J. Spaun",          "rank": 10},
+    {"player": "Chris Gotterup",      "rank": 11},
+    {"player": "Jon Rahm",            "rank": 12},
+    {"player": "Robert MacIntyre",    "rank": 13},
+    {"player": "Aaron Rai",           "rank": 14},
     {"player": "Ludvig Aberg",        "rank": 15},
     {"player": "Justin Thomas",       "rank": 16},
     {"player": "Hideki Matsuyama",    "rank": 17},
     {"player": "Alex Noren",          "rank": 18},
     {"player": "Jacob Bridgeman",     "rank": 19},
-    {"player": "Jon Rahm",            "rank": 20},
     {"player": "Harris English",      "rank": 21},
-    {"player": "Viktor Hovland",      "rank": 27},
-    {"player": "Bryson DeChambeau",   "rank": 28},
-    {"player": "Patrick Cantlay",     "rank": 30},
+    {"player": "Sepp Straka",         "rank": 22},
+    {"player": "Ben Griffin",         "rank": 24},
+    {"player": "Viktor Hovland",      "rank": 30},
+    {"player": "Bryson DeChambeau",   "rank": 32},
+    {"player": "Patrick Cantlay",     "rank": 33},
 ]}
 
 def compute_baseline_golf():
@@ -329,20 +332,20 @@ def compute_baseline_golf():
     return result
 
 
-# MLS 2026 standings as of Apr 30 2026 (week ~10)
+# MLS 2026 standings as of May 27 2026 (pre-World Cup break, week ~14)
 MLS_2026_STANDINGS_STATIC = {"standings": [
-    {"team": "Vancouver Whitecaps",  "points": 24},
-    {"team": "LAFC",                 "points": 20},
-    {"team": "Inter Miami",          "points": 19},
-    {"team": "Seattle Sounders",     "points": 19},
-    {"team": "Minnesota United",     "points": 17},
-    {"team": "Charlotte FC",         "points": 14},
-    {"team": "New York Red Bulls",   "points": 12},
-    {"team": "Columbus Crew",        "points": 12},
-    {"team": "FC Cincinnati",        "points": 12},
-    {"team": "LA Galaxy",            "points": 12},
-    {"team": "San Diego FC",         "points": 11},
-    {"team": "Orlando City",         "points": 7},
+    {"team": "Vancouver Whitecaps",  "points": 32},
+    {"team": "Inter Miami",          "points": 28},
+    {"team": "LAFC",                 "points": 24},
+    {"team": "Seattle Sounders",     "points": 24},
+    {"team": "Minnesota United",     "points": 22},
+    {"team": "Charlotte FC",         "points": 21},
+    {"team": "LA Galaxy",            "points": 20},
+    {"team": "New York Red Bulls",   "points": 19},
+    {"team": "San Diego FC",         "points": 17},
+    {"team": "FC Cincinnati",        "points": 16},
+    {"team": "Columbus Crew",        "points": 16},
+    {"team": "Orlando City",         "points": 14},
     {"team": "Philadelphia Union",   "points": 5},
 ]}
 
@@ -412,15 +415,25 @@ def compute_baseline_nascar():
 
 def compute_baseline_actor_actress(category):
     picks = DRAFT_PICKS_2026.get(category, {})
-    data = load_data(category.lower())
+    import json as _json
+    _path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', f'{category.lower()}.json')
+    data = None
+    try:
+        with open(_path) as _f:
+            data = _json.load(_f)
+    except Exception:
+        data = load_data(category.lower())
 
     raw_values = {}
+    movies_by_player = {}
     for player, name in picks.items():
         composite = None
         if data:
             for entry in data.get('scores', []):
                 if name_matches(name, entry.get('name', '')):
                     composite = entry.get('composite_score')
+                    if entry.get('movies'):
+                        movies_by_player[player] = entry['movies']
                     break
         raw_values[player] = composite if composite is not None else -1
 
@@ -435,6 +448,7 @@ def compute_baseline_actor_actress(category):
         result[player] = {
             'pick': name, 'raw_value': round(raw, 2) if raw >= 0 else None,
             'rank': rank, 'baseline_pts': pts, 'bonus_pts': 0,
+            'movies': movies_by_player.get(player, []),
         }
     return result
 
@@ -444,20 +458,18 @@ def compute_baseline_musician():
     data = load_data('musician')
 
     raw_values = {}
-    player_chart_stats = {}
+    chart_by_player = {}
     for player, name in picks.items():
         score = None
-        num1 = hot100 = 0
         if data:
             for entry in data.get('scores', []):
                 if name_matches(name, entry.get('artist', '')):
                     num1   = entry.get('num1_weeks', 0) or 0
                     hot100 = entry.get('hot100_weeks', 0) or 0
                     score  = (2 * num1) + hot100
+                    chart_by_player[player] = {'num1_weeks': num1, 'hot100_weeks': hot100}
                     break
         raw_values[player] = score if score is not None else -1
-        player_chart_stats[player] = (num1 if score is not None else None,
-                                      hot100 if score is not None else None)
 
     valid = {p: (v if v >= 0 else 0) for p, v in raw_values.items()}
     ranks = rank_avg(valid, reverse=True)
@@ -467,18 +479,28 @@ def compute_baseline_musician():
         raw = raw_values[player]
         rank = ranks.get(player)
         pts = rank_to_points(rank) if rank is not None else 0
-        n1, h100 = player_chart_stats[player]
+        stats = chart_by_player.get(player, {})
         result[player] = {
             'pick': name, 'raw_value': raw if raw >= 0 else None,
             'rank': rank, 'baseline_pts': pts, 'bonus_pts': 0,
-            'num1_weeks': n1, 'hot100_weeks': h100,
+            'num1_weeks': stats.get('num1_weeks', 0),
+            'hot100_weeks': stats.get('hot100_weeks', 0),
         }
     return result
 
 
 def compute_baseline_country():
     picks = DRAFT_PICKS_2026.get('Country', {})
-    data = load_data('country')
+    # Primary: local file (IMF WEO data, updated April + October each year)
+    # Supabase is NOT used for Country — it holds stale scraped data.
+    import json as _json
+    _path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'country.json')
+    data = None
+    try:
+        with open(_path) as _f:
+            data = _json.load(_f)
+    except Exception:
+        data = load_data('country')  # fallback only if file is missing
 
     raw_values = {}
     for player, country in picks.items():
@@ -603,7 +625,7 @@ def compute_all_scores():
             bonus     = p_data.get('bonus_pts', 0) or 0
             cat_total = base + bonus
             total    += cat_total
-            cat_breakdown[cat] = {
+            entry = {
                 'pick':         p_data.get('pick', '—'),
                 'raw_value':    p_data.get('raw_value'),
                 'raw_display':  p_data.get('raw_display'),
@@ -611,9 +633,13 @@ def compute_all_scores():
                 'baseline_pts': round(base, 2),
                 'bonus_pts':    round(bonus, 2),
                 'total_pts':    round(cat_total, 2),
-                'num1_weeks':   p_data.get('num1_weeks') if cat == 'Musician' else None,
-                'hot100_weeks': p_data.get('hot100_weeks') if cat == 'Musician' else None,
             }
+            if cat == 'Musician':
+                entry['num1_weeks'] = p_data.get('num1_weeks', 0)
+                entry['hot100_weeks'] = p_data.get('hot100_weeks', 0)
+            elif cat in ('Actor', 'Actress'):
+                entry['movies'] = p_data.get('movies', [])
+            cat_breakdown[cat] = entry
         player_totals[player] = {
             'name':       player,
             'total':      round(total, 2),
@@ -625,10 +651,25 @@ def compute_all_scores():
     for i, p in enumerate(sorted_players):
         p['place'] = i + 1
 
+    # Staleness check: warn if golf data hasn't been refreshed within 7 days
+    golf_data_stale = True  # conservative default — assume stale until proven otherwise
+    golf_updated_at = get_standing_updated_at('Golf')
+    if golf_updated_at:
+        try:
+            age_days = (datetime.now(timezone.utc) - datetime.fromisoformat(golf_updated_at.replace('Z', '+00:00'))).days
+            golf_data_stale = age_days > 7
+            if golf_data_stale:
+                print(f'  ⚠ Golf data is {age_days} days old (last updated {golf_updated_at})')
+            else:
+                print(f'  ✓ Golf data is {age_days} days old (fresh)')
+        except Exception:
+            pass
+
     return {
-        'players':      sorted_players,
-        'last_updated': get_last_updated(),
-        'season':       SEASON,
+        'players':         sorted_players,
+        'last_updated':    get_last_updated(),
+        'season':          SEASON,
+        'golf_data_stale': golf_data_stale,
     }
 
 
@@ -694,6 +735,7 @@ def name_matches(pick_name, data_name):
     return False
 
 
+
 if __name__ == '__main__':
     import json, os
     out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'docs')
@@ -702,19 +744,43 @@ if __name__ == '__main__':
 
     import datetime
 
-    # Read previous scores.json to preserve headline fields and weekly baseline.
-    # headline and headline_generated_at are owned by headline.py — never overwrite them here.
+    # Read previous scores.json to preserve headline, headline timestamp, and score history
     existing_headline = ''
     existing_headline_ts = None
-    weekly_baseline: dict = {}
+    score_history: list = []
+    prev: dict = {}
     try:
         with open(out_path) as _f:
             prev = json.load(_f)
             existing_headline = prev.get('headline', '')
             existing_headline_ts = prev.get('headline_generated_at')
-            weekly_baseline = prev.get('weekly_baseline', {})
+            score_history = prev.get('score_history', [])
+            # One-time migration from old weekly_baseline
+            if not score_history:
+                wb = prev.get('weekly_baseline', {})
+                if wb.get('totals') and wb.get('date'):
+                    score_history = [{'date': wb['date'], 'totals': wb['totals'], 'places': wb.get('places', {})}]
     except Exception:
         pass
+
+    # Settle any resolved sportsbook bets centrally so all players get credited
+    _sb_settled_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'sb_settled.json')
+    if os.path.exists(_sb_settled_path):
+        import db as _db
+        with open(_sb_settled_path) as _f:
+            _sb_settled = json.load(_f)
+        if _sb_settled:
+            print('Settling sportsbook bets...')
+            for _entry in _sb_settled:
+                _db.settle_sb_bet(_entry['id'], _entry['outcome'])
+
+        # Recalculate every player's balance from their actual bet records.
+        # Self-heals any corruption (e.g. client-side RESET_AFTER overwriting Supabase balance).
+        _all_sb_players = ['Tim','Wu','Jens','Todd','Mitchell','Shep','Theo',
+                           'Feder','Fryar','Korch','Molmen','Jamzee','Buckley']
+        print('Recalculating BB balances...')
+        for _p in _all_sb_players:
+            _db.recalculate_sb_balance(_p)
 
     print('Computing scores...')
     data = compute_all_scores()
@@ -722,26 +788,48 @@ if __name__ == '__main__':
     if existing_headline_ts:
         data['headline_generated_at'] = existing_headline_ts
 
+    # Guard: if Supabase was unavailable, preserve previous non-None category values
+    # rather than overwriting good CI data with None. Local-file-backed categories
+    # (actor, actress, country, static sports) are always recomputed and take priority.
+    if not _bulk_standings and prev.get('players'):
+        prev_map = {p['name']: p for p in prev['players']}
+        for player in data.get('players', []):
+            prev_p = prev_map.get(player['name'], {})
+            for cat, cat_data in player.get('categories', {}).items():
+                if cat_data.get('raw_value') is None:
+                    prev_cat = prev_p.get('categories', {}).get(cat, {})
+                    if prev_cat.get('raw_value') is not None:
+                        cat_data['raw_value']    = prev_cat['raw_value']
+                        cat_data['rank']         = prev_cat.get('rank')
+                        cat_data['baseline_pts'] = prev_cat.get('baseline_pts', 0)
+        print('  ℹ Supabase unavailable — preserved previous values for live categories')
+
     # Build lookup of new scores/places
     new_totals = {p['name']: p['total'] for p in data.get('players', [])}
     new_places = {p['name']: p['place'] for p in data.get('players', [])}
 
-    # Reset baseline every Tuesday; seed from scratch if missing
+    # 7-day rolling score history: update today's snapshot (overwrite if exists)
     today_utc = datetime.datetime.utcnow()
-    is_reset_day = today_utc.weekday() == 1  # Tuesday
-    if not weekly_baseline.get('totals') or is_reset_day:
-        weekly_baseline = {
-            'totals': new_totals,
-            'places': new_places,
-            'date': today_utc.strftime('%Y-%m-%d'),
-        }
-        print(f'  Weekly baseline {"reset" if is_reset_day else "seeded"} ({weekly_baseline["date"]})')
+    today_str = today_utc.strftime('%Y-%m-%d')
+    if score_history and score_history[-1].get('date') == today_str:
+        score_history[-1] = {'date': today_str, 'totals': new_totals, 'places': new_places}
+    else:
+        score_history.append({'date': today_str, 'totals': new_totals, 'places': new_places})
+    cutoff = (today_utc - datetime.timedelta(days=10)).strftime('%Y-%m-%d')
+    score_history = [e for e in score_history if e.get('date', '') >= cutoff]
+    target_date = (today_utc - datetime.timedelta(days=7)).strftime('%Y-%m-%d')
+    baseline_entry = min(
+        score_history,
+        key=lambda e: abs(
+            (datetime.datetime.strptime(e['date'], '%Y-%m-%d') -
+             datetime.datetime.strptime(target_date, '%Y-%m-%d')).days
+        )
+    )
+    data['score_history'] = score_history
 
-    data['weekly_baseline'] = weekly_baseline
-
-    # Attach week-over-week deltas vs baseline
-    base_totals = weekly_baseline.get('totals', {})
-    base_places = weekly_baseline.get('places', {})
+    # Attach week-over-week deltas vs 7-day-ago baseline
+    base_totals = baseline_entry.get('totals', {})
+    base_places = baseline_entry.get('places', {})
     for p in data.get('players', []):
         name = p['name']
         if name in base_totals:
@@ -755,4 +843,3 @@ if __name__ == '__main__':
         json.dump(data, f)
     n = len(data.get('players', []))
     print(f'✓ Wrote {out_path}  ({n} players, last_updated={data.get("last_updated")})')
-    print(f'  Headline preserved (managed by headline.py / headline.yml)')

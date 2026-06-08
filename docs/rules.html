@@ -82,11 +82,12 @@
     }
 
     .page-title {
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 6px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
     }
+    .page-title span { color: var(--blue); }
     .page-subtitle {
       font-size: 0.8rem;
       color: var(--muted);
@@ -124,11 +125,11 @@
       margin-bottom: 48px;
     }
     .section-title {
-      font-size: 0.65rem;
+      font-size: 0.72rem;
       font-family: 'DM Mono', monospace;
       text-transform: uppercase;
       letter-spacing: 0.14em;
-      color: var(--accent);
+      color: var(--blue);
       margin-bottom: 16px;
       padding-bottom: 8px;
       border-bottom: 1px solid var(--border);
@@ -294,6 +295,27 @@
       color: var(--muted);
       letter-spacing: 0.04em;
     }
+
+    /* ─── SITE NAV BAR ─── */
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0;
+      position: sticky;
+      top: 52px;
+      z-index: 99;
+    }
+    .site-nav .nav-link {
+      padding: 9px 13px;
+      border-bottom: 2px solid transparent;
+      font-size: 0.68rem;
+    }
+    .site-nav .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
+    .site-nav .nav-link.active { color: var(--blue); border-bottom-color: var(--blue); }
   </style>
 </head>
 <body>
@@ -303,12 +325,15 @@
     <a href="./index.html" class="header-logo-img"></a>
     <a href="./index.html" class="logo" style="text-decoration:none;">Fantasy<span>Life</span></a>
   </div>
-  <div style="display:flex;align-items:center;gap:20px;">
-    <a href="./rules.html" class="nav-link active">Rules</a>
-    <a href="./calendar.html" class="nav-link">Calendar</a>
-    <a href="./trips.html" class="nav-link">Trips</a>
-  </div>
 </header>
+<nav class="site-nav">
+  <a href="./index.html" class="nav-link">Leaderboard</a>
+  <a href="./rules.html" class="nav-link active">Rules</a>
+  <a href="./calendar.html" class="nav-link">Calendar</a>
+  <a href="./trips.html" class="nav-link">Trips</a>
+  <a href="./projections.html" class="nav-link">Projections</a>
+  <a href="./sportsbook.html" class="nav-link">Sportsbook</a>
+</nav>
 
 <div class="page">
 
