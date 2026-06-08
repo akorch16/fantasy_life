@@ -20,7 +20,7 @@ import requests
 
 SCORES_PATH      = os.path.join(os.path.dirname(__file__), "docs", "scores.json")
 PROJECTIONS_PATH = os.path.join(os.path.dirname(__file__), "docs", "projections.json")
-KALSHI_BASE      = "https://trading-api.kalshi.com/trade-api/v2"
+KALSHI_BASE      = "https://api.elections.kalshi.com/trade-api/v2"
 # Auth priority: (1) RSA-PSS via KALSHI_API_KEY_ID + KALSHI_PRIVATE_KEY,
 # (2) Bearer token via KALSHI_API_KEY, (3) unauthenticated (public endpoints).
 KALSHI_KEY_ID    = os.environ.get("KALSHI_API_KEY_ID", "")
