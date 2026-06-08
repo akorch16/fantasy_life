@@ -263,11 +263,9 @@
 <div class="page">
 
   <div class="page-title">Season <span>Projections</span></div>
-  <div class="page-subtitle" id="proj-subtitle">10,000-sim Monte Carlo · Updated daily</div>
 
   <!-- ─── STANDINGS TABLE ─── -->
   <div class="section-header" style="margin-top:0;border-top:none;">Projected Standings</div>
-  <div class="section-note">Ranked by projected year-end total. Range = 10th–90th percentile.</div>
   <div class="proj-table-wrap">
     <table class="proj-table" id="proj-table">
       <thead>
@@ -318,12 +316,6 @@ fetch('./projections.json')
     const liveOdds = data.kalshi_markets_used && data.kalshi_markets_used.length;
     const nSims = (data.n_simulations || 10000).toLocaleString();
 
-    // Update subtitle
-    const pill = liveOdds
-      ? `<span class="odds-pill live">Live Kalshi</span>`
-      : `<span class="odds-pill static">Static odds</span>`;
-    document.getElementById('proj-subtitle').innerHTML =
-      `${nSims}-sim Monte Carlo · As of ${genAt} ${pill}`;
 
     // Main standings table
     document.getElementById('proj-body').innerHTML =
