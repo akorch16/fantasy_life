@@ -258,7 +258,7 @@ def _kalshi_sign(path: str) -> dict:
         message.encode(),
         asym_padding.PSS(
             mgf=asym_padding.MGF1(hashes.SHA256()),
-            salt_length=asym_padding.PSS.DIGEST_LENGTH,
+            salt_length=asym_padding.PSS.MAX_LENGTH,
         ),
         hashes.SHA256(),
     )
