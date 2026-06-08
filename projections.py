@@ -422,11 +422,9 @@ FALLBACK = {
     "golf_the_open_ru_mult": 1.35,
 
     # Tennis: win probability per remaining slam
-    # French Open (Alcaraz withdrew; men's: Zverev/Sinner/Djokovic; women's: Swiatek/Sabalenka/Gauff)
+    # French Open MEN: SETTLED — Zverev (Theo) won Roland Garros 2026
     "tennis_french_men_win": {
-        "Buckley": 0.12, "Theo": 0.12, "Shep": 0.09,
-        "Molmen": 0.06, "Mitchell": 0.03,
-        # Todd (Alcaraz) withdrew — 0%
+        "Theo": 1.0,
     },
     "tennis_french_women_win": {
         "Feder": 0.26, "Fryar": 0.18, "Wu": 0.09,
