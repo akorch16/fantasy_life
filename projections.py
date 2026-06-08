@@ -24,7 +24,7 @@ KALSHI_BASE      = "https://trading-api.kalshi.com/trade-api/v2"
 # Kalshi v2 uses RSA-PSS signed requests (not Bearer tokens).
 # Set both env vars: KALSHI_API_KEY_ID (UUID) and KALSHI_PRIVATE_KEY (PEM string).
 KALSHI_KEY_ID    = os.environ.get("KALSHI_API_KEY_ID", "")
-KALSHI_PEM       = os.environ.get("KALSHI_PRIVATE_KEY", "")
+KALSHI_PEM       = os.environ.get("KALSHI_PRIVATE_KEY", "").replace('\\n', '\n')
 _KALSHI_PRIVATE_KEY  = None   # loaded lazily on first use
 _KALSHI_KEY_WARNED   = False
 N_SIMS           = 10_000
@@ -407,11 +407,9 @@ FALLBACK = {
     "golf_the_open_ru_mult": 1.35,
 
     # Tennis: win probability per remaining slam
-    # French Open (Alcaraz withdrew; men's: Zverev/Sinner/Djokovic; women's: Swiatek/Sabalenka/Gauff)
+    # French Open MEN: SETTLED — Zverev (Theo) won Roland Garros 2026
     "tennis_french_men_win": {
-        "Buckley": 0.12, "Theo": 0.12, "Shep": 0.09,
-        "Molmen": 0.06, "Mitchell": 0.03,
-        # Todd (Alcaraz) withdrew — 0%
+        "Theo": 1.0,
     },
     "tennis_french_women_win": {
         "Feder": 0.26, "Fryar": 0.18, "Wu": 0.09,
