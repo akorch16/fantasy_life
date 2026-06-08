@@ -37,24 +37,16 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python scrapers.py
 
-      - name: Compute scores + FL News headline → docs/scores.json
+      - name: Compute scores → docs/scores.json
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scoring.py
 
-      - name: Compute projections → docs/projections.json
-        env:
-          KALSHI_API_KEY_ID: ${{ secrets.KALSHI_API_KEY_ID }}
-          KALSHI_PRIVATE_KEY: ${{ secrets.KALSHI_PRIVATE_KEY }}
-        run: python projections.py
-
-      - name: Commit & push scores + projections
+      - name: Commit & push scores.json
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/scores.json docs/projections.json
-          git diff --staged --quiet || git commit -m "chore: update scores + projections $(date -u +'%Y-%m-%d %H:%M UTC')"
-          git pull --rebase origin main
+          git add docs/scores.json
+          git diff --staged --quiet || git commit -m "chore: update scores $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
