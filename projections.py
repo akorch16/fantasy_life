@@ -321,15 +321,25 @@ def _extract_probs(markets, picks_dict):
     Uses the midpoint of bid/ask when both are present, else yes_ask alone.
     """
     probs = {}
+    _logged_missing_fields = False
     for player, pick in picks_dict.items():
         for m in markets:
             if _name_matches(m.get("title", ""), pick):
-                yes_ask = m.get("yes_ask")
+                # Try multiple field name variants used across Kalshi API versions
+                yes_ask = m.get("yes_ask") or m.get("yes_price")
                 yes_bid = m.get("yes_bid")
                 if yes_ask is not None and yes_bid is not None:
                     probs[player] = (yes_ask + yes_bid) / 200.0
                 elif yes_ask is not None:
                     probs[player] = yes_ask / 100.0
+                else:
+                    # Log fields once to diagnose which price keys the API actually returns
+                    if not _logged_missing_fields:
+                        print(f"    ⚠ Matched '{m.get('title')}' for {player}/{pick} but no price fields found")
+                        print(f"    Available keys: {list(m.keys())}")
+                        numeric_fields = {k: v for k, v in m.items() if isinstance(v, (int, float)) and v is not None}
+                        print(f"    Numeric fields: {numeric_fields}")
+                        _logged_missing_fields = True
                 break
     return probs
 
