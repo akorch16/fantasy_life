@@ -359,8 +359,9 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
         found = ", ".join(f"{p}={v:.1%}" for p, v in sorted(probs.items()))
         print(f"  ✓ Kalshi {label} [{series_ticker}]: {found}")
     else:
-        print(f"  ℹ Kalshi {label} [{series_ticker}]: markets found but no picks matched "
-              "(titles: " + ", ".join(repr(m.get("title","?")) for m in markets[:3]) + ")")
+        all_titles = [m.get("title") or m.get("subtitle") or m.get("question") or str(list(m.keys())[:4]) for m in markets]
+        print(f"  ℹ Kalshi {label} [{series_ticker}]: {len(markets)} markets, no picks matched")
+        print(f"    All titles: {all_titles[:20]}")
     return probs
 
 
@@ -369,9 +370,9 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
 # "OTHER" = probability the winner is a team/player not in any pick.
 
 FALLBACK = {
-    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Kalshi as of 2026-06-04: Buckley ~54%, Wu ~46% (NYK won Game 1)
+    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Knicks lead 2-0; Kalshi ~82% Knicks
     "nba_champ": {
-        "Wu": 0.47, "Buckley": 0.54,
+        "Wu": 0.18, "Buckley": 0.82,
     },
     # WCF: SETTLED — Spurs (Wu) won Game 7 over Thunder (Feder)
     "nba_conf_finals_west": {"Wu": 1.0},
@@ -596,7 +597,7 @@ _PROP_DEFS = [
     ("nhl-fin-tim-v-jamzee", 42, lambda o: _h2h(o.get("nhl_champ",{}).get("Tim",0), o.get("nhl_champ",{}).get("Jamzee",0)), "NHL-StanleyCup"),
 
     # ── NBA Finals (Kalshi: Buckley/Knicks ~54%, Wu/Spurs ~46% after NYK won Game 1) ─
-    ("nba-fin-wu-v-buckley", 47, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
+    ("nba-fin-wu-v-buckley", 18, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
 
     # ── US Open Golf ─────────────────────────────────────────────────────────────
     ("uso-wu-v-molmen",    52, lambda o: _h2h(o.get("golf_uso_win",{}).get("Wu",0),     o.get("golf_uso_win",{}).get("Molmen",0)), "Golf-USOpen-win"),
