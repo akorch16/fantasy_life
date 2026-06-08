@@ -271,15 +271,20 @@
     .filter-btn:hover { color: var(--text); background: var(--surface2); }
     .filter-btn.active { background: var(--blue); color: white; }
 
-    .standings-title {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
       letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .page-title span { color: var(--blue); }
+    .page-subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
       text-transform: uppercase;
-      margin-bottom: 14px;
-      text-align: center;
+      letter-spacing: 0.08em;
+      margin-bottom: 28px;
     }
 
     /* ─── TABLE ─── */
@@ -895,7 +900,8 @@
     </div>
 
   <!-- ─── FILTERS ─── -->
-  <h2 class="standings-title">Fantasy Life 2026 Standings</h2>
+  <div class="page-title">Leader<span>board</span></div>
+  <div class="page-subtitle">Fantasy Life 2026 · Season Standings</div>
   <div class="filter-row">
     <div class="filter-group">
       <button class="filter-btn active" data-cat="all" onclick="setFilter('all', this)">All</button>
