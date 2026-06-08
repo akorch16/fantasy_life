@@ -280,7 +280,7 @@ def _kalshi_get(path, params=None):
             r = requests.get(url, headers=_kalshi_sign(path), params=params or {}, timeout=8)
             if r.status_code == 200:
                 return r.json()
-            print(f"  ✗ Kalshi RSA {path}: HTTP {r.status_code}")
+            print(f"  ✗ Kalshi RSA {path}: HTTP {r.status_code} — {r.text[:200]}")
         except Exception as e:
             print(f"  ✗ Kalshi RSA {path}: {e}")
 
@@ -1130,6 +1130,8 @@ def run():
 
     markets_used = []
     print("\n── Fetching odds ─────────────────────────────────────────────")
+    if KALSHI_KEY_ID:
+        print(f"  Kalshi key ID: {KALSHI_KEY_ID[:8]}... PEM set: {bool(KALSHI_PEM)}")
     odds = build_odds(markets_used)
 
     print("\n── Computing expected additional points ───────────────────────")
