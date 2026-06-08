@@ -162,6 +162,15 @@
     }
 
     /* ─── BB LEADERBOARD ─── */
+    .bb-hero-img {
+      width: 50%;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    @media (max-width: 600px) {
+      .bb-hero-img { width: 100%; }
+    }
     .bb-leaderboard-wrap {
       margin-bottom: 2rem;
       overflow-x: auto;
@@ -827,6 +836,7 @@
 
   <!-- ─── BB LEADERBOARD ─── -->
   <div class="section-header">Buckley Bucks Leaderboard</div>
+  <img src="./buckley-bucks.jpg" alt="Buckley Bucks" class="bb-hero-img" />
   <div class="bb-leaderboard-wrap" id="bb-leaderboard"></div>
 
   <!-- ─── YOUR BETS ─── -->

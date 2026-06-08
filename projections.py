@@ -20,11 +20,12 @@ import requests
 
 SCORES_PATH      = os.path.join(os.path.dirname(__file__), "docs", "scores.json")
 PROJECTIONS_PATH = os.path.join(os.path.dirname(__file__), "docs", "projections.json")
-KALSHI_BASE      = "https://trading-api.kalshi.com/trade-api/v2"
-# Kalshi v2 uses RSA-PSS signed requests (not Bearer tokens).
-# Set both env vars: KALSHI_API_KEY_ID (UUID) and KALSHI_PRIVATE_KEY (PEM string).
+KALSHI_BASE      = "https://api.elections.kalshi.com/trade-api/v2"
+# Auth priority: (1) RSA-PSS via KALSHI_API_KEY_ID + KALSHI_PRIVATE_KEY,
+# (2) Bearer token via KALSHI_API_KEY, (3) unauthenticated (public endpoints).
 KALSHI_KEY_ID    = os.environ.get("KALSHI_API_KEY_ID", "")
 KALSHI_PEM       = os.environ.get("KALSHI_PRIVATE_KEY", "").replace('\\n', '\n')
+KALSHI_API_KEY   = os.environ.get("KALSHI_API_KEY", "")
 _KALSHI_PRIVATE_KEY  = None   # loaded lazily on first use
 _KALSHI_KEY_WARNED   = False
 N_SIMS           = 10_000
@@ -257,7 +258,7 @@ def _kalshi_sign(path: str) -> dict:
         message.encode(),
         asym_padding.PSS(
             mgf=asym_padding.MGF1(hashes.SHA256()),
-            salt_length=asym_padding.PSS.DIGEST_LENGTH,
+            salt_length=asym_padding.PSS.MAX_LENGTH,
         ),
         hashes.SHA256(),
     )
@@ -271,26 +272,40 @@ def _kalshi_sign(path: str) -> dict:
 
 def _kalshi_get(path, params=None):
     global _KALSHI_KEY_WARNED
-    if not KALSHI_KEY_ID or not KALSHI_PEM:
-        if not _KALSHI_KEY_WARNED:
-            missing = []
-            if not KALSHI_KEY_ID: missing.append("KALSHI_API_KEY_ID")
-            if not KALSHI_PEM:    missing.append("KALSHI_PRIVATE_KEY")
-            print(f"  ✗ Kalshi: {', '.join(missing)} not set — all props will use static fallback odds")
-            _KALSHI_KEY_WARNED = True
-        return None
+    url = f"{KALSHI_BASE}{path}"
+
+    # Attempt 1: RSA-PSS signed request
+    if KALSHI_KEY_ID and KALSHI_PEM:
+        try:
+            r = requests.get(url, headers=_kalshi_sign(path), params=params or {}, timeout=8)
+            if r.status_code == 200:
+                return r.json()
+            print(f"  ✗ Kalshi RSA {path}: HTTP {r.status_code} — {r.text[:200]}")
+        except Exception as e:
+            print(f"  ✗ Kalshi RSA {path}: {e}")
+
+    # Attempt 2: Bearer token (KALSHI_API_KEY)
+    if KALSHI_API_KEY:
+        try:
+            r = requests.get(url, headers={"Authorization": f"Bearer {KALSHI_API_KEY}"}, params=params or {}, timeout=8)
+            if r.status_code == 200:
+                return r.json()
+            print(f"  ✗ Kalshi Bearer {path}: HTTP {r.status_code}")
+        except Exception as e:
+            print(f"  ✗ Kalshi Bearer {path}: {e}")
+
+    # Attempt 3: unauthenticated (public market data)
     try:
-        r = requests.get(
-            f"{KALSHI_BASE}{path}",
-            headers=_kalshi_sign(path),
-            params=params or {},
-            timeout=8,
-        )
+        r = requests.get(url, params=params or {}, timeout=8)
         if r.status_code == 200:
             return r.json()
-        print(f"  ✗ Kalshi {path}: HTTP {r.status_code}")
+        if not _KALSHI_KEY_WARNED:
+            print(f"  ✗ Kalshi: unauthenticated request returned HTTP {r.status_code} — using static fallback")
+            _KALSHI_KEY_WARNED = True
     except Exception as e:
-        print(f"  ✗ Kalshi {path}: {e}")
+        if not _KALSHI_KEY_WARNED:
+            print(f"  ✗ Kalshi: {e} — using static fallback")
+            _KALSHI_KEY_WARNED = True
     return None
 
 
@@ -354,8 +369,9 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
         found = ", ".join(f"{p}={v:.1%}" for p, v in sorted(probs.items()))
         print(f"  ✓ Kalshi {label} [{series_ticker}]: {found}")
     else:
-        print(f"  ℹ Kalshi {label} [{series_ticker}]: markets found but no picks matched "
-              "(titles: " + ", ".join(repr(m.get("title","?")) for m in markets[:3]) + ")")
+        all_titles = [m.get("title") or m.get("subtitle") or m.get("question") or str(list(m.keys())[:4]) for m in markets]
+        print(f"  ℹ Kalshi {label} [{series_ticker}]: {len(markets)} markets, no picks matched")
+        print(f"    All titles: {all_titles[:20]}")
     return probs
 
 
@@ -364,9 +380,9 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
 # "OTHER" = probability the winner is a team/player not in any pick.
 
 FALLBACK = {
-    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Kalshi as of 2026-06-04: Buckley ~54%, Wu ~46% (NYK won Game 1)
+    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Knicks lead 2-0; Kalshi ~82% Knicks
     "nba_champ": {
-        "Wu": 0.47, "Buckley": 0.54,
+        "Wu": 0.18, "Buckley": 0.82,
     },
     # WCF: SETTLED — Spurs (Wu) won Game 7 over Thunder (Feder)
     "nba_conf_finals_west": {"Wu": 1.0},
@@ -591,7 +607,7 @@ _PROP_DEFS = [
     ("nhl-fin-tim-v-jamzee", 42, lambda o: _h2h(o.get("nhl_champ",{}).get("Tim",0), o.get("nhl_champ",{}).get("Jamzee",0)), "NHL-StanleyCup"),
 
     # ── NBA Finals (Kalshi: Buckley/Knicks ~54%, Wu/Spurs ~46% after NYK won Game 1) ─
-    ("nba-fin-wu-v-buckley", 47, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
+    ("nba-fin-wu-v-buckley", 18, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
 
     # ── US Open Golf ─────────────────────────────────────────────────────────────
     ("uso-wu-v-molmen",    52, lambda o: _h2h(o.get("golf_uso_win",{}).get("Wu",0),     o.get("golf_uso_win",{}).get("Molmen",0)), "Golf-USOpen-win"),
@@ -1125,6 +1141,8 @@ def run():
 
     markets_used = []
     print("\n── Fetching odds ─────────────────────────────────────────────")
+    if KALSHI_KEY_ID:
+        print(f"  Kalshi key ID: {KALSHI_KEY_ID[:8]}... PEM set: {bool(KALSHI_PEM)}")
     odds = build_odds(markets_used)
 
     print("\n── Computing expected additional points ───────────────────────")
