@@ -134,6 +134,7 @@ CRITICAL rules:
 - Only include events from the last 3 days (today is {today}).
 - 3–5 sentences, max 60 words total
 - Never mention FL standings, point totals, or league positions
+- If snippets contain results for BOTH NBA Finals and NHL Stanley Cup Finals, include a sentence for each — never drop an active Finals series
 - Cover a MIX of categories — aim for at least 2 different categories (e.g. one sports + one music/stock/movie/WorldCup)
 - Format: "Pick (<em>FLPlayer</em>) result." — pick name first, FL owner in <em> tags in parentheses
 - Examples: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals." / "NVDA (<em>Todd</em>) surges 9% on earnings." / "USA (<em>Wu</em>) blank Morocco 2-0 in World Cup opener." / "Taylor Swift (<em>Molmen</em>) hits #1 with new single."
