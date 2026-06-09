@@ -588,6 +588,14 @@ def _h2h(a, b):
     return round(a / total * 100) if total > 0 else None
 
 
+def _pts_h2h(player_a, player_b):
+    """Return a prop fn giving P(A total > B total) from simulation pairwise data."""
+    def fn(o):
+        p = o.get("pairwise", {}).get((player_a, player_b))
+        return round(p * 100) if p is not None else None
+    return fn
+
+
 # Prop definitions: (id, static_yes_pct, fn(odds)->int|None, source_category_label)
 # fn returns a computed YES% from odds dict, or None to use static.
 # source_category_label must match a string in markets_used to be marked "kalshi".
@@ -622,12 +630,12 @@ _PROP_DEFS = [
     ("mls-theo-v-shep",       57, None, None),
     ("nascar-molmen-v-korch", 53, None, None),
 
-    # ── Total Points · By July 1 (model only) ────────────────────────────────────
-    ("pts-wu-v-korch",      47, None, None),
-    ("pts-tim-v-molmen",    55, None, None),
-    ("pts-jamzee-v-fryar",  44, None, None),
-    ("pts-mitchell-v-todd", 65, None, None),
-    ("pts-buckley-v-theo",  80, None, None),
+    # ── Total Points (simulation-backed — updates every run from Monte Carlo) ──────
+    ("pts-wu-v-korch",      47, _pts_h2h("Wu",      "Korch"),   "pts-model"),
+    ("pts-tim-v-molmen",    55, _pts_h2h("Tim",      "Molmen"),  "pts-model"),
+    ("pts-jamzee-v-fryar",  44, _pts_h2h("Jamzee",  "Fryar"),   "pts-model"),
+    ("pts-mitchell-v-todd", 65, _pts_h2h("Mitchell", "Todd"),    "pts-model"),
+    ("pts-buckley-v-theo",  80, _pts_h2h("Buckley",  "Theo"),    "pts-model"),
 ]
 
 
@@ -1127,7 +1135,15 @@ def simulate(current_scores, odds, n=N_SIMS):
             "projected_p10":   round(sims[int(n * 0.10)], 1),
             "projected_p90":   round(sims[int(n * 0.90)], 1),
         }
-    return out
+
+    # Pairwise head-to-head win rates: fraction of sims where A finishes above B
+    pairwise = {}
+    for i, a in enumerate(players_list):
+        for b in players_list[i + 1:]:
+            wins_a = sum(ta > tb for ta, tb in zip(sim_totals[a], sim_totals[b]))
+            pairwise[(a, b)] = wins_a / n
+            pairwise[(b, a)] = 1.0 - wins_a / n
+    return out, pairwise
 
 
 # ─── Main ──────────────────────────────────────────────────────────────────────
@@ -1149,7 +1165,7 @@ def run():
     expected = compute_expected_additional(current_scores, odds)
 
     print("\n── Running Monte Carlo simulation ─────────────────────────────")
-    sim_results = simulate(current_scores, odds)
+    sim_results, pairwise = simulate(current_scores, odds)
 
     # Assemble output
     players_out = []
@@ -1173,6 +1189,7 @@ def run():
     # Sort by projected total
     players_out.sort(key=lambda x: -x["projected_total"])
 
+    odds["pairwise"] = pairwise
     prop_odds = compute_prop_odds(odds, markets_used)
 
     output = {
