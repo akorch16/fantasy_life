@@ -57,8 +57,8 @@ def search_news(debug: bool = False) -> str:
         return ''
     queries = [
         # ── Active playoff series get their own slot ──────────────────────
-        'NBA Finals 2026 game score result',
-        'NHL Stanley Cup Finals 2026 game score result',
+        'NBA Finals 2026 most recent game score result last night',
+        'NHL Stanley Cup Finals 2026 most recent game score result last night',
         # ── Other sports ──────────────────────────────────────────────────
         'Roland Garros French Open tennis 2026 results',
         'US Open golf 2026 results leaderboard',
@@ -129,10 +129,12 @@ Draft picks (FL player → their pick) — cover ALL categories, not just sports
 CRITICAL rules:
 - ONLY report facts explicitly stated in the snippets above. Do NOT add any result, score, or outcome not written in a snippet.
 - If a snippet mentions a pick but doesn't clearly state the result or move, skip it.
+- For ongoing series (NBA Finals, NHL Finals, etc.), always report the MOST RECENT game — if snippets mention multiple games, use the highest game number.
 - Never cross categories: an NBA team cannot win a Stanley Cup; a stock ticker is not a song chart.
 - Only include events from the last 3 days (today is {today}).
 - 3–5 sentences, max 60 words total
 - Never mention FL standings, point totals, or league positions
+- If snippets contain results for BOTH NBA Finals and NHL Stanley Cup Finals, include a sentence for each — never drop an active Finals series
 - Cover a MIX of categories — aim for at least 2 different categories (e.g. one sports + one music/stock/movie/WorldCup)
 - Format: "Pick (<em>FLPlayer</em>) result." — pick name first, FL owner in <em> tags in parentheses
 - Examples: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals." / "NVDA (<em>Todd</em>) surges 9% on earnings." / "USA (<em>Wu</em>) blank Morocco 2-0 in World Cup opener." / "Taylor Swift (<em>Molmen</em>) hits #1 with new single."
