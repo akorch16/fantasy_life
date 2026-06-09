@@ -46,6 +46,18 @@ _KEY_MAP = {
 # Populated at the start of compute_all_scores() to avoid 15 round-trips
 _bulk_standings: dict = {}
 
+_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+
+def _load_local_json(name):
+    """Load data/{name}.json if it exists. Returns the parsed dict or None."""
+    import json as _json
+    path = os.path.join(_DATA_DIR, f'{name}.json')
+    try:
+        with open(path) as f:
+            return _json.load(f)
+    except Exception:
+        return None
+
 def load_data(category_key):
     """Load category data from Supabase. Returns the data dict or None."""
     key = _KEY_MAP.get(category_key.lower(), category_key)
@@ -351,8 +363,10 @@ MLS_2026_STANDINGS_STATIC = {"standings": [
 
 def compute_baseline_mls():
     picks = DRAFT_PICKS_2026.get('MLS', {})
-    _d = load_data('mls')
-    # If the local file has stale end-of-season data (>50 pts), ignore it
+    # Prefer data/mls.json (manual override) over Supabase
+    _local = _load_local_json('mls')
+    _d = _local if (_local and _local.get('standings')) else load_data('mls')
+    # If data has stale end-of-season data (>50 pts), ignore it
     if _d and _d.get('standings') and max((e.get('points', 0) for e in _d['standings']), default=0) > 50:
         _d = None
     data = _d if (_d and _d.get('standings')) else MLS_2026_STANDINGS_STATIC
@@ -385,7 +399,9 @@ NASCAR_2026_STANDINGS_STATIC = {"standings": [
 
 def compute_baseline_nascar():
     picks = DRAFT_PICKS_2026.get('NASCAR', {})
-    _d = load_data('nascar')
+    # Prefer data/nascar.json (manual override) over Supabase
+    _local = _load_local_json('nascar')
+    _d = _local if (_local and _local.get('standings')) else load_data('nascar')
     data = _d if (_d and _d.get('standings')) else NASCAR_2026_STANDINGS_STATIC
 
     raw_values = {}
