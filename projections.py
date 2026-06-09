@@ -101,84 +101,84 @@ TENNIS_WOMEN = {
 # ─── Upcoming 2026 film pipeline (Actor / Actress simulation) ─────────────────
 # box_office: (p10, p50, p90) domestic gross in $M  — lognormal distribution
 # rt:         (p10, p50, p90) Rotten Tomatoes score — normal distribution, capped 0–100
-# actor/actress: {player_key: role_factor}  (1.0=lead, 0.5=supporting, 0.25=cameo)
+# actor/actress: [player_key, ...]  — just need to be in the movie
 FILM_PIPELINE = [
     {
         "title": "Mandalorian & Grogu",
         "box_office": (200, 300, 400),
         "rt": (65, 74, 85),
-        "actor":   {"Mitchell": 1.0, "Shep": 0.5},
-        "actress": {},
+        "actor":   ["Mitchell", "Shep"],
+        "actress": [],
     },
     {
         "title": "Moana",
         "box_office": (130, 190, 260),
         "rt": (48, 62, 75),
-        "actor":   {"Theo": 1.0},
-        "actress": {},
+        "actor":   ["Theo"],
+        "actress": [],
     },
     {
         "title": "The Odyssey",
         "box_office": (175, 275, 375),
         "rt": (78, 88, 96),
-        "actor":   {"Molmen": 1.0, "Feder": 1.0, "Buckley": 1.0, "Korch": 1.0},
-        "actress": {"Korch": 1.0, "Wu": 1.0, "Mitchell": 1.0},
+        "actor":   ["Molmen", "Feder", "Buckley", "Korch"],
+        "actress": ["Korch", "Wu", "Mitchell"],
     },
     {
         "title": "Spider-Man: Brand New Day",
         "box_office": (450, 750, 1100),
         "rt": (72, 84, 94),
-        "actor":   {"Feder": 1.0},
-        "actress": {"Wu": 1.0},
+        "actor":   ["Feder"],
+        "actress": ["Wu"],
     },
     {
         "title": "The Social Reckoning",
         "box_office": (50, 90, 150),
         "rt": (78, 89, 97),
-        "actor":   {"Shep": 1.0},
-        "actress": {},
+        "actor":   ["Shep"],
+        "actress": [],
     },
     {
         "title": "Flowervale Street",
         "box_office": (15, 35, 60),
         "rt": (62, 75, 88),
-        "actor":   {},
-        "actress": {"Korch": 1.0},
+        "actor":   [],
+        "actress": ["Korch"],
     },
     {
         "title": "Verity",
         "box_office": (40, 75, 110),
         "rt": (55, 68, 80),
-        "actor":   {},
-        "actress": {"Korch": 1.0},
+        "actor":   [],
+        "actress": ["Korch"],
     },
     {
         "title": "Avengers: Doomsday",
         "box_office": (350, 500, 700),
         "rt": (68, 80, 90),
-        "actor":   {"Mitchell": 1.0, "Fryar": 0.25},
-        "actress": {"Fryar": 1.0},
+        "actor":   ["Mitchell", "Fryar"],
+        "actress": ["Fryar"],
     },
     {
         "title": "Dune: Part Three",
         "box_office": (180, 280, 400),
         "rt": (82, 91, 97),
-        "actor":   {"Jamzee": 1.0, "Buckley": 1.0},
-        "actress": {"Wu": 0.5, "Fryar": 1.0, "Buckley": 1.0},
+        "actor":   ["Jamzee", "Buckley"],
+        "actress": ["Wu", "Fryar", "Buckley"],
     },
     {
         "title": "Focker-in-Law",
         "box_office": (55, 95, 145),
         "rt": (40, 58, 72),
-        "actor":   {},
-        "actress": {"Tim": 1.0},
+        "actor":   [],
+        "actress": ["Tim"],
     },
     {
         "title": "Jumanji",
         "box_office": (120, 175, 240),
         "rt": (60, 72, 80),
-        "actor":   {"Theo": 1.0},
-        "actress": {},
+        "actor":   ["Theo"],
+        "actress": [],
     },
 ]
 
@@ -901,8 +901,8 @@ def compute_expected_additional(current_scores, odds):
             e_box = _expected_lognormal(*film["box_office"])
             e_rt  = film["rt"][1]  # median RT as point estimate
             e_contrib = (e_rt / 100.0) * e_box
-            for player, factor in film[cat].items():
-                composites[player] = composites.get(player, 0.0) + e_contrib * factor
+            for player in film[cat]:
+                composites[player] = composites.get(player, 0.0) + e_contrib
         # Rank by expected composite → pts
         expected_pts = _rank_composites(players_list, composites)
         # Delta vs current baseline_pts (bonus_pts stay frozen)
@@ -1148,10 +1148,10 @@ def simulate(current_scores, odds, n=N_SIMS):
             box    = _sample_lognormal(*film["box_office"])
             rt     = _sample_normal_capped(*film["rt"])
             contrib = (rt / 100.0) * box
-            for player, factor in film["actor"].items():
-                actor_comp[player]   = actor_comp.get(player, 0.0)   + contrib * factor
-            for player, factor in film["actress"].items():
-                actress_comp[player] = actress_comp.get(player, 0.0) + contrib * factor
+            for player in film["actor"]:
+                actor_comp[player]   = actor_comp.get(player, 0.0)   + contrib
+            for player in film["actress"]:
+                actress_comp[player] = actress_comp.get(player, 0.0) + contrib
         for comp_dict in (actor_comp, actress_comp):
             for player, pts in _rank_composites(players_list, comp_dict).items():
                 totals[player] += pts
