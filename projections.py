@@ -104,13 +104,6 @@ TENNIS_WOMEN = {
 # actor/actress: [player_key, ...]  — just need to be in the movie
 FILM_PIPELINE = [
     {
-        "title": "Mandalorian & Grogu",
-        "box_office": (200, 300, 400),
-        "rt": (65, 74, 85),
-        "actor":   ["Mitchell", "Shep"],
-        "actress": [],
-    },
-    {
         "title": "Moana",
         "box_office": (130, 190, 260),
         "rt": (48, 62, 75),
@@ -133,8 +126,8 @@ FILM_PIPELINE = [
     },
     {
         "title": "The Social Reckoning",
-        "box_office": (50, 90, 150),
-        "rt": (78, 89, 97),
+        "box_office": (60, 100, 160),  # Oct 9; Social Network comp ($97M); award-season prestige
+        "rt": (76, 88, 96),            # Sorkin direction, Jeremy Allen White / Jeremy Strong
         "actor":   ["Shep"],
         "actress": [],
     },
