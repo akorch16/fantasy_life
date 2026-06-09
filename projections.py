@@ -334,20 +334,25 @@ def _extract_probs(markets, picks_dict):
     Given a list of Kalshi markets and a {player: pick_name} dict,
     return {player: yes_probability (0–1)}.
     Kalshi v2 API returns prices as yes_ask_dollars / yes_bid_dollars (0.0–1.0 floats).
-    Eliminated/settled markets return null for price fields — those players are skipped.
+    Resolved markets (result != null) are skipped — only active markets with real prices count.
     """
     probs = {}
-    _logged_missing_fields = False
     for player, pick in picks_dict.items():
         for m in markets:
+            if m.get("result") is not None:
+                continue  # skip settled markets — can show anomalous half-prices
             if _name_matches(m.get("title", ""), pick):
                 yes_ask = m.get("yes_ask_dollars")
                 yes_bid = m.get("yes_bid_dollars")
                 try:
                     if yes_ask is not None and yes_bid is not None:
-                        probs[player] = (float(yes_ask) + float(yes_bid)) / 2.0
+                        prob = (float(yes_ask) + float(yes_bid)) / 2.0
                     elif yes_ask is not None:
-                        probs[player] = float(yes_ask)
+                        prob = float(yes_ask)
+                    else:
+                        prob = 0.0
+                    if prob > 0:
+                        probs[player] = prob
                 except (TypeError, ValueError):
                     pass
                 break
