@@ -20,11 +20,12 @@ import requests
 
 SCORES_PATH      = os.path.join(os.path.dirname(__file__), "docs", "scores.json")
 PROJECTIONS_PATH = os.path.join(os.path.dirname(__file__), "docs", "projections.json")
-KALSHI_BASE      = "https://trading-api.kalshi.com/trade-api/v2"
-# Kalshi v2 uses RSA-PSS signed requests (not Bearer tokens).
-# Set both env vars: KALSHI_API_KEY_ID (UUID) and KALSHI_PRIVATE_KEY (PEM string).
+KALSHI_BASE      = "https://api.elections.kalshi.com/trade-api/v2"
+# Auth priority: (1) RSA-PSS via KALSHI_API_KEY_ID + KALSHI_PRIVATE_KEY,
+# (2) Bearer token via KALSHI_API_KEY, (3) unauthenticated (public endpoints).
 KALSHI_KEY_ID    = os.environ.get("KALSHI_API_KEY_ID", "")
-KALSHI_PEM       = os.environ.get("KALSHI_PRIVATE_KEY", "")
+KALSHI_PEM       = os.environ.get("KALSHI_PRIVATE_KEY", "").replace('\\n', '\n')
+KALSHI_API_KEY   = os.environ.get("KALSHI_API_KEY", "")
 _KALSHI_PRIVATE_KEY  = None   # loaded lazily on first use
 _KALSHI_KEY_WARNED   = False
 N_SIMS           = 10_000
@@ -100,84 +101,77 @@ TENNIS_WOMEN = {
 # ─── Upcoming 2026 film pipeline (Actor / Actress simulation) ─────────────────
 # box_office: (p10, p50, p90) domestic gross in $M  — lognormal distribution
 # rt:         (p10, p50, p90) Rotten Tomatoes score — normal distribution, capped 0–100
-# actor/actress: {player_key: role_factor}  (1.0=lead, 0.5=supporting, 0.25=cameo)
+# actor/actress: [player_key, ...]  — just need to be in the movie
 FILM_PIPELINE = [
-    {
-        "title": "Mandalorian & Grogu",
-        "box_office": (200, 300, 400),
-        "rt": (65, 74, 85),
-        "actor":   {"Mitchell": 1.0, "Shep": 0.5},
-        "actress": {},
-    },
     {
         "title": "Moana",
         "box_office": (130, 190, 260),
         "rt": (48, 62, 75),
-        "actor":   {"Theo": 1.0},
-        "actress": {},
+        "actor":   ["Theo"],
+        "actress": [],
     },
     {
         "title": "The Odyssey",
         "box_office": (175, 275, 375),
         "rt": (78, 88, 96),
-        "actor":   {"Molmen": 1.0, "Feder": 1.0, "Buckley": 1.0, "Korch": 1.0},
-        "actress": {"Korch": 1.0, "Wu": 1.0, "Mitchell": 1.0},
+        "actor":   ["Molmen", "Feder", "Buckley", "Korch"],
+        "actress": ["Korch", "Wu", "Mitchell"],
     },
     {
         "title": "Spider-Man: Brand New Day",
         "box_office": (450, 750, 1100),
         "rt": (72, 84, 94),
-        "actor":   {"Feder": 1.0},
-        "actress": {"Wu": 1.0},
+        "actor":   ["Feder"],
+        "actress": ["Wu"],
     },
     {
         "title": "The Social Reckoning",
-        "box_office": (50, 90, 150),
-        "rt": (78, 89, 97),
-        "actor":   {"Shep": 1.0},
-        "actress": {},
+        "box_office": (60, 100, 160),  # Oct 9; Social Network comp ($97M); award-season prestige
+        "rt": (76, 88, 96),            # Sorkin direction, Jeremy Allen White / Jeremy Strong
+        "actor":   ["Shep"],
+        "actress": [],
     },
     {
         "title": "Flowervale Street",
         "box_office": (15, 35, 60),
         "rt": (62, 75, 88),
-        "actor":   {},
-        "actress": {"Korch": 1.0},
+        "actor":   [],
+        "actress": ["Korch"],
     },
     {
         "title": "Verity",
         "box_office": (40, 75, 110),
         "rt": (55, 68, 80),
-        "actor":   {},
-        "actress": {"Korch": 1.0},
+        "actor":   [],
+        "actress": ["Korch"],
     },
     {
         "title": "Avengers: Doomsday",
         "box_office": (350, 500, 700),
         "rt": (68, 80, 90),
-        "actor":   {"Mitchell": 1.0, "Fryar": 0.25},
-        "actress": {"Fryar": 1.0},
+        "actor":   ["Mitchell", "Fryar"],
+        "actress": ["Fryar"],
     },
     {
         "title": "Dune: Part Three",
         "box_office": (180, 280, 400),
         "rt": (82, 91, 97),
-        "actor":   {"Jamzee": 1.0, "Buckley": 1.0},
-        "actress": {"Wu": 0.5, "Fryar": 1.0, "Buckley": 1.0},
+        "actor":   ["Jamzee", "Buckley"],
+        "actress": ["Wu", "Fryar", "Buckley"],
     },
     {
         "title": "Focker-in-Law",
         "box_office": (55, 95, 145),
         "rt": (40, 58, 72),
-        "actor":   {},
-        "actress": {"Tim": 1.0},
+        "actor":   [],
+        "actress": ["Tim"],
     },
     {
         "title": "Jumanji",
         "box_office": (120, 175, 240),
         "rt": (60, 72, 80),
-        "actor":   {"Theo": 1.0},
-        "actress": {},
+        "actor":   ["Theo"],
+        "actress": [],
     },
 ]
 
@@ -257,7 +251,7 @@ def _kalshi_sign(path: str) -> dict:
         message.encode(),
         asym_padding.PSS(
             mgf=asym_padding.MGF1(hashes.SHA256()),
-            salt_length=asym_padding.PSS.DIGEST_LENGTH,
+            salt_length=asym_padding.PSS.MAX_LENGTH,
         ),
         hashes.SHA256(),
     )
@@ -271,26 +265,40 @@ def _kalshi_sign(path: str) -> dict:
 
 def _kalshi_get(path, params=None):
     global _KALSHI_KEY_WARNED
-    if not KALSHI_KEY_ID or not KALSHI_PEM:
-        if not _KALSHI_KEY_WARNED:
-            missing = []
-            if not KALSHI_KEY_ID: missing.append("KALSHI_API_KEY_ID")
-            if not KALSHI_PEM:    missing.append("KALSHI_PRIVATE_KEY")
-            print(f"  ✗ Kalshi: {', '.join(missing)} not set — all props will use static fallback odds")
-            _KALSHI_KEY_WARNED = True
-        return None
+    url = f"{KALSHI_BASE}{path}"
+
+    # Attempt 1: RSA-PSS signed request
+    if KALSHI_KEY_ID and KALSHI_PEM:
+        try:
+            r = requests.get(url, headers=_kalshi_sign(path), params=params or {}, timeout=8)
+            if r.status_code == 200:
+                return r.json()
+            print(f"  ✗ Kalshi RSA {path}: HTTP {r.status_code} — {r.text[:200]}")
+        except Exception as e:
+            print(f"  ✗ Kalshi RSA {path}: {e}")
+
+    # Attempt 2: Bearer token (KALSHI_API_KEY)
+    if KALSHI_API_KEY:
+        try:
+            r = requests.get(url, headers={"Authorization": f"Bearer {KALSHI_API_KEY}"}, params=params or {}, timeout=8)
+            if r.status_code == 200:
+                return r.json()
+            print(f"  ✗ Kalshi Bearer {path}: HTTP {r.status_code}")
+        except Exception as e:
+            print(f"  ✗ Kalshi Bearer {path}: {e}")
+
+    # Attempt 3: unauthenticated (public market data)
     try:
-        r = requests.get(
-            f"{KALSHI_BASE}{path}",
-            headers=_kalshi_sign(path),
-            params=params or {},
-            timeout=8,
-        )
+        r = requests.get(url, params=params or {}, timeout=8)
         if r.status_code == 200:
             return r.json()
-        print(f"  ✗ Kalshi {path}: HTTP {r.status_code}")
+        if not _KALSHI_KEY_WARNED:
+            print(f"  ✗ Kalshi: unauthenticated request returned HTTP {r.status_code} — using static fallback")
+            _KALSHI_KEY_WARNED = True
     except Exception as e:
-        print(f"  ✗ Kalshi {path}: {e}")
+        if not _KALSHI_KEY_WARNED:
+            print(f"  ✗ Kalshi: {e} — using static fallback")
+            _KALSHI_KEY_WARNED = True
     return None
 
 
@@ -317,19 +325,29 @@ def _name_matches(kalshi_title, pick_name):
 def _extract_probs(markets, picks_dict):
     """
     Given a list of Kalshi markets and a {player: pick_name} dict,
-    return {player: yes_ask_probability (0–1)}.
-    Uses the midpoint of bid/ask when both are present, else yes_ask alone.
+    return {player: yes_probability (0–1)}.
+    Kalshi v2 API returns prices as yes_ask_dollars / yes_bid_dollars (0.0–1.0 floats).
+    Resolved markets (result != null) are skipped — only active markets with real prices count.
     """
     probs = {}
     for player, pick in picks_dict.items():
         for m in markets:
+            if m.get("result") is not None:
+                continue  # skip settled markets — can show anomalous half-prices
             if _name_matches(m.get("title", ""), pick):
-                yes_ask = m.get("yes_ask")
-                yes_bid = m.get("yes_bid")
-                if yes_ask is not None and yes_bid is not None:
-                    probs[player] = (yes_ask + yes_bid) / 200.0
-                elif yes_ask is not None:
-                    probs[player] = yes_ask / 100.0
+                yes_ask = m.get("yes_ask_dollars")
+                yes_bid = m.get("yes_bid_dollars")
+                try:
+                    if yes_ask is not None and yes_bid is not None:
+                        prob = (float(yes_ask) + float(yes_bid)) / 2.0
+                    elif yes_ask is not None:
+                        prob = float(yes_ask)
+                    else:
+                        prob = 0.0
+                    if prob > 0:
+                        probs[player] = prob
+                except (TypeError, ValueError):
+                    pass
                 break
     return probs
 
@@ -344,8 +362,9 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
         found = ", ".join(f"{p}={v:.1%}" for p, v in sorted(probs.items()))
         print(f"  ✓ Kalshi {label} [{series_ticker}]: {found}")
     else:
-        print(f"  ℹ Kalshi {label} [{series_ticker}]: markets found but no picks matched "
-              "(titles: " + ", ".join(repr(m.get("title","?")) for m in markets[:3]) + ")")
+        all_titles = [m.get("title") or m.get("subtitle") or m.get("question") or str(list(m.keys())[:4]) for m in markets]
+        print(f"  ℹ Kalshi {label} [{series_ticker}]: {len(markets)} markets, no picks matched")
+        print(f"    All titles: {all_titles[:20]}")
     return probs
 
 
@@ -354,9 +373,9 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
 # "OTHER" = probability the winner is a team/player not in any pick.
 
 FALLBACK = {
-    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Kalshi as of 2026-06-04: Buckley ~54%, Wu ~46% (NYK won Game 1)
+    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Knicks lead 2-0; Kalshi ~82% Knicks
     "nba_champ": {
-        "Wu": 0.47, "Buckley": 0.54,
+        "Wu": 0.18, "Buckley": 0.82,
     },
     # WCF: SETTLED — Spurs (Wu) won Game 7 over Thunder (Feder)
     "nba_conf_finals_west": {"Wu": 1.0},
@@ -407,11 +426,9 @@ FALLBACK = {
     "golf_the_open_ru_mult": 1.35,
 
     # Tennis: win probability per remaining slam
-    # French Open (Alcaraz withdrew; men's: Zverev/Sinner/Djokovic; women's: Swiatek/Sabalenka/Gauff)
+    # French Open MEN: SETTLED — Zverev (Theo) won Roland Garros 2026
     "tennis_french_men_win": {
-        "Buckley": 0.12, "Theo": 0.12, "Shep": 0.09,
-        "Molmen": 0.06, "Mitchell": 0.03,
-        # Todd (Alcaraz) withdrew — 0%
+        "Theo": 1.0,
     },
     "tennis_french_women_win": {
         "Feder": 0.26, "Fryar": 0.18, "Wu": 0.09,
@@ -535,26 +552,26 @@ def _expected_bonus_conf_finals(p_champ, p_finalist):
 
 # ─── Kalshi fetch + merge ─────────────────────────────────────────────────────
 KNOWN_SERIES = {
-    # Kalshi series tickers to try; fallback gracefully if 403/empty.
-    # KXNBA-26 / KXNHL-26 are the confirmed 2025-26 event tickers (series: KXNBA / KXNHL).
-    "nba":    ["KXNBA-26", "KXNBA", "NBACHAMP", "NBA-CHAMPION"],
-    "nhl":    ["KXNHL-26", "KXNHL", "NHLCHAMP", "NHL-CUP"],
-    "mlb":    ["MLBCHAMP", "KXMLB",  "MLB-WS"],
-    "mls":    ["MLSCUP",   "KXMLS"],
-    "nascar": ["NASCARWIN","KXNASC", "NASCAR-CUP"],
-    "golf_uso": ["KXGOLF-USO", "GOLF-USO"],
-    "golf_open": ["KXGOLF-OPEN", "GOLF-THEOPEN"],
-    "tennis_fo_m": ["TENNISFO-M", "RG-MEN"],
-    "tennis_fo_w": ["TENNISFO-W", "RG-WOMEN"],
-    "tennis_wb_m": ["TENNISWB-M", "WIM-MEN"],
-    "tennis_wb_w": ["TENNISWB-W", "WIM-WOMEN"],
-    "tennis_uso_m": ["TENNISUSO-M", "USO-MEN"],
-    "tennis_uso_w": ["TENNISUSO-W", "USO-WOMEN"],
-    # Conference finals — for sportsbook prop live odds
-    # Tickers are tried left-to-right; add new Kalshi names to the front each season
-    "nba_ecf": ["KXNBA-EASTCONF", "NBAPLAYOFFS-EAST", "NBAECF-2026", "NBA-EAST-FINALS", "NBAECF", "KXNBA-ECF"],
-    "nba_wcf": ["KXNBA-WESTCONF", "NBAPLAYOFFS-WEST", "NBAWCF-2026", "NBA-WEST-FINALS", "NBAWCF", "KXNBA-WCF"],
-    "nhl_wcf": ["KXNHL-WESTCONF", "NHLPLAYOFFS-WEST", "NHLWCF-2026", "NHL-WEST-FINALS", "NHLWCF", "KXNHL-WCF"],
+    # Kalshi series tickers. The API accepts the series (KXNBA) in ?series_ticker=;
+    # event-level tickers (KXNBA-26) return 404 on the new api.elections.kalshi.com.
+    # URLs: kalshi.com/markets/kxnba/.../kxnba-26, kalshi.com/markets/kxnhl/.../kxnhl-26
+    "nba":    ["KXNBA"],
+    "nhl":    ["KXNHL"],
+    "mlb":    ["KXMLB"],
+    "mls":    ["KXMLS"],
+    "nascar": ["KXNASC"],
+    "golf_uso":  ["KXGOLF-USO"],
+    "golf_open": ["KXGOLF-OPEN"],
+    "tennis_fo_m":  ["KXATP-FO"],
+    "tennis_fo_w":  ["KXWTA-FO"],
+    "tennis_wb_m":  ["KXATP-WB"],
+    "tennis_wb_w":  ["KXWTA-WB"],
+    "tennis_uso_m": ["KXATP-USO"],
+    "tennis_uso_w": ["KXWTA-USO"],
+    # Conference finals
+    "nba_ecf": ["KXNBA-ECF"],
+    "nba_wcf": ["KXNBA-WCF"],
+    "nhl_wcf": ["KXNHL-WCF"],
 }
 
 
@@ -562,6 +579,70 @@ def _h2h(a, b):
     """Head-to-head YES probability (0–100 int) for first player given win probs."""
     total = a + b
     return round(a / total * 100) if total > 0 else None
+
+
+def _mlb_h2h(player_a, player_b):
+    """P(A's team ends July 1 with higher win% than B's) via normal approximation."""
+    def fn(o):
+        wp_a = o.get("mlb_win_pct", {}).get(player_a)
+        wp_b = o.get("mlb_win_pct", {}).get(player_b)
+        if wp_a is None or wp_b is None:
+            return None
+        today        = datetime.date.today()
+        season_start = datetime.date(today.year, 4, 1)
+        bet_close    = datetime.date(today.year, 7, 1)
+        games_per_day = 162 / 183
+        days_played  = max(1, (today - season_start).days)
+        days_left    = max(0, (bet_close - today).days)
+        gr = days_left * games_per_day
+        if gr <= 0:
+            return 100 if wp_a > wp_b else (0 if wp_a < wp_b else 50)
+        gp = days_played * games_per_day
+        diff = (wp_a - wp_b) * (gp + gr)
+        var  = (wp_a * (1 - wp_a) + wp_b * (1 - wp_b)) * gr
+        if var <= 0:
+            return None
+        z = diff / math.sqrt(var)
+        p = 0.5 * (1 + math.erf(z / math.sqrt(2)))
+        return round(p * 100)
+    return fn
+
+
+def _mls_h2h(player_a, player_b):
+    """P(A's team ends July 1 with more MLS points than B's) via normal approximation."""
+    def fn(o):
+        pts_a = o.get("mls_points", {}).get(player_a)
+        pts_b = o.get("mls_points", {}).get(player_b)
+        if pts_a is None or pts_b is None:
+            return None
+        today        = datetime.date.today()
+        season_start = datetime.date(today.year, 3, 1)
+        bet_close    = datetime.date(today.year, 7, 1)
+        games_per_day = 34 / 245
+        days_played  = max(1, (today - season_start).days)
+        days_left    = max(0, (bet_close - today).days)
+        gr = days_left * games_per_day
+        if gr <= 0:
+            return 100 if pts_a > pts_b else (0 if pts_a < pts_b else 50)
+        gp = max(1, days_played * games_per_day)
+        ppg_a = pts_a / gp
+        ppg_b = pts_b / gp
+        diff = (pts_a - pts_b) + (ppg_a - ppg_b) * gr
+        var  = 2 * 1.63 * gr  # ~1.63 pts variance per MLS game per team
+        if var <= 0:
+            return None
+        z = diff / math.sqrt(var)
+        p = 0.5 * (1 + math.erf(z / math.sqrt(2)))
+        return round(p * 100)
+    return fn
+
+
+def _pts_h2h(player_a, player_b):
+    """Return a prop fn giving P(A total > B total) from simulation pairwise data."""
+    def fn(o):
+        p = o.get("pairwise", {}).get((player_a, player_b))
+        return round(p * 100) if p is not None else None
+    return fn
 
 
 # Prop definitions: (id, static_yes_pct, fn(odds)->int|None, source_category_label)
@@ -583,7 +664,7 @@ _PROP_DEFS = [
     ("nhl-fin-tim-v-jamzee", 42, lambda o: _h2h(o.get("nhl_champ",{}).get("Tim",0), o.get("nhl_champ",{}).get("Jamzee",0)), "NHL-StanleyCup"),
 
     # ── NBA Finals (Kalshi: Buckley/Knicks ~54%, Wu/Spurs ~46% after NYK won Game 1) ─
-    ("nba-fin-wu-v-buckley", 47, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
+    ("nba-fin-wu-v-buckley", 18, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
 
     # ── US Open Golf ─────────────────────────────────────────────────────────────
     ("uso-wu-v-molmen",    52, lambda o: _h2h(o.get("golf_uso_win",{}).get("Wu",0),     o.get("golf_uso_win",{}).get("Molmen",0)), "Golf-USOpen-win"),
@@ -591,19 +672,19 @@ _PROP_DEFS = [
     ("uso-tim-v-shep",     62, lambda o: _h2h(o.get("golf_uso_win",{}).get("Tim",0),    o.get("golf_uso_win",{}).get("Shep",0)),  "Golf-USOpen-win"),
 
     # ── MLB / MLS / NASCAR (model only) ──────────────────────────────────────────
-    ("mlb-jens-v-tim",        54, None, None),
-    ("mlb-wu-v-mitchell",     55, None, None),
-    ("mlb-feder-v-korch",     58, None, None),
-    ("mls-buckley-v-molmen",  52, None, None),
-    ("mls-theo-v-shep",       57, None, None),
+    ("mlb-jens-v-tim",        54, _mlb_h2h("Jens",    "Tim"),      "mlb-standings"),
+    ("mlb-wu-v-mitchell",     55, _mlb_h2h("Wu",      "Mitchell"), "mlb-standings"),
+    ("mlb-feder-v-korch",     58, _mlb_h2h("Feder",   "Korch"),    "mlb-standings"),
+    ("mls-buckley-v-molmen",  52, _mls_h2h("Buckley", "Molmen"),   "mls-standings"),
+    ("mls-theo-v-shep",       57, _mls_h2h("Theo",    "Shep"),     "mls-standings"),
     ("nascar-molmen-v-korch", 53, None, None),
 
-    # ── Total Points · By July 1 (model only) ────────────────────────────────────
-    ("pts-wu-v-korch",      47, None, None),
-    ("pts-tim-v-molmen",    55, None, None),
-    ("pts-jamzee-v-fryar",  44, None, None),
-    ("pts-mitchell-v-todd", 65, None, None),
-    ("pts-buckley-v-theo",  80, None, None),
+    # ── Total Points (simulation-backed — updates every run from Monte Carlo) ──────
+    ("pts-wu-v-korch",      47, _pts_h2h("Wu",      "Korch"),   "pts-model"),
+    ("pts-tim-v-molmen",    55, _pts_h2h("Tim",      "Molmen"),  "pts-model"),
+    ("pts-jamzee-v-fryar",  44, _pts_h2h("Jamzee",  "Fryar"),   "pts-model"),
+    ("pts-mitchell-v-todd", 65, _pts_h2h("Mitchell", "Todd"),    "pts-model"),
+    ("pts-buckley-v-theo",  80, _pts_h2h("Buckley",  "Theo"),    "pts-model"),
 ]
 
 
@@ -813,8 +894,8 @@ def compute_expected_additional(current_scores, odds):
             e_box = _expected_lognormal(*film["box_office"])
             e_rt  = film["rt"][1]  # median RT as point estimate
             e_contrib = (e_rt / 100.0) * e_box
-            for player, factor in film[cat].items():
-                composites[player] = composites.get(player, 0.0) + e_contrib * factor
+            for player in film[cat]:
+                composites[player] = composites.get(player, 0.0) + e_contrib
         # Rank by expected composite → pts
         expected_pts = _rank_composites(players_list, composites)
         # Delta vs current baseline_pts (bonus_pts stay frozen)
@@ -1060,10 +1141,10 @@ def simulate(current_scores, odds, n=N_SIMS):
             box    = _sample_lognormal(*film["box_office"])
             rt     = _sample_normal_capped(*film["rt"])
             contrib = (rt / 100.0) * box
-            for player, factor in film["actor"].items():
-                actor_comp[player]   = actor_comp.get(player, 0.0)   + contrib * factor
-            for player, factor in film["actress"].items():
-                actress_comp[player] = actress_comp.get(player, 0.0) + contrib * factor
+            for player in film["actor"]:
+                actor_comp[player]   = actor_comp.get(player, 0.0)   + contrib
+            for player in film["actress"]:
+                actress_comp[player] = actress_comp.get(player, 0.0) + contrib
         for comp_dict in (actor_comp, actress_comp):
             for player, pts in _rank_composites(players_list, comp_dict).items():
                 totals[player] += pts
@@ -1103,7 +1184,15 @@ def simulate(current_scores, odds, n=N_SIMS):
             "projected_p10":   round(sims[int(n * 0.10)], 1),
             "projected_p90":   round(sims[int(n * 0.90)], 1),
         }
-    return out
+
+    # Pairwise head-to-head win rates: fraction of sims where A finishes above B
+    pairwise = {}
+    for i, a in enumerate(players_list):
+        for b in players_list[i + 1:]:
+            wins_a = sum(ta > tb for ta, tb in zip(sim_totals[a], sim_totals[b]))
+            pairwise[(a, b)] = wins_a / n
+            pairwise[(b, a)] = 1.0 - wins_a / n
+    return out, pairwise
 
 
 # ─── Main ──────────────────────────────────────────────────────────────────────
@@ -1117,13 +1206,15 @@ def run():
 
     markets_used = []
     print("\n── Fetching odds ─────────────────────────────────────────────")
+    if KALSHI_KEY_ID:
+        print(f"  Kalshi key ID: {KALSHI_KEY_ID[:8]}... PEM set: {bool(KALSHI_PEM)}")
     odds = build_odds(markets_used)
 
     print("\n── Computing expected additional points ───────────────────────")
     expected = compute_expected_additional(current_scores, odds)
 
     print("\n── Running Monte Carlo simulation ─────────────────────────────")
-    sim_results = simulate(current_scores, odds)
+    sim_results, pairwise = simulate(current_scores, odds)
 
     # Assemble output
     players_out = []
@@ -1147,6 +1238,15 @@ def run():
     # Sort by projected total
     players_out.sort(key=lambda x: -x["projected_total"])
 
+    odds["pairwise"] = pairwise
+    odds["mlb_win_pct"] = {
+        p["name"]: (p.get("categories", {}).get("mlb", {}).get("raw_value") or None)
+        for p in current_scores
+    }
+    odds["mls_points"] = {
+        p["name"]: (p.get("categories", {}).get("mls", {}).get("raw_value") or None)
+        for p in current_scores
+    }
     prop_odds = compute_prop_odds(odds, markets_used)
 
     output = {

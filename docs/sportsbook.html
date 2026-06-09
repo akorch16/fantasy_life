@@ -139,11 +139,11 @@
 
     .page-title {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.2rem;
+      font-size: clamp(2rem, 5vw, 3rem);
       letter-spacing: 0.06em;
-      color: var(--gold);
       margin-bottom: 0.25rem;
     }
+    .page-title span { color: var(--blue); }
     .page-subtitle {
       font-size: 0.85rem;
       color: var(--muted);
@@ -162,6 +162,15 @@
     }
 
     /* ─── BB LEADERBOARD ─── */
+    .bb-hero-img {
+      width: 50%;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    @media (max-width: 600px) {
+      .bb-hero-img { width: 100%; }
+    }
     .bb-leaderboard-wrap {
       margin-bottom: 2rem;
       overflow-x: auto;
@@ -824,10 +833,11 @@
 
 
 <div class="container">
-  <div class="page-title">🎲 Sportsbook</div>
+  <div class="page-title">Sports<span>book</span></div>
 
   <!-- ─── BB LEADERBOARD ─── -->
   <div class="section-header">Buckley Bucks Leaderboard</div>
+  <img src="./buckley-bucks.jpg" alt="Buckley Bucks" class="bb-hero-img" />
   <div class="bb-leaderboard-wrap" id="bb-leaderboard"></div>
 
   <!-- ─── YOUR BETS ─── -->
