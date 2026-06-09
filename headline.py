@@ -156,7 +156,7 @@ Headline:"""
 
 
 COST_PER_RUN_USD = 0.04   # Sonnet ~1k tokens in + ~200 out ≈ $0.04
-MIN_HOURS_BETWEEN_RUNS = 24  # once per day; manual skill runs stamp their own timestamp to block this
+MIN_HOURS_BETWEEN_RUNS = 20  # once per day; 20h (not 24h) to handle GitHub Actions scheduling drift
 
 
 def _hours_since_last_headline(data: dict) -> float:
