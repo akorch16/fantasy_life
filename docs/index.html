@@ -1628,7 +1628,7 @@ fetch('./scores.json')
         const day     = d.getUTCDate();
         const ord     = [,'st','nd','rd'][day % 100 > 10 && day % 100 < 20 ? 0 : day % 10] || 'th';
         const nbEl    = document.getElementById('news-bar-updated');
-        if (nbEl) nbEl.innerHTML = `<em>${weekday}, ${month} ${day}${ord}:</em>`;
+        if (nbEl) nbEl.innerHTML = `<em style="color:#fff">${weekday}, ${month} ${day}${ord}</em>`;
       } catch(e) {}
     }
     initDisplay();
