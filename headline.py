@@ -5,6 +5,7 @@ Uses Tavily free tier for live sports news + Anthropic Haiku for generation.
 Cost: ~$0.009/run. Reads/writes docs/scores.json in-place.
 """
 import json, os, sys
+from typing import Optional
 from pathlib import Path
 
 DOCS_DIR = Path(__file__).parent / 'docs'
@@ -108,7 +109,7 @@ def search_news(debug: bool = False) -> str:
         return ''
 
 
-def generate_headline(scores_data: dict, news_snippets: str) -> str | None:
+def generate_headline(scores_data: dict, news_snippets: str) -> Optional[str]:
     """Generate a fresh FL News ticker headline via Claude Sonnet."""
     if not news_snippets:
         print('  – No snippets returned; skipping to avoid hallucination')
