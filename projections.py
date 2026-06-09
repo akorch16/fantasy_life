@@ -332,29 +332,24 @@ def _name_matches(kalshi_title, pick_name):
 def _extract_probs(markets, picks_dict):
     """
     Given a list of Kalshi markets and a {player: pick_name} dict,
-    return {player: yes_ask_probability (0–1)}.
-    Uses the midpoint of bid/ask when both are present, else yes_ask alone.
+    return {player: yes_probability (0–1)}.
+    Kalshi v2 API returns prices as yes_ask_dollars / yes_bid_dollars (0.0–1.0 floats).
+    Eliminated/settled markets return null for price fields — those players are skipped.
     """
     probs = {}
     _logged_missing_fields = False
     for player, pick in picks_dict.items():
         for m in markets:
             if _name_matches(m.get("title", ""), pick):
-                # Try multiple field name variants used across Kalshi API versions
-                yes_ask = m.get("yes_ask") or m.get("yes_price")
-                yes_bid = m.get("yes_bid")
-                if yes_ask is not None and yes_bid is not None:
-                    probs[player] = (yes_ask + yes_bid) / 200.0
-                elif yes_ask is not None:
-                    probs[player] = yes_ask / 100.0
-                else:
-                    # Log fields once to diagnose which price keys the API actually returns
-                    if not _logged_missing_fields:
-                        print(f"    ⚠ Matched '{m.get('title')}' for {player}/{pick} but no price fields found")
-                        print(f"    Available keys: {list(m.keys())}")
-                        numeric_fields = {k: v for k, v in m.items() if isinstance(v, (int, float)) and v is not None}
-                        print(f"    Numeric fields: {numeric_fields}")
-                        _logged_missing_fields = True
+                yes_ask = m.get("yes_ask_dollars")
+                yes_bid = m.get("yes_bid_dollars")
+                try:
+                    if yes_ask is not None and yes_bid is not None:
+                        probs[player] = (float(yes_ask) + float(yes_bid)) / 2.0
+                    elif yes_ask is not None:
+                        probs[player] = float(yes_ask)
+                except (TypeError, ValueError):
+                    pass
                 break
     return probs
 
@@ -559,26 +554,26 @@ def _expected_bonus_conf_finals(p_champ, p_finalist):
 
 # ─── Kalshi fetch + merge ─────────────────────────────────────────────────────
 KNOWN_SERIES = {
-    # Kalshi event tickers confirmed from kalshi.com URLs (kxnba-26, kxnhl-26, etc.)
-    # Pattern: kalshi.com/markets/{series}/{slug}/{event} → API ticker is uppercase event.
-    # Try event ticker first, then series ticker as fallback.
-    "nba":    ["KXNBA-26", "KXNBA"],
-    "nhl":    ["KXNHL-26", "KXNHL"],
-    "mlb":    ["KXMLB-26", "KXMLB"],
-    "mls":    ["KXMLS-26", "KXMLS"],
-    "nascar": ["KXNASC-26", "KXNASC"],
-    "golf_uso":  ["KXGOLF-USO26", "KXGOLF-USO"],
-    "golf_open": ["KXGOLF-OPEN26", "KXGOLF-OPEN"],
-    "tennis_fo_m":  ["KXWTA-FO26",  "KXATP-FO26"],
-    "tennis_fo_w":  ["KXWTA-FO26",  "KXWTA-FO"],
-    "tennis_wb_m":  ["KXATP-WB26",  "KXATP-WB"],
-    "tennis_wb_w":  ["KXWTA-WB26",  "KXWTA-WB"],
-    "tennis_uso_m": ["KXATP-USO26", "KXATP-USO"],
-    "tennis_uso_w": ["KXWTA-USO26", "KXWTA-USO"],
+    # Kalshi series tickers. The API accepts the series (KXNBA) in ?series_ticker=;
+    # event-level tickers (KXNBA-26) return 404 on the new api.elections.kalshi.com.
+    # URLs: kalshi.com/markets/kxnba/.../kxnba-26, kalshi.com/markets/kxnhl/.../kxnhl-26
+    "nba":    ["KXNBA"],
+    "nhl":    ["KXNHL"],
+    "mlb":    ["KXMLB"],
+    "mls":    ["KXMLS"],
+    "nascar": ["KXNASC"],
+    "golf_uso":  ["KXGOLF-USO"],
+    "golf_open": ["KXGOLF-OPEN"],
+    "tennis_fo_m":  ["KXATP-FO"],
+    "tennis_fo_w":  ["KXWTA-FO"],
+    "tennis_wb_m":  ["KXATP-WB"],
+    "tennis_wb_w":  ["KXWTA-WB"],
+    "tennis_uso_m": ["KXATP-USO"],
+    "tennis_uso_w": ["KXWTA-USO"],
     # Conference finals
-    "nba_ecf": ["KXNBA-26-ECF", "KXNBA-ECF"],
-    "nba_wcf": ["KXNBA-26-WCF", "KXNBA-WCF"],
-    "nhl_wcf": ["KXNHL-26-WCF", "KXNHL-WCF"],
+    "nba_ecf": ["KXNBA-ECF"],
+    "nba_wcf": ["KXNBA-WCF"],
+    "nhl_wcf": ["KXNHL-WCF"],
 }
 
 
