@@ -588,6 +588,62 @@ def _h2h(a, b):
     return round(a / total * 100) if total > 0 else None
 
 
+def _mlb_h2h(player_a, player_b):
+    """P(A's team ends July 1 with higher win% than B's) via normal approximation."""
+    def fn(o):
+        wp_a = o.get("mlb_win_pct", {}).get(player_a)
+        wp_b = o.get("mlb_win_pct", {}).get(player_b)
+        if wp_a is None or wp_b is None:
+            return None
+        today        = datetime.date.today()
+        season_start = datetime.date(today.year, 4, 1)
+        bet_close    = datetime.date(today.year, 7, 1)
+        games_per_day = 162 / 183
+        days_played  = max(1, (today - season_start).days)
+        days_left    = max(0, (bet_close - today).days)
+        gr = days_left * games_per_day
+        if gr <= 0:
+            return 100 if wp_a > wp_b else (0 if wp_a < wp_b else 50)
+        gp = days_played * games_per_day
+        diff = (wp_a - wp_b) * (gp + gr)
+        var  = (wp_a * (1 - wp_a) + wp_b * (1 - wp_b)) * gr
+        if var <= 0:
+            return None
+        z = diff / math.sqrt(var)
+        p = 0.5 * (1 + math.erf(z / math.sqrt(2)))
+        return round(p * 100)
+    return fn
+
+
+def _mls_h2h(player_a, player_b):
+    """P(A's team ends July 1 with more MLS points than B's) via normal approximation."""
+    def fn(o):
+        pts_a = o.get("mls_points", {}).get(player_a)
+        pts_b = o.get("mls_points", {}).get(player_b)
+        if pts_a is None or pts_b is None:
+            return None
+        today        = datetime.date.today()
+        season_start = datetime.date(today.year, 3, 1)
+        bet_close    = datetime.date(today.year, 7, 1)
+        games_per_day = 34 / 245
+        days_played  = max(1, (today - season_start).days)
+        days_left    = max(0, (bet_close - today).days)
+        gr = days_left * games_per_day
+        if gr <= 0:
+            return 100 if pts_a > pts_b else (0 if pts_a < pts_b else 50)
+        gp = max(1, days_played * games_per_day)
+        ppg_a = pts_a / gp
+        ppg_b = pts_b / gp
+        diff = (pts_a - pts_b) + (ppg_a - ppg_b) * gr
+        var  = 2 * 1.63 * gr  # ~1.63 pts variance per MLS game per team
+        if var <= 0:
+            return None
+        z = diff / math.sqrt(var)
+        p = 0.5 * (1 + math.erf(z / math.sqrt(2)))
+        return round(p * 100)
+    return fn
+
+
 def _pts_h2h(player_a, player_b):
     """Return a prop fn giving P(A total > B total) from simulation pairwise data."""
     def fn(o):
@@ -623,11 +679,11 @@ _PROP_DEFS = [
     ("uso-tim-v-shep",     62, lambda o: _h2h(o.get("golf_uso_win",{}).get("Tim",0),    o.get("golf_uso_win",{}).get("Shep",0)),  "Golf-USOpen-win"),
 
     # ── MLB / MLS / NASCAR (model only) ──────────────────────────────────────────
-    ("mlb-jens-v-tim",        54, None, None),
-    ("mlb-wu-v-mitchell",     55, None, None),
-    ("mlb-feder-v-korch",     58, None, None),
-    ("mls-buckley-v-molmen",  52, None, None),
-    ("mls-theo-v-shep",       57, None, None),
+    ("mlb-jens-v-tim",        54, _mlb_h2h("Jens",    "Tim"),      "mlb-standings"),
+    ("mlb-wu-v-mitchell",     55, _mlb_h2h("Wu",      "Mitchell"), "mlb-standings"),
+    ("mlb-feder-v-korch",     58, _mlb_h2h("Feder",   "Korch"),    "mlb-standings"),
+    ("mls-buckley-v-molmen",  52, _mls_h2h("Buckley", "Molmen"),   "mls-standings"),
+    ("mls-theo-v-shep",       57, _mls_h2h("Theo",    "Shep"),     "mls-standings"),
     ("nascar-molmen-v-korch", 53, None, None),
 
     # ── Total Points (simulation-backed — updates every run from Monte Carlo) ──────
@@ -1190,6 +1246,14 @@ def run():
     players_out.sort(key=lambda x: -x["projected_total"])
 
     odds["pairwise"] = pairwise
+    odds["mlb_win_pct"] = {
+        p["name"]: (p.get("categories", {}).get("mlb", {}).get("raw_value") or None)
+        for p in current_scores
+    }
+    odds["mls_points"] = {
+        p["name"]: (p.get("categories", {}).get("mls", {}).get("raw_value") or None)
+        for p in current_scores
+    }
     prop_odds = compute_prop_odds(odds, markets_used)
 
     output = {
