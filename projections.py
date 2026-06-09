@@ -559,26 +559,26 @@ def _expected_bonus_conf_finals(p_champ, p_finalist):
 
 # ─── Kalshi fetch + merge ─────────────────────────────────────────────────────
 KNOWN_SERIES = {
-    # Kalshi series tickers to try; fallback gracefully if 403/empty.
-    # KXNBA-26 / KXNHL-26 are the confirmed 2025-26 event tickers (series: KXNBA / KXNHL).
-    "nba":    ["KXNBA-26", "KXNBA", "NBACHAMP", "NBA-CHAMPION"],
-    "nhl":    ["KXNHL-26", "KXNHL", "NHLCHAMP", "NHL-CUP"],
-    "mlb":    ["MLBCHAMP", "KXMLB",  "MLB-WS"],
-    "mls":    ["MLSCUP",   "KXMLS"],
-    "nascar": ["NASCARWIN","KXNASC", "NASCAR-CUP"],
-    "golf_uso": ["KXGOLF-USO", "GOLF-USO"],
-    "golf_open": ["KXGOLF-OPEN", "GOLF-THEOPEN"],
-    "tennis_fo_m": ["TENNISFO-M", "RG-MEN"],
-    "tennis_fo_w": ["TENNISFO-W", "RG-WOMEN"],
-    "tennis_wb_m": ["TENNISWB-M", "WIM-MEN"],
-    "tennis_wb_w": ["TENNISWB-W", "WIM-WOMEN"],
-    "tennis_uso_m": ["TENNISUSO-M", "USO-MEN"],
-    "tennis_uso_w": ["TENNISUSO-W", "USO-WOMEN"],
-    # Conference finals — for sportsbook prop live odds
-    # Tickers are tried left-to-right; add new Kalshi names to the front each season
-    "nba_ecf": ["KXNBA-EASTCONF", "NBAPLAYOFFS-EAST", "NBAECF-2026", "NBA-EAST-FINALS", "NBAECF", "KXNBA-ECF"],
-    "nba_wcf": ["KXNBA-WESTCONF", "NBAPLAYOFFS-WEST", "NBAWCF-2026", "NBA-WEST-FINALS", "NBAWCF", "KXNBA-WCF"],
-    "nhl_wcf": ["KXNHL-WESTCONF", "NHLPLAYOFFS-WEST", "NHLWCF-2026", "NHL-WEST-FINALS", "NHLWCF", "KXNHL-WCF"],
+    # Kalshi event tickers confirmed from kalshi.com URLs (kxnba-26, kxnhl-26, etc.)
+    # Pattern: kalshi.com/markets/{series}/{slug}/{event} → API ticker is uppercase event.
+    # Try event ticker first, then series ticker as fallback.
+    "nba":    ["KXNBA-26", "KXNBA"],
+    "nhl":    ["KXNHL-26", "KXNHL"],
+    "mlb":    ["KXMLB-26", "KXMLB"],
+    "mls":    ["KXMLS-26", "KXMLS"],
+    "nascar": ["KXNASC-26", "KXNASC"],
+    "golf_uso":  ["KXGOLF-USO26", "KXGOLF-USO"],
+    "golf_open": ["KXGOLF-OPEN26", "KXGOLF-OPEN"],
+    "tennis_fo_m":  ["KXWTA-FO26",  "KXATP-FO26"],
+    "tennis_fo_w":  ["KXWTA-FO26",  "KXWTA-FO"],
+    "tennis_wb_m":  ["KXATP-WB26",  "KXATP-WB"],
+    "tennis_wb_w":  ["KXWTA-WB26",  "KXWTA-WB"],
+    "tennis_uso_m": ["KXATP-USO26", "KXATP-USO"],
+    "tennis_uso_w": ["KXWTA-USO26", "KXWTA-USO"],
+    # Conference finals
+    "nba_ecf": ["KXNBA-26-ECF", "KXNBA-ECF"],
+    "nba_wcf": ["KXNBA-26-WCF", "KXNBA-WCF"],
+    "nhl_wcf": ["KXNHL-26-WCF", "KXNHL-WCF"],
 }
 
 
