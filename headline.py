@@ -141,6 +141,7 @@ CRITICAL rules:
 - Examples: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals." / "NVDA (<em>Todd</em>) surges 9% on earnings." / "USA (<em>Wu</em>) blank Morocco 2-0 in World Cup opener." / "Taylor Swift (<em>Molmen</em>) hits #1 with new single."
 - Use <em> tags ONLY around FL player names — never around pick names
 - Be specific: include series scores or % moves only if the snippet gives them
+- Actor/Actress: ONLY connect a film to an FL player's pick if the snippet explicitly names that actor/actress by name in the film. A film title alone is never enough — do NOT use outside knowledge about casting.
 - Output ONLY the headline text, no quotes, no labels, no preamble
 
 Headline:"""
