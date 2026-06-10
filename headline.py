@@ -53,9 +53,11 @@ Country(FIFAWorldCup): Tim=Netherlands, Wu=USA, Jens=Germany, Todd=Guinea, Mitch
 
 def search_news(debug: bool = False) -> str:
     """Fetch recent news via Tavily — separate query per active event so no category starves another."""
+    from datetime import date
     api_key = os.environ.get('TAVILY_API_KEY', '')
     if not api_key:
         return ''
+    today_str = date.today().strftime('%B %d %Y')
     queries = [
         # ── Active playoff series get their own slot ──────────────────────
         'NBA Finals 2026 most recent game score result last night',
@@ -66,12 +68,12 @@ def search_news(debug: bool = False) -> str:
         'MLB MLS NASCAR standings results 2026',
         # ── FIFA World Cup ────────────────────────────────────────────────
         'FIFA World Cup 2026 results group stage standings',
-        # ── Music (recent chart moves only) ──────────────────────────────
-        'Billboard Hot 100 number one song this week 2026',
+        # ── Music: must be a chart move happening THIS week ───────────────
+        f'Billboard Hot 100 chart number one new entry this week {today_str}',
         # ── Stocks ───────────────────────────────────────────────────────
         'NVDA TSLA COIN PLTR AVGO SMCI LULU INTC NEE stock market 2026',
-        # ── Movies: recent box office, NOT celebrity gossip ───────────────
-        'box office results opening weekend June 2026',
+        # ── Movies: only NEW releases opening THIS weekend ────────────────
+        f'new movie opening this weekend box office {today_str}',
     ]
     try:
         import requests
@@ -132,7 +134,8 @@ CRITICAL rules:
 - If a snippet mentions a pick but doesn't clearly state the result or move, skip it.
 - For ongoing series (NBA Finals, NHL Finals, etc.), always report the MOST RECENT game — if snippets mention multiple games, use the highest game number.
 - Never cross categories: an NBA team cannot win a Stanley Cup; a stock ticker is not a song chart.
-- Only include events from the last 3 days (today is {today}).
+- The EVENT itself must have occurred within the last 3 days (today is {today}). A recent article referencing an older event (e.g. "biggest opening of the year" for a film that opened weeks ago) does NOT qualify — skip it.
+- For Actor/Actress/Musician: only report if the film opened or the song charted within the last 3 days. Do NOT report on releases from weeks or months ago even if a recent article mentions them.
 - 3–5 sentences, max 60 words total
 - Never mention FL standings, point totals, or league positions
 - If snippets contain results for BOTH NBA Finals and NHL Stanley Cup Finals, include a sentence for each — never drop an active Finals series
