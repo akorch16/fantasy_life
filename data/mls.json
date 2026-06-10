@@ -1,18 +1,18 @@
 {
   "standings": [
-    {"team": "Vancouver Whitecaps",  "points": 24},
-    {"team": "LAFC",                 "points": 20},
-    {"team": "Inter Miami",          "points": 19},
-    {"team": "Seattle Sounders",     "points": 19},
-    {"team": "Minnesota United",     "points": 17},
-    {"team": "Charlotte FC",         "points": 14},
-    {"team": "New York Red Bulls",   "points": 12},
-    {"team": "Columbus Crew",        "points": 12},
-    {"team": "FC Cincinnati",        "points": 12},
-    {"team": "LA Galaxy",            "points": 12},
-    {"team": "San Diego FC",         "points": 11},
-    {"team": "Orlando City",         "points": 7},
-    {"team": "Philadelphia Union",   "points": 5}
+    {"team": "Vancouver Whitecaps",  "points": 32},
+    {"team": "Inter Miami",          "points": 31},
+    {"team": "Seattle Sounders",     "points": 24},
+    {"team": "LAFC",                 "points": 24},
+    {"team": "Minnesota United",     "points": 22},
+    {"team": "New York Red Bulls",   "points": 22},
+    {"team": "Charlotte FC",         "points": 21},
+    {"team": "FC Cincinnati",        "points": 20},
+    {"team": "LA Galaxy",            "points": 20},
+    {"team": "San Diego FC",         "points": 17},
+    {"team": "Columbus Crew",        "points": 16},
+    {"team": "Orlando City",         "points": 14},
+    {"team": "Philadelphia Union",   "points": 7}
   ],
-  "_updated": "2026-04-30"
+  "_updated": "2026-06-09"
 }

@@ -63,6 +63,7 @@
       text-transform: uppercase;
     }
     .nav-link:hover { color: var(--text); }
+    .nav-link.active { color: var(--blue); }
 
     /* ─── SITE NAV BAR ─── */
     .site-nav {
@@ -271,15 +272,20 @@
     .filter-btn:hover { color: var(--text); background: var(--surface2); }
     .filter-btn.active { background: var(--blue); color: white; }
 
-    .standings-title {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
       letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .page-title span { color: var(--blue); }
+    .page-subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
       text-transform: uppercase;
-      margin-bottom: 14px;
-      text-align: center;
+      letter-spacing: 0.08em;
+      margin-bottom: 28px;
     }
 
     /* ─── TABLE ─── */
@@ -402,50 +408,6 @@
       background: var(--bg);
     }
 
-    .stale-badge {
-      font-size: 10px;
-      color: #f59e0b;
-      cursor: help;
-      margin-left: 2px;
-    }
-
-    .cat-detail-panel {
-      margin-bottom: 12px;
-      padding: 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-    }
-    .cat-detail-panel h4 {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 8px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .detail-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.72rem;
-    }
-    .detail-table th {
-      text-align: left;
-      color: var(--muted);
-      font-weight: 500;
-      padding: 4px 8px;
-      border-bottom: 1px solid var(--border);
-    }
-    .detail-table td {
-      padding: 4px 8px;
-      color: var(--text);
-      border-bottom: 1px solid var(--dim);
-    }
-    .detail-table th:not(:first-child),
-    .detail-table td:not(:first-child) { text-align: right; }
-    .detail-table tr:last-child td { border-bottom: none; }
-    .detail-bonus { margin-top: 8px; font-size: 0.72rem; color: var(--gold); }
-
     .cat-item.tier-high {
       border-color: #166534;
       background: #052e16;
@@ -489,6 +451,83 @@
     .bonus-pts {
       color: var(--gold);
     }
+
+    /* ─── FILM BREAKDOWN ─── */
+    .film-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .film-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 0 10px 8px 0;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .film-table td {
+      padding: 8px 10px 8px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .film-table tr:last-child td { border-bottom: none; }
+    .film-title-cell { font-weight: 500; }
+    .film-bo-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); }
+    .rt-score-badge { font-family: 'DM Mono', monospace; font-weight: 600; font-size: 0.82rem; }
+    .rt-fresh  { color: #4ade80; }
+    .rt-mixed  { color: #fbbf24; }
+    .rt-rotten { color: #f87171; }
+    .film-no-releases { font-size: 0.82rem; color: var(--dim); font-style: italic; padding: 4px 0 8px; }
+    .awards-section-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--blue);
+      margin: 14px 0 6px;
+    }
+    .award-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+    .award-item:last-child { border-bottom: none; }
+    .award-win-label  { color: var(--gold); font-weight: 600; }
+    .award-nom-label  { color: var(--muted); }
+
+    /* ─── MUSICIAN SONG BREAKDOWN ─── */
+    .song-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .song-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      padding: 0 10px 6px 0;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .song-table td {
+      padding: 8px 10px 8px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .song-table tr:last-child td { border-bottom: none; }
+    .song-title-cell { font-weight: 500; }
+    .song-weeks-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); text-align: center; padding-right: 4px; }
+    .song-no-data { font-size: 0.82rem; color: var(--dim); font-style: italic; padding: 4px 0 8px; }
 
     /* ─── TODD PAYWALL ROW ─── */
     .todd-lock-icon {
@@ -820,10 +859,27 @@
       background: #0d1117;
       border-bottom: 1px solid #1e2a1e;
       padding: 6px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
       font-size: 0.7rem;
       font-family: 'DM Mono', monospace;
       letter-spacing: 0.04em;
-      line-height: 1.6;
+      flex-wrap: wrap;
+    }
+    .news-bar-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+      border-right: 1px solid #1e2a1e;
+      padding-right: 12px;
+    }
+    .news-bar-updated {
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      font-size: 0.68rem;
+      white-space: nowrap;
     }
     .news-bar-label {
       color: var(--accent);
@@ -831,10 +887,14 @@
       font-size: 0.62rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
+      white-space: nowrap;
     }
-    .news-bar-sep { color: var(--muted); }
-    .news-bar-updated { color: var(--muted); font-size: 0.68rem; }
-    .news-bar-headline { color: #c9d1d9; }
+    .news-bar-headline {
+      color: #c9d1d9;
+      flex: 1;
+      white-space: normal;
+      word-break: break-word;
+    }
     .news-bar-headline em {
       color: var(--accent);
       font-style: normal;
@@ -857,6 +917,8 @@
       .season-hero { flex-direction: column; align-items: flex-start; }
       .todd-hero { width: 120px; align-self: flex-end; }
       .season-stats { gap: 20px; }
+      .news-bar { flex-direction: column; gap: 4px; }
+      .news-bar-left { flex-direction: row; align-items: center; gap: 8px; border-right: none; padding-right: 0; border-bottom: none; }
     }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c0a91842667f4f16b87e22ebbce8e280"}'></script><!-- End Cloudflare Web Analytics -->
@@ -876,15 +938,18 @@
   <a href="./calendar.html" class="nav-link">Calendar</a>
   <a href="./trips.html" class="nav-link">Trips</a>
   <a href="./projections.html" class="nav-link">Projections</a>
+  <a href="./draft.html" class="nav-link">Draft</a>
   <a href="./sportsbook.html" class="nav-link">Sportsbook</a>
 </nav>
 
 <div class="news-bar" id="news-bar">
-  <span class="news-bar-label">📡 FL News</span>
-  <span class="news-bar-sep"> — Updated </span>
-  <span class="news-bar-updated" id="news-bar-updated"><span style="opacity:0.5">…</span></span>
-  <span class="news-bar-sep">: </span>
-  <span class="news-bar-headline" id="news-bar-headline">🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em> — Jamzee's actress pick quietly printing points while everyone sleeps.</span>
+  <div class="news-bar-left">
+    <div class="news-bar-label">📡 FL News</div>
+    <div class="news-bar-updated" id="news-bar-updated"></div>
+  </div>
+  <div class="news-bar-headline" id="news-bar-headline">
+    🏆 <em>Dame Judi Dench</em> takes home Best Supporting Actress at the Oscars for <em>Shakespeare in Love</em> — Jamzee's actress pick quietly printing points while everyone sleeps.
+  </div>
 </div>
 
 <div class="page">
@@ -895,7 +960,7 @@
     </div>
 
   <!-- ─── FILTERS ─── -->
-  <h2 class="standings-title">Fantasy Life 2026 Standings</h2>
+  <div class="page-title">Leader<span>board</span></div>
   <div class="filter-row">
     <div class="filter-group">
       <button class="filter-btn active" data-cat="all" onclick="setFilter('all', this)">All</button>
@@ -918,7 +983,7 @@
   </div>
 
   <!-- ─── STANDINGS TABLE ─── -->
-  <table class="standings-table" id="standings-table">
+  <table class="standings-table">
     <thead>
       <tr id="table-header">
         <th>#</th>
@@ -1072,15 +1137,6 @@ const CAT_LABELS = {
   country: "Country GDP", stock: "Stock"
 };
 
-// 98th Academy Awards (March 2026) — keyed by FL player name
-const OSCAR_2026 = {
-  actress: {
-    Jamzee: [{ category: 'Best Actress', result: 'Nominated' }],
-    Molmen: [{ category: 'Best Actress', film: 'Hamnet', result: 'Won' }],
-  },
-  actor: {},
-};
-
 // ============================================================
 // WEEKS ELAPSED since Jan 1, 2026
 // ============================================================
@@ -1089,6 +1145,7 @@ function initDisplay() {
   const now = new Date();
   const weeks = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
   document.getElementById('weeks-elapsed').textContent = Math.max(0, weeks);
+
 }
 
 // Per-category stat label and value formatter
@@ -1109,6 +1166,128 @@ const CAT_STAT = {
   country: { label: 'GDP Chg%',  fmt: c => c.raw_value != null ? c.raw_value.toFixed(2) + '%' : '–' },
   stock:   { label: 'YTD Chg',   fmt: c => c.raw_display != null ? c.raw_display : (c.raw_value != null ? c.raw_value.toFixed(1) + '%' : '–') },
 };
+
+// ============================================================
+// FILMOGRAPHY & OSCAR DATA
+// ============================================================
+const FILMOGRAPHY_2026 = {
+  'Actor': {
+    'Chris Hemsworth':    [{title:'Crime 101',                 release:'Feb 13, 2026', bo:'$72M',      rt:88},
+                           {title:'Avengers: Doomsday',        release:'May 1, 2026',  bo:null,        rt:null}],
+    'Robert Pattinson':   [{title:'The Bride!',                release:'Mar 6, 2026',  bo:'$23M',      rt:59},
+                           {title:'The Drama',                 release:'Apr 3, 2026',  bo:null,        rt:null}],
+    'Matt Damon':         [{title:'The Rip',                   release:'Jan 16, 2026', bo:'Streaming', rt:79},
+                           {title:'The Odyssey',               release:'Jul 17, 2026', bo:null,        rt:null}],
+    'Tom Holland':        [{title:'The Odyssey',               release:'Jul 17, 2026', bo:null,        rt:null},
+                           {title:'Spider-Man: Brand New Day', release:'Jul 31, 2026', bo:null,        rt:null}],
+    'Jon Bernthal':       [{title:'The Odyssey',               release:'Jul 17, 2026', bo:null,        rt:null},
+                           {title:'Spider-Man: Brand New Day', release:'Jul 31, 2026', bo:null,        rt:null}],
+    'Pedro Pascal':       [{title:'The Mandalorian & Grogu',   release:'May 22, 2026', bo:null,        rt:null}],
+    'Jeremy Allen White': [{title:'The Mandalorian & Grogu',   release:'May 22, 2026', bo:null,        rt:null}],
+    'Dwayne Johnson':     [{title:'Moana',                     release:'Jul 10, 2026', bo:null,        rt:null}],
+  },
+  'Actress': {
+    'Jessie Buckley':     [{title:'The Bride!',                   release:'Mar 6, 2026',  bo:'$23M', rt:59}],
+    'Anya Taylor-Joy':    [{title:'The Super Mario Galaxy Movie',  release:'Apr 1, 2026',  bo:null,   rt:null}],
+    'Zendaya':            [{title:'The Drama',                    release:'Apr 3, 2026',  bo:null,   rt:null},
+                           {title:'Spider-Man: Brand New Day',    release:'Jul 31, 2026', bo:null,   rt:null},
+                           {title:'Dune: Part Three',             release:'Dec 18, 2026', bo:null,   rt:null}],
+    'Anne Hathaway':      [{title:'Mother Mary',                  release:'Apr 24, 2026', bo:null,   rt:null},
+                           {title:'The Devil Wears Prada 2',      release:'May 1, 2026',  bo:null,   rt:null},
+                           {title:'The Odyssey',                  release:'Jul 17, 2026', bo:null,   rt:null}],
+    'Charlize Theron':    [{title:'The Odyssey',                  release:'Jul 17, 2026', bo:null,   rt:null}],
+    'Florence Pugh':      [{title:'Avengers: Doomsday',           release:'Dec 18, 2026', bo:null,   rt:null},
+                           {title:'Dune: Part Three',             release:'Dec 18, 2026', bo:null,   rt:null}],
+  },
+};
+
+const OSCAR_AWARDS = {
+  'Actor': {
+    'Sean Penn':          [{result:'Won',       category:'Best Supporting Actor', film:'One Battle After Another'}],
+    'Wagner Moura':       [{result:'Nominated', category:'Best Actor',            film:'The Secret Agent'}],
+    'Leonardo DiCaprio':  [{result:'Nominated', category:'Best Actor',            film:'One Battle After Another'}],
+    'Timothee Chalamet':  [{result:'Nominated', category:'Best Actor',            film:'Marty Supreme'}],
+  },
+  'Actress': {
+    'Jessie Buckley':     [{result:'Won',       category:'Best Actress',           film:'Hamnet'}],
+    'Emma Stone':         [{result:'Nominated', category:'Best Actress',           film:'Bugonia'}],
+    'Teyana Taylor':      [{result:'Nominated', category:'Best Supporting Actress',film:'One Battle After Another'}],
+  },
+};
+
+function buildMusicianBreakdown(pickName, num1Weeks, hot100Weeks) {
+  const artistImg = pickName === 'FKA Twigs'
+    ? `<img src="fka-twigs.png" alt="FKA Twigs" style="width:200px;height:200px;object-fit:cover;border-radius:8px;display:block;margin-bottom:12px;">`
+    : '';
+  if (num1Weeks == null && hot100Weeks == null) {
+    return `<div class="breakdown-inner">${artistImg}<div class="song-no-data">No chart data available yet.</div></div>`;
+  }
+  const num1Cell = num1Weeks > 0
+    ? `<span style="color:var(--gold);font-weight:600">${num1Weeks}</span>`
+    : (num1Weeks === 0 ? '0' : '—');
+  const top10Cell = hot100Weeks != null ? hot100Weeks : '—';
+  return `<div class="breakdown-inner">
+    ${artistImg}
+    <table class="song-table">
+      <thead><tr>
+        <th>Artist</th>
+        <th style="text-align:center">#1 Wks</th>
+        <th style="text-align:center">Top 10 Wks</th>
+      </tr></thead>
+      <tbody><tr>
+        <td class="song-title-cell">${pickName}</td>
+        <td class="song-weeks-cell">${num1Cell}</td>
+        <td class="song-weeks-cell">${top10Cell}</td>
+      </tr></tbody>
+    </table>
+  </div>`;
+}
+
+function buildFilmographyBreakdown(pickName, catType) {
+  const films = (FILMOGRAPHY_2026[catType] || {})[pickName] || [];
+
+  let filmRows = '';
+  if (!films.length) {
+    filmRows = `<div class="film-no-releases">No movies in 2026. Better luck next year.</div>`;
+  } else {
+    const rows = films.map(f => {
+      const rtClass = f.rt >= 60 ? 'rt-fresh' : f.rt >= 40 ? 'rt-mixed' : f.rt != null ? 'rt-rotten' : '';
+      const rtStr   = f.rt != null ? f.rt + '%' : 'N/A';
+      const boStr   = f.bo || 'N/A';
+      return `<tr>
+        <td class="film-title-cell">${f.title}</td>
+        <td style="color:var(--muted);font-size:0.78rem;font-family:'DM Mono',monospace">${f.release}</td>
+        <td class="film-bo-cell">${boStr}</td>
+        <td><span class="rt-score-badge ${rtClass}">${rtStr}</span></td>
+      </tr>`;
+    }).join('');
+    filmRows = `<table class="film-table">
+      <thead><tr>
+        <th>Film</th><th>Released</th><th>Domestic BO</th><th>RT</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  const awards = (OSCAR_AWARDS[catType] || {})[pickName] || [];
+  let awardsHtml = '';
+  if (awards.length) {
+    const items = awards.map(a => {
+      const isWin = a.result === 'Won';
+      return `<div class="award-item">
+        <span>${isWin ? '🏆' : '🎬'}</span>
+        <div>
+          <span class="${isWin ? 'award-win-label' : 'award-nom-label'}">${a.result}</span>
+          <span style="color:var(--muted)"> · ${a.category}</span>
+          <div style="font-size:0.75rem;color:var(--dim);margin-top:2px;font-style:italic">${a.film}</div>
+        </div>
+      </div>`;
+    }).join('');
+    awardsHtml = `<div class="awards-section-title">98th Academy Awards (2026)</div>${items}`;
+  }
+
+  return `<div class="breakdown-inner">${filmRows}${awardsHtml}</div>`;
+}
 
 // ============================================================
 // RENDER TABLE
@@ -1189,8 +1368,8 @@ function renderTable() {
           <div class="player-name todd-name"><span class="todd-lock-icon">🔒</span> Todd</div>
           <div class="todd-teaser">Score hidden — premium subscription required</div>
         </td>
-        ${extraCols}
         <td class="score-cell todd-score">??</td>
+        ${extraCols}
         <td class="expand-cell">$</td>
       `;
     } else if (currentFilter === 'all') {
@@ -1268,94 +1447,20 @@ function renderTable() {
         `;
       }).join('');
 
-      let detailPanel = '';
-      let gridHtml = `<div class="breakdown-grid">${items}</div>`;
-      if (currentFilter === 'musician') {
-        detailPanel = buildMusicianDetail(player);
-      } else if (currentFilter === 'actor' || currentFilter === 'actress') {
-        detailPanel = buildFilmDetail(player, currentFilter);
-        gridHtml = '';
+      if (currentFilter === 'actor' || currentFilter === 'actress') {
+        const catData = (player.categories || {})[currentFilter] || {};
+        const catType = currentFilter === 'actor' ? 'Actor' : 'Actress';
+        td.innerHTML = buildFilmographyBreakdown(catData.pick, catType);
+      } else if (currentFilter === 'musician') {
+        const catData = (player.categories || {})['musician'] || {};
+        td.innerHTML = buildMusicianBreakdown(catData.pick, catData.num1_weeks, catData.hot100_weeks);
+      } else {
+        td.innerHTML = `<div class="breakdown-inner"><div class="breakdown-grid">${items}</div></div>`;
       }
-      td.innerHTML = `<div class="breakdown-inner">${detailPanel}${gridHtml}</div>`;
       br.appendChild(td);
       tbody.appendChild(br);
     }
   });
-}
-
-function buildMusicianDetail(player) {
-  const d = ((player.categories || {}).musician || {});
-  const num1   = d.num1_weeks   != null ? d.num1_weeks   : 0;
-  const hot100 = d.hot100_weeks != null ? d.hot100_weeks : 0;
-  const bonus  = d.bonus_pts || 0;
-  const bonusHtml = bonus > 0
-    ? `<tr><td style="color:var(--gold)">Grammy Bonus</td><td style="color:var(--gold)">+${bonus.toFixed(1)} pts</td></tr>`
-    : '';
-  return `
-    <div class="cat-detail-panel">
-      <h4>${d.pick || '–'} — Chart Stats</h4>
-      <table class="detail-table">
-        <tbody>
-          <tr><td>Billboard #1 Weeks</td><td>${num1}</td></tr>
-          <tr><td>Hot 100 Weeks</td><td>${hot100}</td></tr>
-          <tr><td>Score (2×#1 + Hot 100)</td><td>${(2 * num1) + hot100}</td></tr>
-          ${bonusHtml}
-        </tbody>
-      </table>
-    </div>`;
-}
-
-function buildFilmDetail(player, cat) {
-  const d = ((player.categories || {})[cat] || {});
-  const movies = d.movies || [];
-  const bonus  = d.bonus_pts || 0;
-
-  const rows = movies.map(m => {
-    const bo   = m.box_office  != null ? '$' + (m.box_office / 1e6).toFixed(1) + 'M' : '–';
-    const rt   = m.rt_score    != null ? m.rt_score + '%' : '–';
-    const comp = m.composite   != null ? m.composite.toFixed(2) : '–';
-    return `<tr>
-      <td>${m.title || '–'}</td>
-      <td>${m.release_date || '–'}</td>
-      <td>${bo}</td>
-      <td>${rt}</td>
-      <td>${comp}</td>
-    </tr>`;
-  }).join('');
-
-  const filmsHtml = movies.length > 0
-    ? `<table class="detail-table">
-        <thead><tr><th>Film</th><th>Release</th><th>Box Office</th><th>RT</th><th>Score</th></tr></thead>
-        <tbody>${rows}</tbody>
-       </table>`
-    : `<p style="font-size:0.72rem;color:var(--muted);padding:4px 0">No 2026 films in data yet.</p>`;
-
-  // Oscar section
-  const oscarEntries = ((OSCAR_2026[cat] || {})[player.name] || []);
-  let oscarHtml = '';
-  if (oscarEntries.length > 0) {
-    const oscarRows = oscarEntries.map(o => {
-      const isWin  = o.result === 'Won';
-      const filmTxt = o.film ? ` — ${o.film}` : '';
-      const ptsTxt  = bonus > 0 ? ` (+${bonus.toFixed(1)} pts)` : '';
-      return `<tr>
-        <td style="color:${isWin ? 'var(--gold)' : 'var(--text)'}">${o.category}${filmTxt}</td>
-        <td style="color:${isWin ? 'var(--gold)' : 'var(--muted)'}">${o.result}${ptsTxt}</td>
-      </tr>`;
-    }).join('');
-    oscarHtml = `
-      <div class="cat-detail-panel" style="margin-top:10px;margin-bottom:0">
-        <h4>98th Academy Awards</h4>
-        <table class="detail-table"><tbody>${oscarRows}</tbody></table>
-      </div>`;
-  }
-
-  return `
-    <div class="cat-detail-panel">
-      <h4>${d.pick || '–'} — 2026 Films</h4>
-      ${filmsHtml}
-    </div>
-    ${oscarHtml}`;
 }
 
 function toggleBreakdown(idx) {
@@ -1382,8 +1487,6 @@ function setFilter(cat, btn) {
   // Close breakdowns
   document.querySelectorAll('.breakdown-row.open').forEach(r => r.classList.remove('open'));
   document.querySelectorAll('.player-row.expanded').forEach(r => r.classList.remove('expanded'));
-  const standingsEl = document.getElementById('standings-table');
-  if (standingsEl) standingsEl.style.display = '';
   renderTable();
 }
 
@@ -1515,17 +1618,19 @@ fetch('./scores.json')
   .then(data => {
     window.SCORES_DATA = data.players || [];
     window.LAST_UPDATED = data.last_updated || '';
-    window.GOLF_DATA_STALE = data.golf_data_stale || false;
     if (data.headline) {
       document.getElementById('news-bar-headline').innerHTML = data.headline;
     }
-    // Set news bar date directly from data; fall back to today if field is absent
-    const _nbDate = document.getElementById('news-bar-updated');
-    if (_nbDate) {
-      const _months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const _raw = (data.last_updated || new Date().toISOString()).replace('T', ' ');
-      const _parts = _raw.split(' ')[0].split('-');
-      _nbDate.textContent = _months[parseInt(_parts[1], 10) - 1] + ' ' + parseInt(_parts[2], 10);
+    if (data.headline_generated_at) {
+      try {
+        const d = new Date(data.headline_generated_at);
+        const weekday = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+        const month   = d.toLocaleDateString('en-US', { month: 'long',   timeZone: 'UTC' });
+        const day     = d.getUTCDate();
+        const ord     = [,'st','nd','rd'][day % 100 > 10 && day % 100 < 20 ? 0 : day % 10] || 'th';
+        const nbEl    = document.getElementById('news-bar-updated');
+        if (nbEl) nbEl.innerHTML = `<em style="color:#fff">${weekday}, ${month} ${day}${ord}</em>`;
+      } catch(e) {}
     }
     initDisplay();
     renderTable();
@@ -1548,7 +1653,7 @@ function checkStripeReturn() {
 }
 </script>
 
-  <p style="text-align:center;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);padding:24px 0 8px;">Questions? <a href="mailto:tgrover8@gmail.com" style="color:var(--blue);text-decoration:underline;">Contact customer service.</a></p>
+  <p style="text-align:center;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);padding:24px 0 8px;">Questions? <a href="mailto:tgrover8@gmail.com" style="color:var(--muted);text-decoration:underline;">Contact customer service.</a></p>
   <footer class="site-footer">
     <div class="site-footer-copy">© Copyright 2011, Ratified 2022 by Tim · Wu · Jens · Todd · Mitchell · Shep · Theo · Feder · Fryar · Korch · Molmen · Jamzee · Buckley</div>
   </footer>

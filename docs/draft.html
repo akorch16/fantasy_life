@@ -354,15 +354,53 @@
       transition: background 0.15s;
     }
     .btn-admin:hover { background: rgba(245,158,11,0.1); }
+
+    /* ─── SITE NAV BAR ─── */
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .nav-link:hover { color: var(--text); }
+    .site-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+    }
+    .site-nav .nav-link {
+      padding: 9px 13px;
+      border-bottom: 2px solid transparent;
+      font-size: 0.68rem;
+    }
+    .site-nav .nav-link:hover { color: var(--text); border-bottom-color: rgba(255,255,255,0.2); }
+    .site-nav .nav-link.active { color: #60a5fa; border-bottom-color: #60a5fa; }
   </style>
 </head>
 <body>
+<nav class="site-nav">
+  <a href="./index.html" class="nav-link">Leaderboard</a>
+  <a href="./rules.html" class="nav-link">Rules</a>
+  <a href="./calendar.html" class="nav-link">Calendar</a>
+  <a href="./trips.html" class="nav-link">Trips</a>
+  <a href="./projections.html" class="nav-link">Projections</a>
+  <a href="./draft.html" class="nav-link active">Draft</a>
+  <a href="./sportsbook.html" class="nav-link">Sportsbook</a>
+</nav>
 <div id="app"><div class="loading">Loading…</div></div>
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────
-// After creating your Supabase project, replace these two values.
-const SUPABASE_URL  = 'https://YOUR_PROJECT.supabase.co';
-const SUPABASE_ANON = 'YOUR_ANON_KEY';
+const SUPABASE_URL  = 'https://xpekhpufucjvhhsxhmeo.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwZWtocHVmdWNqdmhoc3hobWVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNDg4MzMsImV4cCI6MjA4ODkyNDgzM30.dyvhXCdVwVAgsNHGV9olc8D3fh_8Ia-_IF6tIoK9ZoE';
 
 const SESSION_ID    = 'FL-2026';
 const ADMIN_PLAYERS = ['Korch'];
