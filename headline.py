@@ -11,44 +11,28 @@ from pathlib import Path
 DOCS_DIR = Path(__file__).parent / 'docs'
 SCORES_PATH = DOCS_DIR / 'scores.json'
 
-# Compact draft pick reference for the prompt
-DRAFT_SUMMARY = """\
-NBA: Tim=Nuggets, Wu=Spurs, Jens=Cavaliers, Todd=Timberwolves, Mitchell=Warriors,
-     Shep=Celtics, Theo=Lakers, Feder=Thunder, Fryar=Clippers, Korch=Rockets,
-     Molmen=Bucks, Jamzee=Magic, Buckley=Knicks
-NHL: Tim=GoldenKnights, Wu=Devils, Jens=MapleLeafs, Todd=Panthers, Mitchell=Stars,
-     Shep=Bruins, Theo=RedWings, Feder=Capitals, Fryar=Lightning, Korch=Avalanche,
-     Molmen=Rangers, Jamzee=Hurricanes, Buckley=Oilers
-MLB: Tim=Cubs, Wu=Dodgers, Jens=Yankees, Todd=Braves, Mitchell=Phillies, Shep=Astros,
-     Theo=Padres, Feder=Mets, Fryar=Guardians, Korch=BlueJays, Molmen=Rangers,
-     Jamzee=Mariners, Buckley=Brewers
-Tennis: Tim=Keys, Wu=Gauff, Jens=Paolini, Todd=Alcaraz, Mitchell=Fritz, Shep=Djokovic,
-        Theo=Zverev, Feder=Swiatek, Fryar=Sabalenka, Korch=Pegula, Molmen=Medvedev,
-        Jamzee=Anisimova, Buckley=Sinner
-Golf: Tim=Schauffele, Wu=Scheffler, Jens=Henley, Todd=Cantlay, Mitchell=Spaun,
-      Shep=Rahm, Theo=JThomas, Feder=DeChambeau, Fryar=Hovland, Korch=Fleetwood,
-      Molmen=McIlroy, Jamzee=Aberg, Buckley=Morikawa
-NASCAR: Tim=Wallace, Wu=Bell, Jens=Briscoe, Todd=Elliott, Mitchell=VanGisbergen,
-        Shep=Suarez, Theo=Hamlin, Feder=Reddick, Fryar=Blaney, Korch=Byron,
-        Molmen=Larson, Jamzee=Logano, Buckley=Chastain
-MLS: Tim=Charlotte, Wu=Minnesota, Jens=SanDiego, Todd=NYRedBulls, Mitchell=Philly,
-     Shep=Orlando, Theo=InterMiami, Feder=Vancouver, Fryar=Columbus, Korch=Cincinnati,
-     Molmen=LAGalaxy, Jamzee=Seattle, Buckley=LAFC
-Stock: Tim=COIN(L), Wu=LULU(L), Jens=SOFI(L), Todd=NVDA(L), Mitchell=CVNA(S),
-       Shep=TSLA(S), Theo=CMG(L), Feder=PLTR(L), Fryar=AVGO(L), Korch=SMCI(L),
-       Molmen=TTWO(L), Jamzee=INTC(L), Buckley=NEE(L)
-Actor: Tim=SeanPenn, Wu=WagnerMoura, Jens=Clooney, Todd=DiCaprio, Mitchell=PedroPascal,
-       Shep=JeremyAllenWhite, Theo=DwayneJohnson, Feder=TomHolland, Fryar=Hemsworth,
-       Korch=JonBernthal, Molmen=MattDamon, Jamzee=Chalamet, Buckley=Pattinson
-Actress: Tim=ArianaGrande, Wu=Zendaya, Jens=Seyfried, Todd=TeyanaTaylor, Mitchell=Theron,
-         Shep=TessaThompson, Theo=SydneySweeney, Feder=CynthiaErivo, Fryar=FlorencePugh,
-         Korch=AnneHathaway, Molmen=JessieBuckley, Jamzee=EmmaStone, Buckley=AnyaTaylorJoy
-Musician: Tim=KendrickLamar, Wu=FKATwigs, Jens=SabrinaCarpenter, Todd=OliviaRodrigo,
-          Mitchell=BadBunny, Shep=Drake, Theo=BTS, Feder=LadyGaga, Fryar=JustinBieber,
-          Korch=SZA, Molmen=TaylorSwift, Jamzee=TheWeeknd, Buckley=Beyonce
-Country(FIFAWorldCup): Tim=Netherlands, Wu=USA, Jens=Germany, Todd=Guinea, Mitchell=SouthSudan,
-                       Shep=France, Theo=Switzerland, Feder=Brazil, Fryar=Norway, Korch=Guyana,
-                       Molmen=Argentina, Jamzee=Spain, Buckley=Canada"""
+# Draft pick reference for the prompt, built from the canonical source.
+# NFL/NCAAF/NCAAB excluded: frozen 2025 seasons, no live news to report.
+from draft_picks_2026 import DRAFT_PICKS_2026
+
+_HEADLINE_CATEGORIES = [
+    'NBA', 'NHL', 'MLB', 'Tennis', 'Golf', 'NASCAR', 'MLS',
+    'Stock', 'Actor', 'Actress', 'Musician', 'Country',
+]
+
+def _build_draft_summary() -> str:
+    lines = []
+    for cat in _HEADLINE_CATEGORIES:
+        picks = DRAFT_PICKS_2026[cat]
+        if cat == 'Stock':
+            entries = [f"{p}={v['ticker']}({v['direction']})" for p, v in picks.items()]
+        else:
+            entries = [f"{p}={v.replace(' ', '').replace('.', '')}" for p, v in picks.items()]
+        label = 'Country(FIFAWorldCup)' if cat == 'Country' else cat
+        lines.append(f"{label}: " + ', '.join(entries))
+    return '\n'.join(lines)
+
+DRAFT_SUMMARY = _build_draft_summary()
 
 
 def search_news(debug: bool = False) -> str:

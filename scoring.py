@@ -681,11 +681,30 @@ def compute_all_scores():
         except Exception:
             pass
 
+    # Data freshness per live-scraped category: age of the Supabase row.
+    # MLS/NASCAR are expected to be stale in Supabase (ESPN 403-blocked) — their
+    # real values come from hand-edited data/*.json overrides, but the loud
+    # warning here is intentional: downstream odds (_mls_h2h) consume this data.
+    data_freshness = {}
+    for cat in ['NBA', 'MLB', 'NHL', 'NCAAB', 'Tennis', 'Musician', 'Stock', 'MLS', 'NASCAR']:
+        updated_at = get_standing_updated_at(cat)
+        age_days = None
+        if updated_at:
+            try:
+                age_days = (datetime.now(timezone.utc) - datetime.fromisoformat(updated_at.replace('Z', '+00:00'))).days
+            except Exception:
+                pass
+        stale = age_days is None or age_days > 3
+        data_freshness[cat.lower()] = {'updated_at': updated_at, 'age_days': age_days, 'stale': stale}
+        if stale:
+            print(f'  ⚠ STALE DATA: {cat} Supabase row is {age_days if age_days is not None else "unknown"} days old')
+
     return {
         'players':         sorted_players,
         'last_updated':    get_last_updated(),
         'season':          SEASON,
         'golf_data_stale': golf_data_stale,
+        'data_freshness':  data_freshness,
     }
 
 
@@ -825,7 +844,7 @@ if __name__ == '__main__':
     new_places = {p['name']: p['place'] for p in data.get('players', [])}
 
     # 7-day rolling score history: update today's snapshot (overwrite if exists)
-    today_utc = datetime.datetime.utcnow()
+    today_utc = datetime.datetime.now(datetime.timezone.utc)
     today_str = today_utc.strftime('%Y-%m-%d')
     if score_history and score_history[-1].get('date') == today_str:
         score_history[-1] = {'date': today_str, 'totals': new_totals, 'places': new_places}

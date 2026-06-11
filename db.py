@@ -4,7 +4,7 @@ Replaces local JSON file reads/writes with persistent Postgres via Supabase REST
 """
 
 import os, requests, threading
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 _bonus_lock = threading.Lock()
@@ -121,7 +121,7 @@ def save_standing(category: str, data: dict, frozen: bool = None) -> bool:
     payload = {
         'category': category,
         'data': data,
-        'updated_at': datetime.utcnow().isoformat(),
+        'updated_at': datetime.now(timezone.utc).isoformat(),
     }
     if frozen is not None:
         payload['frozen'] = frozen
@@ -145,7 +145,7 @@ def freeze_category(category: str) -> bool:
         f'{SUPABASE_URL}/rest/v1/standings',
         headers=_headers(),
         params={'category': f'eq.{category}'},
-        json={'frozen': True, 'updated_at': datetime.utcnow().isoformat()},
+        json={'frozen': True, 'updated_at': datetime.now(timezone.utc).isoformat()},
         timeout=_TIMEOUT,
     )
     return r.status_code in (200, 204)
@@ -156,7 +156,7 @@ def unfreeze_category(category: str) -> bool:
         f'{SUPABASE_URL}/rest/v1/standings',
         headers=_headers(),
         params={'category': f'eq.{category}'},
-        json={'frozen': False, 'updated_at': datetime.utcnow().isoformat()},
+        json={'frozen': False, 'updated_at': datetime.now(timezone.utc).isoformat()},
         timeout=_TIMEOUT,
     )
     return r.status_code in (200, 204)
@@ -211,7 +211,7 @@ def add_bonus(category: str, player: str, points: float, reason: str = '') -> bo
             'player': player,
             'points': new_total,
             'reason': reason,
-            'updated_at': datetime.utcnow().isoformat(),
+            'updated_at': datetime.now(timezone.utc).isoformat(),
         }
         r = requests.post(
             f'{SUPABASE_URL}/rest/v1/bonuses',
@@ -395,7 +395,7 @@ def settle_market(market_id: str, result: bool) -> int:
     Returns number of bets processed."""
     if not SUPABASE_URL or not SUPABASE_KEY:
         return 0
-    settled_at = datetime.utcnow().isoformat()
+    settled_at = datetime.now(timezone.utc).isoformat()
     requests.patch(
         f'{SUPABASE_URL}/rest/v1/bb_markets',
         headers=_headers(),
@@ -439,7 +439,7 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
     Returns number of bets processed."""
     if not SUPABASE_URL or not SUPABASE_KEY:
         return 0
-    settled_at = datetime.utcnow().isoformat()
+    settled_at = datetime.now(timezone.utc).isoformat()
     try:
         r = requests.get(
             f'{SUPABASE_URL}/rest/v1/sb_bets',
@@ -522,7 +522,7 @@ def recalculate_sb_balance(player: str, starting_bb: int = 1000) -> bool:
             f'{SUPABASE_URL}/rest/v1/sb_players',
             headers=_headers(),
             params={'name': f'eq.{player}'},
-            json={'balance': new_balance, 'updated_at': datetime.utcnow().isoformat()},
+            json={'balance': new_balance, 'updated_at': datetime.now(timezone.utc).isoformat()},
             timeout=_TIMEOUT,
         )
         print(f'  ✓ {player} BB balance recalculated → {new_balance} BB '

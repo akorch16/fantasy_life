@@ -51,7 +51,25 @@ jobs:
           KALSHI_PRIVATE_KEY: ${{ secrets.KALSHI_PRIVATE_KEY }}
         run: python projections.py
 
-      - name: Commit & push scores + projections
+      - name: Generate FL News headline
+        continue-on-error: true   # API credit exhaustion must not fail the workflow
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python headline.py
+
+      - name: Sanity-check outputs before commit
+        run: |
+          python -m py_compile *.py
+          python - <<'EOF'
+          import json
+          scores = json.load(open('docs/scores.json'))
+          assert len(scores['players']) == 13, f"expected 13 players, got {len(scores['players'])}"
+          json.load(open('docs/projections.json'))
+          print('sanity OK: scores.json (13 players) + projections.json parse')
+          EOF
+
+      - name: Commit & push scores + projections + headline
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="./shared.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -355,7 +356,7 @@
     }
     .btn-admin:hover { background: rgba(245,158,11,0.1); }
 
-    /* ─── SITE NAV BAR ─── */
+    /* ─── SITE NAV BAR (base styles: shared.css; draft theme overrides) ─── */
     .nav-link {
       font-family: 'DM Mono', monospace;
       font-size: 0.7rem;
@@ -365,23 +366,7 @@
       text-transform: uppercase;
     }
     .nav-link:hover { color: var(--text); }
-    .site-nav {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 16px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0;
-      position: sticky;
-      top: 0;
-      z-index: 99;
-    }
-    .site-nav .nav-link {
-      padding: 9px 13px;
-      border-bottom: 2px solid transparent;
-      font-size: 0.68rem;
-    }
+    .site-nav { top: 0; }  /* draft page has no sticky header above the nav */
     .site-nav .nav-link:hover { color: var(--text); border-bottom-color: rgba(255,255,255,0.2); }
     .site-nav .nav-link.active { color: #60a5fa; border-bottom-color: #60a5fa; }
   </style>
@@ -546,14 +531,14 @@ function timerRemaining() {
 
 async function submitPick(category, team) {
   const t = (team || '').trim();
-  if (!category) { showAlert('Choose a category.'); return; }
-  if (!t)        { showAlert('Enter a team name.'); return; }
+  if (!category) { alert('Choose a category.'); return; }
+  if (!t)        { alert('Enter a team name.'); return; }
 
   const dupe = picks.find(p =>
     p.category === category && p.team.toLowerCase() === t.toLowerCase()
   );
-  if (dupe) { showAlert(`${t} is already taken in ${category} by ${dupe.player}.`); return; }
-  if (myPicked().includes(category)) { showAlert(`You already have a ${category} pick.`); return; }
+  if (dupe) { alert(`${t} is already taken in ${category} by ${dupe.player}.`); return; }
+  if (myPicked().includes(category)) { alert(`You already have a ${category} pick.`); return; }
 
   const btn = document.getElementById('pick-submit');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
@@ -564,7 +549,7 @@ async function submitPick(category, team) {
     pick_number: picks.length + 1
   });
 
-  if (error) { showAlert('Save failed: ' + error.message); if (btn) { btn.disabled = false; btn.textContent = 'CONFIRM PICK'; } return; }
+  if (error) { alert('Save failed: ' + error.message); if (btn) { btn.disabled = false; btn.textContent = 'CONFIRM PICK'; } return; }
 
   await advance();
 }
@@ -937,12 +922,6 @@ function tickTimer() {
       skipPick();
     }
   }, 500);
-}
-
-// ── HELPERS ──────────────────────────────────────────────────────
-
-function showAlert(msg) {
-  alert(msg);
 }
 
 // ── BOOT ─────────────────────────────────────────────────────────

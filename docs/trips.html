@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="./shared.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -472,25 +473,7 @@
     }
 
     /* ─── SITE NAV BAR ─── */
-    .site-nav {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 16px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0;
-      position: sticky;
-      top: 52px;
-      z-index: 99;
-    }
-    .site-nav .nav-link {
-      padding: 9px 13px;
-      border-bottom: 2px solid transparent;
-      font-size: 0.68rem;
-    }
-    .site-nav .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
-    .site-nav .nav-link.active { color: var(--blue); border-bottom-color: var(--blue); }
+    /* .site-nav styles: shared.css */
   </style>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c0a91842667f4f16b87e22ebbce8e280"}'></script><!-- End Cloudflare Web Analytics -->
 </head>

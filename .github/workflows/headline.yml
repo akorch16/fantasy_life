@@ -1,8 +1,9 @@
-name: Daily FL Headline
+name: FL Headline (manual)
 
+# Scheduled headline generation now lives in daily.yml (one commit per day
+# instead of two racing workflows). This workflow is for manual regeneration
+# only — it always passes --force to bypass the dedup guard.
 on:
-  schedule:
-    - cron: '0 7 * * *'   # 2 AM EST = 07:00 UTC
   workflow_dispatch:        # "Run workflow" button in GitHub Actions UI
 
 jobs:
@@ -26,7 +27,7 @@ jobs:
         env:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python3 headline.py ${{ github.event_name == 'workflow_dispatch' && '--force' || '' }}
+        run: python3 headline.py --force
 
       - name: Commit & push headline
         run: |

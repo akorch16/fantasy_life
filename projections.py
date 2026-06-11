@@ -30,73 +30,18 @@ _KALSHI_PRIVATE_KEY  = None   # loaded lazily on first use
 _KALSHI_KEY_WARNED   = False
 N_SIMS           = 10_000
 
-# ─── Draft picks (subsets needed for projection lookups) ──────────────────
-NBA_PICKS = {
-    "Tim": "Denver Nuggets",        "Wu": "San Antonio Spurs",
-    "Jens": "Cleveland Cavaliers",  "Todd": "Minnesota Timberwolves",
-    "Mitchell": "Golden State Warriors", "Shep": "Boston Celtics",
-    "Theo": "Los Angeles Lakers",   "Feder": "Oklahoma City Thunder",
-    "Fryar": "Los Angeles Clippers","Korch": "Houston Rockets",
-    "Molmen": "Milwaukee Bucks",    "Jamzee": "Orlando Magic",
-    "Buckley": "New York Knicks",
-}
-NHL_PICKS = {
-    "Tim": "Vegas Golden Knights",  "Wu": "New Jersey Devils",
-    "Jens": "Toronto Maple Leafs",  "Todd": "Florida Panthers",
-    "Mitchell": "Dallas Stars",     "Shep": "Boston Bruins",
-    "Theo": "Detroit Red Wings",    "Feder": "Washington Capitals",
-    "Fryar": "Tampa Bay Lightning", "Korch": "Colorado Avalanche",
-    "Molmen": "New York Rangers",   "Jamzee": "Carolina Hurricanes",
-    "Buckley": "Edmonton Oilers",
-}
-MLB_PICKS = {
-    "Tim": "Chicago Cubs",          "Wu": "Los Angeles Dodgers",
-    "Jens": "New York Yankees",     "Todd": "Atlanta Braves",
-    "Mitchell": "Philadelphia Phillies", "Shep": "Houston Astros",
-    "Theo": "San Diego Padres",     "Feder": "New York Mets",
-    "Fryar": "Cleveland Guardians", "Korch": "Toronto Blue Jays",
-    "Molmen": "Texas Rangers",      "Jamzee": "Seattle Mariners",
-    "Buckley": "Milwaukee Brewers",
-}
-MLS_PICKS = {
-    "Tim": "Charlotte FC",          "Wu": "Minnesota United",
-    "Jens": "San Diego FC",         "Todd": "New York Red Bulls",
-    "Mitchell": "Philadelphia Union","Shep": "Orlando City",
-    "Theo": "Inter Miami",          "Feder": "Vancouver Whitecaps",
-    "Fryar": "Columbus Crew",       "Korch": "FC Cincinnati",
-    "Molmen": "LA Galaxy",          "Jamzee": "Seattle Sounders",
-    "Buckley": "LAFC",
-}
-NASCAR_PICKS = {
-    "Tim": "Bubba Wallace",         "Wu": "Christopher Bell",
-    "Jens": "Chase Briscoe",        "Todd": "Chase Elliott",
-    "Mitchell": "Shane van Gisbergen","Shep": "Daniel Suarez",
-    "Theo": "Denny Hamlin",         "Feder": "Tyler Reddick",
-    "Fryar": "Ryan Blaney",         "Korch": "William Byron",
-    "Molmen": "Kyle Larson",        "Jamzee": "Joey Logano",
-    "Buckley": "Ross Chastain",
-}
-GOLF_PICKS = {
-    "Tim": "Xander Schauffele",     "Wu": "Scottie Scheffler",
-    "Jens": "Russell Henley",       "Todd": "Patrick Cantlay",
-    "Mitchell": "J.J. Spaun",       "Shep": "Jon Rahm",
-    "Theo": "Justin Thomas",        "Feder": "Bryson DeChambeau",
-    "Fryar": "Viktor Hovland",      "Korch": "Tommy Fleetwood",
-    "Molmen": "Rory McIlroy",       "Jamzee": "Ludvig Aberg",
-    "Buckley": "Collin Morikawa",
-}
+# ─── Draft picks (canonical source: draft_picks_2026.py) ──────────────────
+from draft_picks_2026 import DRAFT_PICKS_2026, TENNIS_GENDER
+
+NBA_PICKS    = DRAFT_PICKS_2026["NBA"]
+NHL_PICKS    = DRAFT_PICKS_2026["NHL"]
+MLB_PICKS    = DRAFT_PICKS_2026["MLB"]
+MLS_PICKS    = DRAFT_PICKS_2026["MLS"]
+NASCAR_PICKS = DRAFT_PICKS_2026["NASCAR"]
+GOLF_PICKS   = DRAFT_PICKS_2026["Golf"]
 # Tennis: men's and women's tracked separately
-TENNIS_MEN = {
-    "Todd": "Carlos Alcaraz",   "Shep": "Novak Djokovic",
-    "Theo": "Alexander Zverev", "Molmen": "Daniil Medvedev",
-    "Mitchell": "Taylor Fritz", "Buckley": "Jannik Sinner",
-}
-TENNIS_WOMEN = {
-    "Tim": "Madison Keys",      "Wu": "Coco Gauff",
-    "Jens": "Jasmine Paolini",  "Feder": "Iga Swiatek",
-    "Fryar": "Aryna Sabalenka", "Korch": "Jessica Pegula",
-    "Jamzee": "Amanda Anisimova",
-}
+TENNIS_MEN   = {p: n for p, n in DRAFT_PICKS_2026["Tennis"].items() if TENNIS_GENDER.get(n) == "M"}
+TENNIS_WOMEN = {p: n for p, n in DRAFT_PICKS_2026["Tennis"].items() if TENNIS_GENDER.get(n) == "F"}
 
 # ─── Upcoming 2026 film pipeline (Actor / Actress simulation) ─────────────────
 # box_office: (p10, p50, p90) domestic gross in $M  — lognormal distribution
@@ -247,6 +192,8 @@ def _kalshi_sign(path: str) -> dict:
     ts = str(int(time.time() * 1000))
     message = f"{ts}GET/trade-api/v2{path}"
     key = _load_kalshi_private_key()
+    if key is None:
+        raise RuntimeError("Kalshi private key unavailable — check KALSHI_PRIVATE_KEY (PEM) is set and parseable")
     sig = key.sign(
         message.encode(),
         asym_padding.PSS(
@@ -368,9 +315,13 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
     return probs
 
 
-# ─── Static fallback odds (as of 2026-05-28) ─────────────────────────────────
+# ─── Static fallback odds ─────────────────────────────────────────────────────
 # Championship win probabilities for each pick.
 # "OTHER" = probability the winner is a team/player not in any pick.
+# Bump FALLBACK_AS_OF whenever entries below are refreshed or pruned —
+# it is printed in the run log so stale fallbacks are visible in CI.
+
+FALLBACK_AS_OF = "2026-06-04"
 
 FALLBACK = {
     # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Knicks lead 2-0; Kalshi ~82% Knicks
@@ -648,14 +599,17 @@ def _pts_h2h(player_a, player_b):
 # Prop definitions: (id, static_yes_pct, fn(odds)->int|None, source_category_label)
 # fn returns a computed YES% from odds dict, or None to use static.
 # source_category_label must match a string in markets_used to be marked "kalshi".
-_PROP_DEFS = [
-    # ── Settled (static) ─────────────────────────────────────────────────────────
-    ("rg-m-shep-v-todd",        100, None, None),  # SETTLED: Alcaraz withdrew; Shep wins
-    ("nba-ecf-buckley-v-jens",  100, None, None),  # SETTLED: Knicks swept Cavaliers 4-0
-    ("nba-wcf-wu-v-feder",      100, None, None),  # SETTLED: Spurs won WCF Game 7
-    ("nhl-wcf-tim-v-korch",     100, None, None),  # SETTLED: Golden Knights swept Avalanche
-    ("nhl-pts-jamzee-v-korch",  100, None, None),  # SETTLED: Hurricanes advanced; Korch out
+# Props already decided — pinned at their final YES%, never recomputed.
+# Kept in the prop_odds output so the frontend still receives a value.
+_PROP_DEFS_SETTLED = [
+    ("rg-m-shep-v-todd",        100),  # Alcaraz withdrew; Shep wins
+    ("nba-ecf-buckley-v-jens",  100),  # Knicks swept Cavaliers 4-0
+    ("nba-wcf-wu-v-feder",      100),  # Spurs won WCF Game 7
+    ("nhl-wcf-tim-v-korch",     100),  # Golden Knights swept Avalanche
+    ("nhl-pts-jamzee-v-korch",  100),  # Hurricanes advanced; Korch out
+]
 
+_PROP_DEFS = [
     # ── Tennis · Roland Garros Women's ───────────────────────────────────────────
     ("rg-w-fryar-v-feder",  38, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Feder",0)), "Tennis-FO-Women"),
     ("rg-w-fryar-v-wu",     55, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Wu",0)),    "Tennis-FO-Women"),
@@ -689,9 +643,11 @@ _PROP_DEFS = [
 
 
 def compute_prop_odds(odds, markets_used):
-    """Returns {prop_id: {yes_pct, source}} for all 20 sportsbook props."""
+    """Returns {prop_id: {yes_pct, source}} for all sportsbook props."""
     live_cats = set(markets_used)
     result = {}
+    for prop_id, final_pct in _PROP_DEFS_SETTLED:
+        result[prop_id] = {"yes_pct": final_pct, "source": "static"}
     for prop_id, static_pct, fn, src_cat in _PROP_DEFS:
         computed = None
         if fn is not None:
@@ -735,6 +691,7 @@ def build_odds(markets_used):
     Fetch all category odds from Kalshi; fall back to statics.
     Returns a big dict of {category_key: {player: probability}}.
     """
+    print(f"Static FALLBACK odds last refreshed: {FALLBACK_AS_OF}")
     odds = {}
 
     def get(key, picks, series_key, label):
@@ -1016,7 +973,7 @@ def _simulate_playoffs_conf(conf_west_probs, conf_east_probs, champ_probs):
 
     if champion and champion != "OTHER":
         results[champion] = "champion"
-    if runner_up and runner_up != "OTHER" and runner_up in NBA_PICKS or runner_up in NHL_PICKS:
+    if runner_up and runner_up != "OTHER" and (runner_up in NBA_PICKS or runner_up in NHL_PICKS):
         results[runner_up] = "runner_up"
 
     return results
@@ -1252,6 +1209,7 @@ def run():
     output = {
         "generated_at":    datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "kalshi_markets_used": markets_used,
+        "fallback_as_of":  FALLBACK_AS_OF,
         "n_simulations":   N_SIMS,
         "players":         players_out,
         "prop_odds":       prop_odds,
