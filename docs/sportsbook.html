@@ -143,6 +143,19 @@
       padding-bottom: 0.5rem;
       border-bottom: 1px solid var(--border);
     }
+    .wc-section-header {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.15rem;
+      letter-spacing: 0.06em;
+      color: #f97316;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(249,115,22,0.35);
+    }
+    .wc-section-divider {
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0 1.25rem;
+    }
 
     /* ─── BB LEADERBOARD ─── */
     .bb-hero-img {
@@ -1544,11 +1557,20 @@ function renderBets(propOdds) {
   const openBets   = BETS.filter(b => !b.settled);
   const closedBets = BETS.filter(b =>  b.settled);
 
-  // Sort open bets by close date ascending
-  openBets.sort((a, b) => parseCloseDate(a.closes) - parseCloseDate(b.closes));
+  // World Cup bets pinned to the top; everything else sorted by close date
+  const wcBets    = openBets.filter(b => b.id.startsWith('wc-'));
+  const otherBets = openBets.filter(b => !b.id.startsWith('wc-'));
+  otherBets.sort((a, b) => parseCloseDate(a.closes) - parseCloseDate(b.closes));
 
-  document.getElementById('bets-grid-open').innerHTML =
-    openBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+  let openHtml = '';
+  if (wcBets.length) {
+    openHtml += '<div class="wc-section-header">🔥 FIFA World Cup 2026 🔥</div>';
+    openHtml += wcBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+    if (otherBets.length) openHtml += '<div class="wc-section-divider"></div>';
+  }
+  openHtml += otherBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+
+  document.getElementById('bets-grid-open').innerHTML = openHtml;
 
   document.getElementById('bets-grid-closed').innerHTML =
     closedBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
