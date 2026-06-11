@@ -633,6 +633,14 @@ _PROP_DEFS = [
     ("mls-theo-v-shep",       57, _mls_h2h("Theo",    "Shep"),     "mls-standings"),
     ("nascar-molmen-v-korch", 53, None, None),
 
+    # ── FIFA World Cup 2026 (static Kalshi-calibrated odds) ──────────────────────
+    ("wc-theo-beats-buckley",      62, None, None),  # Group B: CHE beats CAN
+    ("wc-buckley-advances-group",  25, None, None),  # CAN advances from Group B
+    ("wc-shep-beats-fryar",        73, None, None),  # Group I: FRA beats NOR
+    ("wc-jens-v-tim-group-pts",    58, None, None),  # GER > NED group stage pts
+    ("wc-jamzee-spain-sf",         33, None, None),  # ESP reaches semifinals
+    ("wc-shep-jamzee-champ",       30, None, None),  # FRA or ESP wins the WC
+
     # ── Total Points (simulation-backed — updates every run from Monte Carlo) ──────
     ("pts-wu-v-korch",      47, _pts_h2h("Wu",      "Korch"),   "pts-model"),
     ("pts-tim-v-molmen",    55, _pts_h2h("Tim",      "Molmen"),  "pts-model"),
