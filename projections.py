@@ -315,9 +315,13 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
     return probs
 
 
-# ─── Static fallback odds (as of 2026-05-28) ─────────────────────────────────
+# ─── Static fallback odds ─────────────────────────────────────────────────────
 # Championship win probabilities for each pick.
 # "OTHER" = probability the winner is a team/player not in any pick.
+# Bump FALLBACK_AS_OF whenever entries below are refreshed or pruned —
+# it is printed in the run log so stale fallbacks are visible in CI.
+
+FALLBACK_AS_OF = "2026-06-04"
 
 FALLBACK = {
     # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Knicks lead 2-0; Kalshi ~82% Knicks
@@ -687,6 +691,7 @@ def build_odds(markets_used):
     Fetch all category odds from Kalshi; fall back to statics.
     Returns a big dict of {category_key: {player: probability}}.
     """
+    print(f"Static FALLBACK odds last refreshed: {FALLBACK_AS_OF}")
     odds = {}
 
     def get(key, picks, series_key, label):
@@ -1204,6 +1209,7 @@ def run():
     output = {
         "generated_at":    datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "kalshi_markets_used": markets_used,
+        "fallback_as_of":  FALLBACK_AS_OF,
         "n_simulations":   N_SIMS,
         "players":         players_out,
         "prop_odds":       prop_odds,
