@@ -835,12 +835,16 @@
   <div id="all-bets-panel"></div>
 
   <!-- ─── WORLD CUP BETS ─── -->
-  <div class="section-header">🔥 FIFA World Cup 2026 🔥</div>
+  <div class="section-header">🔥 FIFA World Cup 2026 Bets 🔥</div>
   <div class="bets-grid" id="bets-grid-open"><!-- rendered by JS --></div>
 
-  <!-- ─── OTHER BETS ─── -->
-  <div class="section-header">Other Bets</div>
-  <div class="bets-grid" id="bets-grid-other"><!-- rendered by JS --></div>
+  <!-- ─── CATEGORY BETS ─── -->
+  <div class="section-header">Category Bets</div>
+  <div class="bets-grid" id="bets-grid-category"><!-- rendered by JS --></div>
+
+  <!-- ─── FL PLAYER H2H BETS ─── -->
+  <div class="section-header">FL Player Head to Head Bets</div>
+  <div class="bets-grid" id="bets-grid-h2h"><!-- rendered by JS --></div>
 
   <!-- ─── CLOSED BETS ─── -->
   <div class="section-header">Closed Bets</div>
@@ -1568,15 +1572,19 @@ function renderBets(propOdds) {
   const openBets   = BETS.filter(b => !b.settled && !b.voided);
   const closedBets = BETS.filter(b =>  b.settled || b.voided);
 
-  const wcBets    = openBets.filter(b => b.id.startsWith('wc-'));
-  const otherBets = openBets.filter(b => !b.id.startsWith('wc-'));
-  otherBets.sort((a, b) => parseCloseDate(a.closes) - parseCloseDate(b.closes));
+  const wcBets       = openBets.filter(b => b.id.startsWith('wc-'));
+  const h2hBets      = openBets.filter(b => b.id.startsWith('pts-'));
+  const categoryBets = openBets.filter(b => !b.id.startsWith('wc-') && !b.id.startsWith('pts-'));
+  [categoryBets, h2hBets].forEach(arr => arr.sort((a, b) => parseCloseDate(a.closes) - parseCloseDate(b.closes)));
 
   document.getElementById('bets-grid-open').innerHTML =
     wcBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
 
-  document.getElementById('bets-grid-other').innerHTML =
-    otherBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+  document.getElementById('bets-grid-category').innerHTML =
+    categoryBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+
+  document.getElementById('bets-grid-h2h').innerHTML =
+    h2hBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
 
   document.getElementById('bets-grid-closed').innerHTML =
     closedBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
