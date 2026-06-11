@@ -635,7 +635,6 @@ _PROP_DEFS = [
 
     # ── FIFA World Cup 2026 (static Kalshi-calibrated odds) ──────────────────────
     ("wc-theo-beats-buckley",      62, None, None),  # Group B: CHE beats CAN
-    ("wc-buckley-advances-group",  25, None, None),  # CAN advances from Group B
     ("wc-shep-beats-fryar",        73, None, None),  # Group I: FRA beats NOR
     ("wc-jens-v-tim-group-pts",    58, None, None),  # GER > NED group stage pts
     ("wc-jamzee-v-shep-group-pts",  54, None, None),  # ESP > FRA group stage pts
