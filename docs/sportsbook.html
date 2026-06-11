@@ -1256,6 +1256,59 @@ async function sbHydrate(player) {
   }
 }
 
+// Settle all players' open bets in Supabase — runs on every page load so settlement
+// doesn't depend on each individual player's browser session.
+async function sbSettleAll() {
+  if (!sbClient) return;
+  const { data: openBets } = await sbClient
+    .from('sb_bets')
+    .select('player, bet_id, side, wager, potential_return, sport, placed_at')
+    .is('settled_outcome', null)
+    .catch(() => ({ data: null }));
+  if (!openBets?.length) return;
+
+  const balanceDeltas = {}; // player → total BB to add back
+  const betUpserts    = []; // rows to upsert with settled_outcome set
+
+  for (const bet of openBets) {
+    const def = BETS.find(b => b.id === bet.bet_id);
+    if (!def || (!def.settled && !def.voided)) continue;
+
+    let outcome, delta = 0;
+    if (def.voided) {
+      outcome = 'void';
+      delta   = bet.wager;
+    } else {
+      const yesWon = def.odds === 100;
+      const noWon  = def.odds === 0;
+      if (!yesWon && !noWon) continue;
+      const won = (yesWon && bet.side === 'yes') || (noWon && bet.side === 'no');
+      outcome = won ? 'won' : 'lost';
+      delta   = won ? bet.potential_return : 0;
+    }
+
+    betUpserts.push({ ...bet, settled_outcome: outcome });
+    if (delta > 0) balanceDeltas[bet.player] = (balanceDeltas[bet.player] || 0) + delta;
+  }
+
+  if (!betUpserts.length) return;
+
+  // Mark bets settled in Supabase
+  await sbClient.from('sb_bets')
+    .upsert(betUpserts, { onConflict: 'player,bet_id,placed_at' })
+    .catch(err => console.warn('[sbSettleAll] bet upsert error:', err));
+
+  // Credit balances (read-modify-write; race risk is negligible at league scale)
+  for (const [player, delta] of Object.entries(balanceDeltas)) {
+    const { data: row } = await sbClient.from('sb_players')
+      .select('balance').eq('name', player).maybeSingle().catch(() => ({ data: null }));
+    if (!row) continue;
+    await sbClient.from('sb_players')
+      .upsert({ name: player, balance: row.balance + delta, updated_at: new Date().toISOString() })
+      .catch(err => console.warn('[sbSettleAll] balance update error:', err));
+  }
+}
+
 // Subscribe to sb_players + sb_bets for real-time leaderboard updates
 function sbSubscribeLeaderboard() {
   if (!sbClient) return;
@@ -1813,11 +1866,14 @@ document.addEventListener('keydown', e => {
     // First visit: show picker after a short delay
     setTimeout(() => openPicker(false), 300);
   } else {
-    // Sync balance from Supabase (cross-device consistency)
-    await sbHydrate(player);
+    // Settle all players' open bets in Supabase (runs regardless of whose browser
+    // this is — fixes balances for players who haven't loaded the page themselves)
+    await sbSettleAll();
 
-    // Settle any newly resolved bets before rendering
+    // Settle this player's local state, then re-sync balance from Supabase
+    // (sbSettleAll may have already credited wins there — sbHydrate is authoritative)
     const settled = settleBets();
+    await sbHydrate(player);
     settled.forEach(r => {
       if (r.voided) {
         showToast('won', `${r.sport} · PUSH — ${r.wager.toLocaleString()} BB returned`, 7000);
