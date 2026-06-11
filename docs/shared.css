@@ -1,0 +1,23 @@
+/* Shared site-wide styles (loaded before each page's inline <style>, so
+   page rules of equal specificity win). Pages keep their own :root palettes
+   and base .nav-link typography; the nav bar itself is identical site-wide. */
+
+.site-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
+  position: sticky;
+  top: 52px;
+  z-index: 99;
+}
+.site-nav .nav-link {
+  padding: 9px 13px;
+  border-bottom: 2px solid transparent;
+  font-size: 0.68rem;
+}
+.site-nav .nav-link:hover { color: var(--text); border-bottom-color: var(--dim); }
+.site-nav .nav-link.active { color: var(--blue); border-bottom-color: var(--blue); }
