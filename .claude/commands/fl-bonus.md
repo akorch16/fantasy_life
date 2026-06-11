@@ -131,12 +131,31 @@ Top-5 GDP growth ranking at season end:
 | 4th | 4.0 |
 | 5th | 2.5 |
 
+### Country — FIFA World Cup 2026
+
+Milestone replacement model (same as sports championships). Write to `Country_WorldCup` in bonuses.json — **NOT** to `Country`. Scoring.py automatically merges both and caps the combined total at 13.
+
+| Milestone | WC bonus total | When awarded |
+|---|---|---|
+| `round32` | 2.5 | Advances past group stage / wins Round of 32 |
+| `round16` | 4.0 | Advances past Round of 16 |
+| `quarter` | 6.5 | Reaches quarterfinal |
+| `semi` | 9.0 | Reaches semifinal |
+| `runner_up` | 11.0 | Reaches the final (loses) |
+| `champion` | 13.0 | Wins the World Cup |
+
+**Cap rule:** `Country` (Winter Olympics) + `Country_WorldCup` is capped at 13.0 per player. Scoring enforces this automatically — you never need to manually subtract.
+
+Example: Fryar/Norway already has 13.0 Olympics points → any WC milestone adds 0 net points. Wu/USA has 9.0 Olympics → WC champion bonus (13) would be capped to 4.0 additional (total 13).
+
+Country picks: Tim=Netherlands, Wu=USA, Jens=Germany, Todd=Guinea, Mitchell=SouthSudan, Shep=France, Theo=Switzerland, Feder=Brazil, Fryar=Norway, Korch=Guyana, Molmen=Argentina, Jamzee=Spain, Buckley=Canada
+
 ---
 
 ## Step 1 — Identify the update
 
 From the input, determine:
-- **Category** (NHL, Golf, Tennis, etc.)
+- **Category** (NHL, Golf, Tennis, World Cup, etc.)
 - **Pick name** (team or person)
 - **Owner** (league player from draft picks above)
 - **Milestone** and the resulting **new total** from the rules above
@@ -144,6 +163,8 @@ From the input, determine:
 For sports championships: read the current value for that player+category from `data/bonuses.json` to understand their current milestone, then set the new total.
 
 For additive categories (Golf, Tennis, Grammy): read the current value and add the new event's points.
+
+For **Country_WorldCup**: use the WC milestone table above. Write the WC total to `Country_WorldCup` — scoring.py caps the combined Country + WC total at 13.
 
 ---
 
@@ -153,6 +174,7 @@ Read `data/bonuses.json`. Apply the change:
 - If the category block already has an entry for this player, update it to the new total
 - If the player has no entry yet in that category block, add one
 - If the category block doesn't exist yet, create it
+- For World Cup: always write to `Country_WorldCup`, never `Country`
 
 **Important**: values in this file are **final intended totals**, not per-event additions. The file overrides Supabase for any (category, player) pair present.
 
