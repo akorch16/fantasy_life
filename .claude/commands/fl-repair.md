@@ -71,6 +71,14 @@ The scraper wrote bad data to Supabase (stale, wrong source, wrong field name). 
 ### Workflow environment issue
 Missing secret (e.g., `SUPABASE_URL`, `ANTHROPIC_API_KEY`). Check `.github/workflows/daily.yml` env block and compare against required env vars in `db.py` and `scoring.py`.
 
+### Kalshi / projections failures (projections.py)
+- **404 on event-level tickers**: Kalshi removes events after settlement. The fetch helpers swallow this and fall back; if a whole category 404s, prune the dead ticker from the markets list.
+- **Settled-market 50% contamination**: a settled Kalshi market can quote 50/50 (no book). If projections show implausible coin-flip odds for a decided event, the market is settled — remove it from the live ticker list and settle the corresponding prop.
+- **Silent fallback to static odds**: a bad/missing `KALSHI_PRIVATE_KEY` makes signing fail quietly and projections regress to the static `FALLBACK` dict. Check the run log for Kalshi fetch lines; absence means auth failed.
+
+### Headline didn't update (headline.yml)
+The 24h dedup guard skips the API call if `headline_generated_at` is <24h old. Scheduled runs respect it; **manual workflow_dispatch runs pass `--force`** and always regenerate (set up in headline.yml). Locally: `python3 headline.py --force` (add `--dry-run` to preview without writing).
+
 ---
 
 ## Step 3 — Apply the fix

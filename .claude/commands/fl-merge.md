@@ -6,6 +6,8 @@ Merge the current working branch into `main` via a squash PR. Handles conflict r
 
 Run `/fl-merge` whenever changes on the current branch are ready for production. Do not push directly to `main`.
 
+**Branch hygiene:** prefer short-lived branches cut fresh from `origin/main` per task, merged the same session. Main receives several automated commits per day (scores, projections, headline), so any branch older than a day accumulates conflicts on every sync.
+
 ---
 
 ## Step 1 — Confirm branch
@@ -42,9 +44,10 @@ grep -rn "<<<<<<" --include="*.py" --include="*.json" --include="*.html" --inclu
 | File | Rule |
 |---|---|
 | `docs/scores.json` | Always take **`origin/main`** — it has the most recent scoring run. Run: `git checkout origin/main -- docs/scores.json` |
-| `scoring.py`, `scrapers.py`, `db.py` | Take the **feature branch** version (HEAD) — the branch contains the intentional change |
-| `docs/index.html` | Take the **feature branch** version (HEAD) |
-| `data/*.json` | Take the **feature branch** version unless it is `scores.json` |
+| `docs/projections.json` | Always take **`origin/main`** — same reasoning as scores.json (regenerated daily by Actions). Run: `git checkout origin/main -- docs/projections.json` |
+| `scoring.py`, `scrapers.py`, `db.py`, `projections.py`, `headline.py` | Take the **feature branch** version (HEAD) — the branch contains the intentional change |
+| `docs/*.html` | Take the **feature branch** version (HEAD) |
+| `data/*.json` | Take the **feature branch** version unless it is `bonuses.json` |
 | `data/bonuses.json` | **Manually merge** — both sides may have legitimate additions. Combine all entries. |
 
 After resolving, verify no conflict markers remain:
