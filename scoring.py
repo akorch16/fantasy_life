@@ -825,7 +825,7 @@ if __name__ == '__main__':
     new_places = {p['name']: p['place'] for p in data.get('players', [])}
 
     # 7-day rolling score history: update today's snapshot (overwrite if exists)
-    today_utc = datetime.datetime.utcnow()
+    today_utc = datetime.datetime.now(datetime.timezone.utc)
     today_str = today_utc.strftime('%Y-%m-%d')
     if score_history and score_history[-1].get('date') == today_str:
         score_history[-1] = {'date': today_str, 'totals': new_totals, 'places': new_places}
