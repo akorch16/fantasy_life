@@ -5,6 +5,7 @@ Uses Tavily free tier for live sports news + Anthropic Haiku for generation.
 Cost: ~$0.009/run. Reads/writes docs/scores.json in-place.
 """
 import json, os, sys
+from typing import Optional
 from pathlib import Path
 
 DOCS_DIR = Path(__file__).parent / 'docs'
@@ -52,25 +53,27 @@ Country(FIFAWorldCup): Tim=Netherlands, Wu=USA, Jens=Germany, Todd=Guinea, Mitch
 
 def search_news(debug: bool = False) -> str:
     """Fetch recent news via Tavily — separate query per active event so no category starves another."""
+    from datetime import date
     api_key = os.environ.get('TAVILY_API_KEY', '')
     if not api_key:
         return ''
+    today_str = date.today().strftime('%B %d %Y')
     queries = [
         # ── Active playoff series get their own slot ──────────────────────
-        'NBA Finals 2026 game score result',
-        'NHL Stanley Cup Finals 2026 game score result',
+        'NBA Finals 2026 most recent game score result last night',
+        'NHL Stanley Cup Finals 2026 most recent game score result last night',
         # ── Other sports ──────────────────────────────────────────────────
         'Roland Garros French Open tennis 2026 results',
         'US Open golf 2026 results leaderboard',
         'MLB MLS NASCAR standings results 2026',
         # ── FIFA World Cup ────────────────────────────────────────────────
         'FIFA World Cup 2026 results group stage standings',
-        # ── Music (recent chart moves only) ──────────────────────────────
-        'Billboard Hot 100 number one song this week 2026',
+        # ── Music: must be a chart move happening THIS week ───────────────
+        f'Billboard Hot 100 chart number one new entry this week {today_str}',
         # ── Stocks ───────────────────────────────────────────────────────
         'NVDA TSLA COIN PLTR AVGO SMCI LULU INTC NEE stock market 2026',
-        # ── Movies: recent box office, NOT celebrity gossip ───────────────
-        'box office results opening weekend June 2026',
+        # ── Movies: only NEW releases opening THIS weekend ────────────────
+        f'new movie opening this weekend box office {today_str}',
     ]
     try:
         import requests
@@ -108,7 +111,7 @@ def search_news(debug: bool = False) -> str:
         return ''
 
 
-def generate_headline(scores_data: dict, news_snippets: str) -> str | None:
+def generate_headline(scores_data: dict, news_snippets: str) -> Optional[str]:
     """Generate a fresh FL News ticker headline via Claude Sonnet."""
     if not news_snippets:
         print('  – No snippets returned; skipping to avoid hallucination')
@@ -129,15 +132,19 @@ Draft picks (FL player → their pick) — cover ALL categories, not just sports
 CRITICAL rules:
 - ONLY report facts explicitly stated in the snippets above. Do NOT add any result, score, or outcome not written in a snippet.
 - If a snippet mentions a pick but doesn't clearly state the result or move, skip it.
+- For ongoing series (NBA Finals, NHL Finals, etc.), always report the MOST RECENT game — if snippets mention multiple games, use the highest game number.
 - Never cross categories: an NBA team cannot win a Stanley Cup; a stock ticker is not a song chart.
-- Only include events from the last 3 days (today is {today}).
+- The EVENT itself must have occurred within the last 3 days (today is {today}). A recent article referencing an older event (e.g. "biggest opening of the year" for a film that opened weeks ago) does NOT qualify — skip it.
+- For Actor/Actress/Musician: only report if the film opened or the song charted within the last 3 days. Do NOT report on releases from weeks or months ago even if a recent article mentions them.
 - 3–5 sentences, max 60 words total
 - Never mention FL standings, point totals, or league positions
+- If snippets contain results for BOTH NBA Finals and NHL Stanley Cup Finals, include a sentence for each — never drop an active Finals series
 - Cover a MIX of categories — aim for at least 2 different categories (e.g. one sports + one music/stock/movie/WorldCup)
 - Format: "Pick (<em>FLPlayer</em>) result." — pick name first, FL owner in <em> tags in parentheses
 - Examples: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals." / "NVDA (<em>Todd</em>) surges 9% on earnings." / "USA (<em>Wu</em>) blank Morocco 2-0 in World Cup opener." / "Taylor Swift (<em>Molmen</em>) hits #1 with new single."
 - Use <em> tags ONLY around FL player names — never around pick names
 - Be specific: include series scores or % moves only if the snippet gives them
+- Actor/Actress: ONLY connect a film to an FL player's pick if the snippet explicitly names that actor/actress by name in the film. A film title alone is never enough — do NOT use outside knowledge about casting.
 - Output ONLY the headline text, no quotes, no labels, no preamble
 
 Headline:"""
@@ -154,7 +161,7 @@ Headline:"""
 
 
 COST_PER_RUN_USD = 0.04   # Sonnet ~1k tokens in + ~200 out ≈ $0.04
-MIN_HOURS_BETWEEN_RUNS = 24  # once per day; manual skill runs stamp their own timestamp to block this
+MIN_HOURS_BETWEEN_RUNS = 20  # once per day; 20h (not 24h) to handle GitHub Actions scheduling drift
 
 
 def _hours_since_last_headline(data: dict) -> float:
