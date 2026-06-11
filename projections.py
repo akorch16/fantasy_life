@@ -638,8 +638,9 @@ _PROP_DEFS = [
     ("wc-buckley-advances-group",  25, None, None),  # CAN advances from Group B
     ("wc-shep-beats-fryar",        73, None, None),  # Group I: FRA beats NOR
     ("wc-jens-v-tim-group-pts",    58, None, None),  # GER > NED group stage pts
-    ("wc-jamzee-spain-sf",         33, None, None),  # ESP reaches semifinals
-    ("wc-shep-jamzee-champ",       30, None, None),  # FRA or ESP wins the WC
+    ("wc-jamzee-v-shep-group-pts",  54, None, None),  # ESP > FRA group stage pts
+    ("wc-wu-v-fryar-group-pts",    62, None, None),  # USA > NOR group stage pts
+    ("wc-molmen-v-feder-group-pts", 50, None, None),  # ARG > BRA group stage pts
 
     # ── Total Points (simulation-backed — updates every run from Monte Carlo) ──────
     ("pts-wu-v-korch",      47, _pts_h2h("Wu",      "Korch"),   "pts-model"),
