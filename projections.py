@@ -321,20 +321,20 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
 # Bump FALLBACK_AS_OF whenever entries below are refreshed or pruned —
 # it is printed in the run log so stale fallbacks are visible in CI.
 
-FALLBACK_AS_OF = "2026-06-04"
+FALLBACK_AS_OF = "2026-06-12"
 
 FALLBACK = {
-    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Knicks lead 2-0; Kalshi ~82% Knicks
+    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Knicks lead 3-1; ~6% chance Spurs win
     "nba_champ": {
-        "Wu": 0.18, "Buckley": 0.82,
+        "Wu": 0.06, "Buckley": 0.94,
     },
     # WCF: SETTLED — Spurs (Wu) won Game 7 over Thunder (Feder)
     "nba_conf_finals_west": {"Wu": 1.0},
     "nba_conf_finals_east": {"Buckley": 1.0},  # SETTLED: Knicks swept Cavaliers 4-0
 
-    # NHL Finals: Golden Knights (Tim) vs Hurricanes (Jamzee). Kalshi as of 2026-06-01: Jamzee ~59%, Tim ~42%
+    # NHL Finals: Hurricanes (Jamzee) lead Golden Knights (Tim) 3-2; Jamzee ~80% to win Cup
     "nhl_champ": {
-        "Jamzee": 0.59, "Tim": 0.42,
+        "Jamzee": 0.80, "Tim": 0.20,
     },
     "nhl_conf_finals_west": {"Tim": 1.0},  # SETTLED: Golden Knights swept Avalanche 4-0
     "nhl_conf_finals_east": {"Jamzee": 1.0},  # SETTLED: Hurricanes won ECF
