@@ -147,6 +147,7 @@
   <button class="flowchip" data-flow="bet">② Place a bet</button>
   <button class="flowchip" data-flow="headline">③ Headline gen</button>
   <button class="flowchip" data-flow="settle">④ Settle an event</button>
+  <button class="flowchip" data-flow="scaleup">⑤ Scale-up path</button>
   <div class="stepper" id="stepper">
     <button class="btn" id="prevstep">◀</button>
     <span class="stepinfo" id="stepinfo">1 / 1</span>
@@ -469,6 +470,31 @@ const NODES = [
     role:"Postgres-change subscriptions push updates to every open browser, so leaderboards and the draft board refresh without polling. Presence powers online indicators.",
     io:[["sportsbook","sb_players/sb_bets changes → re-render leaderboard"],["draft","draft_* changes + presence"]],
     concept:["Pub/sub over the database (CDC-style)","Push updates replace polling","Eventual consistency across clients"]}},
+
+  /* ---------- AT SCALE (conceptual) ---------- */
+  {id:"msg_queue", c:"scale", icon:"📨", label:"Message Queue", sub:"Kafka / SQS (conceptual)", xn:0.10,
+   chips:["kafka","pub/sub","conceptual"],
+   detail:{kind:"Conceptual: pattern missing from this system",files:"(not in this codebase — what it needs at scale)",
+    role:"A queue between ingest and processing decouples producers from consumers. At 13 users: unnecessary overhead. At Robinhood scale (millions of market events/sec): mandatory. Scrapers publish a 'standings-updated' event per category; scoring, risk, and settlement each subscribe as independent consumer groups.",
+    io:[["producer","scrape_*() publishes event per category on success"],["consumer groups","scoring, risk-engine, audit-log — each reads at its own pace, no coupling"],["DLQ","failed events route to a dead-letter topic for manual replay, not silently dropped"],["retention","Kafka retains events for days — replay is built-in; reprocess after a bug by seeking to any offset"]],
+    fail:["Without a queue: a slow scorer blocks the scraper (tight coupling)","Without a DLQ: failures are silent — this system's current behavior"],
+    concept:["Producer-consumer decoupling: the producer doesn't wait for the consumer to finish — it publishes and moves on","At-least-once vs exactly-once delivery: Kafka guarantees at-least-once; the consumer needs an idempotency key to handle duplicate delivery safely","Consumer groups: N independent consumers can read the same Kafka topic at their own pace and offset, without stepping on each other — zero coordination needed","Backpressure: a slow consumer falls behind in its offset instead of crashing the producer. The queue provides natural flow control","Log compaction: Kafka can compact by key (keep only the latest standings per category) — useful for a changelog-style topic where only the latest value matters","Log retention vs traditional queue: a traditional queue deletes messages on ack; Kafka retains them. This enables replay, time-travel debugging, and late-joining consumers"]}},
+
+  {id:"grpc_rpc", c:"scale", icon:"🔗", label:"Server-side RPC", sub:"gRPC / atomic balance check", xn:0.42,
+   chips:["gRPC","ACID","conceptual"],
+   detail:{kind:"Conceptual: replaces client-authoritative balance",files:"(future: place_bet Supabase RPC or a dedicated balance service)",
+    role:"Replaces the current client-side balance check with a server-side atomic DB transaction. <code>place_bet(player, bet_id, wager, idempotency_key)</code>: read balance → validate → deduct → insert bet — all in one Postgres transaction. If the network drops, the client retries with the same idempotency key; the server returns the cached result and never double-charges.",
+    io:[["call shape","unary RPC: client sends one request, server returns result or structured error"],["atomicity","balance read + validation + deduct + bet insert = one DB transaction; no interleaving"],["idempotency","server stores (player, idempotency_key); retries return the cached result"],["error types","INSUFFICIENT_FUNDS · BET_ALREADY_SETTLED · INVALID_BET_ID — typed errors, not HTTP 500"]],
+    fail:["Without this: client checks local balance → places bet → client deducts balance locally. Two tabs or two devices race → double-spend","Without idempotency: network timeout → client retries → two bets placed for the price of one"],
+    concept:["gRPC vs REST: gRPC uses protobuf (binary, smaller payloads), HTTP/2 (multiplexed streams, header compression), and enforces a typed schema via .proto. REST is human-readable and easier to debug. Robinhood's internal services use gRPC; mobile API uses REST","ACID atomicity: Atomic (all or nothing), Consistent (constraints hold after), Isolated (concurrent txns don't see each other's partial state), Durable (committed writes survive crashes). A Postgres transaction gives all four","Idempotency key pattern: client generates a UUID per attempt. Server: <code>INSERT INTO requests(key, result) ON CONFLICT DO NOTHING; RETURNING result</code>. Retry is safe — result is returned from cache","Unary vs streaming RPC: place_bet is unary (one req → one resp). Live odds feed is server-streaming (one req → many resp over time). A price ticker is bidirectional-streaming","Saga vs 2PC: 2PC (two-phase commit) locks all participants during prepare phase — high latency, blocks on failure. Sagas use compensating transactions — each step is independent, and if step N fails, steps 1..N-1 run their compensating actions (refund the balance)"]}},
+
+  {id:"event_sourcing", c:"scale", icon:"📜", label:"Event Sourcing", sub:"append-only ledger", xn:0.76,
+   chips:["event-log","CQRS","conceptual"],
+   detail:{kind:"Conceptual: replaces mutable balance column",files:"(future: sb_ledger table)",
+    role:"Instead of storing a mutable <code>balance</code> column (which can be overwritten — the Jens incident), store every transaction as an immutable event. Balance = replay of all events for a player. The sb_bets table is almost there — it's nearly an event log — but the separate mutable balance on sb_players is the weak link.",
+    io:[["write","<code>INSERT INTO ledger(player, delta, reason, bet_id, ts)</code> — never UPDATE, never DELETE"],["read balance","<code>SELECT SUM(delta) FROM ledger WHERE player = 'Jens'</code>"],["projection","background job materializes balance into sb_players for fast reads (CQRS read model)"],["audit","every balance change has a reason, a bet_id, and a timestamp — the Jens wipe is impossible to recreate silently"]],
+    fail:["Naive event sourcing: balance query scans the whole ledger — O(n) per read. Fix: periodic snapshots (<code>snapshot_at</code> row), then sum only events after the snapshot","Long chains need compaction — same concept as Kafka log compaction"],
+    concept:["Append-only vs mutable state: the Jens bug was a mutable balance being overwritten. An event log can't be overwritten — only new events can be appended. The bug becomes an incorrect event (visible, auditable, reversible)","CQRS (Command Query Responsibility Segregation): commands (place_bet) write events to the ledger; queries (leaderboard) read a materialized view. Write and read models scale independently — reads can hit a Redis cache; writes go to the append-only log","Temporal queries: what was Jens's balance at any past point in time? <code>WHERE ts <= '2026-06-10'</code> — free time-travel debugging. Impossible with a mutable balance column","Compensating events: if a settlement is wrong, don't DELETE or UPDATE — append a correcting event with reason='admin-correction'. The audit trail survives intact; the correction is visible","Snapshot pattern: every N events, write a snapshot row with the materialized balance. Future balance queries: take the latest snapshot + sum only events after it. Reduces O(n) to O(1) for reads","Event sourcing as the foundation of financial systems: every bank ledger is an event log. Withdrawals and deposits are events; your account balance is a derived view. Robinhood's internal accounting works the same way"]}},
 ];
 
 const EDGES = [
@@ -537,6 +563,12 @@ const EDGES = [
   // legacy
   ["apppy","dbpy","admin R/W","REST","legacy",false,true],
   ["apppy","bbtables","accounts/bets","REST","legacy",false,true],
+  // at-scale conceptual (dashed)
+  ["scrapers","msg_queue","publish event","Kafka msg","at scale",true],
+  ["msg_queue","scoring","consume event","Kafka msg","at scale",true],
+  ["sportsbook","grpc_rpc","place_bet() call","gRPC","at scale",true],
+  ["sbtables","event_sourcing","replace mutable balance","ledger append","at scale",true],
+  ["grpc_rpc","event_sourcing","writes delta events","append","at scale",true],
 ];
 
 const FLOWS = {
@@ -552,6 +584,9 @@ const FLOWS = {
   settle:{name:"Settle an event",
     steps:["skills","manualjson","sportsbook","projections","ghpages","dbpy","sbtables"],
     blurb:"An event resolves → fl-settle edits bonuses.json + BETS + prop defs → merge/deploy → next daily run settles sb_bets in Supabase."},
+  scaleup:{name:"Scale-up bottlenecks",
+    steps:["scrapers","msg_queue","scoring","sbtables","grpc_rpc","event_sourcing"],
+    blurb:"Trace the three scale gaps: synchronous ingest → a queue decouples; client balance check → server RPC enforces atomicity; mutable balance → event sourcing makes it tamper-proof."},
 };
 
 /* ============================================================
