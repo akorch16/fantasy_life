@@ -321,13 +321,11 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
 # Bump FALLBACK_AS_OF whenever entries below are refreshed or pruned —
 # it is printed in the run log so stale fallbacks are visible in CI.
 
-FALLBACK_AS_OF = "2026-06-12"
+FALLBACK_AS_OF = "2026-06-14"
 
 FALLBACK = {
-    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Knicks lead 3-1; ~6% chance Spurs win
-    "nba_champ": {
-        "Wu": 0.06, "Buckley": 0.94,
-    },
+    # NBA Finals: SETTLED — Knicks (Buckley) won
+    "nba_champ": {"Buckley": 1.0},
     # WCF: SETTLED — Spurs (Wu) won Game 7 over Thunder (Feder)
     "nba_conf_finals_west": {"Wu": 1.0},
     "nba_conf_finals_east": {"Buckley": 1.0},  # SETTLED: Knicks swept Cavaliers 4-0
@@ -607,6 +605,7 @@ _PROP_DEFS_SETTLED = [
     ("nba-wcf-wu-v-feder",      100),  # Spurs won WCF Game 7
     ("nhl-wcf-tim-v-korch",     100),  # Golden Knights swept Avalanche
     ("nhl-pts-jamzee-v-korch",  100),  # Hurricanes advanced; Korch out
+    ("nba-fin-wu-v-buckley",      0),  # Knicks won NBA Finals; Wu/Spurs lost
 ]
 
 _PROP_DEFS = [
@@ -616,9 +615,6 @@ _PROP_DEFS = [
 
     # ── NHL Finals (Kalshi: Jamzee/Hurricanes ~59%, Tim/Golden Knights ~42%) ──────
     ("nhl-fin-tim-v-jamzee", 42, lambda o: _h2h(o.get("nhl_champ",{}).get("Tim",0), o.get("nhl_champ",{}).get("Jamzee",0)), "NHL-StanleyCup"),
-
-    # ── NBA Finals (Kalshi: Buckley/Knicks ~54%, Wu/Spurs ~46% after NYK won Game 1) ─
-    ("nba-fin-wu-v-buckley", 18, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
 
     # ── US Open Golf ─────────────────────────────────────────────────────────────
     ("uso-wu-v-molmen",    52, lambda o: _h2h(o.get("golf_uso_win",{}).get("Wu",0),     o.get("golf_uso_win",{}).get("Molmen",0)), "Golf-USOpen-win"),
