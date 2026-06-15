@@ -43,13 +43,13 @@ def search_news(debug: bool = False) -> str:
         return ''
     today_str = date.today().strftime('%B %d %Y')
     queries = [
-        # ── Active playoff series get their own slot ──────────────────────
-        'NBA Finals 2026 most recent game score result last night',
-        'NHL Stanley Cup Finals 2026 most recent game score result last night',
+        # ── NBA/NHL Finals are settled (June 13-14) — use freed slots for active events ──
+        'FIFA World Cup 2026 group stage game score result today',
+        'MLB baseball standings results 2026 latest',
         # ── Other sports ──────────────────────────────────────────────────
         'Roland Garros French Open tennis 2026 results',
         'US Open golf 2026 results leaderboard',
-        'MLB MLS NASCAR standings results 2026',
+        'MLS NASCAR standings results 2026',
         # ── FIFA World Cup ────────────────────────────────────────────────
         'FIFA World Cup 2026 results group stage standings',
         # ── Music: must be a chart move happening THIS week ───────────────
@@ -122,13 +122,13 @@ CRITICAL rules:
 - For Actor/Actress/Musician: only report if the film opened or the song charted within the last 3 days. Do NOT report on releases from weeks or months ago even if a recent article mentions them.
 - 3–5 sentences, max 60 words total
 - Never mention FL standings, point totals, or league positions
-- If snippets contain results for BOTH NBA Finals and NHL Stanley Cup Finals, include a sentence for each — never drop an active Finals series
+- The NBA Finals and NHL Stanley Cup Finals are both complete as of June 15, 2026 — do NOT report on them as ongoing; the active major events are the FIFA World Cup 2026 and the US Open golf
 - Cover a MIX of categories — aim for at least 2 different categories (e.g. one sports + one music/stock/movie/WorldCup)
 - Format: "Pick (<em>FLPlayer</em>) result." — pick name first, FL owner in <em> tags in parentheses
 - Examples: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals." / "NVDA (<em>Todd</em>) surges 9% on earnings." / "USA (<em>Wu</em>) blank Morocco 2-0 in World Cup opener." / "Taylor Swift (<em>Molmen</em>) hits #1 with new single."
 - Use <em> tags ONLY around FL player names — never around pick names
 - Be specific: include series scores or % moves only if the snippet gives them
-- Actor/Actress: ONLY connect a film to an FL player's pick if the snippet explicitly names that actor/actress by name in the film. A film title alone is never enough — do NOT use outside knowledge about casting.
+- Actor/Actress: ONLY connect a film to an FL player's pick if a SINGLE snippet contains BOTH the actor/actress name AND the film title in the same sentence or tight clause. A film title alone is never enough. An actor mentioned elsewhere on the same page does NOT count — the connection must be explicit in the same sentence. Do NOT use outside knowledge about casting.
 - Output ONLY the headline text, no quotes, no labels, no preamble
 
 Headline:"""
