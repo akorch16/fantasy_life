@@ -256,25 +256,142 @@ def scrape_ncaab():
     except Exception as e:
         print(f'  ✗ NCAAB: {e}'); return False
 
-# ── MLS (ESPN) ────────────────────────────────────────────────────────────────
+# ── Wikipedia standings helper ────────────────────────────────────────────────
+
+def _wiki_points_table(url, name_hints, points_hints=('pts', 'points'), timeout=20):
+    """Parse (name, points) pairs from Wikipedia wikitables.
+
+    Header-driven: a table qualifies only if its header row contains BOTH a points
+    column (matching points_hints) and a name column (matching name_hints), which
+    avoids grabbing unrelated tables. Returns a list of {'name', 'points'} dicts,
+    deduped by name keeping the max points seen. Reused by MLS and NASCAR.
+    """
+    soup = fetch_html(url, timeout=timeout)
+    found = {}
+    tables_scanned = 0
+    for table in soup.select('table.wikitable'):
+        rows = table.select('tr')
+        if not rows:
+            continue
+        headers = [c.get_text(strip=True).lower() for c in rows[0].find_all(['th', 'td'])]
+        pts_idx = next((i for i, h in enumerate(headers)
+                        if any(k == h or k.strip('.') == h for k in points_hints)), None)
+        if pts_idx is None:
+            pts_idx = next((i for i, h in enumerate(headers)
+                            if any(k in h for k in points_hints)), None)
+        name_idx = next((i for i, h in enumerate(headers)
+                         if any(k in h for k in name_hints)), None)
+        if pts_idx is None or name_idx is None:
+            continue
+        tables_scanned += 1
+        for row in rows[1:]:
+            cells = row.find_all(['td', 'th'])
+            if len(cells) <= max(pts_idx, name_idx):
+                continue
+            name = cells[name_idx].get_text(' ', strip=True)
+            if not name:
+                link = cells[name_idx].find('a') or row.find('a')
+                name = link.get_text(strip=True) if link else ''
+            m = re.search(r'-?\d+', cells[pts_idx].get_text(strip=True).replace(',', ''))
+            if not name or not m:
+                continue
+            name = name.strip()
+            pts = int(m.group())
+            if name not in found or pts > found[name]:
+                found[name] = pts
+    return [{'name': n, 'points': p} for n, p in found.items()], tables_scanned
+
+# ── MLS (ESPN JSON → Wikipedia fallback) ──────────────────────────────────────
 
 def scrape_mls():
     if is_frozen('MLS'):
         print('  ⏸ MLS is frozen, skipping'); return True
-    # ESPN API currently returns 403 Forbidden (network IP block)
-    # TODO: when network access is restored, try MLS official API: https://api.mls.com or ESPN alternative tiers
-    print('  ✗ MLS: ESPN API blocked (403) — network IP restriction')
-    return False
+    try:
+        standings = []
+        source = None
 
-# ── NASCAR (ESPN JSON API) ────────────────────────────────────────────────────
+        # Tier 1: ESPN soccer standings (usa.1 = MLS). Often 403s from datacenter IPs.
+        try:
+            data = fetch_json(f'{ESPN_BASE}/soccer/usa.1/standings', timeout=15)
+            for child in data.get('children', []):
+                for entry in child.get('standings', {}).get('entries', []):
+                    team = entry.get('team', {}).get('displayName', '')
+                    pts = next((s.get('value') for s in entry.get('stats', [])
+                                if s.get('name') == 'points' or s.get('type') == 'points'), None)
+                    if team and pts is not None:
+                        standings.append({'team': team, 'points': int(pts)})
+            if standings:
+                source = 'live'
+                print(f'    ✓ ESPN soccer API: {len(standings)} teams')
+        except Exception as e:
+            print(f'    ✗ ESPN soccer API: {e}')
+
+        # Tier 2: Wikipedia season page
+        if not standings:
+            try:
+                rows, n = _wiki_points_table(
+                    'https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season',
+                    name_hints=('team',))
+                standings = [{'team': r['name'], 'points': r['points']} for r in rows]
+                if standings:
+                    source = 'wikipedia'
+                    print(f'    ✓ Wikipedia MLS: {len(standings)} teams from {n} table(s)')
+            except Exception as e:
+                print(f'    ✗ Wikipedia MLS: {e}')
+
+        if standings:
+            print(f'  ✓ MLS via {source} ({len(standings)} teams)')
+            return save_standing('MLS', {'standings': standings, '_source': source})
+        print('  ⚠ MLS: ALL LIVE SOURCES FAILED → scoring will use data/mls.json or static dict')
+        return False
+    except Exception as e:
+        print(f'  ✗ MLS: {e}'); return False
+
+# ── NASCAR (ESPN JSON → Wikipedia fallback) ───────────────────────────────────
 
 def scrape_nascar():
     if is_frozen('NASCAR'):
         print('  ⏸ NASCAR is frozen, skipping'); return True
-    # ESPN API currently returns 403 Forbidden (network IP block)
-    # TODO: when network access is restored, try official NASCAR API: https://api.nascar.com/v1/standings (check auth requirements)
-    print('  ✗ NASCAR: ESPN API blocked (403) — network IP restriction')
-    return False
+    try:
+        standings = []
+        source = None
+
+        # Tier 1: ESPN racing standings. Often 403s from datacenter IPs.
+        try:
+            data = fetch_json('https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings', timeout=15)
+            for group in data.get('standings', []) if isinstance(data.get('standings'), list) else []:
+                for entry in group.get('standings', {}).get('entries', []) if isinstance(group, dict) else []:
+                    driver = entry.get('athlete', {}).get('displayName', '')
+                    pts = next((s.get('value') for s in entry.get('stats', [])
+                                if s.get('name') in ('points', 'rank')), None)
+                    if driver and pts is not None:
+                        standings.append({'driver': driver, 'points': int(pts)})
+            if standings:
+                source = 'live'
+                print(f'    ✓ ESPN racing API: {len(standings)} drivers')
+        except Exception as e:
+            print(f'    ✗ ESPN racing API: {e}')
+
+        # Tier 2: Wikipedia season page (Drivers' Championship table)
+        if not standings:
+            try:
+                rows, n = _wiki_points_table(
+                    'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series',
+                    name_hints=('driver',))
+                standings = [{'driver': r['name'], 'points': r['points']} for r in rows]
+                if standings:
+                    source = 'wikipedia'
+                    print(f'    ✓ Wikipedia NASCAR: {len(standings)} drivers from {n} table(s)')
+            except Exception as e:
+                print(f'    ✗ Wikipedia NASCAR: {e}')
+
+        if standings:
+            print(f'  ✓ NASCAR via {source} ({len(standings)} drivers)')
+            return save_standing('NASCAR', {'standings': standings, '_source': source})
+        print('  ⚠ NASCAR: ALL LIVE SOURCES FAILED → scoring will use data/nascar.json or static dict')
+        return False
+    except Exception as e:
+        print(f'  ✗ NASCAR: {e}'); return False
 
 # ── Tennis (ESPN) ─────────────────────────────────────────────────────────────
 
@@ -351,6 +468,7 @@ def scrape_golf():
         print('  ⏸ Golf is frozen, skipping'); return True
     try:
         rankings = []
+        source = None
 
         # Primary: OWGR.com JSON API (plain requests)
         if not rankings:
@@ -365,6 +483,7 @@ def scrape_golf():
                     if player and rank:
                         rankings.append({'player': player, 'rank': int(rank)})
                 if rankings:
+                    source = 'owgr'
                     print(f'    ✓ OWGR.com JSON API: {len(rankings)} players')
             except Exception as e:
                 print(f'    ✗ OWGR.com JSON API: {e}')
@@ -387,6 +506,7 @@ def scrape_golf():
                     if player and rank:
                         rankings.append({'player': player, 'rank': int(rank)})
                 if rankings:
+                    source = 'owgr-cloudscraper'
                     print(f'    ✓ OWGR.com (cloudscraper): {len(rankings)} players')
             except Exception as e:
                 print(f'    ✗ OWGR.com (cloudscraper): {e}')
@@ -397,13 +517,16 @@ def scrape_golf():
                 data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings')
                 rankings = _parse_owgr_espn(data)
                 if rankings:
+                    source = 'espn'
                     print(f'    ✓ ESPN Golf API: {len(rankings)} players')
             except Exception as e:
                 print(f'    ✗ ESPN Golf API: {e}')
 
         if rankings:
-            return save_standing('Golf', {'rankings': rankings})
-        raise Exception('No golf rankings found from any source')
+            print(f'  ✓ Golf via {source} ({len(rankings)} players)')
+            return save_standing('Golf', {'rankings': rankings, '_source': source})
+        print('  ⚠ Golf: ALL LIVE SOURCES FAILED → scoring will use data/golf.json or static dict')
+        return False
     except Exception as e:
         print(f'  ✗ Golf: {e}'); return False
 
@@ -600,8 +723,52 @@ def refresh_all():
             print(f'  TRACEBACK:\n{traceback.format_exc()}')
         results[name] = status
         print(f'  → {name}: {status}')
+
+    # Degradation summary: surface any live-scraped category that failed, so a
+    # run leaning on stale data/*.json or static dicts is obvious at a glance.
+    LIVE_CATS = {'NBA', 'NHL', 'MLB', 'NCAAB', 'Tennis', 'Golf', 'NASCAR', 'MLS', 'Stock', 'Country', 'Musician'}
+    degraded = [n for n, s in results.items() if n in LIVE_CATS and s != 'ok']
+    if degraded:
+        print(f'\n⚠ DEGRADED — {len(degraded)} live categor{"y" if len(degraded)==1 else "ies"} '
+              f'did not refresh (scoring will fall back): {", ".join(degraded)}')
+    else:
+        print('\n✅ All live categories refreshed.')
     print('\n✅ Refresh complete!')
     return results
+
+
+# ── Probe mode ────────────────────────────────────────────────────────────────
+
+def probe():
+    """GET each candidate source and report status/size, without saving anything.
+
+    Run on the GitHub Actions runner (`python scrapers.py --probe`) to learn which
+    endpoints the runner can actually reach — this environment cannot be used because
+    its egress is allowlisted. Deciding input for the golf live tier and for whether
+    ESPN's soccer/racing trees work from the Actions IP.
+    """
+    candidates = [
+        ('MLS  · ESPN soccer',      f'{ESPN_BASE}/soccer/usa.1/standings'),
+        ('MLS  · Wikipedia',        'https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season'),
+        ('NASCAR · ESPN racing',    'https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings'),
+        ('NASCAR · cf.nascar',      'https://cf.nascar.com/cacher/2026/1/points/drivers-points.json'),
+        ('NASCAR · Wikipedia',      'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series'),
+        ('Golf · OWGR',             'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=10&country=All&playerName='),
+        ('Golf · ESPN',             'https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings'),
+    ]
+    print('\n🔎 Probing candidate sources (no data saved)...\n')
+    for label, url in candidates:
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=20)
+            snippet = r.text[:100].replace('\n', ' ')
+            print(f'  [{r.status_code}] {label}  ({len(r.content)} bytes)')
+            print(f'        {url}')
+            if r.status_code == 200:
+                print(f'        {snippet}')
+        except Exception as e:
+            print(f'  [ERR] {label}: {e}')
+            print(f'        {url}')
+    print('\n🔎 Probe complete.')
 
 # ── Demo seed ─────────────────────────────────────────────────────────────────
 
@@ -624,4 +791,8 @@ def seed_demo_data():
     print('✅ Demo seed complete!')
 
 if __name__ == '__main__':
-    refresh_all()
+    import sys
+    if '--probe' in sys.argv:
+        probe()
+    else:
+        refresh_all()

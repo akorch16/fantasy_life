@@ -1,0 +1,25 @@
+name: Probe Scraper Sources
+
+# Manual-only diagnostic: GET each candidate data source from the Actions runner
+# (which has open internet, unlike the dev sandbox) and print status codes, so we
+# can see which endpoints actually work for golf / NASCAR / MLS before relying on
+# them. Saves nothing to Supabase.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Probe candidate sources
+        run: python scrapers.py --probe
