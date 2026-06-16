@@ -46,6 +46,17 @@ _KEY_MAP = {
 # Populated at the start of compute_all_scores() to avoid 15 round-trips
 _bulk_standings: dict = {}
 
+# Records which tier produced each category's data this run, for provenance in
+# scores.json. Values: 'live' | 'wikipedia' | 'local_json' | 'static_fallback'.
+# Populated by the compute_baseline_* functions; read into data_freshness.
+_category_source: dict = {}
+
+def _supabase_source(data, default='live'):
+    """Read the _source stamp a scraper embedded in a Supabase blob, if any."""
+    if isinstance(data, dict) and data.get('_source'):
+        return data['_source']
+    return default
+
 _DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 
 def _load_local_json(name):
@@ -65,6 +76,59 @@ def load_data(category_key):
         return _bulk_standings.get(key) or None
     data = get_standing(key)
     return data if data else None
+
+
+def _parse_dt(s):
+    """Parse an ISO date/datetime string to an aware UTC datetime, or None."""
+    if not s:
+        return None
+    for cand in (str(s).replace('Z', '+00:00'), str(s)[:10]):
+        try:
+            dt = datetime.fromisoformat(cand)
+            return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            continue
+    return None
+
+
+def select_standings(category, data_key, local_name, static_data, static_date, reject=None):
+    """Pick the best standings source by freshness, returning (data, source_label).
+
+    Policy (per the golf/MLS/NASCAR precedence decision):
+      1. Fresh live (Supabase row ≤3 days old) always wins.
+      2. Otherwise use the NEWEST-dated of the remaining available sources —
+         stale live, the manual data/{local_name}.json override (its `_updated`),
+         and the in-code static dict (static_date). This keeps a fresh manual
+         override above an older static dict, while preventing a months-stale
+         override (e.g. golf.json) from beating fresher data.
+    `reject(data)` optionally drops a candidate (used for the MLS >50-pts rule).
+    source_label ∈ {live, wikipedia, local_json, static_fallback}.
+    """
+    now = datetime.now(timezone.utc)
+    ok = lambda d: bool(d and d.get(data_key)) and (reject is None or not reject(d))
+
+    live = load_data(data_key)
+    live = live if ok(live) else None
+    live_dt = _parse_dt(get_standing_updated_at(category)) if live else None
+
+    local = _load_local_json(local_name)
+    local = local if ok(local) else None
+    local_dt = _parse_dt(local.get('_updated')) if local else None
+
+    # 1. Fresh live wins outright.
+    if live and live_dt and (now - live_dt).days <= 3:
+        return live, _supabase_source(live)
+
+    # 2. Newest-dated of the available sources.
+    floor = datetime.min.replace(tzinfo=timezone.utc)
+    candidates = [(_parse_dt(static_date) or floor, 'static_fallback', static_data)]
+    if local:
+        candidates.append((local_dt or floor, 'local_json', local))
+    if live:
+        candidates.append((live_dt or floor, _supabase_source(live), live))
+    candidates.sort(key=lambda c: c[0], reverse=True)
+    _, label, data = candidates[0]
+    return data, label
 
 
 def load_bonuses():
@@ -333,8 +397,10 @@ GOLF_2026_OWGR_STATIC = {"as_of": "2026-05-26", "rankings": [
 
 def compute_baseline_golf():
     picks = DRAFT_PICKS_2026.get('Golf', {})
-    _d = load_data('golf')
-    data = _d if (_d and _d.get('rankings')) else GOLF_2026_OWGR_STATIC
+    # Live (OWGR/ESPN via Supabase) → manual data/golf.json → static, by freshness.
+    data, _category_source['golf'] = select_standings(
+        'Golf', 'rankings', 'golf', GOLF_2026_OWGR_STATIC,
+        GOLF_2026_OWGR_STATIC.get('as_of', '2026-05-26'))
 
     raw_values = {}
     for player, name in picks.items():
@@ -378,14 +444,11 @@ MLS_2026_STANDINGS_STATIC = {"standings": [
 ]}
 
 def compute_baseline_mls():
-    picks = DRAFT_PICKS_2026.get('MLS', {})
-    # Prefer data/mls.json (manual override) over Supabase
-    _local = _load_local_json('mls')
-    _d = _local if (_local and _local.get('standings')) else load_data('mls')
-    # If data has stale end-of-season data (>50 pts), ignore it
-    if _d and _d.get('standings') and max((e.get('points', 0) for e in _d['standings']), default=0) > 50:
-        _d = None
-    data = _d if (_d and _d.get('standings')) else MLS_2026_STANDINGS_STATIC
+    # Live (Wikipedia/ESPN via Supabase) → manual data/mls.json → static, by
+    # freshness. Reject any source whose max points >50 (end-of-season stale data).
+    _mls_reject = lambda d: max((e.get('points', 0) for e in d.get('standings', [])), default=0) > 50
+    data, _category_source['mls'] = select_standings(
+        'MLS', 'standings', 'mls', MLS_2026_STANDINGS_STATIC, '2026-05-27', reject=_mls_reject)
     return compute_baseline_sports('MLS', 'mls', 'points', reverse=True, static_data=data)
 
 
@@ -415,10 +478,9 @@ NASCAR_2026_STANDINGS_STATIC = {"standings": [
 
 def compute_baseline_nascar():
     picks = DRAFT_PICKS_2026.get('NASCAR', {})
-    # Prefer data/nascar.json (manual override) over Supabase
-    _local = _load_local_json('nascar')
-    _d = _local if (_local and _local.get('standings')) else load_data('nascar')
-    data = _d if (_d and _d.get('standings')) else NASCAR_2026_STANDINGS_STATIC
+    # Live (Wikipedia/ESPN via Supabase) → manual data/nascar.json → static, by freshness.
+    data, _category_source['nascar'] = select_standings(
+        'NASCAR', 'standings', 'nascar', NASCAR_2026_STANDINGS_STATIC, '2026-05-10')
 
     raw_values = {}
     for player, driver in picks.items():
@@ -697,12 +759,13 @@ def compute_all_scores():
         except Exception:
             pass
 
-    # Data freshness per live-scraped category: age of the Supabase row.
-    # MLS/NASCAR are expected to be stale in Supabase (ESPN 403-blocked) — their
-    # real values come from hand-edited data/*.json overrides, but the loud
-    # warning here is intentional: downstream odds (_mls_h2h) consume this data.
+    # Data freshness per live-scraped category: age of the Supabase row + the
+    # provenance tier that scoring actually used this run (live / wikipedia /
+    # local_json / static_fallback). MLS/NASCAR/Golf can legitimately come from a
+    # data/*.json override; the source field makes "running on fallback" visible in
+    # the committed scores.json instead of only in ephemeral Actions logs.
     data_freshness = {}
-    for cat in ['NBA', 'MLB', 'NHL', 'NCAAB', 'Tennis', 'Musician', 'Stock', 'MLS', 'NASCAR']:
+    for cat in ['NBA', 'MLB', 'NHL', 'NCAAB', 'Tennis', 'Musician', 'Stock', 'MLS', 'NASCAR', 'Golf']:
         updated_at = get_standing_updated_at(cat)
         age_days = None
         if updated_at:
@@ -710,10 +773,18 @@ def compute_all_scores():
                 age_days = (datetime.now(timezone.utc) - datetime.fromisoformat(updated_at.replace('Z', '+00:00'))).days
             except Exception:
                 pass
-        stale = age_days is None or age_days > 3
-        data_freshness[cat.lower()] = {'updated_at': updated_at, 'age_days': age_days, 'stale': stale}
+        # For categories with a known override/fallback tier, trust the recorded
+        # source; otherwise it's a straight live Supabase read.
+        source = _category_source.get(cat.lower(), _supabase_source(load_data(cat.lower()), default='live'))
+        # "stale" = not running on fresh live data: any manual/static fallback, or
+        # a live row older than 3 days.
+        stale = source in ('local_json', 'static_fallback') or age_days is None or age_days > 3
+        data_freshness[cat.lower()] = {
+            'updated_at': updated_at, 'age_days': age_days, 'stale': stale, 'source': source,
+        }
         if stale:
-            print(f'  ⚠ STALE DATA: {cat} Supabase row is {age_days if age_days is not None else "unknown"} days old')
+            print(f'  ⚠ {cat}: source={source}, Supabase row '
+                  f'{age_days if age_days is not None else "unknown"} days old [STALE]')
 
     return {
         'players':         sorted_players,
