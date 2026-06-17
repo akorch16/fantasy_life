@@ -709,7 +709,63 @@ def probe():
         except Exception as e:
             print(f'  [ERR] {label}: {e}')
             print(f'        {url}')
+
+    _probe_golf()
     print('\n🔎 Probe complete.')
+
+
+def _probe_golf():
+    """Deeper golf probes: OWGR HTML page (does it ship a real table?) and the
+    PGA Tour GraphQL API (POST) that backs pgatour.com's world-ranking page."""
+    print('\n  ── Golf deep-probe ──')
+
+    # 1) OWGR rankings HTML page — is the table server-rendered or a JS shell?
+    owgr_html = 'https://www.owgr.com/rankings'
+    try:
+        r = requests.get(owgr_html, headers={**HEADERS, 'Accept': 'text/html,application/xhtml+xml'}, timeout=20)
+        print(f'  [{r.status_code}] Golf · OWGR HTML  ({len(r.content)} bytes)  {owgr_html}')
+        if r.status_code == 200:
+            soup = BeautifulSoup(r.text, 'html.parser')
+            tables = soup.find_all('table')
+            trs = soup.find_all('tr')
+            print(f'        tables={len(tables)}  total <tr>={len(trs)}')
+            # show a couple of data rows so we can read the column order
+            for tr in trs[:4]:
+                cells = [c.get_text(strip=True) for c in tr.find_all(['th', 'td'])]
+                if cells:
+                    print(f'        row: {cells[:8]}')
+    except Exception as e:
+        print(f'  [ERR] Golf · OWGR HTML: {e}')
+
+    # 2) PGA Tour GraphQL — public AppSync endpoint + key embedded in pgatour.com JS.
+    gql_url = 'https://orchestrator.pgatour.com/graphql'
+    # Public key from pgatour.com bundle; if rotated the probe returns 401 so we can refresh it.
+    gql_key = 'da2-gsrx5bibzbb4njvhl7t37wqyl4'
+    # OWGR is a "stat" on PGA Tour; statId 186 is the Official World Golf Ranking.
+    query = """query StatDetails($tourCode: TourCode!, $statId: String!, $year: Int) {
+      statDetails(tourCode: $tourCode, statId: $statId, year: $year) {
+        statId
+        statTitle
+        rows {
+          ... on StatDetailsPlayer { playerId playerName rank stats { statName statValue } }
+        }
+      }
+    }"""
+    variables = {'tourCode': 'R', 'statId': '186', 'year': 2026}
+    for statId in ['186', '02671']:
+        variables['statId'] = statId
+        try:
+            r = requests.post(
+                gql_url,
+                json={'query': query, 'variables': variables},
+                headers={**HEADERS, 'x-api-key': gql_key, 'Content-Type': 'application/json'},
+                timeout=20,
+            )
+            body = r.text[:300].replace('\n', ' ')
+            print(f'  [{r.status_code}] Golf · PGA GraphQL statId={statId}  ({len(r.content)} bytes)')
+            print(f'        {body}')
+        except Exception as e:
+            print(f'  [ERR] Golf · PGA GraphQL statId={statId}: {e}')
 
 # ── Demo seed ─────────────────────────────────────────────────────────────────
 
