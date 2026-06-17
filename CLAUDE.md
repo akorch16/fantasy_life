@@ -40,7 +40,7 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 | NFL, NCAAF | static dicts in scoring.py | 2025 seasons, frozen |
 | NBA, MLB, NHL, NCAAB | Supabase (live scrape) | sports-reference daily |
 | Tennis | Supabase | women's rank gets +0.5 (Amend. 7.4) |
-| Golf | `GOLF_2026_OWGR_STATIC` in scoring.py | ESPN/OWGR 403-blocked |
+| Golf | PGA Tour GraphQL API (statId 186) → `GOLF_2026_OWGR_STATIC` fallback | owgr.com 404s, ESPN 500s; PGA Tour AppSync key in scrapers.py `PGATOUR_API_KEY` |
 | MLS, NASCAR | `data/mls.json` / `data/nascar.json` → Supabase → static | local file is a manual override; MLS data with >50 pts is rejected as stale |
 | Actor, Actress | `data/actor.json` / `data/actress.json` | hand-curated; Supabase only as fallback. composite = (RT/100) × box office $M |
 | Musician | Supabase (Billboard) | |
@@ -55,6 +55,7 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 | `docs/scores.json` | scoring.py via Actions | always take **origin/main** |
 | `docs/projections.json` | projections.py via Actions | always take **origin/main** |
 | `data/bonuses.json` | hand-edited | **manually merge** — combine entries from both sides |
+| `data/sb_adjustments.json` | hand-edited | take feature branch (HEAD); never delete entries |
 | `data/*.json` (others) | hand-edited overrides | take feature branch (HEAD) |
 | `*.py`, `docs/*.html`, `.github/**` | hand-edited | take feature branch (HEAD) |
 | `docs/sb-schema.sql`, `docs/draft-schema.sql` | hand-edited | reference copies of Supabase schemas |
@@ -76,6 +77,12 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 - Sportsbook bets live in two places that must stay consistent: the `BETS` array in
   `docs/sportsbook.html` and `_PROP_DEFS` in projections.py (matching `id` strings).
   Settling a bet means odds → 100/0 + `settled: true` in both.
+- **Sportsbook balance authority:** `db.py` `recalculate_sb_balance()` is the sole writer of
+  `sb_players.balance`. Formula: `1000 + adjustment - wagered + won_returns`. Per-player baseline
+  adjustments live in `data/sb_adjustments.json` (currently Jens=1438). The browser
+  (`sbSyncState`) only inserts new `sb_bets` rows — it never writes balance or `settled_outcome`.
+  `sbResetPlayer` no longer deletes bets. Use `dump-sb.yml` (workflow_dispatch) to inspect live
+  Supabase state.
 - projections.py odds sources, in priority order: Kalshi live markets → Monte Carlo
   pairwise sim → standings-based normal approximation (`_mlb_h2h`/`_mls_h2h`/`_pts_h2h`) → static `FALLBACK`.
 - Headlines must only state facts present in Tavily snippets — the prompt forbids
