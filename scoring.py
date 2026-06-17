@@ -92,6 +92,22 @@ def load_bonuses():
             if player in bonuses.get(cat, {}):
                 print(f'  ↩ bonus override: {cat}/{player} Supabase={bonuses[cat][player]} → file={pts}')
             bonuses[cat][player] = float(pts)
+
+    # Merge Country_WorldCup into Country, capped at 13 combined with Winter Olympics
+    _COUNTRY_CAP = 13.0
+    country_olympics = bonuses.get('Country', {})
+    country_wc = bonuses.pop('Country_WorldCup', {})
+    if country_wc:
+        all_players = set(country_olympics) | set(country_wc)
+        merged = {}
+        for player in all_players:
+            total = min(_COUNTRY_CAP, (country_olympics.get(player) or 0) + (country_wc.get(player) or 0))
+            merged[player] = total
+            wc_pts = country_wc.get(player, 0)
+            if wc_pts:
+                print(f'  🌍 Country WC: {player} Olympics={country_olympics.get(player, 0)} + WC={wc_pts} → {total} (cap={_COUNTRY_CAP})')
+        bonuses['Country'] = merged
+
     return bonuses
 
 

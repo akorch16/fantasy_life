@@ -17,6 +17,8 @@
     "Wu":     9.0,
     "Jens":   2.5
   },
+  "Country_WorldCup": {
+  },
   "Golf": {
     "Molmen": 6.0,
     "Wu":     2.5,
@@ -69,7 +71,7 @@
     "Fryar":   2.5,
     "Mitchell":2.5,
     "Buckley": 2.5,
-    "Jamzee":  9.0,
+    "Jamzee": 13.0,
     "Tim":     9.0,
     "Korch":   6.5
   },
@@ -83,7 +85,7 @@
     "Todd":   4.0,
     "Theo":   4.0,
     "Feder":  6.5,
-    "Buckley":9.0
+    "Buckley":13.0
   },
   "Tennis": {
     "Todd":  4.0,

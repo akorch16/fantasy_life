@@ -321,21 +321,17 @@ def fetch_kalshi_championship_probs(series_ticker, picks_dict, label):
 # Bump FALLBACK_AS_OF whenever entries below are refreshed or pruned —
 # it is printed in the run log so stale fallbacks are visible in CI.
 
-FALLBACK_AS_OF = "2026-06-04"
+FALLBACK_AS_OF = "2026-06-15"
 
 FALLBACK = {
-    # NBA Finals: Spurs (Wu) vs Knicks (Buckley). Knicks lead 2-0; Kalshi ~82% Knicks
-    "nba_champ": {
-        "Wu": 0.18, "Buckley": 0.82,
-    },
+    # NBA Finals: SETTLED — Knicks (Buckley) won
+    "nba_champ": {"Buckley": 1.0},
     # WCF: SETTLED — Spurs (Wu) won Game 7 over Thunder (Feder)
     "nba_conf_finals_west": {"Wu": 1.0},
     "nba_conf_finals_east": {"Buckley": 1.0},  # SETTLED: Knicks swept Cavaliers 4-0
 
-    # NHL Finals: Golden Knights (Tim) vs Hurricanes (Jamzee). Kalshi as of 2026-06-01: Jamzee ~59%, Tim ~42%
-    "nhl_champ": {
-        "Jamzee": 0.59, "Tim": 0.42,
-    },
+    # NHL Finals: SETTLED — Hurricanes (Jamzee) won the Stanley Cup
+    "nhl_champ": {"Jamzee": 1.0},
     "nhl_conf_finals_west": {"Tim": 1.0},  # SETTLED: Golden Knights swept Avalanche 4-0
     "nhl_conf_finals_east": {"Jamzee": 1.0},  # SETTLED: Hurricanes won ECF
 
@@ -607,18 +603,14 @@ _PROP_DEFS_SETTLED = [
     ("nba-wcf-wu-v-feder",      100),  # Spurs won WCF Game 7
     ("nhl-wcf-tim-v-korch",     100),  # Golden Knights swept Avalanche
     ("nhl-pts-jamzee-v-korch",  100),  # Hurricanes advanced; Korch out
+    ("nba-fin-wu-v-buckley",      0),  # Knicks won NBA Finals; Wu/Spurs lost
+    ("nhl-fin-tim-v-jamzee",      0),  # Hurricanes won Stanley Cup; Tim/Golden Knights lost
 ]
 
 _PROP_DEFS = [
     # ── Tennis · Roland Garros Women's ───────────────────────────────────────────
     ("rg-w-fryar-v-feder",  38, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Feder",0)), "Tennis-FO-Women"),
     ("rg-w-fryar-v-wu",     55, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Wu",0)),    "Tennis-FO-Women"),
-
-    # ── NHL Finals (Kalshi: Jamzee/Hurricanes ~59%, Tim/Golden Knights ~42%) ──────
-    ("nhl-fin-tim-v-jamzee", 42, lambda o: _h2h(o.get("nhl_champ",{}).get("Tim",0), o.get("nhl_champ",{}).get("Jamzee",0)), "NHL-StanleyCup"),
-
-    # ── NBA Finals (Kalshi: Buckley/Knicks ~54%, Wu/Spurs ~46% after NYK won Game 1) ─
-    ("nba-fin-wu-v-buckley", 18, lambda o: _h2h(o.get("nba_champ",{}).get("Wu",0), o.get("nba_champ",{}).get("Buckley",0)), "NBA-championship"),
 
     # ── US Open Golf ─────────────────────────────────────────────────────────────
     ("uso-wu-v-molmen",    52, lambda o: _h2h(o.get("golf_uso_win",{}).get("Wu",0),     o.get("golf_uso_win",{}).get("Molmen",0)), "Golf-USOpen-win"),
@@ -632,6 +624,14 @@ _PROP_DEFS = [
     ("mls-buckley-v-molmen",  52, _mls_h2h("Buckley", "Molmen"),   "mls-standings"),
     ("mls-theo-v-shep",       57, _mls_h2h("Theo",    "Shep"),     "mls-standings"),
     ("nascar-molmen-v-korch", 53, None, None),
+
+    # ── FIFA World Cup 2026 (static Kalshi-calibrated odds) ──────────────────────
+    ("wc-theo-beats-buckley",      62, None, None),  # Group B: CHE beats CAN
+    ("wc-shep-beats-fryar",        73, None, None),  # Group I: FRA beats NOR
+    ("wc-jens-v-tim-group-pts",    58, None, None),  # GER > NED group stage pts
+    ("wc-jamzee-v-shep-group-pts",  54, None, None),  # ESP > FRA group stage pts
+    ("wc-wu-v-fryar-group-pts",    62, None, None),  # USA > NOR group stage pts
+    ("wc-molmen-v-feder-group-pts", 50, None, None),  # ARG > BRA group stage pts
 
     # ── Total Points (simulation-backed — updates every run from Monte Carlo) ──────
     ("pts-wu-v-korch",      47, _pts_h2h("Wu",      "Korch"),   "pts-model"),

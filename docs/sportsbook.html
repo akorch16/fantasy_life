@@ -417,8 +417,9 @@
     .live-badge.kalshi { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
     .live-badge.model  { background: rgba(45,125,210,0.15); color: var(--blue);  border: 1px solid rgba(45,125,210,0.3); }
     /* closed bet cards */
-    .bet-card.closed-yes { border-color: var(--green); border-width: 2px; }
-    .bet-card.closed-no  { border-color: var(--red);   border-width: 2px; }
+    .bet-card.closed-yes  { border-color: var(--green); border-width: 2px; }
+    .bet-card.closed-no   { border-color: var(--red);   border-width: 2px; }
+    .bet-card.closed-void { border-color: var(--muted); border-width: 2px; opacity: 0.7; }
 
     /* CLOSED badge (replaces old settled-badge) */
     .closed-badge {
@@ -447,8 +448,9 @@
       border-radius: 5px;
       margin-bottom: 2px;
     }
-    .winner-banner-yes { background: rgba(34,197,94,0.1);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
-    .winner-banner-no  { background: rgba(239,68,68,0.1);  color: var(--red);   border: 1px solid rgba(239,68,68,0.25); }
+    .winner-banner-yes  { background: rgba(34,197,94,0.1);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+    .winner-banner-no   { background: rgba(239,68,68,0.1);  color: var(--red);   border: 1px solid rgba(239,68,68,0.25); }
+    .winner-banner-void { background: rgba(148,163,184,0.08); color: var(--muted); border: 1px solid rgba(148,163,184,0.2); }
 
     /* close date at bottom-right of open bet card */
     .bet-close-footer {
@@ -516,8 +518,9 @@
       margin-top: auto;
     }
     .bet-position strong { color: var(--text); }
-    .bet-position .pos-won { color: var(--green); font-weight: 600; }
-    .bet-position .pos-lost { color: var(--red); font-weight: 600; }
+    .bet-position .pos-won  { color: var(--green); font-weight: 600; }
+    .bet-position .pos-lost { color: var(--red);   font-weight: 600; }
+    .bet-position .pos-void { color: var(--muted); font-weight: 600; }
 
     /* ─── ALL BETS PANEL ─── */
     .all-bet-row {
@@ -831,9 +834,17 @@
   <div class="section-header">All Bets</div>
   <div id="all-bets-panel"></div>
 
-  <!-- ─── OPEN BETS ─── -->
-  <div class="section-header">Open Bets</div>
+  <!-- ─── WORLD CUP BETS ─── -->
+  <div class="section-header">🔥 FIFA World Cup 2026 Bets 🔥</div>
   <div class="bets-grid" id="bets-grid-open"><!-- rendered by JS --></div>
+
+  <!-- ─── CATEGORY BETS ─── -->
+  <div class="section-header">Category Bets</div>
+  <div class="bets-grid" id="bets-grid-category"><!-- rendered by JS --></div>
+
+  <!-- ─── FL PLAYER H2H BETS ─── -->
+  <div class="section-header">FL Player Head to Head Bets</div>
+  <div class="bets-grid" id="bets-grid-h2h"><!-- rendered by JS --></div>
 
   <!-- ─── CLOSED BETS ─── -->
   <div class="section-header">Closed Bets</div>
@@ -916,8 +927,9 @@ const BETS = [
     id: 'nhl-fin-tim-v-jamzee',
     sport: 'NHL · Stanley Cup Finals',
     title: 'Golden Knights (<em>Tim</em>) win the Stanley Cup over Hurricanes (<em>Jamzee</em>)',
-    desc: 'Hurricanes are favored at ~59% (Kalshi). Carolina went 12-1 in the playoffs before the Finals; Vegas swept the West. Winner upgrades from 9 pts to 13 — a four-point swing.',
-    odds: 42,
+    desc: 'SETTLED — Hurricanes won the Stanley Cup. YES (Tim/Golden Knights) lost. NO (Jamzee/Hurricanes) won.',
+    odds: 0,
+    settled: true,
 
     closes: '~Jun 17',
   },
@@ -927,8 +939,9 @@ const BETS = [
     id: 'nba-fin-wu-v-buckley',
     sport: 'NBA · Finals',
     title: 'Spurs (<em>Wu</em>) win the NBA Championship over Knicks (<em>Buckley</em>)',
-    desc: 'Knicks lead the series 2-0. New York is heavily favored (~82%) to close it out. Winner gets 13 pts; loser holds at 9.',
-    odds: 18,
+    desc: 'SETTLED — Knicks won the NBA Finals. YES (Wu/Spurs) lost. NO (Buckley/Knicks) won.',
+    odds: 0,
+    settled: true,
 
     closes: '~Jun 19',
   },
@@ -1031,6 +1044,56 @@ const BETS = [
     closes: 'Jul 1',
   },
 
+  // ── FIFA WORLD CUP 2026 ───────────────────────────────────────
+  {
+    id: 'wc-theo-beats-buckley',
+    sport: 'World Cup · Group B',
+    title: 'Switzerland (<em>Theo</em>) beats Canada (<em>Buckley</em>) in Group B',
+    desc: 'Canada and Switzerland share Group B — they play each other directly. Switzerland is the clear Kalshi favorite; Canada is the host nation with crowd noise but a weaker squad. YES wins at the final whistle.',
+    odds: 62,
+    closes: '~Jun 25',
+  },
+  {
+    id: 'wc-shep-beats-fryar',
+    sport: 'World Cup · Group I',
+    title: 'France (<em>Shep</em>) beats Norway (<em>Fryar</em>) in Group I',
+    desc: 'Same group, direct collision. France is the Kalshi co-favorite at 16.3% to win the tournament; Norway is dangerous but a clear underdog. Fryar\'s Norway is bonus-capped at 13 from the Winter Olympics — this one\'s for sportsbook glory only.',
+    odds: 73,
+    closes: '~Jun 25',
+  },
+  {
+    id: 'wc-jens-v-tim-group-pts',
+    sport: 'World Cup · Group Stage',
+    title: 'Germany (<em>Jens</em>) earns more group stage points than Netherlands (<em>Tim</em>)',
+    desc: 'Germany draws Group E (Ivory Coast, Ecuador, Curaçao) — favorable. Netherlands gets Group F (Japan, Sweden, Tunisia) — stiffer. Germany\'s cleaner path gives Jens the edge. Ties push (wager returned). Settles Jul 2.',
+    odds: 58,
+    closes: 'Jul 2',
+  },
+  {
+    id: 'wc-jamzee-v-shep-group-pts',
+    sport: 'World Cup · Group Stage',
+    title: 'Spain (<em>Jamzee</em>) earns more group stage points than France (<em>Shep</em>)',
+    desc: 'Spain draws Group H (Uruguay, Saudi Arabia, Cape Verde). France gets Group I with Norway — a genuine points threat. Spain\'s slightly easier path gives Jamzee the edge. Ties push (wager returned). Settles Jul 2.',
+    odds: 54,
+    closes: 'Jul 2',
+  },
+  {
+    id: 'wc-wu-v-fryar-group-pts',
+    sport: 'World Cup · Group Stage',
+    title: 'USA (<em>Wu</em>) earns more group stage points than Norway (<em>Fryar</em>)',
+    desc: 'USA faces Australia, Paraguay, Turkey in Group D — all beatable. Norway draws France (16.3% Kalshi to win it all) in Group I. Wu\'s easier draw should show in the points. Fryar\'s Norway is bonus-capped at 13 regardless.',
+    odds: 62,
+    closes: 'Jul 2',
+  },
+  {
+    id: 'wc-molmen-v-feder-group-pts',
+    sport: 'World Cup · Group Stage',
+    title: 'Argentina (<em>Molmen</em>) earns more group stage points than Brazil (<em>Feder</em>)',
+    desc: 'The South American derby. Argentina draws Group J (Algeria, Austria, Jordan); Brazil gets Group C (Haiti, Morocco, Scotland) — both pillow-soft. Both likely go 9 pts. Ties push. Classic rivalry.',
+    odds: 50,
+    closes: 'Jul 2',
+  },
+
   // ── LONG SHOT ─────────────────────────────────────────────────
   {
     id: 'todd-wins-fl-2026',
@@ -1102,7 +1165,15 @@ function settleBets() {
   state.bets.forEach(bet => {
     if (bet.settledOutcome) return;
     const def = BETS.find(b => b.id === bet.id);
-    if (!def || !def.settled) return;
+    if (!def || (!def.settled && !def.voided)) return;
+
+    if (def.voided) {
+      bet.settledOutcome = 'void';
+      state.balance += bet.wager; // return the wager
+      results.push({ ...bet, won: false, voided: true });
+      changed = true;
+      return;
+    }
 
     // odds=100 → YES won; odds=0 → NO won
     const yesWon = def.odds === 100;
@@ -1286,9 +1357,10 @@ function renderActiveBets() {
   if (active.length) summaryText += `${active.length} open &nbsp;·&nbsp; <span class="bb-num">${wagered.toLocaleString()} BB</span> at risk`;
   if (settled.length) {
     const wonCount  = settled.filter(b => b.settledOutcome === 'won').length;
-    const lostCount = settled.length - wonCount;
+    const voidCount = settled.filter(b => b.settledOutcome === 'void').length;
+    const lostCount = settled.length - wonCount - voidCount;
     if (summaryText) summaryText += ' &nbsp;·&nbsp; ';
-    summaryText += `${wonCount}W ${lostCount}L settled`;
+    summaryText += `${wonCount}W ${lostCount}L${voidCount ? ` ${voidCount}P` : ''} settled`;
   }
 
   const rows = state.bets.map(bet => {
@@ -1303,6 +1375,8 @@ function renderActiveBets() {
     } else if (bet.settledOutcome === 'lost') {
       outcomeHtml = `<span class="active-bet-outcome outcome-lost">−${bet.wager.toLocaleString()} BB</span>`;
       rowClass = 'settled-lost';
+    } else if (bet.settledOutcome === 'void') {
+      outcomeHtml = `<span class="active-bet-outcome" style="color:var(--muted)">↩ PUSH</span>`;
     } else {
       outcomeHtml = `<div class="active-bet-close">Closes ${bet.closes}</div>`;
     }
@@ -1416,15 +1490,18 @@ function renderBetCard(b, propOdds, state, hasPick) {
   const existingBet  = existingBets[0];
 
   let bottomSection = '';
-  if (b.settled) {
+  if (b.settled || b.voided) {
     if (existingBet) {
-      const won = existingBet.settledOutcome === 'won';
+      const won  = existingBet.settledOutcome === 'won';
       const lost = existingBet.settledOutcome === 'lost';
+      const void_ = existingBet.settledOutcome === 'void';
       if (won) {
         const profit = existingBet.potentialReturn - existingBet.wager;
         bottomSection = `<div class="bet-position"><span class="pos-won">WON +${profit.toLocaleString()} BB</span> — ${existingBet.wager.toLocaleString()} BB on ${existingBet.side.toUpperCase()}</div>`;
       } else if (lost) {
         bottomSection = `<div class="bet-position"><span class="pos-lost">LOST −${existingBet.wager.toLocaleString()} BB</span> — bet ${existingBet.side.toUpperCase()}</div>`;
+      } else if (void_) {
+        bottomSection = `<div class="bet-position"><span class="pos-void">PUSH — ${existingBet.wager.toLocaleString()} BB returned</span></div>`;
       } else {
         bottomSection = `<div class="bet-position">You bet <strong>${existingBet.wager.toLocaleString()} BB</strong> on ${existingBet.side.toUpperCase()} — awaiting resolution</div>`;
       }
@@ -1447,6 +1524,17 @@ function renderBetCard(b, propOdds, state, hasPick) {
       if (noW  > 0) parts.push(`${noW.toLocaleString()} BB NO`);
       bottomSection += `<div class="bet-position" style="margin-top:0.4rem">Your position: ${parts.join(' · ')}</div>`;
     }
+  }
+
+  if (b.voided) {
+    return `
+  <div class="bet-card closed-void">
+    <div class="winner-banner winner-banner-void">↩ PUSH — WAGER RETURNED</div>
+    <div class="bet-sport"><span class="sport-tag">${b.sport}</span> <span class="closed-badge">VOID</span></div>
+    <div class="bet-title">${b.title}</div>
+    <div class="bet-desc">${b.desc}</div>
+    ${bottomSection}
+  </div>`;
   }
 
   if (b.settled) {
@@ -1483,14 +1571,22 @@ function renderBets(propOdds) {
   const state   = loadState();
   const hasPick = !!getPlayer();
 
-  const openBets   = BETS.filter(b => !b.settled);
-  const closedBets = BETS.filter(b =>  b.settled);
+  const openBets   = BETS.filter(b => !b.settled && !b.voided);
+  const closedBets = BETS.filter(b =>  b.settled || b.voided);
 
-  // Sort open bets by close date ascending
-  openBets.sort((a, b) => parseCloseDate(a.closes) - parseCloseDate(b.closes));
+  const wcBets       = openBets.filter(b => b.id.startsWith('wc-'));
+  const h2hBets      = openBets.filter(b => b.id.startsWith('pts-'));
+  const categoryBets = openBets.filter(b => !b.id.startsWith('wc-') && !b.id.startsWith('pts-'));
+  [categoryBets, h2hBets].forEach(arr => arr.sort((a, b) => parseCloseDate(a.closes) - parseCloseDate(b.closes)));
 
   document.getElementById('bets-grid-open').innerHTML =
-    openBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+    wcBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+
+  document.getElementById('bets-grid-category').innerHTML =
+    categoryBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
+
+  document.getElementById('bets-grid-h2h').innerHTML =
+    h2hBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
 
   document.getElementById('bets-grid-closed').innerHTML =
     closedBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
@@ -1725,7 +1821,9 @@ document.addEventListener('keydown', e => {
     // Settle any newly resolved bets before rendering
     const settled = settleBets();
     settled.forEach(r => {
-      if (r.won) {
+      if (r.voided) {
+        showToast('won', `${r.sport} · PUSH — ${r.wager.toLocaleString()} BB returned`, 7000);
+      } else if (r.won) {
         const profit = r.potentialReturn - r.wager;
         showToast('won', `${r.sport} · +${profit.toLocaleString()} BB`, 7000);
       } else {

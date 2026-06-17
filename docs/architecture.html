@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>System Anatomy — Fantasy Life 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0d0f14; --surface:#13161d; --surface2:#1a1e28; --border:#232733;
+    --text:#e8eaf0; --muted:#7b8494; --blue:#2d7dd2; --gold:#f59e0b;
+    --green:#22c55e; --red:#ef4444; --purple:#a855f7; --cyan:#22d3ee;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden}
+
+  /* ── Top bar ── */
+  .topbar{position:fixed;top:0;left:0;right:0;height:58px;z-index:40;
+    background:rgba(15,18,24,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:14px;padding:0 16px}
+  .brand{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.5px;line-height:1}
+  .brand span{color:var(--gold)}
+  .tag{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);border:1px solid var(--border);
+    padding:3px 7px;border-radius:5px}
+  .spacer{flex:1}
+  .ctrl{display:flex;align-items:center;gap:6px}
+  button.btn{background:var(--surface2);color:var(--text);border:1px solid var(--border);
+    border-radius:7px;padding:7px 11px;font-family:'DM Sans';font-size:13px;cursor:pointer;transition:.12s}
+  button.btn:hover{border-color:var(--blue);color:#fff}
+  button.btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+  .zoombtn{width:32px;height:32px;font-size:17px;display:flex;align-items:center;justify-content:center;padding:0}
+
+  /* ── Flow rail ── */
+  .flowrail{position:fixed;top:58px;left:0;right:0;z-index:35;background:rgba(19,22,29,.9);
+    border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .flowrail .lbl{font-family:'DM Mono';font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-right:4px}
+  .flowchip{font-size:12.5px;padding:5px 10px;border-radius:14px;border:1px solid var(--border);
+    background:transparent;color:var(--text);cursor:pointer;transition:.12s;font-family:'DM Sans'}
+  .flowchip:hover{border-color:var(--cyan)}
+  .flowchip.active{background:var(--cyan);color:#04222b;border-color:var(--cyan);font-weight:600}
+  .stepper{display:none;align-items:center;gap:8px;margin-left:auto}
+  .stepper.show{display:flex}
+  .stepper .stepinfo{font-family:'DM Mono';font-size:11.5px;color:var(--muted)}
+
+  /* ── Canvas ── */
+  #scroller{position:absolute;top:104px;left:0;right:0;bottom:0;overflow:auto}
+  #viewport{transform-origin:0 0;transition:transform .15s ease}
+  #canvas{position:relative}
+  svg.edges{position:absolute;top:0;left:0;pointer-events:none;overflow:visible}
+  svg.edges path{pointer-events:stroke;cursor:pointer}
+
+  .band{position:absolute;left:0;border-radius:10px;border:1px solid rgba(255,255,255,.03)}
+  .band .bandlabel{position:absolute;left:12px;top:8px;font-family:'Bebas Neue';font-size:17px;
+    letter-spacing:1.5px;opacity:.5}
+  .band .bandsub{position:absolute;left:12px;top:30px;font-family:'DM Mono';font-size:10px;
+    color:var(--muted);opacity:.7}
+
+  .node{position:absolute;width:158px;min-height:62px;background:var(--surface);border:1.5px solid var(--border);
+    border-radius:10px;padding:8px 10px;cursor:pointer;transition:transform .12s,border-color .12s,box-shadow .12s;
+    z-index:5;display:flex;flex-direction:column;gap:3px}
+  .node:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.4)}
+  .node .ntop{display:flex;align-items:center;gap:6px}
+  .node .nicon{font-size:15px;line-height:1}
+  .node .nlabel{font-size:12.5px;font-weight:600;line-height:1.1}
+  .node .nsub{font-family:'DM Mono';font-size:9.5px;color:var(--muted);line-height:1.2}
+  .node .nchips{display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
+  .node .nchip{font-size:8.5px;font-family:'DM Mono';color:var(--muted);background:var(--surface2);
+    border-radius:4px;padding:1px 4px;white-space:nowrap}
+  .node.legacy{opacity:.5;border-style:dashed}
+  .node.dim{opacity:.22}
+  .node.adj{border-color:var(--gold)}
+  .node.sel{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(34,211,238,.35),0 8px 22px rgba(0,0,0,.5)}
+  .node.flowhi{border-color:var(--cyan)}
+  .node.flowfocus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.5),0 8px 26px rgba(0,0,0,.6);transform:scale(1.05)}
+
+  /* node accent by layer */
+  .node[data-c="ext"]{border-left:4px solid var(--purple)}
+  .node[data-c="ingest"]{border-left:4px solid var(--cyan)}
+  .node[data-c="store"]{border-left:4px solid var(--blue)}
+  .node[data-c="proc"]{border-left:4px solid var(--gold)}
+  .node[data-c="out"]{border-left:4px solid var(--green)}
+  .node[data-c="present"]{border-left:4px solid #e879f9}
+  .node[data-c="client"]{border-left:4px solid #fb923c}
+  .node[data-c="orch"]{border-left:4px solid var(--red)}
+
+  /* ── Detail drawer ── */
+  #drawer{position:fixed;top:0;right:0;height:100%;width:420px;max-width:92vw;z-index:60;
+    background:var(--surface);border-left:1px solid var(--border);transform:translateX(100%);
+    transition:transform .22s ease;overflow-y:auto;box-shadow:-12px 0 40px rgba(0,0,0,.5)}
+  #drawer.open{transform:translateX(0)}
+  .dhead{padding:18px 18px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;
+    background:var(--surface);z-index:2}
+  .dhead .dkind{font-family:'DM Mono';font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan)}
+  .dhead .dtitle{font-family:'Bebas Neue';font-size:30px;letter-spacing:.5px;margin-top:3px;line-height:1}
+  .dhead .dfiles{font-family:'DM Mono';font-size:11px;color:var(--gold);margin-top:7px;word-break:break-all}
+  .dclose{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:7px;border:1px solid var(--border);
+    background:var(--surface2);color:var(--text);cursor:pointer;font-size:16px}
+  .dbody{padding:16px 18px 60px}
+  .drole{font-size:13.5px;line-height:1.55;color:#cdd3df;margin-bottom:16px}
+  .dsec{margin-bottom:16px}
+  .dsec h4{font-family:'DM Mono';font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+  .dsec h4::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .dsec.io h4{color:var(--blue)} .dsec.fail h4{color:var(--red)} .dsec.concept h4{color:var(--gold)}
+  .dlist{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .dlist li{font-size:12.5px;line-height:1.45;color:#cdd3df;padding-left:14px;position:relative}
+  .dlist li::before{content:"▸";position:absolute;left:0;color:var(--muted);font-size:10px;top:2px}
+  .dsec.concept .dlist li::before{content:"◆";color:var(--gold)}
+  .dsec.fail .dlist li::before{content:"!";color:var(--red);font-weight:700;left:2px}
+  .kv{display:flex;gap:8px;font-size:12.5px;margin-bottom:5px}
+  .kv .k{font-family:'DM Mono';font-size:10.5px;color:var(--muted);min-width:64px;padding-top:2px;text-transform:uppercase;letter-spacing:.5px}
+  .kv .v{color:#cdd3df;line-height:1.45;flex:1}
+  code{font-family:'DM Mono';font-size:11.5px;background:var(--surface2);padding:1px 5px;border-radius:4px;color:var(--cyan)}
+
+  /* ── Legend / help ── */
+  #legend{position:fixed;left:14px;bottom:14px;z-index:30;background:rgba(19,22,29,.92);
+    border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:11px;max-width:230px}
+  #legend h5{font-family:'DM Mono';font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+  .legrow{display:flex;align-items:center;gap:7px;margin-bottom:4px;color:#cdd3df}
+  .legswatch{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  #legend .hint{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);color:var(--muted);line-height:1.45}
+  .legtoggle{position:fixed;left:14px;bottom:14px;z-index:31;display:none}
+
+  @media (max-width:720px){
+    #legend{display:none}
+    .brand{font-size:21px}.tag{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">FANTASY <span>LIFE</span> · ANATOMY</div>
+  <div class="tag">interactive system map</div>
+  <div class="spacer"></div>
+  <div class="ctrl">
+    <button class="btn zoombtn" id="zoomout">−</button>
+    <button class="btn zoombtn" id="zoomin">+</button>
+    <button class="btn" id="reset">Reset</button>
+  </div>
+</div>
+
+<div class="flowrail">
+  <span class="lbl">Follow the data</span>
+  <button class="flowchip" data-flow="daily">① Daily pipeline</button>
+  <button class="flowchip" data-flow="bet">② Place a bet</button>
+  <button class="flowchip" data-flow="headline">③ Headline gen</button>
+  <button class="flowchip" data-flow="settle">④ Settle an event</button>
+  <button class="flowchip" data-flow="scaleup">⑤ Scale-up path</button>
+  <div class="stepper" id="stepper">
+    <button class="btn" id="prevstep">◀</button>
+    <span class="stepinfo" id="stepinfo">1 / 1</span>
+    <button class="btn" id="nextstep">▶</button>
+    <button class="btn" id="exitflow">✕ exit</button>
+  </div>
+</div>
+
+<div id="scroller">
+  <div id="viewport">
+    <div id="canvas">
+      <svg class="edges" id="edgesvg">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#3a4150"/>
+          </marker>
+          <marker id="arrowhi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#22d3ee"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div id="legend">
+  <h5>Layers</h5>
+  <div class="legrow"><span class="legswatch" style="background:#ef4444"></span>Orchestration (the clock)</div>
+  <div class="legrow"><span class="legswatch" style="background:#a855f7"></span>External sources</div>
+  <div class="legrow"><span class="legswatch" style="background:#22d3ee"></span>Ingestion</div>
+  <div class="legrow"><span class="legswatch" style="background:#2d7dd2"></span>Storage</div>
+  <div class="legrow"><span class="legswatch" style="background:#f59e0b"></span>Processing</div>
+  <div class="legrow"><span class="legswatch" style="background:#22c55e"></span>Outputs</div>
+  <div class="legrow"><span class="legswatch" style="background:#e879f9"></span>Presentation</div>
+  <div class="legrow"><span class="legswatch" style="background:#fb923c"></span>Client state</div>
+  <div class="hint">Click any <b>node</b> or <b>arrow</b> for detail + interview talking points. Dashed = legacy / not in prod.</div>
+</div>
+
+<div id="drawer">
+  <div class="dhead">
+    <button class="dclose" id="dclose">✕</button>
+    <div class="dkind" id="dkind"></div>
+    <div class="dtitle" id="dtitle"></div>
+    <div class="dfiles" id="dfiles"></div>
+  </div>
+  <div class="dbody" id="dbody"></div>
+</div>
+
+<script>
+/* ============================================================
+   DATA MODEL  —  nodes, edges, flows
+   ============================================================ */
+const LAYERS = [
+  {id:"orch",    label:"ORCHESTRATION",  sub:"GitHub Actions cron · the heartbeat",            y:0,    h:108, color:"rgba(239,68,68,.05)"},
+  {id:"ext",     label:"EXTERNAL SOURCES",sub:"public APIs & sites · the environment",         y:120,  h:118, color:"rgba(168,85,247,.05)"},
+  {id:"ingest",  label:"INGESTION",      sub:"scrapers + hand-curated overrides",              y:258,  h:104, color:"rgba(34,211,238,.05)"},
+  {id:"store",   label:"STORAGE",        sub:"Supabase (Postgres/REST) + in-code static dicts",y:382,  h:128, color:"rgba(45,125,210,.05)"},
+  {id:"proc",    label:"PROCESSING",     sub:"Python compute · runs in the daily job",         y:530,  h:128, color:"rgba(245,158,11,.05)"},
+  {id:"out",     label:"OUTPUTS",        sub:"committed JSON · static 'API' served by Pages",  y:678,  h:104, color:"rgba(34,197,94,.05)"},
+  {id:"present", label:"PRESENTATION",   sub:"static HTML (docs/) on GitHub Pages",            y:802,  h:118, color:"rgba(232,121,249,.05)"},
+  {id:"client",  label:"CLIENT STATE",   sub:"browser ↔ Supabase, no backend",                y:940,  h:104, color:"rgba(251,146,60,.05)"},
+  {id:"scale",   label:"AT SCALE",       sub:"conceptual patterns · Robinhood-size talking points",y:1062, h:160, color:"rgba(255,255,255,.02)"},
+];
+const CANVAS_W = 1560, CANVAS_H = 1240, PADX = 28, NODEW = 158;
+
+function L(id){return LAYERS.find(l=>l.id===id);}
+function nodeY(layerId){return L(layerId).y + 44;}
+
+const NODES = [
+  /* ---------- ORCHESTRATION ---------- */
+  {id:"daily", c:"orch", icon:"⏰", label:"daily.yml", sub:"cron 0 8 * * *", xn:0.30,
+   chips:["cron","pipeline"],
+   detail:{kind:"GitHub Actions workflow",files:".github/workflows/daily.yml",
+    role:"The heartbeat. Every day at 08:00 UTC it runs the whole pipeline in one job, then commits the two output JSONs to <code>main</code> — and the commit itself is the deploy.",
+    io:[["trigger","cron <code>0 8 * * *</code> + manual workflow_dispatch"],
+        ["steps","checkout → pip install → scrapers.py → scoring.py → projections.py → headline.py → sanity-check → commit+push"],
+        ["commit","<code>chore: update scores + projections …</code> with <code>git pull --rebase origin main</code> before push"]],
+    fail:["projections & headline run <code>continue-on-error: true</code> — an API outage is swallowed, the job still 'succeeds' with stale data",
+          "Race on main: 4–5 bot commits/day; a feature branch open >a few hours collides with the rebase-push window"],
+    concept:["Cron orchestration of a sequential batch pipeline","'Commit-as-deploy' — git history is the deploy log & audit trail","Partial-failure tolerance via continue-on-error (availability over consistency)","Shared-mutable-state concurrency: the push race on main"]}},
+
+  {id:"headlineyml", c:"orch", icon:"📰", label:"headline.yml", sub:"manual · --force", xn:0.50,
+   chips:["manual"],legacyish:true,
+   detail:{kind:"GitHub Actions workflow",files:".github/workflows/headline.yml",
+    role:"Manual-dispatch-only re-run of the headline step, always passing <code>--force</code> to bypass the dedup guard. Scheduled headline generation now lives inside daily.yml; this exists for one-off refreshes.",
+    io:[["trigger","workflow_dispatch only (no cron)"],
+        ["push","<code>git pull --rebase -X ours origin main</code> — keeps its own version on conflict"]],
+    fail:["<code>-X ours</code> can clobber a concurrent scores.json update if timing is unlucky"],
+    concept:["Idempotency override (--force) vs the guard","Conflict strategy as policy (-X ours = 'I win')"]}},
+
+  {id:"ghpages", c:"orch", icon:"🌐", label:"GitHub Pages", sub:"serves docs/", xn:0.70,
+   chips:["CDN","static"],
+   detail:{kind:"Static hosting",files:"docs/ (.nojekyll, CNAME)",
+    role:"Serves everything in <code>docs/</code> as a static site on every push to main. No server, no build step — the JSON files are read directly by the browser.",
+    io:[["serves","all docs/*.html, scores.json, projections.json, images"],
+        ["deploy","auto-rebuild on push to main"]],
+    fail:["No atomic deploy: a half-committed JSON would serve broken data until the next commit","Cache/CDN lag after a push"],
+    concept:["JAMstack / static-first architecture","The 'database' is a committed JSON file behind a CDN","Read-scaling for free; write path is the only complex part"]}},
+
+  {id:"skills", c:"orch", icon:"🛠️", label:"Claude Skills", sub:"fl-merge · fl-bonus · …", xn:0.88,
+   chips:["ops","runbook"],
+   detail:{kind:"Operational runbooks (.claude/commands)",files:".claude/commands/*.md",
+    role:"Eight codified runbooks that hide operational complexity: fl-merge (squash-ship), fl-bonus (award points), fl-settle (event-resolution checklist), fl-bet, fl-headline, fl-repair, fl-category-fix, learning.",
+    io:[["fl-settle","the multi-file dance: bonuses.json + sportsbook.html BETS + projections.py _PROP_DEFS + data/sb_settled.json, then merge"],
+        ["fl-merge","conflict rules: scores/projections.json → take origin/main; code/html → take HEAD; bonuses.json → manual merge"]],
+    fail:["Skills encode the DRY violations rather than fixing them (e.g. prop ids must match across 2 files by hand)"],
+    concept:["Runbooks-as-code: encoding tribal ops knowledge","Reduces change-failure rate for multi-step, multi-file edits","A smell detector — a skill exists because the design forces coordinated edits"]}},
+
+  /* ---------- EXTERNAL SOURCES ---------- */
+  {id:"espn", c:"ext", icon:"🏟️", label:"ESPN API", sub:"NBA·NCAAB·Tennis·fallbacks", xn:0.02,
+   chips:["public","403-prone"],
+   detail:{kind:"External REST API",files:"scrapers.py:49 _espn_standings()",
+    role:"Public ESPN endpoints, hit as primary for NCAAB and as a fallback for NHL/MLB/Golf/Tennis. Tries 3 URL variants per call.",
+    io:[["data","standings / top-25 polls / rankings JSON"],["auth","none (browser-like headers)"]],
+    fail:["403/IP-blocks (this is what kills MLS & NASCAR)","Returns [] on failure → empty data can be silently saved"],
+    concept:["Adapter per source with a fallback ladder","Scraping public APIs = brittle, unversioned contract"]}},
+  {id:"nhlapi", c:"ext", icon:"🏒", label:"NHL API", sub:"api-web.nhle.com", xn:0.12,chips:["official"],
+   detail:{kind:"External REST API",files:"scrapers.py:93 _nhl_official_standings()",
+    role:"Official NHL stats API — primary source for NHL, with ESPN as fallback. Computes <code>points_pct = pts/(gp*2)</code>.",
+    io:[["data","<code>{team, points_pct}</code> list"]],fail:["raise_for_status → caught, falls back to ESPN"],
+    concept:["Prefer the official contract; keep a scraped fallback"]}},
+  {id:"mlbapi", c:"ext", icon:"⚾", label:"MLB Stats API", sub:"statsapi.mlb.com", xn:0.22,chips:["official"],
+   detail:{kind:"External REST API",files:"scrapers.py:140 _mlb_statsapi_standings()",
+    role:"Official MLB stats API. Checks total games-played to detect pre-season and avoid saving junk early data.",
+    io:[["data","<code>{team, win_pct, gp}</code>"]],fail:["pre-season guard prevents writing 0-0 noise"],
+    concept:["Input validation at ingest (reject implausible data)"]}},
+  {id:"owgr", c:"ext", icon:"⛳", label:"OWGR", sub:"owgr.com + cloudscraper", xn:0.32,chips:["bot-blocked"],
+   detail:{kind:"External API + HTML",files:"scrapers.py:349 scrape_golf()",
+    role:"Golf world rankings. Three-tier ladder: plain JSON request → cloudscraper (bot-detection bypass) → ESPN.",
+    io:[["data","<code>{player, rank}</code>"]],fail:["Often blocked → scoring falls back to GOLF_2026_OWGR_STATIC frozen dict"],
+    concept:["Anti-bot arms race; static snapshot as last resort"]}},
+  {id:"yahoo", c:"ext", icon:"📈", label:"Yahoo Finance", sub:"query1.finance…", xn:0.42,chips:["per-ticker"],
+   detail:{kind:"External API",files:"scrapers.py:412 scrape_stock()",
+    role:"YTD stock chart per ticker (one request each). Computes % change from Jan-1 baseline; shorts are negated downstream.",
+    io:[["data","<code>{ticker, current_price, jan1_price, ytd_pct_raw}</code>"]],fail:["bad ticker → skipped, others continue (partial success)"],
+    concept:["Fan-out of N independent calls; partial-failure isolation"]}},
+  {id:"imf", c:"ext", icon:"🌍", label:"IMF DataMapper", sub:"GDP growth", xn:0.52,chips:["hand-preferred"],
+   detail:{kind:"External API",files:"scrapers.py:444 scrape_country_gdp()",
+    role:"GDP-growth forecasts by ISO code. In practice scoring prefers the hand-edited <code>data/country.json</code>; the scraper is the fallback.",
+    io:[["data","<code>{country, gdp_growth_pct}</code>"]],
+    concept:["Human-curated source-of-truth over a flaky API"]}},
+  {id:"wikipedia", c:"ext", icon:"🎵", label:"Wikipedia", sub:"Billboard charts", xn:0.62,chips:["HTML-scrape"],
+   detail:{kind:"HTML scrape",files:"scrapers.py:492 scrape_billboard()",
+    role:"Parses two Wikipedia chart pages with BeautifulSoup to count #1 weeks and Hot-100 weeks per artist. Musician score = 2×num1 + hot100.",
+    io:[["data","<code>{artist, num1_weeks, hot100_weeks}</code>"]],fail:["Fragile to page-format changes; silent empty on selector miss"],
+    concept:["HTML scraping = parsing an unversioned UI as an API"]}},
+  {id:"kalshi", c:"ext", icon:"📊", label:"Kalshi", sub:"prediction markets", xn:0.745,chips:["RSA-PSS","odds"],
+   detail:{kind:"Signed REST API",files:"projections.py:188 _kalshi_sign() · :505 KNOWN_SERIES",
+    role:"Live prediction-market prices used as the top tier of the odds chain. Requests are RSA-PSS signed (timestamp+method+path).",
+    io:[["auth","RSA-PSS sig → Bearer token → unauthenticated (3-tier)"],["data","yes_bid/ask dollars per market title"]],
+    fail:["Event-level tickers 404 on the new host","Settled markets return null prices → must be filtered","Bad PEM → signer throws, silently degrades to static FALLBACK"],
+    concept:["Cryptographic request signing (replay-resistant auth)","Graceful auth degradation","External price feed as an optional enrichment"]}},
+  {id:"tavily", c:"ext", icon:"🔎", label:"Tavily", sub:"news search", xn:0.86,chips:["news"],
+   detail:{kind:"External API",files:"headline.py:38 search_news()",
+    role:"News-search API. Fires ~8–10 targeted queries (one per active event class) so no category gets starved, last-3-days window.",
+    io:[["data","title + 300-char snippet per result, deduped by title"]],fail:["No key / no results → headline generation aborts (no hallucination)"],
+    concept:["Query fan-out to guarantee coverage","Grounding an LLM with retrieved facts (RAG-lite)"]}},
+  {id:"anthropic", c:"ext", icon:"🤖", label:"Anthropic", sub:"Claude (headline)", xn:0.96,chips:["LLM"],
+   detail:{kind:"LLM API",files:"headline.py:98 generate_headline() · model claude-sonnet-4-6",
+    role:"Writes the ~50-word FL-News ticker from the Tavily snippets only. Prompt forbids using training knowledge (no stale casting claims, no invented scores).",
+    io:[["in","draft summary + news snippets (~1–2k tokens)"],["out","headline string (max 200 tokens)"]],
+    fail:["Refusal / API error → existing headline preserved","Cost ~$0.04/run → guarded (see dedup)"],
+    concept:["LLM as a constrained component in a deterministic pipeline","Prompt guardrails against hallucination","Cost control via a rate guard"]}},
+
+  /* ---------- INGESTION ---------- */
+  {id:"scrapers", c:"ingest", icon:"🕷️", label:"scrapers.py", sub:"13 scrapers · refresh_all()", xn:0.30,
+   chips:["adapters","no-retry"],
+   detail:{kind:"Ingestion orchestrator",files:"scrapers.py:575 refresh_all()",
+    role:"Calls 13 <code>scrape_*()</code> adapters in sequence, each wrapped in try/except so one failure never stops the rest. Successful scrapes write a JSON blob to Supabase via <code>save_standing()</code>.",
+    io:[["in","8 external sources"],["out","Supabase <code>standings</code> (one JSONB row per category)"],["skip","checks <code>is_frozen()</code> first — NFL/NCAAF are frozen"]],
+    fail:["No retry / no backoff — a transient blip loses that category for the day","Empty result can be saved as empty data with no alert","MLS/NASCAR: hard 403, no working fallback"],
+    concept:["Adapter pattern (uniform interface over heterogeneous sources)","Bulkhead isolation (per-scraper try/except)","Missing resilience: no retry, no circuit breaker, no dead-letter","Circuit breaker: after N consecutive failures, open the circuit (stop calling upstream) for T seconds, then half-open (allow one probe). Prevents a flaky ESPN from holding up the whole pipeline","Retry with exponential backoff + jitter: retry after 2^n seconds ± 20% random jitter. Jitter prevents thundering herd when an upstream recovers and all clients retry simultaneously","Dead-letter queue (DLQ): failed scrape events go to a DLQ for manual inspection instead of being silently dropped. At scale: a Kafka DLQ topic","At Robinhood scale: market data feeds push to a Kafka topic per instrument (producers). Scoring, risk, and settlement each subscribe as independent consumer groups. Ingest rate and processing rate fully decouple — critical when a market open generates 100k events/sec"]}},
+  {id:"manualjson", c:"ingest", icon:"✍️", label:"data/*.json", sub:"hand-curated overrides", xn:0.70,
+   chips:["override","append-only"],
+   detail:{kind:"Hand-edited config/data",files:"data/bonuses.json · country.json · actor.json · …",
+    role:"Manual source-of-truth that <b>overrides</b> Supabase for specific categories — bonuses, country GDP (IMF), actor/actress composites — plus stale-data overrides for MLS/NASCAR.",
+    io:[["bonuses.json","final totals per (category,player); append-only; overrides the bonuses table"],["country.json","hand-keyed IMF data; never Supabase"],["actor/actress","composite = (RT/100) × box-office $M"]],
+    fail:["No schema validation — a typo'd player/category silently scores 0","bonuses.json is the one file with a 'manual merge' conflict rule"],
+    concept:["Human-in-the-loop overrides layered above automation","File-over-DB for auditability (diffs in git)","Config precedence as an explicit, documented contract"]}},
+
+  /* ---------- STORAGE ---------- */
+  {id:"dbpy", c:"store", icon:"🔌", label:"db.py", sub:"Supabase REST gateway", xn:0.40,
+   chips:["gateway","RMW-lock"],
+   detail:{kind:"Data-access layer",files:"db.py (≈549 lines)",
+    role:"The single Python gateway to Supabase REST. Every backend read/write (standings, bonuses, the legacy bb_* betting tables, sportsbook settlement) goes through here. 10s timeout, no retry.",
+    io:[["reads","get_all_standings():68, get_all_bonuses():166"],["writes","save_standing():119, add_bonus():191, settle_sb_bet():435, recalculate_sb_balance():497"]],
+    fail:["<code>add_bonus</code>/<code>update_balance</code> are read-modify-write guarded only by a <b>process-local</b> <code>threading.Lock</code> — useless across Gunicorn workers (the class of bug that wiped a balance)","No retry/backoff; exceptions logged, swallowed"],
+    concept:["Repository/gateway pattern (one chokepoint for persistence)","Read-modify-write race & why a process lock ≠ a distributed lock","Fix shape: conditional <code>UPDATE … WHERE balance = :old</code> + retry, or a DB constraint","CAP theorem: this system is AP (available + partition-tolerant) — scores still run if Supabase is unreachable. Robinhood must be CP for financial data — a lost trade is worse than temporary downtime","Distributed lock options: Redis Redlock (quorum across N Redis nodes), Postgres advisory lock (<code>pg_try_advisory_xact_lock</code>), or optimistic CAS (<code>UPDATE … WHERE balance = :expected</code>, retry if 0 rows affected)","Two-phase commit (2PC): coordinator asks all participants to prepare, then commit. Guarantees atomicity across services but blocks on participant failure. Most modern systems prefer sagas + compensating transactions over 2PC","Idempotent write shape: <code>place_bet(idempotency_key, player, wager)</code> — server stores the key; retries return the same result without double-charging. Critical for financial APIs"]}},
+  {id:"standings", c:"store", icon:"🗃️", label:"standings", sub:"Supabase · JSONB", xn:0.06,
+   chips:["JSONB","last-write-wins"],
+   detail:{kind:"Supabase table",files:"supabase_schema.sql · docs/sb-schema.sql",
+    role:"One row per category. The whole standings/rankings payload lives in a single <code>data</code> JSONB column, with <code>frozen</code> and <code>updated_at</code> flags.",
+    io:[["cols","category (PK), data (jsonb), frozen (bool), updated_at (tz)"],["written by","scrapers via save_standing (upsert)"],["read by","scoring.py get_all_standings"]],
+    fail:["Last-write-wins, single writer assumed","updated_at drives scoring's staleness check (>3d ⇒ stale badge)"],
+    concept:["Schemaless JSONB blob: write-flexibility vs query-ability tradeoff","Freshness metadata as a first-class column","Upsert = idempotent writes","GIN index: <code>CREATE INDEX ON standings USING GIN(data)</code> enables fast JSON containment queries (@>). Not needed at 13 rows; critical at millions","Normalization tradeoff: JSONB handles schema drift (any sport, any team name) but can't use B-tree on nested fields. Robinhood's holdings table is fully normalized (account_id, ticker, quantity) for join performance","Schema evolution: JSONB absorbs new fields without migrations. Normalized schemas need ALTER TABLE. Choose JSONB for heterogeneous/evolving read-heavy data; relational for stable high-volume join-heavy data","Write amplification: upsert writes the entire JSONB blob per update. At scale, use <code>jsonb_set()</code> for patch semantics to reduce write amplification"]}},
+  {id:"bonusestbl", c:"store", icon:"🎁", label:"bonuses", sub:"Supabase", xn:0.20,chips:["overridden"],
+   detail:{kind:"Supabase table",files:"supabase_schema.sql",
+    role:"(category, player, points) rows for milestone/championship bonuses. At scoring time, <code>data/bonuses.json</code> overrides any matching row.",
+    io:[["unique","(category, player)"],["written by","app.py / add_bonus (RMW)"],["read by","scoring load_bonuses, merged under the file"]],
+    concept:["Two-tier source-of-truth with file precedence","RMW concurrency on the write path"]}},
+  {id:"sbtables", c:"store", icon:"🎰", label:"sb_players / sb_bets", sub:"Supabase · sportsbook", xn:0.60,
+   chips:["client-written","2-writer"],
+   detail:{kind:"Supabase tables (current sportsbook)",files:"docs/sb-schema.sql",
+    role:"Backs the live sportsbook. Crucially written from <b>two sides</b>: the browser (supabase-js) on bet placement, and db.py on settlement — with no auth and no server-side balance check.",
+    io:[["sb_players","name (PK), balance (default 1000), updated_at"],["sb_bets","player, bet_id, side, wager, potential_return, settled_outcome"],["writers","browser (place/settle locally) + db.settle_sb_bet (server settle)"]],
+    fail:["Balance is client-authoritative → a bad client or a race can overwrite it (the Jens incident)","No RPC/transaction guarding balance changes"],
+    concept:["Client-authoritative state (trust model) vs server-authoritative","Two writers, no locking → lost updates","Fix shape: a <code>place_bet()</code> RPC that checks balance server-side + an append-only ledger","Event sourcing: make sb_bets append-only, compute balance as <code>SELECT SUM(delta) FROM ledger WHERE player = ?</code>. No lost-update bug possible — the Jens wipe couldn't happen if balance were derived, not stored","CQRS (Command Query Responsibility Segregation): write model = append-only ledger (events); read model = materialized balance (updated by a background projection). Writes and reads scale independently","Partition by player: at 1M users, hash-partition sb_players by player_id across N Postgres shards. Bets co-locate with their player on the same shard — avoids cross-shard joins on the hot path","Index design: composite index on <code>(player, settled_outcome)</code> for per-player open-bets query; partial index on <code>settled_outcome IS NULL</code> — only indexes the hot rows (unsettled bets), not the whole table","Optimistic concurrency: <code>UPDATE sb_players SET balance = :new WHERE name = :p AND balance = :expected</code>; if 0 rows affected, retry. Cheaper than a lock for low-contention writes"]}},
+  {id:"drafttables", c:"store", icon:"📋", label:"draft_sessions / picks", sub:"Supabase · draft room", xn:0.78,
+   chips:["realtime","serialized"],
+   detail:{kind:"Supabase tables (draft)",files:"docs/draft-schema.sql",
+    role:"Live snake-draft state, driven entirely from the browser. Turn order is serialized by <code>current_pick_idx</code>; clients subscribe to realtime changes + presence.",
+    io:[["draft_sessions","status, draft_order (jsonb), current_pick_idx, timer fields"],["draft_picks","session_id, player, category, team, phase, pick_number"]],
+    fail:["Client-side timer can drift between devices","Concurrency bounded by single active picker (one writer at a time)"],
+    concept:["Serialized single-writer turn-taking (avoids most races)","Realtime pub/sub + presence","Optimistic local timer reconciled against server state"]}},
+  {id:"staticdicts", c:"store", icon:"🧊", label:"static dicts", sub:"frozen, in scoring.py", xn:0.92,
+   chips:["frozen"],
+   detail:{kind:"In-code constants",files:"scoring.py NFL_2025_STANDINGS:146 · NCAAF_2025_POLL:182 · GOLF/MLS/NASCAR static",
+    role:"Frozen data baked into scoring.py for categories with no live feed: NFL & NCAAF (2025 final), plus golf/MLS/NASCAR fallbacks when scrapers fail.",
+    io:[["used when","no Supabase row, or scraped data rejected as stale (e.g. MLS >50 pts)"]],
+    concept:["Frozen reference data as code (versioned, reviewable)","Last tier of every fallback ladder"]}},
+  {id:"bbtables", c:"store", icon:"🏦", label:"bb_accounts / markets / bets", sub:"LEGACY betting", xn:0.99,
+   legacy:true,chips:["server-auth"],
+   detail:{kind:"Supabase tables (legacy)",files:"supabase_schema.sql",
+    role:"The original 'Buckley Bucks' system behind the Flask app: real accounts (bcrypt), markets seeded from projections, server-side stake deduction & payouts. Not used by the current static sportsbook.",
+    io:[["bb_accounts","email, password_hash, balance (server-authoritative)"],["place_bet","deduct stake → insert bet; refunds on failure"],["settle_market","pay winners / zero losers"]],
+    concept:["Contrast with sb_*: server-authoritative, auth'd, balance-checked","Compensating action (refund) for non-atomic insert","Why it was replaced: login friction for a 13-person league"]}},
+
+  /* ---------- PROCESSING ---------- */
+  {id:"draftpicks", c:"proc", icon:"📑", label:"draft_picks_2026.py", sub:"canonical config", xn:0.02,
+   chips:["SSOT","DRY-debt"],
+   detail:{kind:"Canonical config module",files:"draft_picks_2026.py",
+    role:"The one true map of 13 players × 15 categories (plus tennis gender). Imported by scoring, projections, and headline.",
+    io:[["exports","PLAYERS, DRAFT_PICKS_2026, TENNIS_GENDER"]],
+    fail:["Mirrored by hand in projections.py, headline.py, and two skill files — change it in 4 places or drift"],
+    concept:["Single-source-of-truth vs the DRY violation around it","Config-as-code; the highest-leverage cleanup in the repo"]}},
+  {id:"scoring", c:"proc", icon:"🧮", label:"scoring.py", sub:"rotisserie + bonuses", xn:0.20,
+   chips:["pure","idempotent"],
+   detail:{kind:"Scoring engine",files:"scoring.py:612 compute_all_scores()",
+    role:"Reads every category (Supabase → file → static fallback), ranks 13 players per category (rank 1 → 13 pts), adds bonuses, and writes the full leaderboard. Deterministic: same inputs ⇒ same output.",
+    io:[["in","standings + bonuses (+ data/*.json overrides + draft_picks)"],["out","docs/scores.json (players, history, freshness, headline preserved)"],["special","tennis women +0.5 rank; World-Cup country bonus capped at 13 with Olympics"]],
+    fail:["If Supabase is empty it preserves prior raw_values from the old scores.json (no silent zeroing)","Stale categories (>3d) get flagged but still scored"],
+    concept:["Pure recomputation = idempotent & reproducible","Layered fallback precedence per category","Staleness detection as observability","Rank-average for ties (RANK.AVG)","Stateless worker = horizontally scalable: scoring.py has no shared mutable state between runs. At scale, deploy N workers each processing a shard of categories in parallel — just partition the input","Batch vs streaming: daily batch (this system) vs Flink/Spark Streaming (Robinhood). Portfolio valuations update tick-by-tick, not once a day. Each market event triggers an incremental recompute on the affected positions","Materialized view: scores.json IS a materialized view. In a RDBMS: <code>REFRESH MATERIALIZED VIEW CONCURRENTLY</code> allows reads while refreshing. Tradeoff: refresh cost vs query latency savings","Backpressure: without a queue between ingest and scoring, a burst of market events directly couples producers to this pipeline. A queue absorbs bursts; scoring drains at its own rate without blocking upstream"]}},
+  {id:"projections", c:"proc", icon:"🎲", label:"projections.py", sub:"Kalshi + Monte Carlo", xn:0.44,
+   chips:["sim","god-module"],
+   detail:{kind:"Projection / odds engine",files:"projections.py:990 simulate() · :653 compute_prop_odds()",
+    role:"Reads scores.json, fetches Kalshi odds, runs 10,000 Monte-Carlo season sims for win%/top-4%/percentiles, and prices every sportsbook prop through a 4-tier odds chain.",
+    io:[["odds chain","Kalshi live → Monte-Carlo pairwise → standings normal-approx (_mlb_h2h/_mls_h2h) → static FALLBACK"],["out","docs/projections.json (players + prop_odds{yes_pct,source})"],["sync","optionally upserts win%/top4% to Supabase"]],
+    fail:["FALLBACK goes stale if not pruned on settlement (drove the 2-0 vs 3-1 odds bug)","Does 4 jobs in ~1300 lines (Kalshi client + data + sim + prop defs)"],
+    concept:["Monte-Carlo simulation for a distribution, not a point estimate","Strategy/priority fallback chain with a labelled source per output","Separation-of-concerns critique: extract a kalshi.py client","Each prop tags its source (kalshi/model/static) = provenance","Embarrassingly parallel: 10k Monte Carlo iterations with no shared state between them. Fan out to N workers (AWS Lambda, Ray, Dask) — takes 50ms instead of 5s at scale","Fan-out/reduce pattern: distribute independent compute tasks, collect results, aggregate. Classic Map-Reduce shape (map = per-simulation, reduce = aggregate win%). The reduce step is a commutative monoid — any order of merging gives the same result","Cache-aside pattern: odds rarely change between ingest events. Check Redis cache keyed by <code>(event_id, odds_timestamp)</code>; on miss, compute and store with TTL = time to next market update","Streaming alternative: instead of a daily batch, a Flink job consumes an odds-update Kafka topic and recomputes affected props in near-real-time — latency drops from 24h to seconds"]}},
+  {id:"headline", c:"proc", icon:"🗞️", label:"headline.py", sub:"Tavily + Claude", xn:0.66,
+   chips:["LLM","dedup-guard"],
+   detail:{kind:"Headline generator",files:"headline.py:177 dedup guard (~20h) · :211 write",
+    role:"Retrieves news (Tavily), asks Claude to write a grounded ticker, and writes <code>headline</code> + <code>headline_generated_at</code> into scores.json. A ~20h guard (or --force) stops it re-spending the API budget.",
+    io:[["in","scores.json (for the guard) + Tavily snippets"],["out","scores.json headline fields (2nd writer of that file)"]],
+    fail:["Second writer of scores.json → scoring.py must re-preserve the field when it rewrites","No news ⇒ no headline (prevents hallucinated events)"],
+    concept:["Idempotency/rate-limit via a timestamp guard (cost control)","Two writers on one artifact → field-preservation protocol","RAG grounding + prompt guardrails"]}},
+  {id:"apppy", c:"proc", icon:"🐍", label:"app.py", sub:"LEGACY Flask", xn:0.93,
+   legacy:true,chips:["not-prod"],
+   detail:{kind:"Legacy Flask app",files:"app.py + templates/",
+    role:"The original server: admin UI, /api/scores with a 5-min cache, bonus management, Stripe checkout, ADMIN_TOKEN auth. Replaced by the static docs/ site; kept for local admin only.",
+    io:[["routes","/, /api/scores, /admin, /api/bonuses, /api/refresh, /api/stripe-*"],["deploy","Procfile → gunicorn (Heroku-style)"]],
+    concept:["Server-rendered + cached API → replaced by static-precompute","Why static won: zero ops, free hosting, no auth needed at this scale"]}},
+
+  /* ---------- OUTPUTS ---------- */
+  {id:"scores", c:"out", icon:"📄", label:"scores.json", sub:"the leaderboard", xn:0.26,
+   chips:["materialized","2-writer"],
+   detail:{kind:"Committed JSON artifact",files:"docs/scores.json",
+    role:"The precomputed leaderboard the whole front page reads. Written by scoring.py, with the <code>headline</code> field co-owned by headline.py. Carries 7-day score_history and per-category freshness.",
+    io:[["shape","players[] (15 categories each) + last_updated + score_history + data_freshness + headline"],["conflict rule","always take origin/main on merge"]],
+    concept:["Materialized view / precomputed cache served as a static API","Co-owned artifact → explicit write-merge protocol","Embedded time-series (score_history) for the trend chart"]}},
+  {id:"projjson", c:"out", icon:"📄", label:"projections.json", sub:"odds & forecasts", xn:0.56,
+   chips:["materialized"],
+   detail:{kind:"Committed JSON artifact",files:"docs/projections.json",
+    role:"Precomputed win%/top-4%/percentiles per player + <code>prop_odds</code> for every sportsbook bet, each tagged with its source (kalshi/model/static).",
+    io:[["shape","generated_at, fallback_as_of, n_simulations, players[], prop_odds{}"],["conflict rule","always take origin/main"]],
+    concept:["Provenance metadata (source + as-of dates) for trust","Daily git commit = a free time-series (mineable for sparklines)"]}},
+
+  /* ---------- PRESENTATION ---------- */
+  {id:"index", c:"present", icon:"🏆", label:"index.html", sub:"leaderboard", xn:0.08,chips:["read-only"],
+   detail:{kind:"Static page",files:"docs/index.html",
+    role:"Fetches scores.json and renders the standings, weekly deltas, and the headline ticker. No backend, no realtime — refresh to update.",
+    io:[["reads","./scores.json (fetch on load)"]],
+    concept:["Thin client over a static JSON API","Pull (refresh) vs push (realtime) — fine for once-a-day data"]}},
+  {id:"projpage", c:"present", icon:"📉", label:"projections.html", sub:"forecasts", xn:0.28,chips:["read-only"],
+   detail:{kind:"Static page",files:"docs/projections.html",
+    role:"Fetches projections.json; renders projected standings, win%/top-4%, and a per-category expected-points breakdown.",
+    io:[["reads","./projections.json"]],
+    concept:["Same static-fetch pattern; presentation decoupled from compute"]}},
+  {id:"sportsbook", c:"present", icon:"🎟️", label:"sportsbook.html", sub:"betting app", xn:0.50,
+   chips:["client-auth","realtime"],
+   detail:{kind:"Stateful client app",files:"docs/sportsbook.html (BETS:912 · settleBets:1156 · sbHydrate:1247 · sbSyncState:1195)",
+    role:"The most complex page. Hardcoded BETS array + projections.json odds; a no-login identity picker; bets/balance live in localStorage and sync to Supabase. Settlement runs <b>client-side, in each player's browser</b>.",
+    io:[["reads","projections.json (odds) + Supabase sb_* (leaderboard) + localStorage (own state)"],["writes","localStorage → sbSyncState upserts sb_players/sb_bets"],["realtime","subscribes to sb_* → re-renders leaderboard"]],
+    fail:["localStorage is the source of truth → settlement only happens for players who open the page (stale leaderboard)","A settle-all attempt wrote a wrong balance and wiped a player's bets","Concurrent bets can overspend (balance check is local)"],
+    concept:["Client-authoritative state & eventual consistency","Optimistic UI + fire-and-forget sync","The exact failure modes that motivate a server-side place_bet() RPC + ledger","Pub/sub fan-out for multi-client refresh","Saga pattern: place_bet is a multi-step saga — deduct balance, insert bet, update ledger. If step 2 fails, a compensating transaction (refund) must run. Without a saga coordinator, a crash between steps leaves data inconsistent","Read-your-writes consistency: after placing a bet the UI must see the updated balance. With client-authoritative local state, trivial. With server-authoritative state: use session-sticky reads or a read-after-write guarantee (replica lag is the enemy)","Idempotency key: generate a UUID per bet click. Server upserts on <code>(player, idempotency_key)</code>. Retrying on a network timeout is safe — the bet is placed exactly once regardless of retries","At Robinhood scale: the BETS array becomes a database-backed orderbook; each bet is an order; client balance check → server-side margin/risk check; settlement is an event emitted to a downstream settlement consumer group"]}},
+  {id:"draftpage", c:"present", icon:"🎯", label:"draft.html", sub:"draft room", xn:0.72,
+   chips:["realtime","presence"],
+   detail:{kind:"Realtime client app",files:"docs/draft.html (session FL-2026)",
+    role:"Browser-driven snake draft: reads/writes draft_sessions & draft_picks directly via supabase-js, subscribes to realtime changes, broadcasts presence, runs a per-pick timer.",
+    io:[["reads/writes","Supabase draft tables (direct, no backend)"],["realtime","row changes + presence channel"]],
+    concept:["Backend-less realtime app (DB-as-backend)","Serialized writer via current_pick_idx avoids most conflicts","Presence = soft real-time collaboration"]}},
+  {id:"staticpages", c:"present", icon:"📚", label:"rules · calendar · trips · buckley", sub:"static content", xn:0.92,
+   chips:["static"],
+   detail:{kind:"Static content pages",files:"docs/rules.html · calendar.html · trips.html · buckley.html",
+    role:"Pure HTML/CSS: scoring rules, the season calendar, the winners'-trip map (Leaflet), and the Buckley easter-egg. No data loading.",
+    io:[["data","none — hand-written markup"]],
+    concept:["Not everything needs to be dynamic — content as code"]}},
+
+  /* ---------- CLIENT STATE ---------- */
+  {id:"localstorage", c:"client", icon:"💾", label:"localStorage", sub:"per-browser state", xn:0.42,
+   chips:["source-of-truth"],
+   detail:{kind:"Browser storage",files:"sportsbook.html / draft.html",
+    role:"Holds the sportsbook identity + balance/bets (<code>fl_sb_player</code>, <code>fl_sb_state</code>) and the draft player name. For the sportsbook it is effectively the source of truth, synced up to Supabase.",
+    io:[["sportsbook","{balance, bets[]} + current player"],["draft","player name only"]],
+    fail:["Per-device → no cross-device truth without sbHydrate","Tamperable; nothing server-side validates it"],
+    concept:["Local-first state & the consistency cost","Why this is the crux of the betting bugs"]}},
+  {id:"realtime", c:"client", icon:"📡", label:"Supabase Realtime", sub:"pub/sub", xn:0.62,
+   chips:["pub/sub"],
+   detail:{kind:"Realtime channel",files:"sportsbook.html · draft.html subscriptions",
+    role:"Postgres-change subscriptions push updates to every open browser, so leaderboards and the draft board refresh without polling. Presence powers online indicators.",
+    io:[["sportsbook","sb_players/sb_bets changes → re-render leaderboard"],["draft","draft_* changes + presence"]],
+    concept:["Pub/sub over the database (CDC-style)","Push updates replace polling","Eventual consistency across clients"]}},
+
+  /* ---------- AT SCALE (conceptual) ---------- */
+  {id:"msg_queue", c:"scale", icon:"📨", label:"Message Queue", sub:"Kafka / SQS (conceptual)", xn:0.10,
+   chips:["kafka","pub/sub","conceptual"],
+   detail:{kind:"Conceptual: pattern missing from this system",files:"(not in this codebase — what it needs at scale)",
+    role:"A queue between ingest and processing decouples producers from consumers. At 13 users: unnecessary overhead. At Robinhood scale (millions of market events/sec): mandatory. Scrapers publish a 'standings-updated' event per category; scoring, risk, and settlement each subscribe as independent consumer groups.",
+    io:[["producer","scrape_*() publishes event per category on success"],["consumer groups","scoring, risk-engine, audit-log — each reads at its own pace, no coupling"],["DLQ","failed events route to a dead-letter topic for manual replay, not silently dropped"],["retention","Kafka retains events for days — replay is built-in; reprocess after a bug by seeking to any offset"]],
+    fail:["Without a queue: a slow scorer blocks the scraper (tight coupling)","Without a DLQ: failures are silent — this system's current behavior"],
+    concept:["Producer-consumer decoupling: the producer doesn't wait for the consumer to finish — it publishes and moves on","At-least-once vs exactly-once delivery: Kafka guarantees at-least-once; the consumer needs an idempotency key to handle duplicate delivery safely","Consumer groups: N independent consumers can read the same Kafka topic at their own pace and offset, without stepping on each other — zero coordination needed","Backpressure: a slow consumer falls behind in its offset instead of crashing the producer. The queue provides natural flow control","Log compaction: Kafka can compact by key (keep only the latest standings per category) — useful for a changelog-style topic where only the latest value matters","Log retention vs traditional queue: a traditional queue deletes messages on ack; Kafka retains them. This enables replay, time-travel debugging, and late-joining consumers"]}},
+
+  {id:"grpc_rpc", c:"scale", icon:"🔗", label:"Server-side RPC", sub:"gRPC / atomic balance check", xn:0.42,
+   chips:["gRPC","ACID","conceptual"],
+   detail:{kind:"Conceptual: replaces client-authoritative balance",files:"(future: place_bet Supabase RPC or a dedicated balance service)",
+    role:"Replaces the current client-side balance check with a server-side atomic DB transaction. <code>place_bet(player, bet_id, wager, idempotency_key)</code>: read balance → validate → deduct → insert bet — all in one Postgres transaction. If the network drops, the client retries with the same idempotency key; the server returns the cached result and never double-charges.",
+    io:[["call shape","unary RPC: client sends one request, server returns result or structured error"],["atomicity","balance read + validation + deduct + bet insert = one DB transaction; no interleaving"],["idempotency","server stores (player, idempotency_key); retries return the cached result"],["error types","INSUFFICIENT_FUNDS · BET_ALREADY_SETTLED · INVALID_BET_ID — typed errors, not HTTP 500"]],
+    fail:["Without this: client checks local balance → places bet → client deducts balance locally. Two tabs or two devices race → double-spend","Without idempotency: network timeout → client retries → two bets placed for the price of one"],
+    concept:["gRPC vs REST: gRPC uses protobuf (binary, smaller payloads), HTTP/2 (multiplexed streams, header compression), and enforces a typed schema via .proto. REST is human-readable and easier to debug. Robinhood's internal services use gRPC; mobile API uses REST","ACID atomicity: Atomic (all or nothing), Consistent (constraints hold after), Isolated (concurrent txns don't see each other's partial state), Durable (committed writes survive crashes). A Postgres transaction gives all four","Idempotency key pattern: client generates a UUID per attempt. Server: <code>INSERT INTO requests(key, result) ON CONFLICT DO NOTHING; RETURNING result</code>. Retry is safe — result is returned from cache","Unary vs streaming RPC: place_bet is unary (one req → one resp). Live odds feed is server-streaming (one req → many resp over time). A price ticker is bidirectional-streaming","Saga vs 2PC: 2PC (two-phase commit) locks all participants during prepare phase — high latency, blocks on failure. Sagas use compensating transactions — each step is independent, and if step N fails, steps 1..N-1 run their compensating actions (refund the balance)"]}},
+
+  {id:"event_sourcing", c:"scale", icon:"📜", label:"Event Sourcing", sub:"append-only ledger", xn:0.76,
+   chips:["event-log","CQRS","conceptual"],
+   detail:{kind:"Conceptual: replaces mutable balance column",files:"(future: sb_ledger table)",
+    role:"Instead of storing a mutable <code>balance</code> column (which can be overwritten — the Jens incident), store every transaction as an immutable event. Balance = replay of all events for a player. The sb_bets table is almost there — it's nearly an event log — but the separate mutable balance on sb_players is the weak link.",
+    io:[["write","<code>INSERT INTO ledger(player, delta, reason, bet_id, ts)</code> — never UPDATE, never DELETE"],["read balance","<code>SELECT SUM(delta) FROM ledger WHERE player = 'Jens'</code>"],["projection","background job materializes balance into sb_players for fast reads (CQRS read model)"],["audit","every balance change has a reason, a bet_id, and a timestamp — the Jens wipe is impossible to recreate silently"]],
+    fail:["Naive event sourcing: balance query scans the whole ledger — O(n) per read. Fix: periodic snapshots (<code>snapshot_at</code> row), then sum only events after the snapshot","Long chains need compaction — same concept as Kafka log compaction"],
+    concept:["Append-only vs mutable state: the Jens bug was a mutable balance being overwritten. An event log can't be overwritten — only new events can be appended. The bug becomes an incorrect event (visible, auditable, reversible)","CQRS (Command Query Responsibility Segregation): commands (place_bet) write events to the ledger; queries (leaderboard) read a materialized view. Write and read models scale independently — reads can hit a Redis cache; writes go to the append-only log","Temporal queries: what was Jens's balance at any past point in time? <code>WHERE ts <= '2026-06-10'</code> — free time-travel debugging. Impossible with a mutable balance column","Compensating events: if a settlement is wrong, don't DELETE or UPDATE — append a correcting event with reason='admin-correction'. The audit trail survives intact; the correction is visible","Snapshot pattern: every N events, write a snapshot row with the materialized balance. Future balance queries: take the latest snapshot + sum only events after it. Reduces O(n) to O(1) for reads","Event sourcing as the foundation of financial systems: every bank ledger is an event log. Withdrawals and deposits are events; your account balance is a derived view. Robinhood's internal accounting works the same way"]}},
+];
+
+const EDGES = [
+  // external -> scrapers
+  ["espn","scrapers","standings/polls","JSON","daily"],
+  ["nhlapi","scrapers","NHL standings","JSON","daily"],
+  ["mlbapi","scrapers","MLB standings","JSON","daily"],
+  ["owgr","scrapers","golf ranks","JSON/HTML","daily"],
+  ["yahoo","scrapers","stock YTD","JSON","daily (per ticker)"],
+  ["imf","scrapers","GDP growth","JSON","daily (fallback)"],
+  ["wikipedia","scrapers","chart weeks","HTML","daily"],
+  // external -> processing
+  ["kalshi","projections","market prices","signed JSON","daily"],
+  ["tavily","headline","news snippets","JSON","daily / manual"],
+  ["anthropic","headline","headline text","LLM","daily / manual"],
+  // ingestion -> storage
+  ["scrapers","dbpy","save_standing()","upsert","daily"],
+  ["dbpy","standings","write/read row","JSONB","daily"],
+  ["dbpy","bonusestbl","read/write","rows","on demand"],
+  // overrides + canonical into processing
+  ["manualjson","scoring","file overrides","JSON read","at compute"],
+  ["draftpicks","scoring","picks/gender","import","at compute"],
+  ["draftpicks","projections","picks","import","at compute"],
+  ["draftpicks","headline","draft summary","import","at compute"],
+  ["staticdicts","scoring","frozen fallback","in-module","at compute"],
+  // storage <-> processing
+  ["standings","scoring","get_all_standings()","via db.py","daily"],
+  ["bonusestbl","scoring","get_all_bonuses()","via db.py","daily"],
+  ["scoring","scores","write leaderboard","JSON","daily"],
+  ["scores","projections","read totals","JSON","daily"],
+  ["projections","projjson","write odds/forecast","JSON","daily"],
+  ["projections","dbpy","upsert win%/top4%","rows","daily (optional)"],
+  ["scores","headline","dedup-guard read","JSON","daily/manual"],
+  ["headline","scores","write headline field","JSON (in-place)","daily/manual"],
+  // outputs -> presentation
+  ["scores","index","fetch scores.json","HTTP GET","page load"],
+  ["projjson","projpage","fetch projections.json","HTTP GET","page load"],
+  ["projjson","sportsbook","prop odds","HTTP GET","page load"],
+  ["ghpages","index","serve","static","on push"],
+  ["ghpages","projpage","serve","static","on push"],
+  ["ghpages","sportsbook","serve","static","on push"],
+  ["ghpages","draftpage","serve","static","on push"],
+  ["ghpages","staticpages","serve","static","on push"],
+  // presentation <-> client state
+  ["sportsbook","localstorage","read/write state","JSON","on bet"],
+  ["sportsbook","sbtables","supabase-js upsert","rows","on bet/settle"],
+  ["sbtables","realtime","row changes","CDC","live"],
+  ["realtime","sportsbook","push update","event","live"],
+  ["draftpage","drafttables","supabase-js R/W","rows","on pick"],
+  ["drafttables","realtime","row changes","CDC","live"],
+  ["realtime","draftpage","push update","event","live"],
+  ["draftpage","localstorage","player name","string","login"],
+  // settlement path (server) into sb tables
+  ["manualjson","dbpy","sb_settled.json → settle_sb_bet()","read+write","on settle"],
+  ["dbpy","sbtables","settle + recalc balance","rows","on settle"],
+  // orchestration (dashed, kind=invoke)
+  ["daily","scrapers","invokes","step","08:00 UTC",true],
+  ["daily","scoring","invokes","step","08:00 UTC",true],
+  ["daily","projections","invokes","step","08:00 UTC",true],
+  ["daily","headline","invokes","step","08:00 UTC",true],
+  ["daily","ghpages","commit→deploy","push","08:00 UTC",true],
+  ["headlineyml","headline","invokes --force","manual","manual",true],
+  ["skills","manualjson","fl-bonus edits","edit","on event",true],
+  ["skills","sportsbook","fl-bet/fl-settle edit BETS","edit","on event",true],
+  ["skills","ghpages","fl-merge ships","merge","on ship",true],
+  // legacy
+  ["apppy","dbpy","admin R/W","REST","legacy",false,true],
+  ["apppy","bbtables","accounts/bets","REST","legacy",false,true],
+  // at-scale conceptual (dashed)
+  ["scrapers","msg_queue","publish event","Kafka msg","at scale",true],
+  ["msg_queue","scoring","consume event","Kafka msg","at scale",true],
+  ["sportsbook","grpc_rpc","place_bet() call","gRPC","at scale",true],
+  ["sbtables","event_sourcing","replace mutable balance","ledger append","at scale",true],
+  ["grpc_rpc","event_sourcing","writes delta events","append","at scale",true],
+];
+
+const FLOWS = {
+  daily:{name:"Daily pipeline",
+    steps:["daily","scrapers","dbpy","standings","scoring","scores","projections","projjson","ghpages","index"],
+    blurb:"08:00 UTC cron → scrape → Supabase → score → projections → commit JSON → Pages → browser."},
+  bet:{name:"Place a bet",
+    steps:["sportsbook","localstorage","sbtables","realtime"],
+    blurb:"Bet placed in the browser → localStorage (truth) → upsert to Supabase → realtime fan-out to every other open leaderboard."},
+  headline:{name:"Headline generation",
+    steps:["daily","tavily","headline","anthropic","scores","index"],
+    blurb:"Daily job → Tavily news → Claude writes a grounded ticker → headline field in scores.json → front page."},
+  settle:{name:"Settle an event",
+    steps:["skills","manualjson","sportsbook","projections","ghpages","dbpy","sbtables"],
+    blurb:"An event resolves → fl-settle edits bonuses.json + BETS + prop defs → merge/deploy → next daily run settles sb_bets in Supabase."},
+  scaleup:{name:"Scale-up bottlenecks",
+    steps:["scrapers","msg_queue","scoring","sbtables","grpc_rpc","event_sourcing"],
+    blurb:"Trace the three scale gaps: synchronous ingest → a queue decouples; client balance check → server RPC enforces atomicity; mutable balance → event sourcing makes it tamper-proof."},
+};
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const canvas = document.getElementById('canvas');
+const svg = document.getElementById('edgesvg');
+canvas.style.width = CANVAS_W+'px';
+canvas.style.height = CANVAS_H+'px';
+svg.setAttribute('width',CANVAS_W); svg.setAttribute('height',CANVAS_H);
+
+const pos = {}; // id -> {x,y,w,h}
+function place(){
+  const usable = CANVAS_W - 2*PADX - NODEW;
+  NODES.forEach(n=>{
+    const x = PADX + n.xn*usable;
+    const y = nodeY(n.c);
+    pos[n.id] = {x,y,w:NODEW,h:64,cx:x+NODEW/2};
+  });
+}
+place();
+
+// bands
+LAYERS.forEach(l=>{
+  const b=document.createElement('div');
+  b.className='band';
+  b.style.top=l.y+'px'; b.style.width=(CANVAS_W)+'px'; b.style.height=l.h+'px';
+  b.style.background=l.color;
+  b.innerHTML=`<div class="bandlabel">${l.label}</div><div class="bandsub">${l.sub}</div>`;
+  canvas.appendChild(b);
+});
+
+// edge paths
+const SVGNS="http://www.w3.org/2000/svg";
+const edgeEls=[];
+function edgePath(a,b){
+  const s=pos[a], t=pos[b];
+  if(!s||!t) return "";
+  const sx=s.cx, tx=t.cx;
+  if(t.y > s.y+5){ // downward
+    const sy=s.y+s.h, ty=t.y;
+    const my=(sy+ty)/2;
+    return `M${sx},${sy} C${sx},${my} ${tx},${my} ${tx},${ty}`;
+  } else if(s.y > t.y+5){ // upward (feedback)
+    const sy=s.y, ty=t.y+t.h;
+    const my=(sy+ty)/2;
+    return `M${sx},${sy} C${sx},${my} ${tx},${my} ${tx},${ty}`;
+  } else { // same layer — bow out the side
+    const sy=s.y+s.h/2, ty=t.y+t.h/2;
+    const dir = tx>sx?1:-1;
+    const bow=Math.max(40,Math.abs(tx-sx)/2);
+    const sX = sx + dir*(s.w/2), tX = tx - dir*(t.w/2);
+    return `M${sX},${sy} C${sX+dir*bow},${sy-bow} ${tX-dir*bow},${ty-bow} ${tX},${ty}`;
+  }
+}
+EDGES.forEach((e,i)=>{
+  const [from,to,label,fmt,trig,invoke,legacy]=e;
+  const p=document.createElementNS(SVGNS,'path');
+  p.setAttribute('d',edgePath(from,to));
+  p.setAttribute('fill','none');
+  p.setAttribute('stroke', invoke?'#7f1d1d':'#2b3140');
+  p.setAttribute('stroke-width', invoke?1.4:1.6);
+  if(invoke) p.setAttribute('stroke-dasharray','5 4');
+  if(legacy){p.setAttribute('stroke-dasharray','2 4');p.setAttribute('opacity','.4');}
+  p.setAttribute('marker-end','url(#arrow)');
+  p.dataset.from=from; p.dataset.to=to; p.dataset.i=i;
+  p.classList.add('edge');
+  p.addEventListener('click',ev=>{ev.stopPropagation();openEdge(i);});
+  svg.appendChild(p);
+  edgeEls.push(p);
+});
+
+// nodes
+const nodeEls={};
+NODES.forEach(n=>{
+  const d=document.createElement('div');
+  d.className='node'+(n.legacy?' legacy':'');
+  d.dataset.id=n.id; d.dataset.c=n.c;
+  d.style.left=pos[n.id].x+'px'; d.style.top=pos[n.id].y+'px';
+  const chips=(n.chips||[]).slice(0,3).map(c=>`<span class="nchip">${c}</span>`).join('');
+  d.innerHTML=`<div class="ntop"><span class="nicon">${n.icon}</span><span class="nlabel">${n.label}</span></div>
+    <div class="nsub">${n.sub}</div><div class="nchips">${chips}</div>`;
+  d.addEventListener('click',ev=>{ev.stopPropagation();selectNode(n.id);});
+  canvas.appendChild(d);
+  nodeEls[n.id]=d;
+});
+
+/* ============================================================
+   INTERACTION
+   ============================================================ */
+const drawer=document.getElementById('drawer');
+function clearHi(){
+  Object.values(nodeEls).forEach(el=>el.classList.remove('dim','adj','sel','flowhi','flowfocus'));
+  edgeEls.forEach(p=>{p.classList.remove('hl');p.setAttribute('marker-end','url(#arrow)');
+    p.setAttribute('stroke', p.dataset.invoke==='1'?'#7f1d1d':'#2b3140');p.style.opacity='';});
+}
+function selectNode(id){
+  exitFlowMode(true);
+  clearHi();
+  const adj=new Set();
+  edgeEls.forEach(p=>{
+    if(p.dataset.from===id||p.dataset.to===id){
+      p.classList.add('hl'); p.setAttribute('stroke','#22d3ee');p.setAttribute('marker-end','url(#arrowhi)');
+      adj.add(p.dataset.from); adj.add(p.dataset.to);
+    }
+  });
+  Object.values(nodeEls).forEach(el=>{
+    if(el.dataset.id===id) el.classList.add('sel');
+    else if(adj.has(el.dataset.id)) el.classList.add('adj');
+    else el.classList.add('dim');
+  });
+  openNode(id);
+}
+function openNode(id){
+  const n=NODES.find(x=>x.id===id); const dt=n.detail;
+  document.getElementById('dkind').textContent=dt.kind;
+  document.getElementById('dtitle').textContent=n.label;
+  document.getElementById('dfiles').innerHTML=dt.files||'';
+  let h=`<div class="drole">${dt.role}</div>`;
+  if(dt.io&&dt.io.length){h+=`<div class="dsec io"><h4>Inputs · Outputs</h4>`;
+    dt.io.forEach(([k,v])=>h+=`<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`);h+=`</div>`;}
+  if(dt.fail&&dt.fail.length){h+=`<div class="dsec fail"><h4>Failure modes</h4><ul class="dlist">`+
+    dt.fail.map(f=>`<li>${f}</li>`).join('')+`</ul></div>`;}
+  if(dt.concept&&dt.concept.length){h+=`<div class="dsec concept"><h4>Systems-design talking points</h4><ul class="dlist">`+
+    dt.concept.map(c=>`<li>${c}</li>`).join('')+`</ul></div>`;}
+  document.getElementById('dbody').innerHTML=h;
+  drawer.classList.add('open');
+}
+function openEdge(i){
+  const [from,to,label,fmt,trig]=EDGES[i];
+  clearHi();
+  const p=edgeEls[i]; p.classList.add('hl');p.setAttribute('stroke','#22d3ee');p.setAttribute('marker-end','url(#arrowhi)');
+  nodeEls[from].classList.add('adj'); nodeEls[to].classList.add('sel');
+  Object.values(nodeEls).forEach(el=>{if(el.dataset.id!==from&&el.dataset.id!==to)el.classList.add('dim');});
+  const fn=NODES.find(x=>x.id===from), tn=NODES.find(x=>x.id===to);
+  document.getElementById('dkind').textContent='Data flow';
+  document.getElementById('dtitle').textContent=label;
+  document.getElementById('dfiles').innerHTML=`${fn.icon} ${fn.label} &nbsp;→&nbsp; ${tn.icon} ${tn.label}`;
+  document.getElementById('dbody').innerHTML=
+    `<div class="dsec io"><h4>Edge detail</h4>
+      <div class="kv"><span class="k">from</span><span class="v">${fn.label} — ${fn.detail.kind}</span></div>
+      <div class="kv"><span class="k">to</span><span class="v">${tn.label} — ${tn.detail.kind}</span></div>
+      <div class="kv"><span class="k">payload</span><span class="v">${label}</span></div>
+      <div class="kv"><span class="k">format</span><span class="v">${fmt}</span></div>
+      <div class="kv"><span class="k">trigger</span><span class="v">${trig}</span></div>
+    </div>
+    <div class="dsec concept"><h4>Why it matters</h4><ul class="dlist">
+      <li>Trace this edge in <b>Follow the data</b> to see where it sits in an end-to-end flow.</li>
+    </ul></div>`;
+  drawer.classList.add('open');
+}
+document.getElementById('dclose').addEventListener('click',()=>drawer.classList.remove('open'));
+document.getElementById('scroller').addEventListener('click',()=>{drawer.classList.remove('open');if(!flowMode)clearHi();});
+
+/* ── Flow mode ── */
+let flowMode=null, flowStep=0;
+function startFlow(id){
+  flowMode=id; flowStep=0;
+  document.querySelectorAll('.flowchip').forEach(c=>c.classList.toggle('active',c.dataset.flow===id));
+  document.getElementById('stepper').classList.add('show');
+  renderFlow();
+}
+function renderFlow(){
+  clearHi();
+  const f=FLOWS[flowMode]; const set=new Set(f.steps);
+  // highlight edges connecting consecutive steps
+  const wanted=new Set();
+  for(let i=0;i<f.steps.length-1;i++) wanted.add(f.steps[i]+'>'+f.steps[i+1]);
+  edgeEls.forEach(p=>{
+    const key=p.dataset.from+'>'+p.dataset.to;
+    if(wanted.has(key)){p.classList.add('hl');p.setAttribute('stroke','#22d3ee');p.setAttribute('marker-end','url(#arrowhi)');}
+    else p.style.opacity='.12';
+  });
+  Object.values(nodeEls).forEach(el=>{
+    if(set.has(el.dataset.id)) el.classList.add('flowhi'); else el.classList.add('dim');
+  });
+  f.steps.forEach((sid,i)=>{ if(i===flowStep) nodeEls[sid].classList.add('flowfocus'); });
+  document.getElementById('stepinfo').textContent=(flowStep+1)+' / '+f.steps.length;
+  // focus node detail + scroll into view
+  const cur=f.steps[flowStep];
+  openNode(cur);
+  const el=nodeEls[cur];
+  el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
+}
+function exitFlowMode(silent){
+  if(!flowMode) return;
+  flowMode=null;
+  document.querySelectorAll('.flowchip').forEach(c=>c.classList.remove('active'));
+  document.getElementById('stepper').classList.remove('show');
+  if(!silent){clearHi();drawer.classList.remove('open');}
+}
+document.querySelectorAll('.flowchip').forEach(c=>{
+  c.addEventListener('click',()=>{ if(flowMode===c.dataset.flow) exitFlowMode(); else startFlow(c.dataset.flow); });
+});
+document.getElementById('nextstep').addEventListener('click',()=>{const f=FLOWS[flowMode];flowStep=(flowStep+1)%f.steps.length;renderFlow();});
+document.getElementById('prevstep').addEventListener('click',()=>{const f=FLOWS[flowMode];flowStep=(flowStep-1+f.steps.length)%f.steps.length;renderFlow();});
+document.getElementById('exitflow').addEventListener('click',()=>exitFlowMode());
+
+document.getElementById('reset').addEventListener('click',()=>{exitFlowMode();clearHi();drawer.classList.remove('open');setZoom(1);});
+
+/* ── Zoom ── */
+let zoom=1; const vp=document.getElementById('viewport');
+function setZoom(z){zoom=Math.min(1.6,Math.max(0.4,z));vp.style.transform='scale('+zoom+')';
+  canvas.style.transformOrigin='0 0';}
+document.getElementById('zoomin').addEventListener('click',()=>setZoom(zoom+0.15));
+document.getElementById('zoomout').addEventListener('click',()=>setZoom(zoom-0.15));
+// fit-to-width on load (mobile)
+function fit(){
+  const sw=document.getElementById('scroller').clientWidth;
+  if(sw < CANVAS_W) setZoom(Math.max(0.4, sw/CANVAS_W));
+}
+window.addEventListener('resize',fit); fit();
+
+// mark invoke edges for restore
+EDGES.forEach((e,i)=>{ if(e[5]) edgeEls[i].dataset.invoke='1'; });
+</script>
+</body>
+</html>
