@@ -356,16 +356,22 @@ def scrape_nascar():
         standings = []
         source = None
 
-        # Tier 1: ESPN racing standings. Often 403s from datacenter IPs.
+        # Tier 1: ESPN racing standings. Response uses children[].standings.entries structure.
         try:
             data = fetch_json('https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings', timeout=15)
-            for group in data.get('standings', []) if isinstance(data.get('standings'), list) else []:
-                for entry in group.get('standings', {}).get('entries', []) if isinstance(group, dict) else []:
-                    driver = entry.get('athlete', {}).get('displayName', '')
-                    pts = next((s.get('value') for s in entry.get('stats', [])
-                                if s.get('name') in ('points', 'rank')), None)
-                    if driver and pts is not None:
-                        standings.append({'driver': driver, 'points': int(pts)})
+            entries = []
+            for child in data.get('children', []):
+                entries.extend(child.get('standings', {}).get('entries', []))
+            # fall back to top-level standings[] shape if children absent
+            if not entries:
+                for group in data.get('standings', []) if isinstance(data.get('standings'), list) else []:
+                    entries.extend(group.get('standings', {}).get('entries', []) if isinstance(group, dict) else [])
+            for entry in entries:
+                driver = entry.get('athlete', {}).get('displayName', '')
+                pts = next((s.get('value') for s in entry.get('stats', [])
+                            if s.get('name') == 'points'), None)
+                if driver and pts is not None:
+                    standings.append({'driver': driver, 'points': int(pts)})
             if standings:
                 source = 'live'
                 print(f'    ✓ ESPN racing API: {len(standings)} drivers')
@@ -748,13 +754,24 @@ def probe():
     ESPN's soccer/racing trees work from the Actions IP.
     """
     candidates = [
-        ('MLS  · ESPN soccer',      f'{ESPN_BASE}/soccer/usa.1/standings'),
-        ('MLS  · Wikipedia',        'https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season'),
-        ('NASCAR · ESPN racing',    'https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings'),
-        ('NASCAR · cf.nascar',      'https://cf.nascar.com/cacher/2026/1/points/drivers-points.json'),
-        ('NASCAR · Wikipedia',      'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series'),
-        ('Golf · OWGR',             'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=10&country=All&playerName='),
-        ('Golf · ESPN',             'https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings'),
+        ('MLS  · ESPN soccer',         f'{ESPN_BASE}/soccer/usa.1/standings'),
+        ('MLS  · Wikipedia',           'https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season'),
+        ('NASCAR · ESPN racing',       'https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings'),
+        ('NASCAR · cf.nascar',         'https://cf.nascar.com/cacher/2026/1/points/drivers-points.json'),
+        ('NASCAR · Wikipedia',         'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series'),
+        # Golf — original endpoints (both known broken as of 2026-06)
+        ('Golf · OWGR (old params)',   'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=10&country=All&playerName='),
+        ('Golf · ESPN site/v2',        'https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings'),
+        # Golf — OWGR variants (endpoint path may have moved)
+        ('Golf · OWGR (no params)',    'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200'),
+        ('Golf · OWGR (HTML page)',    'https://www.owgr.com/rankings'),
+        # Golf — ESPN variants (different base paths / sub-paths)
+        ('Golf · ESPN site/v2 limit',  'https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings?limit=200'),
+        ('Golf · ESPN v2',             'https://site.api.espn.com/apis/v2/sports/golf/pga/rankings'),
+        ('Golf · ESPN standings',      'https://site.api.espn.com/apis/site/v2/sports/golf/pga/standings'),
+        ('Golf · ESPN leaderboard',    'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard'),
+        ('Golf · ESPN scoreboard',     'https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard'),
+        ('Golf · ESPN core API',       'https://sports.core.api.espn.com/v2/sports/golf/leagues/pga/rankings'),
     ]
     print('\n🔎 Probing candidate sources (no data saved)...\n')
     for label, url in candidates:
