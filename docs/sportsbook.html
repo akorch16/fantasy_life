@@ -1679,11 +1679,13 @@ function updatePreview() {
   btn.disabled = false;
 }
 
-function confirmBet() {
+async function confirmBet() {
   if (!_wagerCtx) return;
-  const input = document.getElementById('modal-amount');
-  const wager = parseInt(input.value, 10);
-  const state = loadState();
+  const input  = document.getElementById('modal-amount');
+  const errEl  = document.getElementById('modal-error');
+  const btn    = document.getElementById('modal-place-btn');
+  const wager  = parseInt(input.value, 10);
+  const state  = loadState();
   if (!state || !wager || wager < 1 || wager > state.balance) return;
 
   const def = BETS.find(b => b.id === _wagerCtx.betId);
@@ -1692,7 +1694,35 @@ function confirmBet() {
   const ret = calcReturn(wager, _wagerCtx.yesPct, _wagerCtx.side);
   if (!ret) return;
 
-  state.balance -= wager;
+  // ── Server-side atomic balance check + insert ──────────────────
+  if (sbClient) {
+    btn.disabled = true;
+    btn.textContent = 'Placing…';
+    const player = getPlayer();
+    const { data, error } = await sbClient.rpc('place_bet', {
+      p_player:           player,
+      p_bet_id:           def.id,
+      p_side:             _wagerCtx.side,
+      p_wager:            wager,
+      p_potential_return: ret,
+      p_sport:            def.sport || '',
+    }).catch(e => ({ data: null, error: e }));
+    btn.disabled = false;
+    btn.textContent = 'Place Bet';
+
+    if (error || !data?.ok) {
+      errEl.textContent = data?.error || 'Server rejected bet — try again.';
+      errEl.classList.add('visible');
+      return;
+    }
+    // Server accepted — use server's authoritative available balance
+    if (typeof data.available === 'number') state.balance = data.available;
+  } else {
+    // Offline fallback: local check only
+    state.balance -= wager;
+  }
+  // ──────────────────────────────────────────────────────────────
+
   state.bets.push({
     id: def.id,
     side: _wagerCtx.side,
@@ -1706,7 +1736,7 @@ function confirmBet() {
     settled: false,
     settledOutcome: null,
   });
-  saveState(state);
+  saveState(state);  // also fires sbSyncState → idempotent no-op for this bet
 
   closeWagerModal();
   renderBalance();
