@@ -3,7 +3,7 @@ db.py — Supabase database layer for Fantasy Life 2026
 Replaces local JSON file reads/writes with persistent Postgres via Supabase REST API.
 """
 
-import os, requests, threading
+import os, json as _json, requests, threading
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -494,10 +494,22 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
     return count
 
 
+def _load_sb_adjustments() -> dict:
+    """Load per-player balance adjustments from data/sb_adjustments.json.
+    These encode history that can't be recovered from sb_bets (e.g. deleted records,
+    manual credits). Formula: balance = 1000 + adjustment - wagered + won."""
+    path = os.path.join(os.path.dirname(__file__), 'data', 'sb_adjustments.json')
+    try:
+        with open(path) as f:
+            return _json.load(f)
+    except Exception:
+        return {}
+
+
 def recalculate_sb_balance(player: str, starting_bb: int = 1000) -> bool:
     """Recompute a player's BB balance from their actual bet records and update Supabase.
-    balance = starting_bb - sum(all wagers) + sum(won potential_returns)
-    Open bets are already deducted at placement time, so they're included in all wagers.
+    balance = starting_bb + adjustment - sum(all wagers) + sum(won potential_returns)
+    adjustment comes from data/sb_adjustments.json to preserve history not in sb_bets.
     Returns True on success."""
     if not SUPABASE_URL or not SUPABASE_KEY:
         return False
@@ -513,9 +525,11 @@ def recalculate_sb_balance(player: str, starting_bb: int = 1000) -> bool:
         print(f'  ✗ recalculate_sb_balance fetch ({player}): {e}')
         return False
 
+    adjustments   = _load_sb_adjustments()
+    adjustment    = adjustments.get(player, 0)
     total_wagered = sum(b['wager'] for b in bets)
     total_won     = sum(b['potential_return'] for b in bets if b.get('settled_outcome') == 'won')
-    new_balance   = starting_bb - total_wagered + total_won
+    new_balance   = starting_bb + adjustment - total_wagered + total_won
 
     try:
         requests.patch(
@@ -526,7 +540,7 @@ def recalculate_sb_balance(player: str, starting_bb: int = 1000) -> bool:
             timeout=_TIMEOUT,
         )
         print(f'  ✓ {player} BB balance recalculated → {new_balance} BB '
-              f'(wagered={total_wagered}, won_returns={total_won})')
+              f'(adj={adjustment}, wagered={total_wagered}, won_returns={total_won})')
         return True
     except Exception as e:
         print(f'  ✗ recalculate_sb_balance patch ({player}): {e}')
@@ -547,3 +561,52 @@ def get_all_markets() -> list:
     except Exception as e:
         print(f'  ✗ get_all_markets: {e}')
         return []
+
+
+if __name__ == '__main__':
+    import sys
+
+    if '--dump-sb' in sys.argv:
+        print('=== sb_players ===')
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/sb_players',
+            headers=_headers(),
+            params={'select': 'name,balance,updated_at', 'order': 'name.asc'},
+            timeout=_TIMEOUT,
+        )
+        for row in (r.json() if isinstance(r.json(), list) else []):
+            print(row)
+        print()
+        print('=== sb_bets ===')
+        r = requests.get(
+            f'{SUPABASE_URL}/rest/v1/sb_bets',
+            headers=_headers(),
+            params={'select': '*', 'order': 'player.asc,placed_at.asc'},
+            timeout=_TIMEOUT,
+        )
+        for row in (r.json() if isinstance(r.json(), list) else []):
+            print(row)
+
+    elif '--repair-korch' in sys.argv:
+        # One-time repair: insert Korch's 7 bets that were deleted by sbResetPlayer.
+        # potential_return values estimated from odds at placement time; adjust if dump
+        # reveals different values (NBA NO ~35% YES odds → 185 BB, etc.).
+        placed = '2026-06-01T00:00:00Z'
+        bets = [
+            {'player': 'Korch', 'bet_id': 'pts-mitchell-v-todd',               'side': 'yes', 'wager': 100, 'potential_return': 154, 'sport': 'Total Points', 'settled_outcome': None,    'placed_at': placed},
+            {'player': 'Korch', 'bet_id': 'pts-buckley-v-theo',                'side': 'yes', 'wager': 100, 'potential_return': 125, 'sport': 'Total Points', 'settled_outcome': None,    'placed_at': placed},
+            {'player': 'Korch', 'bet_id': 'pts-wu-v-korch',                    'side': 'no',  'wager': 200, 'potential_return': 377, 'sport': 'Total Points', 'settled_outcome': None,    'placed_at': placed},
+            {'player': 'Korch', 'bet_id': 'stocks-fryar-avgo-v-mitchell-cvna', 'side': 'yes', 'wager': 100, 'potential_return': 175, 'sport': 'Stocks',        'settled_outcome': None,    'placed_at': placed},
+            {'player': 'Korch', 'bet_id': 'nba-fin-wu-v-buckley',              'side': 'no',  'wager': 100, 'potential_return': 185, 'sport': 'NBA',           'settled_outcome': 'won',   'placed_at': placed},
+            {'player': 'Korch', 'bet_id': 'nhl-fin-tim-v-jamzee',              'side': 'yes', 'wager': 100, 'potential_return': 222, 'sport': 'NHL',           'settled_outcome': 'lost',  'placed_at': placed},
+            {'player': 'Korch', 'bet_id': 'rg-w-fryar-v-feder',               'side': 'no',  'wager': 100, 'potential_return': 286, 'sport': 'Tennis',        'settled_outcome': 'lost',  'placed_at': placed},
+        ]
+        r = requests.post(
+            f'{SUPABASE_URL}/rest/v1/sb_bets',
+            headers={**_headers(), 'Prefer': 'resolution=merge-duplicates'},
+            json=bets,
+            timeout=_TIMEOUT,
+        )
+        print(f'Repair Korch bets: status={r.status_code}')
+        if r.status_code >= 400:
+            print(r.text[:500])
