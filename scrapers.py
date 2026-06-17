@@ -715,33 +715,18 @@ def probe():
 
 
 def _probe_golf():
-    """Deeper golf probes: OWGR HTML page (does it ship a real table?) and the
-    PGA Tour GraphQL API (POST) that backs pgatour.com's world-ranking page."""
+    """Deep golf probe of the PGA Tour GraphQL API (POST) that backs pgatour.com's
+    world-ranking page. (OWGR's whole domain 404s, so it's not probed anymore.)
+
+    NOTE: must NOT request brotli (`br`) encoding — `requests` can't decode it
+    without the brotli package, which would leave r.text as binary garbage.
+    """
     print('\n  ── Golf deep-probe ──')
 
-    # 1) OWGR rankings HTML page — is the table server-rendered or a JS shell?
-    owgr_html = 'https://www.owgr.com/rankings'
-    try:
-        r = requests.get(owgr_html, headers={**HEADERS, 'Accept': 'text/html,application/xhtml+xml'}, timeout=20)
-        print(f'  [{r.status_code}] Golf · OWGR HTML  ({len(r.content)} bytes)  {owgr_html}')
-        if r.status_code == 200:
-            soup = BeautifulSoup(r.text, 'html.parser')
-            tables = soup.find_all('table')
-            trs = soup.find_all('tr')
-            print(f'        tables={len(tables)}  total <tr>={len(trs)}')
-            # show a couple of data rows so we can read the column order
-            for tr in trs[:4]:
-                cells = [c.get_text(strip=True) for c in tr.find_all(['th', 'td'])]
-                if cells:
-                    print(f'        row: {cells[:8]}')
-    except Exception as e:
-        print(f'  [ERR] Golf · OWGR HTML: {e}')
-
-    # 2) PGA Tour GraphQL — public AppSync endpoint + key embedded in pgatour.com JS.
     gql_url = 'https://orchestrator.pgatour.com/graphql'
-    # Public key from pgatour.com bundle; if rotated the probe returns 401 so we can refresh it.
+    # Public AppSync key from pgatour.com's JS bundle; rotates rarely (401 if stale).
     gql_key = 'da2-gsrx5bibzbb4njvhl7t37wqyl4'
-    # OWGR is a "stat" on PGA Tour; statId 186 is the Official World Golf Ranking.
+    # statId 186 = Official World Golf Ranking (confirmed: returns ~35 KB payload).
     query = """query StatDetails($tourCode: TourCode!, $statId: String!, $year: Int) {
       statDetails(tourCode: $tourCode, statId: $statId, year: $year) {
         statId
@@ -752,20 +737,15 @@ def _probe_golf():
       }
     }"""
     variables = {'tourCode': 'R', 'statId': '186', 'year': 2026}
-    for statId in ['186', '02671']:
-        variables['statId'] = statId
-        try:
-            r = requests.post(
-                gql_url,
-                json={'query': query, 'variables': variables},
-                headers={**HEADERS, 'x-api-key': gql_key, 'Content-Type': 'application/json'},
-                timeout=20,
-            )
-            body = r.text[:300].replace('\n', ' ')
-            print(f'  [{r.status_code}] Golf · PGA GraphQL statId={statId}  ({len(r.content)} bytes)')
-            print(f'        {body}')
-        except Exception as e:
-            print(f'  [ERR] Golf · PGA GraphQL statId={statId}: {e}')
+    headers = {**HEADERS, 'x-api-key': gql_key, 'Content-Type': 'application/json',
+               'Accept-Encoding': 'gzip, deflate'}
+    try:
+        r = requests.post(gql_url, json={'query': query, 'variables': variables},
+                          headers=headers, timeout=20)
+        print(f'  [{r.status_code}] Golf · PGA GraphQL statId=186  ({len(r.content)} bytes)')
+        print(f'        {r.text[:1800]}')
+    except Exception as e:
+        print(f'  [ERR] Golf · PGA GraphQL: {e}')
 
 # ── Demo seed ─────────────────────────────────────────────────────────────────
 
