@@ -107,7 +107,7 @@ def select_standings(category, data_key, local_name, static_data, static_date, r
     now = datetime.now(timezone.utc)
     ok = lambda d: bool(d and d.get(data_key)) and (reject is None or not reject(d))
 
-    live = load_data(data_key)
+    live = load_data(category)
     live = live if ok(live) else None
     live_dt = _parse_dt(get_standing_updated_at(category)) if live else None
 
