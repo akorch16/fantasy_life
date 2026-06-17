@@ -356,16 +356,22 @@ def scrape_nascar():
         standings = []
         source = None
 
-        # Tier 1: ESPN racing standings. Often 403s from datacenter IPs.
+        # Tier 1: ESPN racing standings. Response uses children[].standings.entries structure.
         try:
             data = fetch_json('https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings', timeout=15)
-            for group in data.get('standings', []) if isinstance(data.get('standings'), list) else []:
-                for entry in group.get('standings', {}).get('entries', []) if isinstance(group, dict) else []:
-                    driver = entry.get('athlete', {}).get('displayName', '')
-                    pts = next((s.get('value') for s in entry.get('stats', [])
-                                if s.get('name') in ('points', 'rank')), None)
-                    if driver and pts is not None:
-                        standings.append({'driver': driver, 'points': int(pts)})
+            entries = []
+            for child in data.get('children', []):
+                entries.extend(child.get('standings', {}).get('entries', []))
+            # fall back to top-level standings[] shape if children absent
+            if not entries:
+                for group in data.get('standings', []) if isinstance(data.get('standings'), list) else []:
+                    entries.extend(group.get('standings', {}).get('entries', []) if isinstance(group, dict) else [])
+            for entry in entries:
+                driver = entry.get('athlete', {}).get('displayName', '')
+                pts = next((s.get('value') for s in entry.get('stats', [])
+                            if s.get('name') == 'points'), None)
+                if driver and pts is not None:
+                    standings.append({'driver': driver, 'points': int(pts)})
             if standings:
                 source = 'live'
                 print(f'    ✓ ESPN racing API: {len(standings)} drivers')
@@ -451,84 +457,16 @@ def scrape_tennis():
     except Exception as e:
         print(f'  ✗ Tennis: {e}'); return False
 
-# ── Golf (ESPN JSON API / owgr.com JSON fallback) ────────────────────────────
-
-def _parse_owgr_espn(data):
-    rankings = []
-    for group in data.get('rankings', []):
-        for entry in group.get('ranks', []):
-            rank = entry.get('current') or entry.get('rank')
-            player = entry.get('athlete', {}).get('displayName', '')
-            if player and rank:
-                rankings.append({'player': player, 'rank': int(rank)})
-    return rankings
+# ── Golf ─────────────────────────────────────────────────────────────────────
+# As of 2026-06: OWGR API/HTML all return 404; ESPN /golf/pga/rankings returns
+# 500. No keyless live source exists for OWGR world rankings. Scoring falls
+# back to data/golf.json → GOLF_2026_OWGR_STATIC.
 
 def scrape_golf():
     if is_frozen('Golf'):
         print('  ⏸ Golf is frozen, skipping'); return True
-    try:
-        rankings = []
-        source = None
-
-        # Primary: OWGR.com JSON API (plain requests)
-        if not rankings:
-            try:
-                data = fetch_json(
-                    'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200&country=All&playerName=',
-                    headers={'Referer': 'https://www.owgr.com/', 'Accept': 'application/json'}
-                )
-                for item in data.get('rankings', data if isinstance(data, list) else []):
-                    rank = item.get('rank') or item.get('position')
-                    player = item.get('name') or item.get('playerName') or item.get('fullName', '')
-                    if player and rank:
-                        rankings.append({'player': player, 'rank': int(rank)})
-                if rankings:
-                    source = 'owgr'
-                    print(f'    ✓ OWGR.com JSON API: {len(rankings)} players')
-            except Exception as e:
-                print(f'    ✗ OWGR.com JSON API: {e}')
-
-        # Fallback 1: OWGR.com via cloudscraper (bypasses bot-detection if plain request blocked)
-        if not rankings:
-            try:
-                import cloudscraper
-                scraper = cloudscraper.create_scraper()
-                r = scraper.get(
-                    'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200&country=All&playerName=',
-                    headers={'Accept': 'application/json'},
-                    timeout=20,
-                )
-                r.raise_for_status()
-                data = r.json()
-                for item in data.get('rankings', data if isinstance(data, list) else []):
-                    rank = item.get('rank') or item.get('position')
-                    player = item.get('name') or item.get('playerName') or item.get('fullName', '')
-                    if player and rank:
-                        rankings.append({'player': player, 'rank': int(rank)})
-                if rankings:
-                    source = 'owgr-cloudscraper'
-                    print(f'    ✓ OWGR.com (cloudscraper): {len(rankings)} players')
-            except Exception as e:
-                print(f'    ✗ OWGR.com (cloudscraper): {e}')
-
-        # Fallback 2: ESPN golf rankings API
-        if not rankings:
-            try:
-                data = fetch_json('https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings')
-                rankings = _parse_owgr_espn(data)
-                if rankings:
-                    source = 'espn'
-                    print(f'    ✓ ESPN Golf API: {len(rankings)} players')
-            except Exception as e:
-                print(f'    ✗ ESPN Golf API: {e}')
-
-        if rankings:
-            print(f'  ✓ Golf via {source} ({len(rankings)} players)')
-            return save_standing('Golf', {'rankings': rankings, '_source': source})
-        print('  ⚠ Golf: ALL LIVE SOURCES FAILED → scoring will use data/golf.json or static dict')
-        return False
-    except Exception as e:
-        print(f'  ✗ Golf: {e}'); return False
+    print('  ⚠ Golf: no live OWGR source available (OWGR 404, ESPN /rankings 500) → scoring will use data/golf.json or static dict')
+    return False
 
 # ── Stock ─────────────────────────────────────────────────────────────────────
 
@@ -748,13 +686,16 @@ def probe():
     ESPN's soccer/racing trees work from the Actions IP.
     """
     candidates = [
-        ('MLS  · ESPN soccer',      f'{ESPN_BASE}/soccer/usa.1/standings'),
-        ('MLS  · Wikipedia',        'https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season'),
-        ('NASCAR · ESPN racing',    'https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings'),
-        ('NASCAR · cf.nascar',      'https://cf.nascar.com/cacher/2026/1/points/drivers-points.json'),
-        ('NASCAR · Wikipedia',      'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series'),
-        ('Golf · OWGR',             'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=10&country=All&playerName='),
-        ('Golf · ESPN',             'https://site.api.espn.com/apis/site/v2/sports/golf/pga/rankings'),
+        ('MLS  · ESPN soccer',   f'{ESPN_BASE}/soccer/usa.1/standings'),
+        ('MLS  · Wikipedia',     'https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season'),
+        ('NASCAR · ESPN racing', 'https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings'),
+        ('NASCAR · Wikipedia',   'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series'),
+        # Golf — all confirmed dead as of 2026-06-17; kept here for future re-probing
+        # OWGR: entire owgr.com domain returns 404 (API and HTML page)
+        # ESPN /golf/pga/rankings → 500; /golf/pga/standings → empty stub
+        # ESPN /golf/leaderboard → 200 but is tournament event data, not OWGR rankings
+        ('Golf · ESPN leaderboard', 'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard'),
+        ('Golf · OWGR API',         'https://www.owgr.com/api/owgr/ranking?pageNo=1&pageSize=200'),
     ]
     print('\n🔎 Probing candidate sources (no data saved)...\n')
     for label, url in candidates:
