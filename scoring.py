@@ -6,7 +6,7 @@ Reads all data from Supabase via db.py instead of local JSON files.
 
 import os
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from draft_picks_2026 import DRAFT_PICKS_2026, PLAYERS, TENNIS_GENDER
 from db import get_standing, get_all_standings, get_all_bonuses, get_last_updated, get_standing_updated_at
@@ -864,8 +864,6 @@ if __name__ == '__main__':
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, 'scores.json')
 
-    import datetime
-
     # Read previous scores.json to preserve headline, headline timestamp, and score history
     existing_headline = ''
     existing_headline_ts = None
@@ -931,20 +929,20 @@ if __name__ == '__main__':
     new_places = {p['name']: p['place'] for p in data.get('players', [])}
 
     # 7-day rolling score history: update today's snapshot (overwrite if exists)
-    today_utc = datetime.datetime.now(datetime.timezone.utc)
+    today_utc = datetime.now(timezone.utc)
     today_str = today_utc.strftime('%Y-%m-%d')
     if score_history and score_history[-1].get('date') == today_str:
         score_history[-1] = {'date': today_str, 'totals': new_totals, 'places': new_places}
     else:
         score_history.append({'date': today_str, 'totals': new_totals, 'places': new_places})
-    cutoff = (today_utc - datetime.timedelta(days=10)).strftime('%Y-%m-%d')
+    cutoff = (today_utc - timedelta(days=10)).strftime('%Y-%m-%d')
     score_history = [e for e in score_history if e.get('date', '') >= cutoff]
-    target_date = (today_utc - datetime.timedelta(days=7)).strftime('%Y-%m-%d')
+    target_date = (today_utc - timedelta(days=7)).strftime('%Y-%m-%d')
     baseline_entry = min(
         score_history,
         key=lambda e: abs(
-            (datetime.datetime.strptime(e['date'], '%Y-%m-%d') -
-             datetime.datetime.strptime(target_date, '%Y-%m-%d')).days
+            (datetime.strptime(e['date'], '%Y-%m-%d') -
+             datetime.strptime(target_date, '%Y-%m-%d')).days
         )
     )
     data['score_history'] = score_history
