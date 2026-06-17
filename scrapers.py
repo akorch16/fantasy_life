@@ -458,15 +458,58 @@ def scrape_tennis():
         print(f'  ✗ Tennis: {e}'); return False
 
 # ── Golf ─────────────────────────────────────────────────────────────────────
-# As of 2026-06: OWGR API/HTML all return 404; ESPN /golf/pga/rankings returns
-# 500. No keyless live source exists for OWGR world rankings. Scoring falls
-# back to data/golf.json → GOLF_2026_OWGR_STATIC.
+# OWGR's own site (API + HTML) fully 404s and ESPN /golf/pga/rankings 500s, but
+# the PGA Tour's GraphQL API publishes the Official World Golf Ranking (statId
+# 186) via a public AppSync key embedded in pgatour.com's JS. That's the live
+# source. NOTE: must request gzip/deflate (not brotli) — requests can't decode br.
+
+# Public AppSync key from pgatour.com's JS bundle. Rotates rarely; a 401 here
+# means grab the current key from the site source and update this constant.
+PGATOUR_GRAPHQL_URL = 'https://orchestrator.pgatour.com/graphql'
+PGATOUR_API_KEY = 'da2-gsrx5bibzbb4njvhl7t37wqyl4'
+_OWGR_QUERY = """query StatDetails($tourCode: TourCode!, $statId: String!, $year: Int) {
+  statDetails(tourCode: $tourCode, statId: $statId, year: $year) {
+    statId
+    statTitle
+    rows { ... on StatDetailsPlayer { playerName rank } }
+  }
+}"""
 
 def scrape_golf():
     if is_frozen('Golf'):
         print('  ⏸ Golf is frozen, skipping'); return True
-    print('  ⚠ Golf: no live OWGR source available (OWGR 404, ESPN /rankings 500) → scoring will use data/golf.json or static dict')
-    return False
+    try:
+        rankings = []
+
+        # Tier 1: PGA Tour GraphQL — Official World Golf Ranking (statId 186).
+        try:
+            r = requests.post(
+                PGATOUR_GRAPHQL_URL,
+                json={'query': _OWGR_QUERY,
+                      'variables': {'tourCode': 'R', 'statId': '186', 'year': datetime.now().year}},
+                headers={**HEADERS, 'x-api-key': PGATOUR_API_KEY,
+                         'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, deflate'},
+                timeout=20,
+            )
+            r.raise_for_status()
+            rows = (r.json().get('data', {}).get('statDetails') or {}).get('rows', [])
+            for row in rows:
+                player = row.get('playerName', '')
+                rank = row.get('rank')
+                if player and rank:
+                    rankings.append({'player': player, 'rank': int(rank)})
+            if rankings:
+                print(f'    ✓ PGA Tour GraphQL (OWGR statId 186): {len(rankings)} players')
+        except Exception as e:
+            print(f'    ✗ PGA Tour GraphQL: {e}')
+
+        if rankings:
+            print(f'  ✓ Golf via pgatour ({len(rankings)} players)')
+            return save_standing('Golf', {'rankings': rankings, '_source': 'pgatour'})
+        print('  ⚠ Golf: ALL LIVE SOURCES FAILED → scoring will use data/golf.json or static dict')
+        return False
+    except Exception as e:
+        print(f'  ✗ Golf: {e}'); return False
 
 # ── Stock ─────────────────────────────────────────────────────────────────────
 
