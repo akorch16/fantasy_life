@@ -890,8 +890,8 @@
     <div class="picker-sub">Pick your FL identity. You'll start with <strong>1,000 Buckley Bucks</strong>.</div>
     <div class="picker-grid" id="picker-grid"></div>
     <div class="picker-reset-note" id="picker-reset-note" style="display:none">
-      Changing your identity will reset your balance and bets.<br>
-      <a onclick="confirmReset()">Confirm reset</a> &nbsp;·&nbsp; <a onclick="closePicker()">Cancel</a>
+      Switch identity? Your bets and balance are preserved on the server.<br>
+      <a onclick="confirmReset()">Confirm switch</a> &nbsp;·&nbsp; <a onclick="closePicker()">Cancel</a>
     </div>
   </div>
 </div>
@@ -1193,7 +1193,9 @@ function settleBets() {
 
 // ─── SUPABASE HELPERS ──────────────────────────────────────────
 
-// Push current player's balance + all bets to Supabase (non-blocking)
+// Push current player's bets to Supabase (non-blocking).
+// Balance is intentionally NOT written here — scoring.py owns sb_players.balance.
+// settled_outcome is intentionally omitted — scoring.py owns that field too.
 function sbSyncState(state) {
   if (!sbClient) return;
   const player = getPlayer();
@@ -1205,26 +1207,29 @@ function sbSyncState(state) {
     wager:            b.wager,
     potential_return: b.potentialReturn,
     sport:            b.sport || '',
-    settled_outcome:  b.settledOutcome || null,
     placed_at:        b.timestamp,
   }));
-  const ops = [
-    sbClient.from('sb_players')
-      .upsert({ name: player, balance: state.balance, updated_at: new Date().toISOString() }),
-  ];
   if (betsPayload.length) {
-    ops.push(sbClient.from('sb_bets').upsert(betsPayload, { onConflict: 'player,bet_id,placed_at' }));
+    sbClient.from('sb_bets')
+      .upsert(betsPayload, { onConflict: 'player,bet_id,placed_at' })
+      .catch(err => console.warn('[sbSyncState] Supabase error:', err));
   }
-  Promise.all(ops).catch(err => console.warn('[sbSyncState] Supabase error:', err));
 }
 
-// Clear a player's bets and reset their balance (called on identity reset)
+// Called on identity switch. Server records are preserved — only localStorage is cleared.
+// scoring.py owns sb_players.balance; sbHydrate will restore the correct balance on load.
 function sbResetPlayer(player) {
   if (!sbClient) return;
-  Promise.all([
-    sbClient.from('sb_bets').delete().eq('player', player),
-    sbClient.from('sb_players').upsert({ name: player, balance: STARTING_BB, updated_at: new Date().toISOString() }),
-  ]).catch(() => {});
+  // Only create the sb_players row if it doesn't already exist (first-time pick)
+  sbClient.from('sb_players')
+    .select('name').eq('name', player).maybeSingle()
+    .then(({ data }) => {
+      if (!data) {
+        sbClient.from('sb_players')
+          .upsert({ name: player, balance: STARTING_BB, updated_at: new Date().toISOString() })
+          .catch(() => {});
+      }
+    }).catch(() => {});
 }
 
 // Fetch all players + open bets for the leaderboard, then re-render
@@ -1797,15 +1802,6 @@ document.addEventListener('keydown', e => {
 (async function init() {
   const player = getPlayer();
   const state  = loadState();
-
-  // Wipe any bets placed before the last reset (keeps balance clean).
-  // Write directly to localStorage — do NOT call saveState/sbSyncState here,
-  // or it would overwrite the Supabase balance with 1000 BB, erasing any
-  // settled winnings that scoring.py already credited.
-  if (state && state.bets && state.bets.some(b => b.timestamp < RESET_AFTER)) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ balance: STARTING_BB, bets: [] }));
-    // sbHydrate (below) will restore the correct balance from Supabase
-  }
 
   // Start Supabase realtime subscription + initial leaderboard fetch
   sbSubscribeLeaderboard();

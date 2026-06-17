@@ -1,0 +1,35 @@
+name: Sportsbook DB Diagnostic
+
+# Manual-only: dump sb_players and sb_bets from Supabase to verify state,
+# or run --repair-korch to insert Korch's missing bet records.
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command to run'
+        required: true
+        default: '--dump-sb'
+        type: choice
+        options:
+          - '--dump-sb'
+          - '--repair-korch'
+
+jobs:
+  db-tool:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run db tool
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python db.py ${{ github.event.inputs.command }}
