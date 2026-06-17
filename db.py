@@ -589,17 +589,20 @@ if __name__ == '__main__':
 
     elif '--repair-korch' in sys.argv:
         # One-time repair: insert Korch's 7 bets that were deleted by sbResetPlayer.
-        # potential_return values estimated from odds at placement time; adjust if dump
-        # reveals different values (NBA NO ~35% YES odds → 185 BB, etc.).
+        # potential_return values derived from Jamzee's bets (same event, same odds window):
+        #   NBA YES was 47% → Korch's NO effective odds = 53% → PR = round(100*100/53) = 189
+        #   NHL YES was 42% → Korch's YES effective odds = 42% → PR = round(100*100/42) = 238
+        #   Tennis: total PR across all 7 confirmed = 1427 BB → tennis = 1427 - 1258 = 169
+        # After insert: recalc gives 1000 - 800 + 189 (NBA win) = 389 BB.
         placed = '2026-06-01T00:00:00Z'
         bets = [
             {'player': 'Korch', 'bet_id': 'pts-mitchell-v-todd',               'side': 'yes', 'wager': 100, 'potential_return': 154, 'sport': 'Total Points', 'settled_outcome': None,    'placed_at': placed},
             {'player': 'Korch', 'bet_id': 'pts-buckley-v-theo',                'side': 'yes', 'wager': 100, 'potential_return': 125, 'sport': 'Total Points', 'settled_outcome': None,    'placed_at': placed},
             {'player': 'Korch', 'bet_id': 'pts-wu-v-korch',                    'side': 'no',  'wager': 200, 'potential_return': 377, 'sport': 'Total Points', 'settled_outcome': None,    'placed_at': placed},
             {'player': 'Korch', 'bet_id': 'stocks-fryar-avgo-v-mitchell-cvna', 'side': 'yes', 'wager': 100, 'potential_return': 175, 'sport': 'Stocks',        'settled_outcome': None,    'placed_at': placed},
-            {'player': 'Korch', 'bet_id': 'nba-fin-wu-v-buckley',              'side': 'no',  'wager': 100, 'potential_return': 185, 'sport': 'NBA',           'settled_outcome': 'won',   'placed_at': placed},
-            {'player': 'Korch', 'bet_id': 'nhl-fin-tim-v-jamzee',              'side': 'yes', 'wager': 100, 'potential_return': 222, 'sport': 'NHL',           'settled_outcome': 'lost',  'placed_at': placed},
-            {'player': 'Korch', 'bet_id': 'rg-w-fryar-v-feder',               'side': 'no',  'wager': 100, 'potential_return': 286, 'sport': 'Tennis',        'settled_outcome': 'lost',  'placed_at': placed},
+            {'player': 'Korch', 'bet_id': 'nba-fin-wu-v-buckley',              'side': 'no',  'wager': 100, 'potential_return': 189, 'sport': 'NBA',           'settled_outcome': 'won',   'placed_at': placed},
+            {'player': 'Korch', 'bet_id': 'nhl-fin-tim-v-jamzee',              'side': 'yes', 'wager': 100, 'potential_return': 238, 'sport': 'NHL',           'settled_outcome': 'lost',  'placed_at': placed},
+            {'player': 'Korch', 'bet_id': 'rg-w-fryar-v-feder',               'side': 'no',  'wager': 100, 'potential_return': 169, 'sport': 'Tennis',        'settled_outcome': 'lost',  'placed_at': placed},
         ]
         r = requests.post(
             f'{SUPABASE_URL}/rest/v1/sb_bets',
