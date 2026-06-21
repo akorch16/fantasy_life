@@ -1015,9 +1015,8 @@ function renderTable() {
 
     tbody.appendChild(tr);
 
-    // Breakdown row (non-Todd only)
-    if (!isTodd) {
-      const br = document.createElement('tr');
+    // Breakdown row
+    const br = document.createElement('tr');
       br.className = 'breakdown-row';
       br.id = 'breakdown-' + idx;
 
@@ -1067,7 +1066,6 @@ function renderTable() {
       }
       br.appendChild(td);
       tbody.appendChild(br);
-    }
   });
 }
 
