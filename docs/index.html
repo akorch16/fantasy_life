@@ -345,10 +345,6 @@
       color: var(--text);
     }
 
-    .score-cell.todd-score {
-      color: var(--muted);
-    }
-
     .expand-cell {
       width: 32px;
       text-align: center;
@@ -512,273 +508,6 @@
     .song-weeks-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); text-align: center; padding-right: 4px; }
     .song-no-data { font-size: 0.82rem; color: var(--dim); font-style: italic; padding: 4px 0 8px; }
 
-    /* ─── TODD PAYWALL ROW ─── */
-    .todd-lock-icon {
-      font-size: 1rem;
-      display: inline-block;
-    }
-
-    .todd-teaser {
-      font-size: 0.72rem;
-      color: var(--red);
-      font-style: italic;
-    }
-
-    /* ─── MODAL ─── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(4px);
-      padding: 16px;
-      overflow-y: auto;
-    }
-
-    .modal-overlay.open { display: flex; }
-
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      width: 100%;
-      max-width: 500px;
-      padding: 28px 24px;
-      position: relative;
-      animation: modalIn 0.25s ease;
-      margin: auto;
-      max-height: calc(100vh - 32px);
-      overflow-y: auto;
-    }
-
-    @media (max-width: 480px) {
-      .modal { padding: 20px 16px; border-radius: 6px; }
-      .modal-title { font-size: 1.8rem; }
-      .tier-price { font-size: 1.3rem; }
-      .roast-rank { font-size: 3rem; }
-      .roast-score-display { font-size: 2rem; }
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 16px; right: 16px;
-      background: none; border: none;
-      color: var(--muted); font-size: 1.2rem;
-      cursor: pointer; line-height: 1;
-    }
-
-    .modal-close:hover { color: var(--text); }
-
-    .modal-phase { display: none; }
-    .modal-phase.active { display: block; }
-
-    .modal-eyebrow {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--red);
-      margin-bottom: 8px;
-      font-family: 'DM Mono', monospace;
-    }
-
-    .modal-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.2rem;
-      line-height: 1;
-      margin-bottom: 12px;
-    }
-
-    .modal-subtitle {
-      font-size: 0.82rem;
-      color: var(--muted);
-      line-height: 1.5;
-      margin-bottom: 24px;
-    }
-
-    .tier-cards {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-
-    .tier-card {
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 16px;
-      cursor: pointer;
-      transition: all 0.15s;
-      position: relative;
-    }
-
-    .tier-card:hover { border-color: var(--blue); background: var(--surface2); }
-
-    .tier-card.recommended {
-      border-color: var(--blue);
-    }
-
-    .tier-rec-badge {
-      position: absolute;
-      top: -8px; right: 12px;
-      background: var(--blue);
-      color: white;
-      font-size: 0.58rem;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .tier-name {
-      font-weight: 600;
-      font-size: 0.88rem;
-      margin-bottom: 2px;
-    }
-
-    .tier-price {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.5rem;
-      color: var(--blue);
-    }
-
-    .tier-features {
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-top: 4px;
-      line-height: 1.5;
-    }
-
-    .modal-fine-print {
-      font-size: 0.6rem;
-      color: var(--dim);
-      text-align: center;
-      line-height: 1.5;
-    }
-
-    /* Phase 2 — "processing" */
-    .processing-spinner {
-      text-align: center;
-      padding: 20px 0;
-    }
-
-    .spinner {
-      width: 32px; height: 32px;
-      border: 3px solid var(--border);
-      border-top-color: var(--blue);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 12px;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .processing-text {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    /* Phase 3 — roast reveal */
-    .roast-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .roast-rank {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 4rem;
-      color: var(--red);
-      line-height: 1;
-    }
-
-    .roast-label {
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    .roast-name {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .roast-score-display {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.5rem;
-      color: var(--red);
-    }
-
-    .roast-categories {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .roast-cat-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.78rem;
-      padding: 8px 12px;
-      background: var(--surface2);
-      border-radius: 4px;
-      border-left: 3px solid var(--red);
-    }
-
-    .roast-cat-name { color: var(--muted); }
-    .roast-cat-detail { color: var(--text); font-style: italic; }
-    .roast-cat-pts {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--red);
-      font-weight: 600;
-    }
-
-    .roast-quote {
-      font-size: 0.8rem;
-      color: var(--muted);
-      font-style: italic;
-      border-left: 3px solid var(--dim);
-      padding-left: 12px;
-      margin-bottom: 20px;
-      line-height: 1.6;
-    }
-
-    .dispute-btn {
-      width: 100%;
-      padding: 10px;
-      background: transparent;
-      border: 1px solid var(--dim);
-      color: var(--dim);
-      border-radius: 4px;
-      font-size: 0.72rem;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      transition: all 0.15s;
-    }
-
-    .dispute-btn:hover {
-      border-color: var(--muted);
-      color: var(--muted);
-    }
-
-    .dispute-result {
-      text-align: center;
-      font-size: 0.72rem;
-      color: var(--red);
-      margin-top: 8px;
-      min-height: 18px;
-    }
-
     /* ─── CATEGORY STAT COLUMNS ─── */
     .stat-col {
       text-align: right;
@@ -903,10 +632,23 @@
       .news-bar { flex-direction: column; gap: 4px; }
       .news-bar-left { flex-direction: row; align-items: center; gap: 8px; border-right: none; padding-right: 0; border-bottom: none; }
     }
+    .fd-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:9000}
+    .fd-modal{background:#0d1117;border:1px solid #e6a817;border-radius:12px;padding:2rem;max-width:380px;width:90%;text-align:center;color:#e8f0e8}
+    .fd-badge{display:inline-block;background:#e6a817;color:#000;padding:4px 12px;border-radius:99px;font-size:.75rem;font-weight:700;margin-bottom:1rem}
+    .fd-title{font-size:1.6rem;margin:0 0 .5rem}
+    .fd-price{font-size:1.4rem;margin:.5rem 0}
+    .fd-strike{text-decoration:line-through;opacity:.5;font-weight:400}
+    .fd-sub{font-size:.8rem;opacity:.7;margin:.5rem 0 1rem}
+    .fd-question{font-weight:700;margin-bottom:1rem}
+    .fd-buttons{display:flex;gap:1rem;justify-content:center}
+    .fd-btn{padding:.6rem 2rem;border-radius:8px;border:none;font-size:1rem;font-weight:700;cursor:pointer}
+    .fd-yes{background:#e6a817;color:#000}
+    .fd-no{background:#222;color:#aaa;border:1px solid #444}
   </style>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c0a91842667f4f16b87e22ebbce8e280"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
+<div id="fd-banner" style="background:#e6a817;color:#000;text-align:center;padding:8px 40px 8px 16px;font-size:.85rem;font-weight:600;position:relative;z-index:10000">&#x1F381; Father&#x27;s Day Special &mdash; Enterprise Plan 50% off &middot; <a href="https://buy.stripe.com/6oU9AS5bTaQp6BO3WMg7e02" style="color:#000;text-decoration:underline">Claim offer</a><button onclick="this.parentElement.style.display=&#x27;none&#x27;" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1.1rem;cursor:pointer;color:#000">&#x2715;</button></div>
 
 <header>
   <div style="display:flex;align-items:center;gap:12px;">
@@ -983,121 +725,17 @@
 
 </div>
 
-<!-- ─── TODD PAYWALL MODAL ─── -->
-<div class="modal-overlay" id="todd-modal" onclick="handleOverlayClick(event)">
-  <div class="modal">
-    <button class="modal-close" onclick="closeToddModal()">✕</button>
-
-    <!-- Phase 1: Paywall -->
-    <div class="modal-phase active" id="phase-1">
-      <div class="modal-eyebrow">🔒 Exclusive Content</div>
-      <div class="modal-title">Todd's Score<br>Is Premium</div>
-      <div class="modal-subtitle">
-        Due to the <em>unprecedented embarrassment</em> of Todd's 2026 performance,
-        his score has been placed behind a paywall for his own dignity. Choose a plan to unlock it.
-      </div>
-
-      <div class="tier-cards">
-        <div class="tier-card" onclick="startPayment(1)">
-          <div class="tier-name">Basic</div>
-          <div class="tier-price">$9.99<span style="font-size:0.9rem;color:var(--muted)">/mo</span></div>
-          <div class="tier-features">
-            ✓ See Todd's total score<br>
-            ✗ No category breakdown<br>
-            ✗ Explanation of why Todd is so bad
-          </div>
-        </div>
-        <div class="tier-card recommended" onclick="startPayment(2)">
-          <div class="tier-rec-badge">Most Popular</div>
-          <div class="tier-name">Premium</div>
-          <div class="tier-price">$24.99<span style="font-size:0.9rem;color:var(--muted)">/mo</span></div>
-          <div class="tier-features">
-            ✓ Everything in Basic<br>
-            ✓ Full category-by-category roast<br>
-            ✓ Certified analyst commentary<br>
-            ✗ Therapy referral (sold separately)
-          </div>
-        </div>
-        <div class="tier-card" onclick="startPayment(3)">
-          <div class="tier-name">Enterprise</div>
-          <div class="tier-price">$99<span style="font-size:0.9rem;color:var(--muted)">/mo</span></div>
-          <div class="tier-features">
-            ✓ Everything in Premium<br>
-            ✓ Todd personally explains his picks (30 min)<br>
-            ✓ Commemorative "At Least I Tried" certificate<br>
-            ✓ Priority access to future terrible picks
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-fine-print">
-        By subscribing you acknowledge that Fantasy Life LLC is not responsible for<br>
-        emotional distress caused by Todd's stock picks. Cancel anytime. Refunds: no.
-      </div>
-    </div>
-
-    <!-- Phase 2: Fake processing -->
-    <div class="modal-phase" id="phase-2">
-      <div class="modal-eyebrow">Processing Payment...</div>
-      <div class="modal-title">Charging Your Card</div>
-      <div class="processing-spinner">
-        <div class="spinner"></div>
-        <div class="processing-text" id="processing-text">Contacting payment processor...</div>
-      </div>
-    </div>
-
-    <!-- Phase 3: Roast reveal -->
-    <div class="modal-phase" id="phase-3">
-      <div class="modal-eyebrow">🔓 Premium Unlocked — You're Welcome</div>
-
-      <div class="roast-header">
-        <div class="roast-rank" id="todd-reveal-rank">13</div>
-        <div>
-          <div class="roast-label">Current Standing</div>
-          <div class="roast-name">Todd</div>
-          <div style="font-size:0.7rem;color:var(--muted);">Also known as "The Floor"</div>
-        </div>
-        <div style="margin-left:auto;text-align:right;">
-          <div class="roast-label">Total Score</div>
-          <div class="roast-score-display" id="todd-reveal-total">47.5</div>
-        </div>
-      </div>
-
-      <div class="roast-categories">
-        <div class="roast-cat-item">
-          <span class="roast-cat-name">Stock (NVDA)</span>
-          <span class="roast-cat-detail">Down 18% since Jan 1st</span>
-          <span class="roast-cat-pts">1 pt</span>
-        </div>
-        <div class="roast-cat-item">
-          <span class="roast-cat-name">Golf (Cantlay)</span>
-          <span class="roast-cat-detail">Missed 4 consecutive cuts</span>
-          <span class="roast-cat-pts">2 pts</span>
-        </div>
-        <div class="roast-cat-item">
-          <span class="roast-cat-name">NASCAR (Kyle Busch)</span>
-          <span class="roast-cat-detail">Retired. Picked post-retirement.</span>
-          <span class="roast-cat-pts">1 pt</span>
-        </div>
-        <div class="roast-cat-item">
-          <span class="roast-cat-name">Actor (Ben Affleck)</span>
-          <span class="roast-cat-detail">No films released. Or announced.</span>
-          <span class="roast-cat-pts">1 pt</span>
-        </div>
-        <div class="roast-cat-item">
-          <span class="roast-cat-name">Country GDP</span>
-          <span class="roast-cat-detail">Picked Chad. Yes, that Chad.</span>
-          <span class="roast-cat-pts">1 pt</span>
-        </div>
-      </div>
-
-      <div class="roast-quote">
-        "I asked ChatGPT to optimize my picks and it told me it was sorry for my loss."
-        <br>— Todd, probably
-      </div>
-
-      <button class="dispute-btn" onclick="disputeScore()">🚨 Dispute This Score</button>
-      <div class="dispute-result" id="dispute-result"></div>
+<!-- ─── FATHER'S DAY ENTERPRISE MODAL ─── -->
+<div id="fd-modal" class="fd-modal-overlay" style="display:none" onclick="if(event.target===this)fdDecline()">
+  <div class="fd-modal">
+    <div class="fd-badge">🎁 Father's Day Special</div>
+    <h2 class="fd-title">Enterprise Plan</h2>
+    <p class="fd-price"><s class="fd-strike">$99/mo</s> <strong>$49.50/mo</strong></p>
+    <p class="fd-sub">50% off — today only. Unlock premium FL Analytics, advanced projections, and priority support.</p>
+    <p class="fd-question">Do you want to continue?</p>
+    <div class="fd-buttons">
+      <button class="fd-btn fd-yes" onclick="fdProceed()">Yes</button>
+      <button class="fd-btn fd-no" onclick="fdDecline()">No</button>
     </div>
   </div>
 </div>
@@ -1338,24 +976,11 @@ function renderTable() {
     const tr = document.createElement('tr');
     tr.className = 'player-row';
     tr.id = 'row-' + idx;
-    const isBuckley = player.name === 'Buckley';
-    tr.onclick = isTodd ? () => openToddModal() : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
+    tr.onclick = isTodd ? () => openFathersDayModal(idx) : () => toggleBreakdown(idx);
 
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
 
-    if (isTodd) {
-      const extraCols = currentFilter !== 'all' ? `<td></td><td></td><td></td>` : '<td></td>';
-      tr.innerHTML = `
-        <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
-        <td>
-          <div class="player-name todd-name"><span class="todd-lock-icon">🔒</span> Todd</div>
-          <div class="todd-teaser">Score hidden — premium subscription required</div>
-        </td>
-        <td class="score-cell todd-score">??</td>
-        ${extraCols}
-        <td class="expand-cell">$</td>
-      `;
-    } else if (currentFilter === 'all') {
+    if (currentFilter === 'all') {
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td><div class="player-name">${player.name}</div></td>
@@ -1484,78 +1109,18 @@ const STRIPE_LINKS = {
 const FLASK_API = '';  // unused with Payment Links
 
 // ============================================================
-// TODD PAYWALL
+// FATHER'S DAY MODAL
 // ============================================================
-function openToddModal() {
-  document.getElementById('todd-modal').classList.add('open');
-  if (localStorage.getItem('todd_unlocked') === '1') {
-    renderToddReveal();
-    showPhase(3);
-  } else {
-    showPhase(1);
-  }
+function openFathersDayModal(idx) {
+  document.getElementById('fd-modal').style.display = 'flex';
+  window._fdIdx = idx;
 }
-
-function closeToddModal() {
-  document.getElementById('todd-modal').classList.remove('open');
-  document.getElementById('dispute-result').textContent = '';
+function fdProceed() {
+  window.location.href = STRIPE_LINKS[3];
 }
-
-function handleOverlayClick(e) {
-  if (e.target === document.getElementById('todd-modal')) closeToddModal();
-}
-
-function showPhase(n) {
-  document.querySelectorAll('.modal-phase').forEach(p => p.classList.remove('active'));
-  document.getElementById('phase-' + n).classList.add('active');
-}
-
-const processingMessages = [
-  'Contacting payment processor...',
-  'Verifying card details...',
-  'Checking for Todd-related surcharges...',
-  'Calculating embarrassment tax...',
-  'Preparing emotional support resources...',
-  'Unlocking vault of shame...',
-];
-
-function startPayment(tier) {
-  showPhase(2);
-  let i = 0;
-  const el = document.getElementById('processing-text');
-  const interval = setInterval(() => {
-    el.textContent = processingMessages[i % processingMessages.length];
-    i++;
-    if (i >= processingMessages.length) {
-      clearInterval(interval);
-      window.location.href = STRIPE_LINKS[tier] || STRIPE_LINKS[1];
-    }
-  }, 500);
-}
-
-function renderToddReveal() {
-  const todd = (window.SCORES_DATA || []).find(p => p.name === 'Todd');
-  if (!todd) return;
-  const rankEl = document.getElementById('todd-reveal-rank');
-  const totalEl = document.getElementById('todd-reveal-total');
-  if (rankEl) rankEl.textContent = todd.place || '?';
-  if (totalEl) totalEl.textContent = (todd.total || 0).toFixed(1);
-}
-
-const disputeResponses = [
-  'Dispute rejected. Score stands.',
-  'Dispute submitted. Todd laughed.',
-  'Error 404: Valid argument not found.',
-  'Our records confirm: this is correct.',
-  'Dispute denied. Please try therapy.',
-  'Commissioner reviewed. Still 47.5.',
-];
-let disputeCount = 0;
-
-function disputeScore() {
-  const el = document.getElementById('dispute-result');
-  el.textContent = disputeResponses[disputeCount % disputeResponses.length];
-  disputeCount++;
+function fdDecline() {
+  document.getElementById('fd-modal').style.display = 'none';
+  toggleBreakdown(window._fdIdx);
 }
 
 // ============================================================
@@ -1617,23 +1182,11 @@ fetch('./scores.json')
     }
     initDisplay();
     renderTable();
-    checkStripeReturn();
   })
   .catch(() => {
     renderTable(); // render empty state
   });
 
-// Check if user is returning from a completed Stripe Payment Link
-function checkStripeReturn() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('todd_unlocked') !== '1') return;
-
-  // Clean the param off the URL immediately
-  window.history.replaceState({}, '', window.location.pathname);
-
-  localStorage.setItem('todd_unlocked', '1');
-  openToddModal(); // openToddModal checks localStorage and jumps to phase 3
-}
 </script>
 
   <p style="text-align:center;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);padding:24px 0 8px;">Questions? <a href="mailto:tgrover8@gmail.com" style="color:var(--muted);text-decoration:underline;">Contact customer service.</a></p>
