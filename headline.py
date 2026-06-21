@@ -114,6 +114,10 @@ Draft picks (FL player → their pick) — cover ALL categories, not just sports
 {DRAFT_SUMMARY}
 {news_block}
 CRITICAL rules:
+- SCHEDULE vs RESULT: A snippet row showing two team records (e.g. "1-0-0" and "0-1-0") alongside a clock time ("12:00 PM", "3:00 PM ET", etc.) is a SCHEDULED game that has NOT been played yet. Do NOT report it as a completed result. A completed match has a plain scoreline with no kickoff time, or the snippet explicitly says "final" / "full-time" / "FT" / "FT:".
+- TABLE WITHOUT DATA: If a snippet contains only table column headers (e.g. "| RK | DRIVER | POINTS | WINS |") but no data row naming the specific driver/player, do NOT report any statistic for that driver. Skip the story entirely.
+- TRUNCATED TEXT: Snippets that end with "..." are cut off mid-sentence. Do NOT infer, complete, or extend what follows the "...". Only use text that is explicitly present before the cutoff point.
+- CITATION CHECK: Before writing each sentence, confirm the exact fact (score, number, outcome, opponent name) appears verbatim in one of the snippets above. If you cannot point to where it appears word-for-word, omit it.
 - ONLY report facts explicitly stated in the snippets above. Do NOT add any result, score, or outcome not written in a snippet.
 - If a snippet mentions a pick but doesn't clearly state the result or move, skip it.
 - For ongoing series (NBA Finals, NHL Finals, etc.), always report the MOST RECENT game — if snippets mention multiple games, use the highest game number.
