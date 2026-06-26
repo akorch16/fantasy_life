@@ -605,6 +605,10 @@ _PROP_DEFS_SETTLED = [
     ("nhl-pts-jamzee-v-korch",  100),  # Hurricanes advanced; Korch out
     ("nba-fin-wu-v-buckley",      0),  # Knicks won NBA Finals; Wu/Spurs lost
     ("nhl-fin-tim-v-jamzee",      0),  # Hurricanes won Stanley Cup; Tim/Golden Knights lost
+    ("uso-wu-v-molmen",         100),  # Scheffler T4 > McIlroy +6 at US Open
+    ("uso-tim-v-shep",          100),  # Schauffele T11 > Rahm (did not finish)
+    ("wc-theo-beats-buckley",   100),  # Switzerland beat Canada 2-1 in Group B
+    ("wc-shep-beats-fryar",     100),  # France beat Norway 3-1 in Group I
 ]
 
 _PROP_DEFS = [
@@ -613,9 +617,8 @@ _PROP_DEFS = [
     ("rg-w-fryar-v-wu",     55, lambda o: _h2h(o.get("tennis_french_women_win",{}).get("Fryar",0), o.get("tennis_french_women_win",{}).get("Wu",0)),    "Tennis-FO-Women"),
 
     # ── US Open Golf ─────────────────────────────────────────────────────────────
-    ("uso-wu-v-molmen",    52, lambda o: _h2h(o.get("golf_uso_win",{}).get("Wu",0),     o.get("golf_uso_win",{}).get("Molmen",0)), "Golf-USOpen-win"),
+    # uso-wu-v-molmen, uso-tim-v-shep settled — see _PROP_DEFS_SETTLED
     ("uso-molmen-v-feder", 48, lambda o: _h2h(o.get("golf_uso_win",{}).get("Molmen",0), o.get("golf_uso_win",{}).get("Feder",0)), "Golf-USOpen-win"),
-    ("uso-tim-v-shep",     62, lambda o: _h2h(o.get("golf_uso_win",{}).get("Tim",0),    o.get("golf_uso_win",{}).get("Shep",0)),  "Golf-USOpen-win"),
 
     # ── MLB / MLS / NASCAR (model only) ──────────────────────────────────────────
     ("mlb-jens-v-tim",        54, _mlb_h2h("Jens",    "Tim"),      "mlb-standings"),
@@ -626,8 +629,7 @@ _PROP_DEFS = [
     ("nascar-molmen-v-korch", 53, None, None),
 
     # ── FIFA World Cup 2026 (static Kalshi-calibrated odds) ──────────────────────
-    ("wc-theo-beats-buckley",      62, None, None),  # Group B: CHE beats CAN
-    ("wc-shep-beats-fryar",        73, None, None),  # Group I: FRA beats NOR
+    # wc-theo-beats-buckley, wc-shep-beats-fryar settled — see _PROP_DEFS_SETTLED
     ("wc-jens-v-tim-group-pts",    58, None, None),  # GER > NED group stage pts
     ("wc-jamzee-v-shep-group-pts",  54, None, None),  # ESP > FRA group stage pts
     ("wc-wu-v-fryar-group-pts",    62, None, None),  # USA > NOR group stage pts
