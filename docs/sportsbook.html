@@ -1070,33 +1070,37 @@ const BETS = [
     id: 'wc-jens-v-tim-group-pts',
     sport: 'World Cup · Group Stage',
     title: 'Germany (<em>Jens</em>) earns more group stage points than Netherlands (<em>Tim</em>)',
-    desc: 'Germany draws Group E (Ivory Coast, Ecuador, Curaçao) — favorable. Netherlands gets Group F (Japan, Sweden, Tunisia) — stiffer. Germany\'s cleaner path gives Jens the edge. Ties push (wager returned). Settles Jul 2.',
+    desc: 'PUSH — Germany and Netherlands both finished with 6 group stage points. All wagers returned.',
     odds: 58,
     closes: 'Jul 2',
+    settled: true,
   },
   {
     id: 'wc-jamzee-v-shep-group-pts',
     sport: 'World Cup · Group Stage',
     title: 'Spain (<em>Jamzee</em>) earns more group stage points than France (<em>Shep</em>)',
-    desc: 'Spain draws Group H (Uruguay, Saudi Arabia, Cape Verde). France gets Group I with Norway — a genuine points threat. Spain\'s slightly easier path gives Jamzee the edge. Ties push (wager returned). Settles Jul 2.',
-    odds: 54,
+    desc: 'SETTLED — Spain finished with 7 pts (2W 1D); France finished with 6 pts (2W 1L, lost to Norway 4-1). YES (Jamzee/Spain) wins.',
+    odds: 100,
     closes: 'Jul 2',
+    settled: true,
   },
   {
     id: 'wc-wu-v-fryar-group-pts',
     sport: 'World Cup · Group Stage',
     title: 'USA (<em>Wu</em>) earns more group stage points than Norway (<em>Fryar</em>)',
-    desc: 'USA faces Australia, Paraguay, Turkey in Group D — all beatable. Norway draws France (16.3% Kalshi to win it all) in Group I. Wu\'s easier draw should show in the points. Fryar\'s Norway is bonus-capped at 13 regardless.',
-    odds: 62,
+    desc: 'SETTLED — Norway won Group I with a perfect 9 points (3W); USA finished Group D with 6 points. NO (Fryar/Norway) wins.',
+    odds: 0,
     closes: 'Jul 2',
+    settled: true,
   },
   {
     id: 'wc-molmen-v-feder-group-pts',
     sport: 'World Cup · Group Stage',
     title: 'Argentina (<em>Molmen</em>) earns more group stage points than Brazil (<em>Feder</em>)',
-    desc: 'The South American derby. Argentina draws Group J (Algeria, Austria, Jordan); Brazil gets Group C (Haiti, Morocco, Scotland) — both pillow-soft. Both likely go 9 pts. Ties push. Classic rivalry.',
-    odds: 50,
+    desc: 'SETTLED — Argentina went 3W for 9 points in Group J; Brazil finished with 7 points in Group C. YES (Molmen/Argentina) wins.',
+    odds: 100,
     closes: 'Jul 2',
+    settled: true,
   },
 
   // ── LONG SHOT ─────────────────────────────────────────────────
@@ -1448,6 +1452,7 @@ function renderAllBets() {
       let outcomeHtml = '';
       if (b.settled_outcome === 'won') outcomeHtml = `<span class="outcome-won">WON</span>`;
       else if (b.settled_outcome === 'lost') outcomeHtml = `<span class="outcome-lost">LOST</span>`;
+      else if (b.settled_outcome === 'void') outcomeHtml = `<span style="color:var(--muted)">PUSH</span>`;
       return `
         <div class="all-bet-row">
           <div class="active-bet-info">

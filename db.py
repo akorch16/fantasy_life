@@ -434,8 +434,8 @@ def settle_market(market_id: str, result: bool) -> int:
 
 def settle_sb_bet(bet_id: str, outcome: str) -> int:
     """Settle all sb_bets rows for a sportsbook prop.
-    outcome: 'yes' or 'no'
-    Credits potential_return to each winner's sb_players balance.
+    outcome: 'yes' | 'no' | 'push'
+    Credits potential_return to winners; on push credits wager back to all sides (settled_outcome='void').
     Returns number of bets processed."""
     if not SUPABASE_URL or not SUPABASE_KEY:
         return 0
@@ -458,8 +458,9 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
 
     count = 0
     for bet in bets:
-        won = bet['side'] == outcome
-        settled_outcome = 'won' if won else 'lost'
+        is_push = outcome == 'push'
+        won = (not is_push) and bet['side'] == outcome
+        settled_outcome = 'void' if is_push else ('won' if won else 'lost')
         requests.patch(
             f'{SUPABASE_URL}/rest/v1/sb_bets',
             headers=_headers(),
@@ -467,7 +468,8 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
             json={'settled_outcome': settled_outcome},
             timeout=_TIMEOUT,
         )
-        if won:
+        if won or is_push:
+            credit = bet['wager'] if is_push else bet['potential_return']
             try:
                 r2 = requests.get(
                     f'{SUPABASE_URL}/rest/v1/sb_players',
@@ -477,7 +479,7 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
                 )
                 rows = r2.json()
                 if rows:
-                    new_bal = rows[0]['balance'] + bet['potential_return']
+                    new_bal = rows[0]['balance'] + credit
                     requests.patch(
                         f'{SUPABASE_URL}/rest/v1/sb_players',
                         headers=_headers(),

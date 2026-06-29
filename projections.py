@@ -609,6 +609,10 @@ _PROP_DEFS_SETTLED = [
     ("uso-tim-v-shep",          100),  # Schauffele T11 > Rahm (did not finish)
     ("wc-theo-beats-buckley",   100),  # Switzerland beat Canada 2-1 in Group B
     ("wc-shep-beats-fryar",     100),  # France beat Norway 3-1 in Group I
+    ("wc-jens-v-tim-group-pts",  58),  # PUSH — Germany and Netherlands both 6 pts
+    ("wc-jamzee-v-shep-group-pts", 100),  # Spain 7 pts > France 6 pts
+    ("wc-wu-v-fryar-group-pts",   0),  # Norway 9 pts > USA 6 pts; NO wins
+    ("wc-molmen-v-feder-group-pts", 100),  # Argentina 9 pts > Brazil 7 pts
 ]
 
 _PROP_DEFS = [
@@ -628,12 +632,7 @@ _PROP_DEFS = [
     ("mls-theo-v-shep",       57, _mls_h2h("Theo",    "Shep"),     "mls-standings"),
     ("nascar-molmen-v-korch", 53, None, None),
 
-    # ── FIFA World Cup 2026 (static Kalshi-calibrated odds) ──────────────────────
-    # wc-theo-beats-buckley, wc-shep-beats-fryar settled — see _PROP_DEFS_SETTLED
-    ("wc-jens-v-tim-group-pts",    58, None, None),  # GER > NED group stage pts
-    ("wc-jamzee-v-shep-group-pts",  54, None, None),  # ESP > FRA group stage pts
-    ("wc-wu-v-fryar-group-pts",    62, None, None),  # USA > NOR group stage pts
-    ("wc-molmen-v-feder-group-pts", 50, None, None),  # ARG > BRA group stage pts
+    # ── FIFA World Cup 2026 (all group-stage props settled — see _PROP_DEFS_SETTLED)
 
     # ── Total Points (simulation-backed — updates every run from Monte Carlo) ──────
     ("pts-wu-v-korch",      47, _pts_h2h("Wu",      "Korch"),   "pts-model"),

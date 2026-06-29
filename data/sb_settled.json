@@ -1,9 +1,13 @@
 [
-  {"id": "rg-w-fryar-v-feder",   "outcome": "yes"},
-  {"id": "nba-fin-wu-v-buckley", "outcome": "no"},
-  {"id": "nhl-fin-tim-v-jamzee",  "outcome": "no"},
-  {"id": "uso-wu-v-molmen",      "outcome": "yes"},
-  {"id": "uso-tim-v-shep",       "outcome": "yes"},
-  {"id": "wc-theo-beats-buckley", "outcome": "yes"},
-  {"id": "wc-shep-beats-fryar",   "outcome": "yes"}
+  {"id": "rg-w-fryar-v-feder",        "outcome": "yes"},
+  {"id": "nba-fin-wu-v-buckley",       "outcome": "no"},
+  {"id": "nhl-fin-tim-v-jamzee",       "outcome": "no"},
+  {"id": "uso-wu-v-molmen",            "outcome": "yes"},
+  {"id": "uso-tim-v-shep",             "outcome": "yes"},
+  {"id": "wc-theo-beats-buckley",      "outcome": "yes"},
+  {"id": "wc-shep-beats-fryar",        "outcome": "yes"},
+  {"id": "wc-jens-v-tim-group-pts",    "outcome": "push"},
+  {"id": "wc-jamzee-v-shep-group-pts", "outcome": "yes"},
+  {"id": "wc-wu-v-fryar-group-pts",    "outcome": "no"},
+  {"id": "wc-molmen-v-feder-group-pts","outcome": "yes"}
 ]
