@@ -65,7 +65,10 @@
     },
     {
       "name": "Jessie Buckley",
-      "composite_score": 0
+      "composite_score": 13.68,
+      "movies": [
+        { "title": "The Bride", "release_date": "2026-03-06", "box_office": 24000000, "rt_score": 57, "composite": 13.68 }
+      ]
     },
     {
       "name": "Emma Stone",
@@ -73,12 +76,12 @@
     },
     {
       "name": "Anya Taylor-Joy",
-      "composite_score": 183.61,
+      "composite_score": 423.36,
       "movies": [
-        { "title": "The Super Mario Galaxy Movie", "release_date": "2026-04-01", "box_office": 427000000, "rt_score": 43, "composite": 183.61 },
+        { "title": "The Super Mario Galaxy Movie", "release_date": "2026-04-01", "box_office": 1008000000, "rt_score": 42, "composite": 423.36 },
         { "title": "Dune: Part Three", "release_date": "2026-12-18" }
       ]
     }
   ],
-  "_updated": "2026-06-01"
+  "_updated": "2026-06-29"
 }
