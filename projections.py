@@ -642,7 +642,8 @@ _PROP_DEFS = [
     # (group-stage props all settled — see _PROP_DEFS_SETTLED)
     ("wc-shep-fra-r32",             82, None, None),  # France beats Sweden R32
     ("wc-fryar-nor-r32",            65, None, None),  # Norway beats Ivory Coast R32
-    ("wc-tim-v-buckley-deeper",     62, None, None),  # Netherlands > Canada in KO (R16 direct)
+    ("wc-wu-usa-r32",               70, None, None),  # USA beats Bosnia R32
+    ("wc-jens-ger-r32",             65, None, None),  # Germany beats Paraguay R32
     ("wc-molmen-arg-wins-wc",       20, None, None),  # Argentina wins the World Cup
 
     # ── Total Points (simulation-backed — updates every run from Monte Carlo) ──────
