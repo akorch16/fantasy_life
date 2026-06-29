@@ -632,7 +632,18 @@ _PROP_DEFS = [
     ("mls-theo-v-shep",       57, _mls_h2h("Theo",    "Shep"),     "mls-standings"),
     ("nascar-molmen-v-korch", 53, None, None),
 
-    # ── FIFA World Cup 2026 (all group-stage props settled — see _PROP_DEFS_SETTLED)
+    # ── Wimbledon 2026 (Jun 29 – Jul 12) ────────────────────────────────────────────
+    ("wimb-m-buckley-sinner-wins",  73, None, None),  # Sinner wins men's (Alcaraz/Todd withdrew)
+    ("wimb-w-fryar-v-feder",        60, None, None),  # Sabalenka > Swiatek; different halves
+    ("wimb-m-theo-v-shep",          38, None, None),  # Zverev > Djokovic (7x champion on grass)
+    ("wimb-w-wu-v-tim",             62, None, None),  # Gauff > Keys
+
+    # ── FIFA World Cup 2026 · Knockout Stage ─────────────────────────────────────
+    # (group-stage props all settled — see _PROP_DEFS_SETTLED)
+    ("wc-shep-fra-r32",             82, None, None),  # France beats Sweden R32
+    ("wc-fryar-nor-r32",            65, None, None),  # Norway beats Ivory Coast R32
+    ("wc-tim-v-buckley-deeper",     62, None, None),  # Netherlands > Canada in KO (R16 direct)
+    ("wc-molmen-arg-wins-wc",       20, None, None),  # Argentina wins the World Cup
 
     # ── Total Points (simulation-backed — updates every run from Monte Carlo) ──────
     ("pts-wu-v-korch",      47, _pts_h2h("Wu",      "Korch"),   "pts-model"),
