@@ -1,4 +1,9 @@
 [
+  {"id": "rg-m-shep-v-todd",           "outcome": "yes"},
+  {"id": "nba-ecf-buckley-v-jens",     "outcome": "yes"},
+  {"id": "nba-wcf-wu-v-feder",         "outcome": "yes"},
+  {"id": "nhl-wcf-tim-v-korch",        "outcome": "yes"},
+  {"id": "nhl-pts-jamzee-v-korch",     "outcome": "yes"},
   {"id": "rg-w-fryar-v-feder",        "outcome": "yes"},
   {"id": "nba-fin-wu-v-buckley",       "outcome": "no"},
   {"id": "nhl-fin-tim-v-jamzee",       "outcome": "no"},

@@ -19,6 +19,10 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 ```
 
 - `daily.yml` (08:00 UTC): scrapers → scoring → projections → commit both JSONs to main.
+- `odds.yml` (hourly at :23, skips 08:xx): `projections.py --odds-only` — refreshes Kalshi
+  prop odds in projections.json (Monte Carlo untouched), auto-settles props whose Kalshi
+  markets resolved, pays the ledger via `db.settle_sb_bet`, and maintains a GitHub issue
+  listing overdue unsettled props. Commits only when odds/settlements actually changed.
 - `headline.yml` (07:00 UTC): Tavily news search + Claude writes `headline` into scores.json.
   Manual dispatch always passes `--force` (bypasses the 24h dedup guard); scheduled runs don't.
   scoring.py re-preserves `headline`/`headline_generated_at` when it rewrites scores.json.
@@ -74,9 +78,15 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 - **Never push to main.** Cut a fresh branch per task from origin/main; ship same-session via `/fl-merge`
   (squash PR + immediate merge). Long-lived branches pay a daily conflict tax — main gets
   ~4-5 automated commits/day from the workflows.
-- Sportsbook bets live in two places that must stay consistent: the `BETS` array in
-  `docs/sportsbook.html` and `_PROP_DEFS` in projections.py (matching `id` strings).
-  Settling a bet means odds → 100/0 + `settled: true` in both.
+- Sportsbook bet definitions: the `BETS` array in `docs/sportsbook.html` (display) and
+  `_PROP_DEFS` + `_PROP_SCHEDULE` (+ optional `_AUTO_SETTLE_RULES`) in projections.py
+  (matching `id` strings). Every new bet needs a `_PROP_SCHEDULE` entry
+  (`closes_at`, `resolves_by`) — see `/fl-bet`.
+- **Settlement source of truth: `data/sb_settled.json`.** Settling = append
+  `{"id", "outcome": yes|no|push}` there (see `/fl-settle`); the hourly `odds.yml` run pays
+  winners, pins the prop in projections.json (`settled`+`outcome`), and the frontend derives
+  closed/PUSH state from that JSON. No HTML/`_PROP_DEFS_SETTLED` edits — that list is gone.
+  Wagering auto-locks client-side at `closes_at`; Kalshi-resolvable props settle themselves.
 - **Sportsbook balance authority:** `db.py` `recalculate_sb_balance()` is the sole writer of
   `sb_players.balance`. Formula: `1000 + adjustment - wagered + won_returns`. Per-player baseline
   adjustments live in `data/sb_adjustments.json` (currently Jens=1438). The browser

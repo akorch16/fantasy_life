@@ -30,21 +30,36 @@ delete existing entries). Bonuses in this file override Supabase.
 
 ---
 
-## Step 2 — Settle sportsbook props (four coordinated edits)
+## Step 2 — Settle sportsbook props (ONE file)
 
-For each affected prop id (e.g. `nhl-fin-tim-v-jamzee`):
+`data/sb_settled.json` is the single source of truth for settlement. For each
+affected prop id, append:
 
-1. **`docs/sportsbook.html`** — in the `BETS` array: set the winning side's odds
-   to 100, losing side to 0, add `settled: true`. The browser-side `settleBets()`
-   pays out localStorage bets from this.
-2. **`projections.py`** — move the prop's tuple out of `_PROP_DEFS` into
-   `_PROP_DEFS_SETTLED` as `("<id>", 100)` with a comment naming the outcome.
-   (If YES lost, pin it at `0`.)
-3. **`data/sb_settled.json`** — append `{"id": "<prop-id>", "outcome": "yes"|"no"}`.
-   The daily scoring run calls `db.settle_sb_bet()` for every entry here; it is
-   idempotent (only touches rows with `settled_outcome IS NULL`), so leave old
-   entries in place.
-4. Verify the three ids match exactly — a typo means the bet never settles in Supabase.
+```json
+{"id": "<prop-id>", "outcome": "yes"|"no"|"push"}
+```
+
+That's it. Everything downstream is automatic:
+- The **hourly odds workflow** (`odds.yml`) and the daily run both call
+  `db.settle_sb_bet()` for every ledger entry (idempotent — only rows with
+  `settled_outcome IS NULL` are touched) and rebuild balances. Winners are paid
+  within the hour.
+- `projections.py compute_prop_odds()` reads the ledger and pins the prop at
+  100/0/50 with `settled: true` + `outcome` in `docs/projections.json`.
+- `docs/sportsbook.html` derives closed/PUSH state from that JSON — no HTML
+  edits required (the `settled:`/`odds:` flags in `BETS` are legacy fallback only).
+
+Optional polish: update the bet's `desc` in `docs/sportsbook.html` with a
+"SETTLED — ..." sentence for flavor. Never required for payout.
+
+Note: many props settle **automatically** — `_AUTO_SETTLE_RULES` in
+projections.py watches for resolved Kalshi markets, and overdue unsettled props
+are flagged in a GitHub issue titled "Sportsbook: bets awaiting manual settlement".
+Check that issue first; some of your work may already be done.
+
+Also: remove the prop's tuple from `_PROP_DEFS` in projections.py if present
+(dead weight once settled), and delete any `_AUTO_SETTLE_RULES` /
+`_PROP_SCHEDULE` entries for it.
 
 ---
 

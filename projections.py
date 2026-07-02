@@ -249,15 +249,21 @@ def _kalshi_get(path, params=None):
     return None
 
 
+_MARKETS_CACHE = {}   # series_ticker -> raw markets list (one fetch per run)
+
+
 def _fetch_markets_for_series(series_ticker):
+    if series_ticker in _MARKETS_CACHE:
+        return _MARKETS_CACHE[series_ticker]
     # Pass 1: query by series_ticker without status filter (avoids missing in-progress markets)
     data = _kalshi_get("/markets", {"series_ticker": series_ticker, "limit": 200})
     markets = data.get("markets", []) if data else []
-    if markets:
-        return markets
-    # Pass 2: try the /events/{ticker}/markets endpoint (Kalshi v2 multi-outcome events)
-    data2 = _kalshi_get(f"/events/{series_ticker}/markets", {"limit": 200})
-    return data2.get("markets", []) if data2 else []
+    if not markets:
+        # Pass 2: try the /events/{ticker}/markets endpoint (Kalshi v2 multi-outcome events)
+        data2 = _kalshi_get(f"/events/{series_ticker}/markets", {"limit": 200})
+        markets = data2.get("markets", []) if data2 else []
+    _MARKETS_CACHE[series_ticker] = markets
+    return markets
 
 
 def _name_matches(kalshi_title, pick_name):
@@ -595,25 +601,69 @@ def _pts_h2h(player_a, player_b):
 # Prop definitions: (id, static_yes_pct, fn(odds)->int|None, source_category_label)
 # fn returns a computed YES% from odds dict, or None to use static.
 # source_category_label must match a string in markets_used to be marked "kalshi".
-# Props already decided — pinned at their final YES%, never recomputed.
-# Kept in the prop_odds output so the frontend still receives a value.
-_PROP_DEFS_SETTLED = [
-    ("rg-m-shep-v-todd",        100),  # Alcaraz withdrew; Shep wins
-    ("nba-ecf-buckley-v-jens",  100),  # Knicks swept Cavaliers 4-0
-    ("nba-wcf-wu-v-feder",      100),  # Spurs won WCF Game 7
-    ("nhl-wcf-tim-v-korch",     100),  # Golden Knights swept Avalanche
-    ("nhl-pts-jamzee-v-korch",  100),  # Hurricanes advanced; Korch out
-    ("nba-fin-wu-v-buckley",      0),  # Knicks won NBA Finals; Wu/Spurs lost
-    ("nhl-fin-tim-v-jamzee",      0),  # Hurricanes won Stanley Cup; Tim/Golden Knights lost
-    ("uso-wu-v-molmen",         100),  # Scheffler T4 > McIlroy +6 at US Open
-    ("uso-tim-v-shep",          100),  # Schauffele T11 > Rahm (did not finish)
-    ("wc-theo-beats-buckley",   100),  # Switzerland beat Canada 2-1 in Group B
-    ("wc-shep-beats-fryar",     100),  # France beat Norway 3-1 in Group I
-    ("wc-jens-v-tim-group-pts",  58),  # PUSH — Germany and Netherlands both 6 pts
-    ("wc-jamzee-v-shep-group-pts", 100),  # Spain 7 pts > France 6 pts
-    ("wc-wu-v-fryar-group-pts",   0),  # Norway 9 pts > USA 6 pts; NO wins
-    ("wc-molmen-v-feder-group-pts", 100),  # Argentina 9 pts > Brazil 7 pts
-]
+#
+# Settled props are NOT listed here — data/sb_settled.json is the single source
+# of truth for settlement. compute_prop_odds() reads it and pins settled props
+# at 100 (yes) / 0 (no) / 50 (push) with settled+outcome flags in the output.
+
+SB_SETTLED_PATH = os.path.join(os.path.dirname(__file__), "data", "sb_settled.json")
+
+_SETTLED_PCT = {"yes": 100, "no": 0, "push": 50}
+
+
+def _load_settled_ledger():
+    """{prop_id: outcome} from data/sb_settled.json (outcome: yes|no|push)."""
+    try:
+        with open(SB_SETTLED_PATH) as f:
+            return {e["id"]: e["outcome"] for e in json.load(f)}
+    except Exception:
+        return {}
+
+
+# Wagering/resolution schedule per prop: (closes_at, resolves_by) — both UTC ISO.
+# closes_at:   wagering stops (enforced client-side in sportsbook.html, live).
+# resolves_by: if the prop is still unsettled after this, the hourly odds job
+#              flags it for manual settlement (NEEDS_SETTLEMENT line → GitHub issue).
+_PROP_SCHEDULE = {
+    # MLB / MLS standings bets close Jul 1 per league rules
+    "mlb-wu-v-mitchell":     ("2026-07-01T00:00:00Z", "2026-09-28T00:00:00Z"),
+    "mlb-jens-v-buckley":    ("2026-07-01T00:00:00Z", "2026-09-28T00:00:00Z"),
+    "mls-buckley-v-molmen":  ("2026-07-01T00:00:00Z", "2026-10-19T00:00:00Z"),
+    # Wimbledon (Jun 29 – Jul 12)
+    "wimb-m-buckley-sinner-wins": ("2026-07-12T12:00:00Z", "2026-07-13T00:00:00Z"),
+    "wimb-w-fryar-v-feder":       ("2026-07-09T00:00:00Z", "2026-07-12T00:00:00Z"),
+    "wimb-m-theo-v-shep":         ("2026-07-09T00:00:00Z", "2026-07-13T00:00:00Z"),
+    "wimb-w-wu-v-tim":            ("2026-07-09T00:00:00Z", "2026-07-12T00:00:00Z"),
+    # World Cup knockout stage
+    "wc-shep-fra-r32":       ("2026-07-01T00:00:00Z", "2026-07-04T00:00:00Z"),
+    "wc-fryar-nor-r32":      ("2026-07-01T00:00:00Z", "2026-07-04T00:00:00Z"),
+    "wc-wu-usa-r32":         ("2026-07-01T00:00:00Z", "2026-07-04T00:00:00Z"),
+    "wc-jens-ger-r32":       ("2026-07-01T00:00:00Z", "2026-07-04T00:00:00Z"),
+    "wc-molmen-arg-wins-wc": ("2026-07-19T00:00:00Z", "2026-07-20T00:00:00Z"),
+    # Season-long props
+    "stocks-fryar-avgo-v-mitchell-cvna": ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "todd-wins-fl-2026":     ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "pts-wu-v-korch":        ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "pts-tim-v-molmen":      ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "pts-jamzee-v-fryar":    ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "pts-mitchell-v-todd":   ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "pts-buckley-v-theo":    ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+}
+
+# Auto-settlement rules — evaluated against RESOLVED Kalshi markets each run.
+#   ("wins", series_key, pick_name):
+#       pick's market resolves yes → prop YES; resolves no → prop NO.
+#   ("either_wins", series_key, pick_a, pick_b):
+#       A's market resolves yes → YES; B's resolves yes → NO; otherwise stays open
+#       (e.g. neither pick won the title — round-by-round comparison needs a human).
+# Matching uses the pick's SURNAME only (stricter than _name_matches, which would
+# let "Alexander Zverev" match an "Alexander Bublik" market).
+_AUTO_SETTLE_RULES = {
+    "wimb-m-buckley-sinner-wins": ("wins",        "tennis_wb_m", "Jannik Sinner"),
+    "wimb-w-fryar-v-feder":       ("either_wins", "tennis_wb_w", "Aryna Sabalenka", "Iga Swiatek"),
+    "wimb-m-theo-v-shep":         ("either_wins", "tennis_wb_m", "Alexander Zverev", "Novak Djokovic"),
+    "wimb-w-wu-v-tim":            ("either_wins", "tennis_wb_w", "Coco Gauff", "Madison Keys"),
+}
 
 _PROP_DEFS = [
     # ── Tennis · Roland Garros Women's ───────────────────────────────────────────
@@ -655,13 +705,19 @@ _PROP_DEFS = [
 ]
 
 
-def compute_prop_odds(odds, markets_used):
-    """Returns {prop_id: {yes_pct, source}} for all sportsbook props."""
+def compute_prop_odds(odds, markets_used, prev_props=None):
+    """Returns {prop_id: {yes_pct, source, [settled, outcome], [closes_at]}}.
+
+    Settled state comes from data/sb_settled.json (the settlement ledger).
+    prev_props (odds-only mode): last published prop_odds — used to carry
+    forward simulation-backed values when no fresh Monte Carlo ran this pass.
+    """
     live_cats = set(markets_used)
+    settled = _load_settled_ledger()
     result = {}
-    for prop_id, final_pct in _PROP_DEFS_SETTLED:
-        result[prop_id] = {"yes_pct": final_pct, "source": "static"}
     for prop_id, static_pct, fn, src_cat in _PROP_DEFS:
+        if prop_id in settled:
+            continue  # pinned below from the ledger
         computed = None
         if fn is not None:
             try:
@@ -671,9 +727,118 @@ def compute_prop_odds(odds, markets_used):
         if computed and 0 < computed < 100:
             source = "kalshi" if (src_cat and src_cat in live_cats) else "model"
             result[prop_id] = {"yes_pct": computed, "source": source}
+        elif prev_props and src_cat == "pts-model" and prop_id in prev_props \
+                and prev_props[prop_id].get("yes_pct") is not None:
+            # odds-only run: no fresh simulation — keep the last sim-backed value
+            result[prop_id] = {"yes_pct": prev_props[prop_id]["yes_pct"],
+                               "source": prev_props[prop_id].get("source", "model")}
         else:
             result[prop_id] = {"yes_pct": static_pct, "source": "static"}
+    for prop_id, outcome in settled.items():
+        result[prop_id] = {"yes_pct": _SETTLED_PCT.get(outcome, 50), "source": "settled",
+                           "settled": True, "outcome": outcome}
+    # Attach wagering close timestamps (frontend enforces these live)
+    for prop_id, (closes_at, _resolves_by) in _PROP_SCHEDULE.items():
+        entry = result.setdefault(prop_id, {"yes_pct": None, "source": "none"})
+        if not entry.get("settled"):
+            entry["closes_at"] = closes_at
     return result
+
+
+def _parse_iso_z(ts):
+    return datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ").replace(
+        tzinfo=datetime.timezone.utc)
+
+
+def _surname_matches(kalshi_title, pick_name):
+    """Settlement-grade matching: the pick's surname must appear in the title.
+    Deliberately stricter than _name_matches — first names collide (Alexander
+    Zverev vs Alexander Bublik) and settlement moves balances."""
+    surname = pick_name.split()[-1].lower()
+    return surname in kalshi_title.lower()
+
+
+def _resolved_result(series_key, pick_name):
+    """'yes'/'no' if the pick's Kalshi market has resolved, else None."""
+    for ticker in KNOWN_SERIES.get(series_key, []):
+        for m in _fetch_markets_for_series(ticker):
+            if m.get("result") in ("yes", "no") and _surname_matches(m.get("title", ""), pick_name):
+                return m["result"]
+    return None
+
+
+def auto_settle_from_kalshi():
+    """Evaluate _AUTO_SETTLE_RULES against resolved Kalshi markets.
+    Appends any newly decided props to data/sb_settled.json.
+    Returns the list of new ledger entries."""
+    settled = _load_settled_ledger()
+    new_entries = []
+    for prop_id, rule in _AUTO_SETTLE_RULES.items():
+        if prop_id in settled:
+            continue
+        outcome = None
+        if rule[0] == "wins":
+            outcome = _resolved_result(rule[1], rule[2])
+        elif rule[0] == "either_wins":
+            if _resolved_result(rule[1], rule[2]) == "yes":
+                outcome = "yes"
+            elif _resolved_result(rule[1], rule[3]) == "yes":
+                outcome = "no"
+        if outcome:
+            print(f"  🏁 AUTO-SETTLE {prop_id} → {outcome} (Kalshi market resolved)")
+            new_entries.append({"id": prop_id, "outcome": outcome})
+    if new_entries:
+        try:
+            with open(SB_SETTLED_PATH) as f:
+                ledger = json.load(f)
+        except Exception:
+            ledger = []
+        ledger.extend(new_entries)
+        with open(SB_SETTLED_PATH, "w") as f:
+            json.dump(ledger, f, indent=2)
+            f.write("\n")
+    return new_entries
+
+
+def settle_ledger_in_supabase():
+    """Pay out every ledger entry via db.settle_sb_bet (idempotent — only rows
+    with settled_outcome IS NULL are touched). Rebuilds balances if anything paid.
+    No-op without Supabase credentials."""
+    ledger = _load_settled_ledger()
+    if not ledger:
+        return 0
+    try:
+        import db as _db
+    except Exception as e:
+        print(f"  ✗ settle: db import failed ({e})")
+        return 0
+    processed = 0
+    for prop_id, outcome in ledger.items():
+        try:
+            processed += _db.settle_sb_bet(prop_id, outcome)
+        except Exception as e:
+            print(f"  ✗ settle_sb_bet({prop_id}): {e}")
+    if processed:
+        print(f"  ✓ {processed} bet(s) newly settled — recalculating BB balances")
+        for p in ["Tim", "Wu", "Jens", "Todd", "Mitchell", "Shep", "Theo",
+                  "Feder", "Fryar", "Korch", "Molmen", "Jamzee", "Buckley"]:
+            try:
+                _db.recalculate_sb_balance(p)
+            except Exception as e:
+                print(f"  ✗ recalculate_sb_balance({p}): {e}")
+    return processed
+
+
+def flag_needs_settlement():
+    """Print a NEEDS_SETTLEMENT line for unsettled props past their resolves_by.
+    The odds workflow greps for it and maintains a GitHub issue."""
+    now = datetime.datetime.now(datetime.timezone.utc)
+    settled = _load_settled_ledger()
+    overdue = [pid for pid, (_c, resolves_by) in _PROP_SCHEDULE.items()
+               if pid not in settled and now > _parse_iso_z(resolves_by)]
+    if overdue:
+        print("NEEDS_SETTLEMENT: " + ",".join(sorted(overdue)))
+    return overdue
 
 
 def _try_kalshi_series(series_list, picks_dict, label):
@@ -1217,6 +1382,13 @@ def run():
         p["name"]: (p.get("categories", {}).get("mls", {}).get("raw_value") or None)
         for p in current_scores
     }
+
+    # Auto-settle props whose Kalshi markets have resolved, pay out, flag overdue
+    newly_settled = auto_settle_from_kalshi()
+    if newly_settled:
+        settle_ledger_in_supabase()
+    flag_needs_settlement()
+
     prop_odds = compute_prop_odds(odds, markets_used)
 
     output = {
@@ -1253,6 +1425,61 @@ def run():
         print(f"Live Kalshi markets: {', '.join(markets_used)}")
     else:
         print("Note: all odds from static fallback (no Kalshi credentials or no markets matched)")
+
+
+def run_odds_only():
+    """
+    Lightweight hourly refresh (odds.yml): re-fetch Kalshi odds, auto-settle any
+    resolved props, and patch ONLY the prop_odds section of projections.json —
+    the Monte Carlo projections from the last full run are left untouched so
+    they don't jitter hourly. Writes nothing if odds are unchanged.
+    """
+    print("=== FL Odds Refresh (--odds-only) ===")
+    try:
+        with open(PROJECTIONS_PATH) as f:
+            prev = json.load(f)
+    except Exception as e:
+        print(f"  ✗ Cannot load {PROJECTIONS_PATH} ({e}) — run a full projections pass first")
+        raise SystemExit(1)
+
+    # Standings context for the MLB/MLS h2h models (scores.json is in the repo)
+    try:
+        with open(SCORES_PATH) as f:
+            current_scores = json.load(f)["players"]
+    except Exception:
+        current_scores = []
+
+    markets_used = []
+    odds = build_odds(markets_used)
+    odds["mlb_win_pct"] = {
+        p["name"]: (p.get("categories", {}).get("mlb", {}).get("raw_value") or None)
+        for p in current_scores
+    }
+    odds["mls_points"] = {
+        p["name"]: (p.get("categories", {}).get("mls", {}).get("raw_value") or None)
+        for p in current_scores
+    }
+
+    newly_settled = auto_settle_from_kalshi()
+    prop_odds = compute_prop_odds(odds, markets_used, prev_props=prev.get("prop_odds"))
+    flag_needs_settlement()
+
+    # Pay out the whole ledger every pass (idempotent) so manual ledger appends
+    # and auto-settles both credit winners within the hour, not at 08:00 UTC.
+    settle_ledger_in_supabase()
+
+    if prop_odds == prev.get("prop_odds") and not newly_settled:
+        print("No odds changes — projections.json left untouched.")
+        return
+
+    prev["prop_odds"] = prop_odds
+    prev["kalshi_markets_used"] = markets_used
+    prev["odds_updated_at"] = datetime.datetime.now(
+        datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    with open(PROJECTIONS_PATH, "w") as f:
+        json.dump(prev, f, separators=(",", ":"))
+    print(f"Wrote {PROJECTIONS_PATH} (prop odds refreshed"
+          f"{', ' + str(len(newly_settled)) + ' auto-settled' if newly_settled else ''})")
 
 
 def probe():
@@ -1297,5 +1524,7 @@ if __name__ == "__main__":
     import sys
     if "--probe" in sys.argv:
         probe()
+    elif "--odds-only" in sys.argv:
+        run_odds_only()
     else:
         run()

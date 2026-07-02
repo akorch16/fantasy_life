@@ -420,6 +420,7 @@
     .bet-card.closed-yes  { border-color: var(--green); border-width: 2px; }
     .bet-card.closed-no   { border-color: var(--red);   border-width: 2px; }
     .bet-card.closed-void { border-color: var(--muted); border-width: 2px; opacity: 0.7; }
+    .bet-card.bet-card-locked { opacity: 0.75; border-style: dashed; }
 
     /* CLOSED badge (replaces old settled-badge) */
     .closed-badge {
@@ -903,10 +904,45 @@
 <script>
 
 // ─── LOAD PROP ODDS ─────────────────────────────────────────────
-fetch('./projections.json')
-  .then(r => r.json())
-  .then(data => { renderBets(data.prop_odds || null); })
-  .catch(() => { renderBets(null); });
+// projections.json carries live odds AND settled/locked state per prop
+// (refreshed hourly by odds.yml). Re-fetched every 5 min so a page left
+// open picks up new odds, auto-settlements, and wagering locks.
+function loadPropOdds() {
+  fetch('./projections.json?t=' + Date.now())
+    .then(r => r.json())
+    .then(data => { applyPropOdds(data.prop_odds || null); })
+    .catch(() => { renderBets(_currentPropOdds); });
+}
+function applyPropOdds(propOdds) {
+  _currentPropOdds = propOdds;
+  showSettleToasts(settleBets());   // reconcile local bets vs live settled state
+  renderBalance();
+  renderActiveBets();
+  renderBets(propOdds);
+}
+loadPropOdds();
+setInterval(loadPropOdds, 5 * 60 * 1000);
+
+// ─── LIVE BET STATE ─────────────────────────────────────────────
+// Merges the static BETS entry with live prop data from projections.json.
+// Settled: ledger-driven (data/sb_settled.json → prop_odds[id].settled).
+// Locked:  past closes_at — wagering stops the moment the event starts,
+//          no cron needed; enforced again in openWagerModal/confirmBet.
+function betState(b, propOdds) {
+  const live    = propOdds && propOdds[b.id];
+  const settled = !!(b.settled || b.voided || (live && live.settled));
+  const outcome = live && live.outcome ? live.outcome
+                : b.voided ? 'push'
+                : b.settled ? (b.odds === 100 ? 'yes' : b.odds === 0 ? 'no' : 'push')
+                : null;
+  const closesAt = live && live.closes_at ? Date.parse(live.closes_at) : NaN;
+  const locked   = !settled && !isNaN(closesAt) && Date.now() > closesAt;
+  const liveOdds = live && live.yes_pct != null ? live.yes_pct : b.odds;
+  const yesPct   = settled
+    ? (outcome === 'yes' ? 100 : outcome === 'no' ? 0 : liveOdds)
+    : liveOdds;
+  return { live, settled, outcome, locked, yesPct };
+}
 
 // ─── PROP BETS ──────────────────────────────────────────────────
 const BETS = [
@@ -1249,9 +1285,11 @@ function settleBets() {
   state.bets.forEach(bet => {
     if (bet.settledOutcome) return;
     const def = BETS.find(b => b.id === bet.id);
-    if (!def || (!def.settled && !def.voided)) return;
+    if (!def) return;
+    const st = betState(def, _currentPropOdds);
+    if (!st.settled || !st.outcome) return;
 
-    if (def.voided) {
+    if (st.outcome === 'push') {
       bet.settledOutcome = 'void';
       state.balance += bet.wager; // return the wager
       results.push({ ...bet, won: false, voided: true });
@@ -1259,12 +1297,7 @@ function settleBets() {
       return;
     }
 
-    // odds=100 → YES won; odds=0 → NO won
-    const yesWon = def.odds === 100;
-    const noWon  = def.odds === 0;
-    if (!yesWon && !noWon) return; // partially settled, skip
-
-    const won = (yesWon && bet.side === 'yes') || (noWon && bet.side === 'no');
+    const won = bet.side === st.outcome;
     bet.settledOutcome = won ? 'won' : 'lost';
     if (won) state.balance += bet.potentialReturn;
     results.push({ ...bet, won });
@@ -1273,6 +1306,19 @@ function settleBets() {
 
   if (changed) saveState(state);
   return results;
+}
+
+function showSettleToasts(results) {
+  results.forEach(r => {
+    if (r.voided) {
+      showToast('won', `${r.sport} · PUSH — ${r.wager.toLocaleString()} BB returned`, 7000);
+    } else if (r.won) {
+      const profit = r.potentialReturn - r.wager;
+      showToast('won', `${r.sport} · +${profit.toLocaleString()} BB`, 7000);
+    } else {
+      showToast('lost', `${r.sport} · −${r.wager.toLocaleString()} BB`, 7000);
+    }
+  });
 }
 
 // ─── SUPABASE HELPERS ──────────────────────────────────────────
@@ -1566,13 +1612,14 @@ function parseCloseDate(str) {
 }
 
 function renderBetCard(b, propOdds, state, hasPick) {
-  const live   = propOdds && propOdds[b.id];
-  const yesPct = b.settled ? b.odds : (live ? live.yes_pct : b.odds);
+  const st     = betState(b, propOdds);
+  const yesPct = st.yesPct;
   const noPct  = 100 - yesPct;
-  const src    = live && live.source !== 'static' ? live.source : null;
+  const src    = st.live && st.live.source !== 'static' && st.live.source !== 'settled' && st.live.source !== 'none'
+               ? st.live.source : null;
 
   let badge = '';
-  if (!b.settled) {
+  if (!st.settled) {
     if (src === 'kalshi') badge = `<span class="live-badge kalshi">⚡ live</span>`;
   }
 
@@ -1580,7 +1627,7 @@ function renderBetCard(b, propOdds, state, hasPick) {
   const existingBet  = existingBets[0];
 
   let bottomSection = '';
-  if (b.settled || b.voided) {
+  if (st.settled || st.locked) {
     if (existingBet) {
       const won  = existingBet.settledOutcome === 'won';
       const lost = existingBet.settledOutcome === 'lost';
@@ -1616,7 +1663,7 @@ function renderBetCard(b, propOdds, state, hasPick) {
     }
   }
 
-  if (b.voided) {
+  if (st.settled && st.outcome === 'push') {
     return `
   <div class="bet-card closed-void">
     <div class="winner-banner winner-banner-void">↩ PUSH — WAGER RETURNED</div>
@@ -1627,8 +1674,8 @@ function renderBetCard(b, propOdds, state, hasPick) {
   </div>`;
   }
 
-  if (b.settled) {
-    const yesWon   = b.odds === 100;
+  if (st.settled) {
+    const yesWon   = st.outcome === 'yes';
     const clsCard  = yesWon ? 'closed-yes' : 'closed-no';
     const clsBadge = yesWon ? 'closed-badge-yes' : 'closed-badge-no';
     const clsBanner = yesWon ? 'winner-banner-yes' : 'winner-banner-no';
@@ -1642,6 +1689,17 @@ function renderBetCard(b, propOdds, state, hasPick) {
     <div class="bet-title">${b.title}</div>
     <div class="bet-desc">${b.desc}</div>
     ${bottomSection}
+  </div>`;
+  }
+
+  if (st.locked) {
+    return `
+  <div class="bet-card bet-card-locked">
+    <div class="bet-sport"><span class="sport-tag">${b.sport.split(' · ')[0]}</span> <span class="closed-badge">🔒 LOCKED</span></div>
+    <div class="bet-title">${b.title}</div>
+    <div class="bet-desc">${b.desc}</div>
+    ${bottomSection}
+    <div class="bet-close-footer">Betting closed — awaiting result</div>
   </div>`;
   }
 
@@ -1661,8 +1719,8 @@ function renderBets(propOdds) {
   const state   = loadState();
   const hasPick = !!getPlayer();
 
-  const openBets   = BETS.filter(b => !b.settled && !b.voided);
-  const closedBets = BETS.filter(b =>  b.settled || b.voided);
+  const openBets   = BETS.filter(b => !betState(b, propOdds).settled);
+  const closedBets = BETS.filter(b =>  betState(b, propOdds).settled);
 
   const wcBets       = openBets.filter(b => b.id.startsWith('wc-'));
   const h2hBets      = openBets.filter(b => b.id.startsWith('pts-'));
@@ -1688,6 +1746,12 @@ let _wagerCtx = null;
 function openWagerModal(betId, side, yesPct) {
   const def = BETS.find(b => b.id === betId);
   if (!def) return;
+  const st = betState(def, _currentPropOdds);
+  if (st.settled || st.locked) {
+    showToast('lost', 'Betting is closed on this prop.', 4000);
+    renderBets(_currentPropOdds);
+    return;
+  }
   _wagerCtx = { betId, side, yesPct };
 
   document.getElementById('modal-sport').textContent    = def.sport;
@@ -1775,6 +1839,14 @@ async function confirmBet() {
 
   const def = BETS.find(b => b.id === _wagerCtx.betId);
   if (!def) return;
+
+  // Re-check close state at submit time — the page may have been open past closes_at
+  const st = betState(def, _currentPropOdds);
+  if (st.settled || st.locked) {
+    errEl.textContent = 'Betting is closed on this prop.';
+    errEl.classList.add('visible');
+    return;
+  }
 
   const ret = calcReturn(wager, _wagerCtx.yesPct, _wagerCtx.side);
   if (!ret) return;
@@ -1930,17 +2002,8 @@ document.addEventListener('keydown', e => {
     await sbHydrate(player);
 
     // Settle any newly resolved bets before rendering
-    const settled = settleBets();
-    settled.forEach(r => {
-      if (r.voided) {
-        showToast('won', `${r.sport} · PUSH — ${r.wager.toLocaleString()} BB returned`, 7000);
-      } else if (r.won) {
-        const profit = r.potentialReturn - r.wager;
-        showToast('won', `${r.sport} · +${profit.toLocaleString()} BB`, 7000);
-      } else {
-        showToast('lost', `${r.sport} · −${r.wager.toLocaleString()} BB`, 7000);
-      }
-    });
+    // (runs again with live ledger data once projections.json loads)
+    showSettleToasts(settleBets());
     renderBalance();
     renderBBLeaderboard();
     renderActiveBets();

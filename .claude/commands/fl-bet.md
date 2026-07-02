@@ -51,6 +51,22 @@ Tuple: `(id, static_yes_pct, fn(odds)->int|None, source_category_label)`.
   approximation), `_pts_h2h` (Monte Carlo totals), or a `lambda o: _h2h(...)`
   over a Kalshi odds key. Use `None, None` only if no model backs it.
 
+## Step 3b — Schedule + auto-settlement (REQUIRED for every new bet)
+
+Also in projections.py:
+
+1. **`_PROP_SCHEDULE`** — add `"<id>": ("<closes_at>", "<resolves_by>")` (UTC ISO,
+   `...T00:00:00Z`). `closes_at` = when wagering stops (event start); the frontend
+   enforces it live. `resolves_by` = when the outcome should be known; if still
+   unsettled after this, the hourly odds workflow flags it in a GitHub issue.
+2. **`_AUTO_SETTLE_RULES`** — if the outcome is determinable from a Kalshi market
+   resolving, add a rule so it settles (and pays) automatically:
+   - `("wins", series_key, "Pick Name")` — prop is "pick wins the tournament".
+   - `("either_wins", series_key, "Pick A", "Pick B")` — "A goes further than B";
+     settles only if A or B wins the whole thing, else falls to manual.
+   Skip this for props needing human judgment (single matches, standings h2h) —
+   the resolves_by flag covers them.
+
 ## Step 4 — Suggest odds honestly
 
 If a dynamic fn exists, run `python3 projections.py` and read the computed YES%
@@ -61,4 +77,4 @@ estimate from current standings/Kalshi and say so in `desc`. Then
 ## Step 5 — Deploy
 
 `/fl-merge`. The bet appears on the sportsbook page immediately; odds go live
-on the next daily projections run.
+on the next hourly odds run (`odds.yml`, minute :23).
