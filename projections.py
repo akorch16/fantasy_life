@@ -299,6 +299,8 @@ def _pick_market(markets, pick_name):
         city = " ".join(words[:-1]).lower()
         cands.add(city)                                # 'tampa bay'
         cands.add(city + " " + words[-1][0].lower())   # 'new york y'
+        if city == "la":
+            cands.add("los angeles")                   # Kalshi lists LA Galaxy as 'Los Angeles'
     # NOTE: active markets have result == '' (empty string), NOT null —
     # a `result is not None` check would skip every live market.
     active = [m for m in markets if not m.get("result")]
