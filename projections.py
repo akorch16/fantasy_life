@@ -1534,13 +1534,24 @@ def probe():
         if any(k in hay for k in keywords):
             print(f"  {s.get('ticker',''):28} {s.get('title','')[:70]}")
 
-    # ── 2. Raw market shape: where do team/player names live in the response? ──
-    print("\n── Raw market samples (field-shape check) ─────────────────────────")
-    for ticker in ["KXNBA", "KXMLB", "KXNHL"]:
+    # ── 2. Candidate series: event structure + name/price fields per market ──
+    print("\n── Candidate series detail ────────────────────────────────────────")
+    candidates = ["KXMLB", "KXMLSCUP", "KXNASCARCUPCHAMP", "KXNASCARCUPSERIES",
+                  "KXATP", "KXWTA", "KXPGAWIN", "KXTHEOPEN", "KXUSOPEN",
+                  "KXMWORLDCUP", "KXMENWORLDCUP", "KXWCROUND"]
+    for ticker in candidates:
         markets = _fetch_markets_for_series(ticker)
-        print(f"  {ticker}: {len(markets)} markets")
-        for m in markets[:2]:
-            print("    " + json.dumps(m, default=str)[:600])
+        events = sorted({m.get("event_ticker", "?") for m in markets})
+        print(f"  {ticker}: {len(markets)} markets, events: {events[:15]}")
+        for m in markets[:4]:
+            print(f"    ev={m.get('event_ticker','?')} status={m.get('status')} result={m.get('result')!r} "
+                  f"bid={m.get('yes_bid_dollars')!r} ask={m.get('yes_ask_dollars')!r} "
+                  f"last={m.get('last_price_dollars')!r}")
+            print(f"      title={str(m.get('title'))[:70]!r} yes_sub={str(m.get('yes_sub_title'))[:40]!r}")
+    print("\n  Full raw KXMLB market for complete field inventory:")
+    mlb = _fetch_markets_for_series("KXMLB")
+    if mlb:
+        print("  " + json.dumps(mlb[0], default=str))
 
     # ── 3. Current KNOWN_SERIES fetch attempts with pick matching ──────────────
     print("\n── KNOWN_SERIES fetch + match check ───────────────────────────────")
