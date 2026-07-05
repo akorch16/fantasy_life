@@ -258,6 +258,11 @@ def _fetch_markets_for_series(series_ticker):
     # Pass 1: query by series_ticker without status filter (avoids missing in-progress markets)
     data = _kalshi_get("/markets", {"series_ticker": series_ticker, "limit": 200})
     markets = data.get("markets", []) if data else []
+    if not markets and "-" in series_ticker:
+        # Pass 1.5: dashed tickers are usually EVENT tickers (e.g. KXATP-26WIM =
+        # Wimbledon men's inside the KXATP series) — query by event_ticker
+        data15 = _kalshi_get("/markets", {"event_ticker": series_ticker, "limit": 200})
+        markets = data15.get("markets", []) if data15 else []
     if not markets:
         # Pass 2: try the /events/{ticker}/markets endpoint (Kalshi v2 multi-outcome events)
         data2 = _kalshi_get(f"/events/{series_ticker}/markets", {"limit": 200})
@@ -284,33 +289,53 @@ def _market_haystack(m):
                     ("title", "subtitle", "yes_sub_title", "no_sub_title", "ticker"))
 
 
+def _pick_market(markets, pick_name):
+    """Best ACTIVE market for a pick. Exact yes_sub_title match first — Kalshi
+    uses city-style names ('New York Y', 'Los Angeles D'), so fuzzy word overlap
+    alone would hit both New York teams. Fuzzy haystack match is the fallback."""
+    words = pick_name.split()
+    cands = {pick_name.lower().strip()}
+    if len(words) >= 2:
+        city = " ".join(words[:-1]).lower()
+        cands.add(city)                                # 'tampa bay'
+        cands.add(city + " " + words[-1][0].lower())   # 'new york y'
+    # NOTE: active markets have result == '' (empty string), NOT null —
+    # a `result is not None` check would skip every live market.
+    active = [m for m in markets if not m.get("result")]
+    for m in active:
+        if str(m.get("yes_sub_title") or "").lower().strip() in cands:
+            return m
+    for m in active:
+        if _name_matches(_market_haystack(m), pick_name):
+            return m
+    return None
+
+
 def _extract_probs(markets, picks_dict):
     """
     Given a list of Kalshi markets and a {player: pick_name} dict,
     return {player: yes_probability (0–1)}.
-    Kalshi v2 API returns prices as yes_ask_dollars / yes_bid_dollars (0.0–1.0 floats).
-    Resolved markets (result != null) are skipped — only active markets with real prices count.
+    Prices: midpoint of yes_bid_dollars/yes_ask_dollars, falling back to
+    last_price_dollars when the book is empty.
     """
     probs = {}
     for player, pick in picks_dict.items():
-        for m in markets:
-            if m.get("result") is not None:
-                continue  # skip settled markets — can show anomalous half-prices
-            if _name_matches(_market_haystack(m), pick):
-                yes_ask = m.get("yes_ask_dollars")
-                yes_bid = m.get("yes_bid_dollars")
-                try:
-                    if yes_ask is not None and yes_bid is not None:
-                        prob = (float(yes_ask) + float(yes_bid)) / 2.0
-                    elif yes_ask is not None:
-                        prob = float(yes_ask)
-                    else:
-                        prob = 0.0
-                    if prob > 0:
-                        probs[player] = prob
-                except (TypeError, ValueError):
-                    pass
-                break
+        m = _pick_market(markets, pick)
+        if m is None:
+            continue
+        try:
+            yes_ask = m.get("yes_ask_dollars")
+            yes_bid = m.get("yes_bid_dollars")
+            if yes_ask is not None and yes_bid is not None and float(yes_ask) > 0:
+                prob = (float(yes_ask) + float(yes_bid)) / 2.0
+            elif yes_ask is not None and float(yes_ask) > 0:
+                prob = float(yes_ask)
+            else:
+                prob = float(m.get("last_price_dollars") or 0)
+            if prob > 0:
+                probs[player] = prob
+        except (TypeError, ValueError):
+            pass
     return probs
 
 
@@ -514,26 +539,35 @@ def _expected_bonus_conf_finals(p_champ, p_finalist):
 
 # ─── Kalshi fetch + merge ─────────────────────────────────────────────────────
 KNOWN_SERIES = {
-    # Kalshi series tickers. The API accepts the series (KXNBA) in ?series_ticker=;
-    # event-level tickers (KXNBA-26) return 404 on the new api.elections.kalshi.com.
-    # URLs: kalshi.com/markets/kxnba/.../kxnba-26, kalshi.com/markets/kxnhl/.../kxnhl-26
-    "nba":    ["KXNBA"],
-    "nhl":    ["KXNHL"],
-    "mlb":    ["KXMLB"],
-    "mls":    ["KXMLS"],
-    "nascar": ["KXNASC"],
-    "golf_uso":  ["KXGOLF-USO"],
-    "golf_open": ["KXGOLF-OPEN"],
-    "tennis_fo_m":  ["KXATP-FO"],
-    "tennis_fo_w":  ["KXWTA-FO"],
-    "tennis_wb_m":  ["KXATP-WB"],
-    "tennis_wb_w":  ["KXWTA-WB"],
-    "tennis_uso_m": ["KXATP-USO"],
-    "tennis_uso_w": ["KXWTA-USO"],
-    # Conference finals
-    "nba_ecf": ["KXNBA-ECF"],
-    "nba_wcf": ["KXNBA-WCF"],
-    "nhl_wcf": ["KXNHL-WCF"],
+    # Kalshi tickers, verified against the live series catalog 2026-07-05
+    # (probe.yml mode=kalshi dumps it). Undashed = series ticker; dashed =
+    # EVENT ticker (queried via ?event_ticker= — see _fetch_markets_for_series).
+    # 2027 slams / next-season events will need new event tickers here.
+    #
+    # NBA/NHL 2025-26 are DECIDED (Knicks, Hurricanes) — deliberately empty so
+    # Kalshi's next-season futures (KXNBA now carries 2027 markets) can never
+    # override the pinned FALLBACK results. Same for finished conf finals,
+    # French Open, and US Open golf.
+    "nba":    [],
+    "nhl":    [],
+    "mlb":    ["KXMLB"],                 # KXMLB-26 · 'Will Tampa Bay win the 2026 Pro Baseball Championship?'
+    "mls":    ["KXMLSCUP"],              # KXMLSCUP-26 · 'Will Vancouver win the MLS Cup?'
+    "nascar": ["KXNASCARCUPSERIES"],     # KXNASCARCUPSERIES-NCS26 · full driver names
+    "golf_uso":  [],
+    "golf_open": ["KXPGAWIN"],           # 'Golfer to Win' per-major series
+    "tennis_fo_m":  [],
+    "tennis_fo_w":  [],
+    "tennis_wb_m":  ["KXATP-26WIM"],     # Wimbledon men's event inside KXATP
+    "tennis_wb_w":  ["KXWTA-26WIM"],
+    "tennis_uso_m": ["KXATP-26USO"],
+    "tennis_uso_w": ["KXWTA-26USO"],
+    # Conference finals — all decided, fallback only
+    "nba_ecf": [],
+    "nba_wcf": [],
+    "nhl_wcf": [],
+    # World Cup (auto-settlement sources, not category odds)
+    "wc_ro16":   ["KXWCROUND-26RO16"],   # 'Will USA qualify for FIFA World Cup Round of 16?'
+    "wc_winner": ["KXMENWORLDCUP"],      # KXMENWORLDCUP-26 · full country names
 }
 
 
@@ -672,6 +706,12 @@ _AUTO_SETTLE_RULES = {
     "wimb-w-fryar-v-feder":       ("either_wins", "tennis_wb_w", "Aryna Sabalenka", "Iga Swiatek"),
     "wimb-m-theo-v-shep":         ("either_wins", "tennis_wb_m", "Alexander Zverev", "Novak Djokovic"),
     "wimb-w-wu-v-tim":            ("either_wins", "tennis_wb_w", "Coco Gauff", "Madison Keys"),
+    # WC R32 "X beats Y" ≡ "X qualifies for the Round of 16" (matchups were fixed)
+    "wc-shep-fra-r32":            ("wins", "wc_ro16", "France"),
+    "wc-fryar-nor-r32":           ("wins", "wc_ro16", "Norway"),
+    "wc-wu-usa-r32":              ("wins", "wc_ro16", "USA"),
+    "wc-jens-ger-r32":            ("wins", "wc_ro16", "Germany"),
+    "wc-molmen-arg-wins-wc":      ("wins", "wc_winner", "Argentina"),
 }
 
 _PROP_DEFS = [
@@ -851,25 +891,12 @@ def flag_needs_settlement():
 
 
 def _try_kalshi_series(series_list, picks_dict, label):
+    # No keyword-search fallback: Kalshi's ?keyword= ignores the query and
+    # returns arbitrary recent markets, which fuzzy matching can false-match.
     for ticker in series_list:
         result = fetch_kalshi_championship_probs(ticker, picks_dict, label)
         if result:
             return result
-    # Last resort: keyword search using the human-readable label (e.g. "NBA championship")
-    keyword = label.replace("-", " ").replace("_", " ")
-    print(f"  ℹ {label}: all tickers failed — keyword search '{keyword}'")
-    data = _kalshi_get("/markets", {"keyword": keyword, "limit": 50})
-    markets = data.get("markets", []) if data else []
-    if markets:
-        probs = _extract_probs(markets, picks_dict)
-        if probs:
-            found = ", ".join(f"{p}={v:.1%}" for p, v in sorted(probs.items()))
-            print(f"  ✓ Kalshi {label} [keyword]: {found}")
-            return probs
-        print(f"  ✗ {label}: keyword search found {len(markets)} markets but no picks matched "
-              "(titles: " + ", ".join(repr(m.get("title","?")) for m in markets[:3]) + ")")
-    else:
-        print(f"  ✗ {label}: no markets found via keyword search either")
     return {}
 
 
@@ -1574,6 +1601,20 @@ def probe():
             print(f"  ✓ {label}: {found}")
         else:
             print(f"  ✗ {label}: no data (tried: {tickers})")
+
+    # ── 4. Auto-settle rules DRY RUN (no ledger writes) ────────────────────────
+    print("\n── Auto-settle rule evaluation (dry run) ──────────────────────────")
+    settled = _load_settled_ledger()
+    for prop_id, rule in _AUTO_SETTLE_RULES.items():
+        already = " [already in ledger]" if prop_id in settled else ""
+        if rule[0] == "wins":
+            r = _resolved_result(rule[1], rule[2])
+            print(f"  {prop_id}: {rule[2]} → {r or 'unresolved'}{already}")
+        elif rule[0] == "either_wins":
+            ra = _resolved_result(rule[1], rule[2])
+            rb = _resolved_result(rule[1], rule[3])
+            outcome = "yes" if ra == "yes" else ("no" if rb == "yes" else None)
+            print(f"  {prop_id}: {rule[2]}={ra or '?'} {rule[3]}={rb or '?'} → {outcome or 'unresolved'}{already}")
     print("────────────────────────────────────────────────────────────────────")
 
 
