@@ -275,6 +275,15 @@ def _name_matches(kalshi_title, pick_name):
     return False
 
 
+def _market_haystack(m):
+    """All the fields where Kalshi may put the team/player name.
+    The API stopped guaranteeing full names in `title` (mid-2026 responses carry
+    fragments like 'yes St. Louis' there) — subtitle/yes_sub_title usually have
+    the real name now."""
+    return " ".join(str(m.get(k) or "") for k in
+                    ("title", "subtitle", "yes_sub_title", "no_sub_title", "ticker"))
+
+
 def _extract_probs(markets, picks_dict):
     """
     Given a list of Kalshi markets and a {player: pick_name} dict,
@@ -287,7 +296,7 @@ def _extract_probs(markets, picks_dict):
         for m in markets:
             if m.get("result") is not None:
                 continue  # skip settled markets — can show anomalous half-prices
-            if _name_matches(m.get("title", ""), pick):
+            if _name_matches(_market_haystack(m), pick):
                 yes_ask = m.get("yes_ask_dollars")
                 yes_bid = m.get("yes_bid_dollars")
                 try:
@@ -762,7 +771,7 @@ def _resolved_result(series_key, pick_name):
     """'yes'/'no' if the pick's Kalshi market has resolved, else None."""
     for ticker in KNOWN_SERIES.get(series_key, []):
         for m in _fetch_markets_for_series(ticker):
-            if m.get("result") in ("yes", "no") and _surname_matches(m.get("title", ""), pick_name):
+            if m.get("result") in ("yes", "no") and _surname_matches(_market_haystack(m), pick_name):
                 return m["result"]
     return None
 
@@ -1501,14 +1510,51 @@ def probe():
         return
     print(f"  Key ID: {KALSHI_KEY_ID}")
     print(f"  Private key loaded: {key.key_size}-bit RSA")
+    # ── 1. Series catalog: what does Kalshi actually call these series now? ──
+    print("\n── Series catalog (category=Sports) ───────────────────────────────")
+    keywords = ["tennis", "wimbledon", "atp", "wta", "us open", "mls", "soccer",
+                "nascar", "golf", "pga", "open championship", "nba", "nhl", "mlb",
+                "world series", "stanley", "world cup", "fifa"]
+    cursor, page, all_series = None, 0, []
+    while page < 10:
+        params = {"category": "Sports", "limit": 200}
+        if cursor:
+            params["cursor"] = cursor
+        data = _kalshi_get("/series", params)
+        if not data or not data.get("series"):
+            break
+        all_series.extend(data["series"])
+        cursor = data.get("cursor")
+        page += 1
+        if not cursor:
+            break
+    print(f"  {len(all_series)} sports series total")
+    for s in all_series:
+        hay = (s.get("ticker", "") + " " + s.get("title", "")).lower()
+        if any(k in hay for k in keywords):
+            print(f"  {s.get('ticker',''):28} {s.get('title','')[:70]}")
+
+    # ── 2. Raw market shape: where do team/player names live in the response? ──
+    print("\n── Raw market samples (field-shape check) ─────────────────────────")
+    for ticker in ["KXNBA", "KXMLB", "KXNHL"]:
+        markets = _fetch_markets_for_series(ticker)
+        print(f"  {ticker}: {len(markets)} markets")
+        for m in markets[:2]:
+            print("    " + json.dumps(m, default=str)[:600])
+
+    # ── 3. Current KNOWN_SERIES fetch attempts with pick matching ──────────────
+    print("\n── KNOWN_SERIES fetch + match check ───────────────────────────────")
     probe_targets = [
-        ("NBA-WCF",  KNOWN_SERIES["nba_wcf"],  {"Wu": "San Antonio Spurs", "Feder": "Oklahoma City Thunder"}),
-        ("NBA-ECF",  KNOWN_SERIES["nba_ecf"],  {"Buckley": "New York Knicks", "Jens": "Cleveland Cavaliers"}),
-        ("NHL-WCF",  KNOWN_SERIES["nhl_wcf"],  {"Korch": "Colorado Avalanche", "Tim": "Vegas Golden Knights"}),
-        ("NBA-champ", KNOWN_SERIES["nba"],     {p: t for p, t in NBA_PICKS.items()}),
-        ("NHL-champ", KNOWN_SERIES["nhl"],     {p: t for p, t in NHL_PICKS.items()}),
-        ("MLB-champ", KNOWN_SERIES["mlb"],     {p: t for p, t in MLB_PICKS.items()}),
-        ("Tennis-FO-W", KNOWN_SERIES["tennis_fo_w"], {p: t for p, t in TENNIS_WOMEN.items()}),
+        ("NBA-champ",  KNOWN_SERIES["nba"],          dict(NBA_PICKS)),
+        ("NHL-champ",  KNOWN_SERIES["nhl"],          dict(NHL_PICKS)),
+        ("MLB-champ",  KNOWN_SERIES["mlb"],          dict(MLB_PICKS)),
+        ("MLS-Cup",    KNOWN_SERIES["mls"],          dict(MLS_PICKS)),
+        ("NASCAR",     KNOWN_SERIES["nascar"],       dict(NASCAR_PICKS)),
+        ("Golf-Open",  KNOWN_SERIES["golf_open"],    dict(GOLF_PICKS)),
+        ("Tennis-WB-M", KNOWN_SERIES["tennis_wb_m"], dict(TENNIS_MEN)),
+        ("Tennis-WB-W", KNOWN_SERIES["tennis_wb_w"], dict(TENNIS_WOMEN)),
+        ("Tennis-USO-M", KNOWN_SERIES["tennis_uso_m"], dict(TENNIS_MEN)),
+        ("Tennis-USO-W", KNOWN_SERIES["tennis_uso_w"], dict(TENNIS_WOMEN)),
     ]
     for label, tickers, picks in probe_targets:
         result = _try_kalshi_series(tickers, picks, label)
