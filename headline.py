@@ -213,6 +213,7 @@ CRITICAL rules:
 - TABLE WITHOUT DATA: If a snippet contains only table column headers (e.g. "| RK | DRIVER | POINTS | WINS |") but no data row naming the specific driver/player, do NOT report any statistic for that driver. Skip the story entirely.
 - TRUNCATED TEXT: Snippets that end with "..." are cut off mid-sentence. Do NOT infer, complete, or extend what follows the "...". Only use text that is explicitly present before the cutoff point.
 - CITATION CHECK: Before writing each sentence, confirm the exact fact (score, number, outcome, opponent name) appears verbatim in one of the snippets above. If you cannot point to where it appears word-for-word, omit it.
+- PREVIEW PAGES ARE NOT RESULTS: snippets with "predictions", "preview", "odds", "how to watch", "schedule", or phrasing like "X faces Y" / "X and Y meet" / "looking to" describe an UPCOMING match. Never turn one into a result — a win/advance/elimination claim requires the snippet to explicitly state it happened ("beats", "defeated", "advances", "eliminated", a final scoreline). If no snippet states the outcome of a match, do not mention that match at all.
 - ONLY report facts explicitly stated in the snippets above. Do NOT add any result, score, or outcome not written in a snippet.
 - If a snippet mentions a pick but doesn't clearly state the result or move, skip it.
 - For ongoing series (NBA Finals, NHL Finals, etc.), always report the MOST RECENT game — if snippets mention multiple games, use the highest game number.

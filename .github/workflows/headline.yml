@@ -35,6 +35,9 @@ jobs:
         run: python3 headline.py --force --debug ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: Commit & push headline
+        # Skipped on dry runs; also only safe on main — the rebase-on-main
+        # push logic misbehaves when dispatched against a feature branch.
+        if: ${{ !inputs.dry_run }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
