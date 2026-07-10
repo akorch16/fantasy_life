@@ -439,7 +439,6 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
     Returns number of bets processed."""
     if not SUPABASE_URL or not SUPABASE_KEY:
         return 0
-    settled_at = datetime.now(timezone.utc).isoformat()
     try:
         r = requests.get(
             f'{SUPABASE_URL}/rest/v1/sb_bets',
@@ -447,7 +446,7 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
             params={
                 'bet_id': f'eq.{bet_id}',
                 'settled_outcome': 'is.null',
-                'select': 'id,player,side,wager,potential_return',
+                'select': 'id,player,side,wager,potential_return,placed_at',
             },
             timeout=_TIMEOUT,
         )
@@ -455,6 +454,12 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
     except Exception as e:
         print(f'  ✗ settle_sb_bet fetch ({bet_id}): {e}')
         return 0
+
+    def _parse_ts(ts):
+        try:
+            return datetime.fromisoformat(str(ts).replace('Z', '+00:00'))
+        except Exception:
+            return None
 
     count = 0
     for bet in bets:
@@ -469,24 +474,40 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
             timeout=_TIMEOUT,
         )
         if won or is_push:
-            credit = bet['wager'] if is_push else bet['potential_return']
             try:
                 r2 = requests.get(
                     f'{SUPABASE_URL}/rest/v1/sb_players',
                     headers=_headers(),
-                    params={'name': f'eq.{bet["player"]}', 'select': 'balance'},
+                    params={'name': f'eq.{bet["player"]}', 'select': 'balance,updated_at'},
                     timeout=_TIMEOUT,
                 )
                 rows = r2.json()
                 if rows:
-                    new_bal = rows[0]['balance'] + credit
-                    requests.patch(
-                        f'{SUPABASE_URL}/rest/v1/sb_players',
-                        headers=_headers(),
-                        params={'name': f'eq.{bet["player"]}'},
-                        json={'balance': new_bal, 'updated_at': settled_at},
-                        timeout=_TIMEOUT,
-                    )
+                    # Invariant: sb_players.balance covers all bet history up to
+                    # updated_at — recalculate_sb_balance deducts EVERY wager,
+                    # including still-pending ones. So a bet placed after the
+                    # last recalc never had its wager deducted: credit only the
+                    # profit (return − wager); an older bet's wager is already
+                    # out of the balance, so credit the full return. Never bump
+                    # updated_at here — moving it forward drops other pending
+                    # wagers out of place_bet's available-balance window, which
+                    # briefly re-opens the concurrent-overdraw hole that
+                    # place_bet's SELECT FOR UPDATE exists to close.
+                    placed = _parse_ts(bet.get('placed_at'))
+                    recalced = _parse_ts(rows[0].get('updated_at'))
+                    pre_deducted = bool(placed and recalced and placed <= recalced)
+                    if is_push:
+                        credit = bet['wager'] if pre_deducted else 0
+                    else:
+                        credit = bet['potential_return'] - (0 if pre_deducted else bet['wager'])
+                    if credit:
+                        requests.patch(
+                            f'{SUPABASE_URL}/rest/v1/sb_players',
+                            headers=_headers(),
+                            params={'name': f'eq.{bet["player"]}'},
+                            json={'balance': rows[0]['balance'] + credit},
+                            timeout=_TIMEOUT,
+                        )
             except Exception as e:
                 print(f'  ✗ settle_sb_bet balance update ({bet["player"]}): {e}')
         count += 1

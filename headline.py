@@ -35,43 +35,113 @@ def _build_draft_summary() -> str:
 DRAFT_SUMMARY = _build_draft_summary()
 
 
-def search_news(debug: bool = False) -> str:
-    """Fetch recent news via Tavily — separate query per active event so no category starves another."""
+# ── Event calendar ────────────────────────────────────────────────────────────
+# (name, start, end, query). A query runs only while today is inside
+# [start, end + RESULTS_GRACE_DAYS] — so event queries retire themselves and
+# nobody has to hand-edit the list when a tournament ends. The same table
+# drives the prompt: in-window events are announced as active, past events are
+# explicitly listed as concluded/off-limits.
+RESULTS_GRACE_DAYS = 2   # a final is still news for a couple of days
+
+EVENT_WINDOWS = [
+    ("French Open tennis",    "2026-05-24", "2026-06-07", "French Open Roland Garros 2026 tennis results today"),
+    ("US Open golf",          "2026-06-18", "2026-06-21", "US Open golf championship 2026 final leaderboard"),
+    ("World Cup group stage", "2026-06-11", "2026-06-27", "FIFA World Cup 2026 group stage results today"),
+    ("World Cup knockout round","2026-06-28","2026-07-19", "FIFA World Cup 2026 knockout round match results today"),
+    ("Wimbledon",             "2026-06-29", "2026-07-12", "Wimbledon 2026 tennis match results today"),
+    ("The Open golf",         "2026-07-16", "2026-07-19", "The Open Championship 2026 golf leaderboard results"),
+    ("US Open tennis",        "2026-08-31", "2026-09-13", "US Open 2026 tennis match results today"),
+    ("NASCAR playoffs",       "2026-09-06", "2026-11-08", "NASCAR Cup Series playoffs 2026 race results"),
+    ("MLB playoffs",          "2026-09-29", "2026-11-01", "MLB playoffs 2026 results"),
+    ("MLS Cup playoffs",      "2026-10-21", "2026-12-06", "MLS Cup playoffs 2026 results"),
+]
+
+# Season-long categories — always searched (their pages update continuously).
+ALWAYS_ON_QUERIES = [
+    'MLB baseball results standings 2026 this week',
+    'MLS NASCAR results 2026 this week',
+    '{today} Billboard Hot 100 chart number one new entry this week',
+    'NVDA TSLA COIN PLTR AVGO SMCI LULU INTC NEE stock movers this week 2026',
+    '{today} new movie opening this weekend box office',
+]
+
+
+def _parse_d(s):
     from datetime import date
+    return date(*map(int, s.split('-')))
+
+
+def _calendar_state(today):
+    """(active, concluded, upcoming) event-window lists for the given date."""
+    from datetime import timedelta
+    active, concluded, upcoming = [], [], []
+    for name, start, end, query in EVENT_WINDOWS:
+        s, e = _parse_d(start), _parse_d(end)
+        if s <= today <= e + timedelta(days=RESULTS_GRACE_DAYS):
+            active.append((name, s, e, query))
+        elif today > e:
+            concluded.append((name, s, e))
+        else:
+            upcoming.append((name, s, e))
+    return active, concluded, upcoming
+
+
+def build_queries(today) -> list:
+    """Date-aware query list: always-on categories + currently active events."""
+    today_str = today.strftime('%B %d %Y')
+    queries = [q.format(today=today_str) for q in ALWAYS_ON_QUERIES]
+    active, _, _ = _calendar_state(today)
+    queries.extend(q for _, _, _, q in active)
+    return queries
+
+
+def build_calendar_note(today) -> str:
+    """Prompt guidance derived from the calendar — replaces hand-edited
+    'the active events are X' lines that rot the moment an event ends."""
+    active, concluded, _ = _calendar_state(today)
+    lines = []
+    if active:
+        lines.append("Events IN PROGRESS right now (their fresh results are the priority): "
+                     + "; ".join(f"{n} (through {e.strftime('%b %d')})" for n, s, e, _ in active))
+    if concluded:
+        lines.append("Events already CONCLUDED — do NOT report anything from these, their news is stale: "
+                     + "; ".join(f"{n} (ended {e.strftime('%b %d')})" for n, s, e in concluded))
+    lines.append("The NBA Finals and NHL Stanley Cup Finals concluded in mid-June 2026 — never report on them.")
+    return "\n".join(f"- {l}" for l in lines)
+
+
+MAX_SNIPPET_AGE_DAYS = 3
+
+
+def search_news(debug: bool = False) -> str:
+    """Fetch recent news via Tavily — separate query per active event so no
+    category starves another. Queries come from the date-aware calendar.
+
+    topic='news' is REQUIRED for Tavily to honor the `days` recency filter —
+    without it the general index ranks evergreen pages (Wikipedia, 'Past
+    Results' leaderboards) that made headlines cover weeks-old events.
+    """
+    from datetime import date, datetime, timedelta, timezone
     api_key = os.environ.get('TAVILY_API_KEY', '')
     if not api_key:
         return ''
-    today_str = date.today().strftime('%B %d %Y')
-    queries = [
-        # ── NBA/NHL Finals are settled (June 13-14) — use freed slots for active events ──
-        'FIFA World Cup 2026 group stage game score result today',
-        'MLB baseball standings results 2026 latest',
-        # ── Other sports ──────────────────────────────────────────────────
-        'Roland Garros French Open tennis 2026 results',
-        'US Open golf 2026 results leaderboard',
-        'MLS NASCAR standings results 2026',
-        # ── FIFA World Cup ────────────────────────────────────────────────
-        'FIFA World Cup 2026 results group stage standings',
-        # ── Music: must be a chart move happening THIS week ───────────────
-        f'Billboard Hot 100 chart number one new entry this week {today_str}',
-        # ── Stocks ───────────────────────────────────────────────────────
-        'NVDA TSLA COIN PLTR AVGO SMCI LULU INTC NEE stock market 2026',
-        # ── Movies: only NEW releases opening THIS weekend ────────────────
-        f'new movie opening this weekend box office {today_str}',
-    ]
+    today = date.today()
+    queries = build_queries(today)
+    cutoff = today - timedelta(days=MAX_SNIPPET_AGE_DAYS)
     try:
         import requests
-        seen, all_snippets = set(), []
+        seen, all_snippets, dropped = set(), [], 0
         for query in queries:
             resp = requests.post(
                 'https://api.tavily.com/search',
                 json={
                     'api_key': api_key,
                     'query': query,
+                    'topic': 'news',
+                    'days': MAX_SNIPPET_AGE_DAYS,
                     'search_depth': 'basic',
                     'max_results': 3,
                     'include_answer': False,
-                    'days': 3,
                 },
                 timeout=20,
             )
@@ -82,13 +152,36 @@ def search_news(debug: bool = False) -> str:
             for r in results:
                 title = r.get('title', '')
                 content = r.get('content', '')
-                if title and title not in seen:
-                    seen.add(title)
-                    snippet = f"- {title}: {content[:300]}"
-                    all_snippets.append(snippet)
-                    if debug:
-                        print(f'    → {title}')
-                        print(f'       {content[:200]}')
+                if not title or title in seen:
+                    continue
+                seen.add(title)
+                # Hard-drop anything published before the cutoff; stamp the
+                # date into the snippet so Claude can judge freshness too.
+                pub = (r.get('published_date') or '').strip()
+                pub_label = 'date unknown'
+                if pub:
+                    try:
+                        pub_day = datetime.fromisoformat(
+                            pub.replace('Z', '+00:00')).astimezone(timezone.utc).date()
+                    except ValueError:
+                        try:
+                            pub_day = datetime.strptime(pub[:16], '%a, %d %b %Y').date()
+                        except ValueError:
+                            pub_day = None
+                    if pub_day:
+                        if pub_day < cutoff:
+                            dropped += 1
+                            if debug:
+                                print(f'    ✗ dropped (published {pub_day}): {title}')
+                            continue
+                        pub_label = f'published {pub_day.isoformat()}'
+                snippet = f"- [{pub_label}] {title}: {content[:300]}"
+                all_snippets.append(snippet)
+                if debug:
+                    print(f'    → [{pub_label}] {title}')
+                    print(f'       {content[:200]}')
+        if dropped:
+            print(f'  ℹ dropped {dropped} snippet(s) older than {MAX_SNIPPET_AGE_DAYS} days')
         return '\n'.join(all_snippets)
     except Exception as e:
         print(f'  ⚠ Tavily search failed: {e}')
@@ -105,8 +198,10 @@ def generate_headline(scores_data: dict, news_snippets: str) -> Optional[str]:
         from datetime import date
         client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
 
-        today = date.today().strftime('%B %d, %Y')
-        news_block = f'\nNews snippets from the last 3 days (today is {today}):\n{news_snippets}\n'
+        today_d = date.today()
+        today = today_d.strftime('%B %d, %Y')
+        calendar_note = build_calendar_note(today_d)
+        news_block = f'\nNews snippets from the last {MAX_SNIPPET_AGE_DAYS} days (today is {today}):\n{news_snippets}\n'
 
         prompt = f"""You write punchy multi-sentence "FL News" ticker headlines for Fantasy Life 2026 — a 13-person fantasy league where each player drafted real sports teams, athletes, musicians, actors, and stocks.
 
@@ -122,11 +217,13 @@ CRITICAL rules:
 - If a snippet mentions a pick but doesn't clearly state the result or move, skip it.
 - For ongoing series (NBA Finals, NHL Finals, etc.), always report the MOST RECENT game — if snippets mention multiple games, use the highest game number.
 - Never cross categories: an NBA team cannot win a Stanley Cup; a stock ticker is not a song chart.
-- The EVENT itself must have occurred within the last 3 days (today is {today}). A recent article referencing an older event (e.g. "biggest opening of the year" for a film that opened weeks ago) does NOT qualify — skip it.
-- For Actor/Actress/Musician: only report if the film opened or the song charted within the last 3 days. Do NOT report on releases from weeks or months ago even if a recent article mentions them.
+- The EVENT itself must have occurred within the last {MAX_SNIPPET_AGE_DAYS} days (today is {today}). A recent article referencing an older event (e.g. "biggest opening of the year" for a film that opened weeks ago) does NOT qualify — skip it.
+- Each snippet starts with its publication date in brackets. Prefer the most recently published snippets. A snippet marked [date unknown] may be an evergreen page — treat any result on it as suspect unless the snippet text itself dates the event within the last {MAX_SNIPPET_AGE_DAYS} days.
+- For Actor/Actress/Musician: only report if the film opened or the song charted within the last {MAX_SNIPPET_AGE_DAYS} days. Do NOT report on releases from weeks or months ago even if a recent article mentions them.
 - 3–5 sentences, max 60 words total
 - Never mention FL standings, point totals, or league positions
-- The NBA Finals and NHL Stanley Cup Finals are both complete as of June 15, 2026 — do NOT report on them as ongoing; the active major events are the FIFA World Cup 2026 and the US Open golf
+- Event status (derived from the league calendar — trust this over any snippet):
+{calendar_note}
 - Cover a MIX of categories — aim for at least 2 different categories (e.g. one sports + one music/stock/movie/WorldCup)
 - Format: "Pick (<em>FLPlayer</em>) result." — pick name first, FL owner in <em> tags in parentheses
 - Examples: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals." / "NVDA (<em>Todd</em>) surges 9% on earnings." / "USA (<em>Wu</em>) blank Morocco 2-0 in World Cup opener." / "Taylor Swift (<em>Molmen</em>) hits #1 with new single."
