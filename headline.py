@@ -231,16 +231,38 @@ CRITICAL rules:
 - Use <em> tags ONLY around FL player names — never around pick names
 - Be specific: include series scores or % moves only if the snippet gives them
 - Actor/Actress: ONLY connect a film to an FL player's pick if a SINGLE snippet contains BOTH the actor/actress name AND the film title in the same sentence or tight clause. A film title alone is never enough. An actor mentioned elsewhere on the same page does NOT count — the connection must be explicit in the same sentence. Do NOT use outside knowledge about casting.
-- Output ONLY the headline text, no quotes, no labels, no preamble
+- Output format — TWO sections, exactly like this:
 
-Headline:"""
+FACTS:
+1. quote: "<exact text copied verbatim from a snippet>" → <the fact it supports>
+2. quote: "..." → ...
+
+HEADLINE:
+<the headline sentences>
+
+Every headline sentence MUST be backed by a numbered FACTS entry whose quote is copied character-for-character from a snippet above. If you cannot produce the verbatim quote for a fact, it does not go in the headline. The HEADLINE section must contain only the headline text."""
 
         msg = client.messages.create(
             model='claude-sonnet-4-6',
-            max_tokens=200,
+            max_tokens=700,
+            temperature=0,
             messages=[{'role': 'user', 'content': prompt}],
         )
-        return msg.content[0].text.strip()
+        raw = msg.content[0].text.strip()
+        # Keep only the composed headline; the FACTS section is grounding
+        # scaffolding (printed to CI logs for debugging).
+        if 'HEADLINE:' in raw:
+            facts, headline = raw.split('HEADLINE:', 1)
+            print('  Grounding facts:\n' + '\n'.join(
+                f'    {l}' for l in facts.replace('FACTS:', '').strip().splitlines() if l.strip()))
+            headline = headline.strip()
+        else:
+            headline = raw
+        # Normalize markdown emphasis the model occasionally emits (*Wu*) back
+        # to the <em> tags the ticker expects.
+        import re
+        headline = re.sub(r'\*([A-Za-z]+)\*', r'<em>\1</em>', headline)
+        return headline
     except Exception as e:
         print(f'  ✗ generate_headline: {e}')
         return None
