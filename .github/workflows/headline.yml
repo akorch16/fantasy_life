@@ -5,6 +5,11 @@ name: FL Headline (manual)
 # only — it always passes --force to bypass the dedup guard.
 on:
   workflow_dispatch:        # "Run workflow" button in GitHub Actions UI
+    inputs:
+      dry_run:
+        description: 'Preview only — print queries, snippets, and headline without writing scores.json'
+        type: boolean
+        default: false
 
 jobs:
   headline:
@@ -27,9 +32,12 @@ jobs:
         env:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python3 headline.py --force
+        run: python3 headline.py --force --debug ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: Commit & push headline
+        # Skipped on dry runs; also only safe on main — the rebase-on-main
+        # push logic misbehaves when dispatched against a feature branch.
+        if: ${{ !inputs.dry_run }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
