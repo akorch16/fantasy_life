@@ -249,15 +249,26 @@ def _kalshi_get(path, params=None):
     return None
 
 
+_MARKETS_CACHE = {}   # series_ticker -> raw markets list (one fetch per run)
+
+
 def _fetch_markets_for_series(series_ticker):
+    if series_ticker in _MARKETS_CACHE:
+        return _MARKETS_CACHE[series_ticker]
     # Pass 1: query by series_ticker without status filter (avoids missing in-progress markets)
     data = _kalshi_get("/markets", {"series_ticker": series_ticker, "limit": 200})
     markets = data.get("markets", []) if data else []
-    if markets:
-        return markets
-    # Pass 2: try the /events/{ticker}/markets endpoint (Kalshi v2 multi-outcome events)
-    data2 = _kalshi_get(f"/events/{series_ticker}/markets", {"limit": 200})
-    return data2.get("markets", []) if data2 else []
+    if not markets and "-" in series_ticker:
+        # Pass 1.5: dashed tickers are usually EVENT tickers (e.g. KXATP-26WIM =
+        # Wimbledon men's inside the KXATP series) — query by event_ticker
+        data15 = _kalshi_get("/markets", {"event_ticker": series_ticker, "limit": 200})
+        markets = data15.get("markets", []) if data15 else []
+    if not markets:
+        # Pass 2: try the /events/{ticker}/markets endpoint (Kalshi v2 multi-outcome events)
+        data2 = _kalshi_get(f"/events/{series_ticker}/markets", {"limit": 200})
+        markets = data2.get("markets", []) if data2 else []
+    _MARKETS_CACHE[series_ticker] = markets
+    return markets
 
 
 def _name_matches(kalshi_title, pick_name):
@@ -269,33 +280,64 @@ def _name_matches(kalshi_title, pick_name):
     return False
 
 
+def _market_haystack(m):
+    """All the fields where Kalshi may put the team/player name.
+    The API stopped guaranteeing full names in `title` (mid-2026 responses carry
+    fragments like 'yes St. Louis' there) — subtitle/yes_sub_title usually have
+    the real name now."""
+    return " ".join(str(m.get(k) or "") for k in
+                    ("title", "subtitle", "yes_sub_title", "no_sub_title", "ticker"))
+
+
+def _pick_market(markets, pick_name):
+    """Best ACTIVE market for a pick. Exact yes_sub_title match first — Kalshi
+    uses city-style names ('New York Y', 'Los Angeles D'), so fuzzy word overlap
+    alone would hit both New York teams. Fuzzy haystack match is the fallback."""
+    words = pick_name.split()
+    cands = {pick_name.lower().strip()}
+    if len(words) >= 2:
+        city = " ".join(words[:-1]).lower()
+        cands.add(city)                                # 'tampa bay'
+        cands.add(city + " " + words[-1][0].lower())   # 'new york y'
+        if city == "la":
+            cands.add("los angeles")                   # Kalshi lists LA Galaxy as 'Los Angeles'
+    # NOTE: active markets have result == '' (empty string), NOT null —
+    # a `result is not None` check would skip every live market.
+    active = [m for m in markets if not m.get("result")]
+    for m in active:
+        if str(m.get("yes_sub_title") or "").lower().strip() in cands:
+            return m
+    for m in active:
+        if _name_matches(_market_haystack(m), pick_name):
+            return m
+    return None
+
+
 def _extract_probs(markets, picks_dict):
     """
     Given a list of Kalshi markets and a {player: pick_name} dict,
     return {player: yes_probability (0–1)}.
-    Kalshi v2 API returns prices as yes_ask_dollars / yes_bid_dollars (0.0–1.0 floats).
-    Resolved markets (result != null) are skipped — only active markets with real prices count.
+    Prices: midpoint of yes_bid_dollars/yes_ask_dollars, falling back to
+    last_price_dollars when the book is empty.
     """
     probs = {}
     for player, pick in picks_dict.items():
-        for m in markets:
-            if m.get("result") is not None:
-                continue  # skip settled markets — can show anomalous half-prices
-            if _name_matches(m.get("title", ""), pick):
-                yes_ask = m.get("yes_ask_dollars")
-                yes_bid = m.get("yes_bid_dollars")
-                try:
-                    if yes_ask is not None and yes_bid is not None:
-                        prob = (float(yes_ask) + float(yes_bid)) / 2.0
-                    elif yes_ask is not None:
-                        prob = float(yes_ask)
-                    else:
-                        prob = 0.0
-                    if prob > 0:
-                        probs[player] = prob
-                except (TypeError, ValueError):
-                    pass
-                break
+        m = _pick_market(markets, pick)
+        if m is None:
+            continue
+        try:
+            yes_ask = m.get("yes_ask_dollars")
+            yes_bid = m.get("yes_bid_dollars")
+            if yes_ask is not None and yes_bid is not None and float(yes_ask) > 0:
+                prob = (float(yes_ask) + float(yes_bid)) / 2.0
+            elif yes_ask is not None and float(yes_ask) > 0:
+                prob = float(yes_ask)
+            else:
+                prob = float(m.get("last_price_dollars") or 0)
+            if prob > 0:
+                probs[player] = prob
+        except (TypeError, ValueError):
+            pass
     return probs
 
 
@@ -499,26 +541,35 @@ def _expected_bonus_conf_finals(p_champ, p_finalist):
 
 # ─── Kalshi fetch + merge ─────────────────────────────────────────────────────
 KNOWN_SERIES = {
-    # Kalshi series tickers. The API accepts the series (KXNBA) in ?series_ticker=;
-    # event-level tickers (KXNBA-26) return 404 on the new api.elections.kalshi.com.
-    # URLs: kalshi.com/markets/kxnba/.../kxnba-26, kalshi.com/markets/kxnhl/.../kxnhl-26
-    "nba":    ["KXNBA"],
-    "nhl":    ["KXNHL"],
-    "mlb":    ["KXMLB"],
-    "mls":    ["KXMLS"],
-    "nascar": ["KXNASC"],
-    "golf_uso":  ["KXGOLF-USO"],
-    "golf_open": ["KXGOLF-OPEN"],
-    "tennis_fo_m":  ["KXATP-FO"],
-    "tennis_fo_w":  ["KXWTA-FO"],
-    "tennis_wb_m":  ["KXATP-WB"],
-    "tennis_wb_w":  ["KXWTA-WB"],
-    "tennis_uso_m": ["KXATP-USO"],
-    "tennis_uso_w": ["KXWTA-USO"],
-    # Conference finals
-    "nba_ecf": ["KXNBA-ECF"],
-    "nba_wcf": ["KXNBA-WCF"],
-    "nhl_wcf": ["KXNHL-WCF"],
+    # Kalshi tickers, verified against the live series catalog 2026-07-05
+    # (probe.yml mode=kalshi dumps it). Undashed = series ticker; dashed =
+    # EVENT ticker (queried via ?event_ticker= — see _fetch_markets_for_series).
+    # 2027 slams / next-season events will need new event tickers here.
+    #
+    # NBA/NHL 2025-26 are DECIDED (Knicks, Hurricanes) — deliberately empty so
+    # Kalshi's next-season futures (KXNBA now carries 2027 markets) can never
+    # override the pinned FALLBACK results. Same for finished conf finals,
+    # French Open, and US Open golf.
+    "nba":    [],
+    "nhl":    [],
+    "mlb":    ["KXMLB"],                 # KXMLB-26 · 'Will Tampa Bay win the 2026 Pro Baseball Championship?'
+    "mls":    ["KXMLSCUP"],              # KXMLSCUP-26 · 'Will Vancouver win the MLS Cup?'
+    "nascar": ["KXNASCARCUPSERIES"],     # KXNASCARCUPSERIES-NCS26 · full driver names
+    "golf_uso":  [],
+    "golf_open": ["KXPGAWIN"],           # 'Golfer to Win' per-major series
+    "tennis_fo_m":  [],
+    "tennis_fo_w":  [],
+    "tennis_wb_m":  ["KXATP-26WIM"],     # Wimbledon men's event inside KXATP
+    "tennis_wb_w":  ["KXWTA-26WIM"],
+    "tennis_uso_m": ["KXATP-26USO"],
+    "tennis_uso_w": ["KXWTA-26USO"],
+    # Conference finals — all decided, fallback only
+    "nba_ecf": [],
+    "nba_wcf": [],
+    "nhl_wcf": [],
+    # World Cup (auto-settlement sources, not category odds)
+    "wc_ro16":   ["KXWCROUND-26RO16"],   # 'Will USA qualify for FIFA World Cup Round of 16?'
+    "wc_winner": ["KXMENWORLDCUP"],      # KXMENWORLDCUP-26 · full country names
 }
 
 
@@ -595,25 +646,75 @@ def _pts_h2h(player_a, player_b):
 # Prop definitions: (id, static_yes_pct, fn(odds)->int|None, source_category_label)
 # fn returns a computed YES% from odds dict, or None to use static.
 # source_category_label must match a string in markets_used to be marked "kalshi".
-# Props already decided — pinned at their final YES%, never recomputed.
-# Kept in the prop_odds output so the frontend still receives a value.
-_PROP_DEFS_SETTLED = [
-    ("rg-m-shep-v-todd",        100),  # Alcaraz withdrew; Shep wins
-    ("nba-ecf-buckley-v-jens",  100),  # Knicks swept Cavaliers 4-0
-    ("nba-wcf-wu-v-feder",      100),  # Spurs won WCF Game 7
-    ("nhl-wcf-tim-v-korch",     100),  # Golden Knights swept Avalanche
-    ("nhl-pts-jamzee-v-korch",  100),  # Hurricanes advanced; Korch out
-    ("nba-fin-wu-v-buckley",      0),  # Knicks won NBA Finals; Wu/Spurs lost
-    ("nhl-fin-tim-v-jamzee",      0),  # Hurricanes won Stanley Cup; Tim/Golden Knights lost
-    ("uso-wu-v-molmen",         100),  # Scheffler T4 > McIlroy +6 at US Open
-    ("uso-tim-v-shep",          100),  # Schauffele T11 > Rahm (did not finish)
-    ("wc-theo-beats-buckley",   100),  # Switzerland beat Canada 2-1 in Group B
-    ("wc-shep-beats-fryar",     100),  # France beat Norway 3-1 in Group I
-    ("wc-jens-v-tim-group-pts",  58),  # PUSH — Germany and Netherlands both 6 pts
-    ("wc-jamzee-v-shep-group-pts", 100),  # Spain 7 pts > France 6 pts
-    ("wc-wu-v-fryar-group-pts",   0),  # Norway 9 pts > USA 6 pts; NO wins
-    ("wc-molmen-v-feder-group-pts", 100),  # Argentina 9 pts > Brazil 7 pts
-]
+#
+# Settled props are NOT listed here — data/sb_settled.json is the single source
+# of truth for settlement. compute_prop_odds() reads it and pins settled props
+# at 100 (yes) / 0 (no) / 50 (push) with settled+outcome flags in the output.
+
+SB_SETTLED_PATH = os.path.join(os.path.dirname(__file__), "data", "sb_settled.json")
+
+_SETTLED_PCT = {"yes": 100, "no": 0, "push": 50}
+
+
+def _load_settled_ledger():
+    """{prop_id: outcome} from data/sb_settled.json (outcome: yes|no|push)."""
+    try:
+        with open(SB_SETTLED_PATH) as f:
+            return {e["id"]: e["outcome"] for e in json.load(f)}
+    except Exception:
+        return {}
+
+
+# Wagering/resolution schedule per prop: (closes_at, resolves_by) — both UTC ISO.
+# closes_at:   wagering stops (enforced client-side in sportsbook.html, live).
+# resolves_by: if the prop is still unsettled after this, the hourly odds job
+#              flags it for manual settlement (NEEDS_SETTLEMENT line → GitHub issue).
+_PROP_SCHEDULE = {
+    # MLB / MLS standings bets close Jul 1 per league rules
+    "mlb-wu-v-mitchell":     ("2026-07-01T00:00:00Z", "2026-09-28T00:00:00Z"),
+    "mlb-jens-v-buckley":    ("2026-07-01T00:00:00Z", "2026-09-28T00:00:00Z"),
+    "mls-buckley-v-molmen":  ("2026-07-01T00:00:00Z", "2026-10-19T00:00:00Z"),
+    # Wimbledon (Jun 29 – Jul 12)
+    "wimb-m-buckley-sinner-wins": ("2026-07-12T12:00:00Z", "2026-07-13T00:00:00Z"),
+    "wimb-w-fryar-v-feder":       ("2026-07-09T00:00:00Z", "2026-07-12T00:00:00Z"),
+    "wimb-m-theo-v-shep":         ("2026-07-09T00:00:00Z", "2026-07-13T00:00:00Z"),
+    "wimb-w-wu-v-tim":            ("2026-07-09T00:00:00Z", "2026-07-12T00:00:00Z"),
+    # World Cup knockout stage
+    "wc-shep-fra-r32":       ("2026-07-01T00:00:00Z", "2026-07-04T00:00:00Z"),
+    "wc-fryar-nor-r32":      ("2026-07-01T00:00:00Z", "2026-07-04T00:00:00Z"),
+    "wc-wu-usa-r32":         ("2026-07-01T00:00:00Z", "2026-07-04T00:00:00Z"),
+    "wc-jens-ger-r32":       ("2026-07-01T00:00:00Z", "2026-07-04T00:00:00Z"),
+    "wc-molmen-arg-wins-wc": ("2026-07-19T00:00:00Z", "2026-07-20T00:00:00Z"),
+    # Season-long props
+    "stocks-fryar-avgo-v-mitchell-cvna": ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "todd-wins-fl-2026":     ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "pts-wu-v-korch":        ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "pts-tim-v-molmen":      ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "pts-jamzee-v-fryar":    ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "pts-mitchell-v-todd":   ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    "pts-buckley-v-theo":    ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+}
+
+# Auto-settlement rules — evaluated against RESOLVED Kalshi markets each run.
+#   ("wins", series_key, pick_name):
+#       pick's market resolves yes → prop YES; resolves no → prop NO.
+#   ("either_wins", series_key, pick_a, pick_b):
+#       A's market resolves yes → YES; B's resolves yes → NO; otherwise stays open
+#       (e.g. neither pick won the title — round-by-round comparison needs a human).
+# Matching uses the pick's SURNAME only (stricter than _name_matches, which would
+# let "Alexander Zverev" match an "Alexander Bublik" market).
+_AUTO_SETTLE_RULES = {
+    "wimb-m-buckley-sinner-wins": ("wins",        "tennis_wb_m", "Jannik Sinner"),
+    "wimb-w-fryar-v-feder":       ("either_wins", "tennis_wb_w", "Aryna Sabalenka", "Iga Swiatek"),
+    "wimb-m-theo-v-shep":         ("either_wins", "tennis_wb_m", "Alexander Zverev", "Novak Djokovic"),
+    "wimb-w-wu-v-tim":            ("either_wins", "tennis_wb_w", "Coco Gauff", "Madison Keys"),
+    # WC R32 "X beats Y" ≡ "X qualifies for the Round of 16" (matchups were fixed)
+    "wc-shep-fra-r32":            ("wins", "wc_ro16", "France"),
+    "wc-fryar-nor-r32":           ("wins", "wc_ro16", "Norway"),
+    "wc-wu-usa-r32":              ("wins", "wc_ro16", "USA"),
+    "wc-jens-ger-r32":            ("wins", "wc_ro16", "Germany"),
+    "wc-molmen-arg-wins-wc":      ("wins", "wc_winner", "Argentina"),
+}
 
 _PROP_DEFS = [
     # ── Tennis · Roland Garros Women's ───────────────────────────────────────────
@@ -655,13 +756,19 @@ _PROP_DEFS = [
 ]
 
 
-def compute_prop_odds(odds, markets_used):
-    """Returns {prop_id: {yes_pct, source}} for all sportsbook props."""
+def compute_prop_odds(odds, markets_used, prev_props=None):
+    """Returns {prop_id: {yes_pct, source, [settled, outcome], [closes_at]}}.
+
+    Settled state comes from data/sb_settled.json (the settlement ledger).
+    prev_props (odds-only mode): last published prop_odds — used to carry
+    forward simulation-backed values when no fresh Monte Carlo ran this pass.
+    """
     live_cats = set(markets_used)
+    settled = _load_settled_ledger()
     result = {}
-    for prop_id, final_pct in _PROP_DEFS_SETTLED:
-        result[prop_id] = {"yes_pct": final_pct, "source": "static"}
     for prop_id, static_pct, fn, src_cat in _PROP_DEFS:
+        if prop_id in settled:
+            continue  # pinned below from the ledger
         computed = None
         if fn is not None:
             try:
@@ -671,31 +778,127 @@ def compute_prop_odds(odds, markets_used):
         if computed and 0 < computed < 100:
             source = "kalshi" if (src_cat and src_cat in live_cats) else "model"
             result[prop_id] = {"yes_pct": computed, "source": source}
+        elif prev_props and src_cat == "pts-model" and prop_id in prev_props \
+                and prev_props[prop_id].get("yes_pct") is not None:
+            # odds-only run: no fresh simulation — keep the last sim-backed value
+            result[prop_id] = {"yes_pct": prev_props[prop_id]["yes_pct"],
+                               "source": prev_props[prop_id].get("source", "model")}
         else:
             result[prop_id] = {"yes_pct": static_pct, "source": "static"}
+    for prop_id, outcome in settled.items():
+        result[prop_id] = {"yes_pct": _SETTLED_PCT.get(outcome, 50), "source": "settled",
+                           "settled": True, "outcome": outcome}
+    # Attach wagering close timestamps (frontend enforces these live)
+    for prop_id, (closes_at, _resolves_by) in _PROP_SCHEDULE.items():
+        entry = result.setdefault(prop_id, {"yes_pct": None, "source": "none"})
+        if not entry.get("settled"):
+            entry["closes_at"] = closes_at
     return result
 
 
+def _parse_iso_z(ts):
+    return datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%SZ").replace(
+        tzinfo=datetime.timezone.utc)
+
+
+def _surname_matches(kalshi_title, pick_name):
+    """Settlement-grade matching: the pick's surname must appear in the title.
+    Deliberately stricter than _name_matches — first names collide (Alexander
+    Zverev vs Alexander Bublik) and settlement moves balances."""
+    surname = pick_name.split()[-1].lower()
+    return surname in kalshi_title.lower()
+
+
+def _resolved_result(series_key, pick_name):
+    """'yes'/'no' if the pick's Kalshi market has resolved, else None."""
+    for ticker in KNOWN_SERIES.get(series_key, []):
+        for m in _fetch_markets_for_series(ticker):
+            if m.get("result") in ("yes", "no") and _surname_matches(_market_haystack(m), pick_name):
+                return m["result"]
+    return None
+
+
+def auto_settle_from_kalshi():
+    """Evaluate _AUTO_SETTLE_RULES against resolved Kalshi markets.
+    Appends any newly decided props to data/sb_settled.json.
+    Returns the list of new ledger entries."""
+    settled = _load_settled_ledger()
+    new_entries = []
+    for prop_id, rule in _AUTO_SETTLE_RULES.items():
+        if prop_id in settled:
+            continue
+        outcome = None
+        if rule[0] == "wins":
+            outcome = _resolved_result(rule[1], rule[2])
+        elif rule[0] == "either_wins":
+            if _resolved_result(rule[1], rule[2]) == "yes":
+                outcome = "yes"
+            elif _resolved_result(rule[1], rule[3]) == "yes":
+                outcome = "no"
+        if outcome:
+            print(f"  🏁 AUTO-SETTLE {prop_id} → {outcome} (Kalshi market resolved)")
+            new_entries.append({"id": prop_id, "outcome": outcome})
+    if new_entries:
+        try:
+            with open(SB_SETTLED_PATH) as f:
+                ledger = json.load(f)
+        except Exception:
+            ledger = []
+        ledger.extend(new_entries)
+        with open(SB_SETTLED_PATH, "w") as f:
+            json.dump(ledger, f, indent=2)
+            f.write("\n")
+    return new_entries
+
+
+def settle_ledger_in_supabase():
+    """Pay out every ledger entry via db.settle_sb_bet (idempotent — only rows
+    with settled_outcome IS NULL are touched). Rebuilds balances if anything paid.
+    No-op without Supabase credentials."""
+    ledger = _load_settled_ledger()
+    if not ledger:
+        return 0
+    try:
+        import db as _db
+    except Exception as e:
+        print(f"  ✗ settle: db import failed ({e})")
+        return 0
+    processed = 0
+    for prop_id, outcome in ledger.items():
+        try:
+            processed += _db.settle_sb_bet(prop_id, outcome)
+        except Exception as e:
+            print(f"  ✗ settle_sb_bet({prop_id}): {e}")
+    if processed:
+        print(f"  ✓ {processed} bet(s) newly settled — recalculating BB balances")
+        for p in ["Tim", "Wu", "Jens", "Todd", "Mitchell", "Shep", "Theo",
+                  "Feder", "Fryar", "Korch", "Molmen", "Jamzee", "Buckley"]:
+            try:
+                _db.recalculate_sb_balance(p)
+            except Exception as e:
+                print(f"  ✗ recalculate_sb_balance({p}): {e}")
+    return processed
+
+
+def flag_needs_settlement():
+    """Print a NEEDS_SETTLEMENT line for unsettled props past their resolves_by.
+    The odds workflow greps for it and maintains a GitHub issue."""
+    now = datetime.datetime.now(datetime.timezone.utc)
+    settled = _load_settled_ledger()
+    overdue = [pid for pid, (_c, resolves_by) in _PROP_SCHEDULE.items()
+               if pid not in settled and now > _parse_iso_z(resolves_by)]
+    if overdue:
+        print("NEEDS_SETTLEMENT: " + ",".join(sorted(overdue)))
+    return overdue
+
+
 def _try_kalshi_series(series_list, picks_dict, label):
+    # No keyword-search fallback: Kalshi's ?keyword= ignores the query and
+    # returns arbitrary recent markets, which fuzzy matching can false-match.
     for ticker in series_list:
         result = fetch_kalshi_championship_probs(ticker, picks_dict, label)
         if result:
             return result
-    # Last resort: keyword search using the human-readable label (e.g. "NBA championship")
-    keyword = label.replace("-", " ").replace("_", " ")
-    print(f"  ℹ {label}: all tickers failed — keyword search '{keyword}'")
-    data = _kalshi_get("/markets", {"keyword": keyword, "limit": 50})
-    markets = data.get("markets", []) if data else []
-    if markets:
-        probs = _extract_probs(markets, picks_dict)
-        if probs:
-            found = ", ".join(f"{p}={v:.1%}" for p, v in sorted(probs.items()))
-            print(f"  ✓ Kalshi {label} [keyword]: {found}")
-            return probs
-        print(f"  ✗ {label}: keyword search found {len(markets)} markets but no picks matched "
-              "(titles: " + ", ".join(repr(m.get("title","?")) for m in markets[:3]) + ")")
-    else:
-        print(f"  ✗ {label}: no markets found via keyword search either")
     return {}
 
 
@@ -1217,6 +1420,13 @@ def run():
         p["name"]: (p.get("categories", {}).get("mls", {}).get("raw_value") or None)
         for p in current_scores
     }
+
+    # Auto-settle props whose Kalshi markets have resolved, pay out, flag overdue
+    newly_settled = auto_settle_from_kalshi()
+    if newly_settled:
+        settle_ledger_in_supabase()
+    flag_needs_settlement()
+
     prop_odds = compute_prop_odds(odds, markets_used)
 
     output = {
@@ -1255,6 +1465,61 @@ def run():
         print("Note: all odds from static fallback (no Kalshi credentials or no markets matched)")
 
 
+def run_odds_only():
+    """
+    Lightweight hourly refresh (odds.yml): re-fetch Kalshi odds, auto-settle any
+    resolved props, and patch ONLY the prop_odds section of projections.json —
+    the Monte Carlo projections from the last full run are left untouched so
+    they don't jitter hourly. Writes nothing if odds are unchanged.
+    """
+    print("=== FL Odds Refresh (--odds-only) ===")
+    try:
+        with open(PROJECTIONS_PATH) as f:
+            prev = json.load(f)
+    except Exception as e:
+        print(f"  ✗ Cannot load {PROJECTIONS_PATH} ({e}) — run a full projections pass first")
+        raise SystemExit(1)
+
+    # Standings context for the MLB/MLS h2h models (scores.json is in the repo)
+    try:
+        with open(SCORES_PATH) as f:
+            current_scores = json.load(f)["players"]
+    except Exception:
+        current_scores = []
+
+    markets_used = []
+    odds = build_odds(markets_used)
+    odds["mlb_win_pct"] = {
+        p["name"]: (p.get("categories", {}).get("mlb", {}).get("raw_value") or None)
+        for p in current_scores
+    }
+    odds["mls_points"] = {
+        p["name"]: (p.get("categories", {}).get("mls", {}).get("raw_value") or None)
+        for p in current_scores
+    }
+
+    newly_settled = auto_settle_from_kalshi()
+    prop_odds = compute_prop_odds(odds, markets_used, prev_props=prev.get("prop_odds"))
+    flag_needs_settlement()
+
+    # Pay out the whole ledger every pass (idempotent) so manual ledger appends
+    # and auto-settles both credit winners within the hour, not at 08:00 UTC.
+    settle_ledger_in_supabase()
+
+    if prop_odds == prev.get("prop_odds") and not newly_settled:
+        print("No odds changes — projections.json left untouched.")
+        return
+
+    prev["prop_odds"] = prop_odds
+    prev["kalshi_markets_used"] = markets_used
+    prev["odds_updated_at"] = datetime.datetime.now(
+        datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    with open(PROJECTIONS_PATH, "w") as f:
+        json.dump(prev, f, separators=(",", ":"))
+    print(f"Wrote {PROJECTIONS_PATH} (prop odds refreshed"
+          f"{', ' + str(len(newly_settled)) + ' auto-settled' if newly_settled else ''})")
+
+
 def probe():
     """
     Diagnostic mode: attempt every Kalshi series fetch and print what's found.
@@ -1274,14 +1539,62 @@ def probe():
         return
     print(f"  Key ID: {KALSHI_KEY_ID}")
     print(f"  Private key loaded: {key.key_size}-bit RSA")
+    # ── 1. Series catalog: what does Kalshi actually call these series now? ──
+    print("\n── Series catalog (category=Sports) ───────────────────────────────")
+    keywords = ["tennis", "wimbledon", "atp", "wta", "us open", "mls", "soccer",
+                "nascar", "golf", "pga", "open championship", "nba", "nhl", "mlb",
+                "world series", "stanley", "world cup", "fifa"]
+    cursor, page, all_series = None, 0, []
+    while page < 10:
+        params = {"category": "Sports", "limit": 200}
+        if cursor:
+            params["cursor"] = cursor
+        data = _kalshi_get("/series", params)
+        if not data or not data.get("series"):
+            break
+        all_series.extend(data["series"])
+        cursor = data.get("cursor")
+        page += 1
+        if not cursor:
+            break
+    print(f"  {len(all_series)} sports series total")
+    for s in all_series:
+        hay = (s.get("ticker", "") + " " + s.get("title", "")).lower()
+        if any(k in hay for k in keywords):
+            print(f"  {s.get('ticker',''):28} {s.get('title','')[:70]}")
+
+    # ── 2. Candidate series: event structure + name/price fields per market ──
+    print("\n── Candidate series detail ────────────────────────────────────────")
+    candidates = ["KXMLB", "KXMLSCUP", "KXNASCARCUPCHAMP", "KXNASCARCUPSERIES",
+                  "KXATP", "KXWTA", "KXPGAWIN", "KXTHEOPEN", "KXUSOPEN",
+                  "KXMWORLDCUP", "KXMENWORLDCUP", "KXWCROUND"]
+    for ticker in candidates:
+        markets = _fetch_markets_for_series(ticker)
+        events = sorted({m.get("event_ticker", "?") for m in markets})
+        print(f"  {ticker}: {len(markets)} markets, events: {events[:15]}")
+        for m in markets[:4]:
+            print(f"    ev={m.get('event_ticker','?')} status={m.get('status')} result={m.get('result')!r} "
+                  f"bid={m.get('yes_bid_dollars')!r} ask={m.get('yes_ask_dollars')!r} "
+                  f"last={m.get('last_price_dollars')!r}")
+            print(f"      title={str(m.get('title'))[:70]!r} yes_sub={str(m.get('yes_sub_title'))[:40]!r}")
+    print("\n  Full raw KXMLB market for complete field inventory:")
+    mlb = _fetch_markets_for_series("KXMLB")
+    if mlb:
+        print("  " + json.dumps(mlb[0], default=str))
+
+    # ── 3. Current KNOWN_SERIES fetch attempts with pick matching ──────────────
+    print("\n── KNOWN_SERIES fetch + match check ───────────────────────────────")
     probe_targets = [
-        ("NBA-WCF",  KNOWN_SERIES["nba_wcf"],  {"Wu": "San Antonio Spurs", "Feder": "Oklahoma City Thunder"}),
-        ("NBA-ECF",  KNOWN_SERIES["nba_ecf"],  {"Buckley": "New York Knicks", "Jens": "Cleveland Cavaliers"}),
-        ("NHL-WCF",  KNOWN_SERIES["nhl_wcf"],  {"Korch": "Colorado Avalanche", "Tim": "Vegas Golden Knights"}),
-        ("NBA-champ", KNOWN_SERIES["nba"],     {p: t for p, t in NBA_PICKS.items()}),
-        ("NHL-champ", KNOWN_SERIES["nhl"],     {p: t for p, t in NHL_PICKS.items()}),
-        ("MLB-champ", KNOWN_SERIES["mlb"],     {p: t for p, t in MLB_PICKS.items()}),
-        ("Tennis-FO-W", KNOWN_SERIES["tennis_fo_w"], {p: t for p, t in TENNIS_WOMEN.items()}),
+        ("NBA-champ",  KNOWN_SERIES["nba"],          dict(NBA_PICKS)),
+        ("NHL-champ",  KNOWN_SERIES["nhl"],          dict(NHL_PICKS)),
+        ("MLB-champ",  KNOWN_SERIES["mlb"],          dict(MLB_PICKS)),
+        ("MLS-Cup",    KNOWN_SERIES["mls"],          dict(MLS_PICKS)),
+        ("NASCAR",     KNOWN_SERIES["nascar"],       dict(NASCAR_PICKS)),
+        ("Golf-Open",  KNOWN_SERIES["golf_open"],    dict(GOLF_PICKS)),
+        ("Tennis-WB-M", KNOWN_SERIES["tennis_wb_m"], dict(TENNIS_MEN)),
+        ("Tennis-WB-W", KNOWN_SERIES["tennis_wb_w"], dict(TENNIS_WOMEN)),
+        ("Tennis-USO-M", KNOWN_SERIES["tennis_uso_m"], dict(TENNIS_MEN)),
+        ("Tennis-USO-W", KNOWN_SERIES["tennis_uso_w"], dict(TENNIS_WOMEN)),
     ]
     for label, tickers, picks in probe_targets:
         result = _try_kalshi_series(tickers, picks, label)
@@ -1290,6 +1603,20 @@ def probe():
             print(f"  ✓ {label}: {found}")
         else:
             print(f"  ✗ {label}: no data (tried: {tickers})")
+
+    # ── 4. Auto-settle rules DRY RUN (no ledger writes) ────────────────────────
+    print("\n── Auto-settle rule evaluation (dry run) ──────────────────────────")
+    settled = _load_settled_ledger()
+    for prop_id, rule in _AUTO_SETTLE_RULES.items():
+        already = " [already in ledger]" if prop_id in settled else ""
+        if rule[0] == "wins":
+            r = _resolved_result(rule[1], rule[2])
+            print(f"  {prop_id}: {rule[2]} → {r or 'unresolved'}{already}")
+        elif rule[0] == "either_wins":
+            ra = _resolved_result(rule[1], rule[2])
+            rb = _resolved_result(rule[1], rule[3])
+            outcome = "yes" if ra == "yes" else ("no" if rb == "yes" else None)
+            print(f"  {prop_id}: {rule[2]}={ra or '?'} {rule[3]}={rb or '?'} → {outcome or 'unresolved'}{already}")
     print("────────────────────────────────────────────────────────────────────")
 
 
@@ -1297,5 +1624,7 @@ if __name__ == "__main__":
     import sys
     if "--probe" in sys.argv:
         probe()
+    elif "--odds-only" in sys.argv:
+        run_odds_only()
     else:
         run()

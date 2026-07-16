@@ -1,0 +1,81 @@
+name: Hourly Odds Refresh + Auto-Settle
+
+on:
+  schedule:
+    # Every hour except 08:xx UTC (daily.yml owns that hour — avoids a push race).
+    # GitHub cron drifts 3-10 min; :23 offset dodges the top-of-hour rush.
+    - cron: '23 0-7,9-23 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: odds-refresh
+  cancel-in-progress: false
+
+jobs:
+  odds:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # commit projections.json + sb_settled.json
+      issues: write       # maintain the "awaiting manual settlement" issue
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies (odds-only needs just these)
+        run: pip install requests cryptography
+
+      - name: Refresh Kalshi odds + auto-settle resolved props
+        env:
+          KALSHI_API_KEY: ${{ secrets.KALSHI_API_KEY }}
+          KALSHI_API_KEY_ID: ${{ secrets.KALSHI_API_KEY_ID }}
+          KALSHI_PRIVATE_KEY: ${{ secrets.KALSHI_PRIVATE_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        shell: bash   # explicit bash → pipefail, so a python failure fails the step
+        run: python projections.py --odds-only | tee /tmp/odds.log
+
+      - name: Commit & push (only if odds or settlements changed)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/projections.json data/sb_settled.json
+          git diff --staged --quiet || {
+            git commit -m "chore: odds refresh $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git pull --rebase origin main
+            git push
+          }
+
+      - name: Maintain manual-settlement issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="Sportsbook: bets awaiting manual settlement"
+          NEED=$(grep '^NEEDS_SETTLEMENT: ' /tmp/odds.log | tail -1 | sed 's/^NEEDS_SETTLEMENT: //' || true)
+          NUM=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+                --search "in:title \"$TITLE\"" --json number --jq '.[0].number' || true)
+          if [ -z "$NEED" ]; then
+            # Nothing overdue — close the tracking issue if one is open
+            [ -n "$NUM" ] && gh issue close "$NUM" --repo "$GITHUB_REPOSITORY" \
+              --comment "All flagged props have been settled. 🎉" || true
+            exit 0
+          fi
+          BODY_FILE=$(mktemp)
+          {
+            echo "These props are past their expected resolution date and could not be auto-settled from Kalshi."
+            echo ""
+            echo "Settle each by appending \`{\"id\": \"<prop-id>\", \"outcome\": \"yes\"|\"no\"|\"push\"}\` to \`data/sb_settled.json\` (or run \`/fl-settle\`). The next hourly run pays winners automatically."
+            echo ""
+            echo "$NEED" | tr ',' '\n' | sed 's/^/- [ ] `/;s/$/`/'
+            echo ""
+            echo "_Auto-maintained by the hourly odds workflow — do not edit; it will be overwritten._"
+          } > "$BODY_FILE"
+          if [ -n "$NUM" ]; then
+            gh issue edit "$NUM" --repo "$GITHUB_REPOSITORY" --body-file "$BODY_FILE"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file "$BODY_FILE"
+          fi
