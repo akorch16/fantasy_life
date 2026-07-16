@@ -18,7 +18,13 @@
   },
   "Country_WorldCup": {
     "Buckley": 2.5,
-    "Feder":   2.5
+    "Feder":   2.5,
+    "Wu":      2.5,
+    "Fryar":   6.5,
+    "Theo":    6.5,
+    "Shep":    9.0,
+    "Molmen":  9.0,
+    "Jamzee":  9.0
   },
   "Golf": {
     "Molmen": 6.0,

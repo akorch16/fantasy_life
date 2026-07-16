@@ -895,6 +895,19 @@ function updateHeader() {
   const header = document.getElementById('table-header');
   if (currentFilter === 'all') {
     header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th class="pts">Wk +/-</th><th></th>`;
+  } else if (currentFilter === 'country') {
+    const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
+    header.innerHTML = `
+      <th>#</th>
+      <th>Player / Pick</th>
+      <th class="pts" style="font-size:0.6rem">${statLabel}</th>
+      <th class="pts" style="font-size:0.6rem">Regular</th>
+      <th class="pts" style="font-size:0.6rem">Bonus Pts</th>
+      <th class="pts" style="font-size:0.6rem">Olympics Bonus</th>
+      <th class="pts" style="font-size:0.6rem">World Cup Bonus</th>
+      <th class="pts" style="font-size:0.6rem">Total</th>
+      <th></th>
+    `;
   } else {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
     header.innerHTML = `
@@ -991,6 +1004,11 @@ function renderTable() {
         ? (catData.baseline_pts + (catData.bonus_pts || 0)).toFixed(1)
         : '–';
 
+      const extraCountryCols = currentFilter === 'country' ? `
+        <td class="stat-col bonus-col">${catData.olympics_bonus_pts ? '+' + catData.olympics_bonus_pts.toFixed(1) : '–'}</td>
+        <td class="stat-col bonus-col">${catData.world_cup_bonus_pts ? '+' + catData.world_cup_bonus_pts.toFixed(1) : '–'}</td>
+      ` : '';
+
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td>
@@ -1000,6 +1018,7 @@ function renderTable() {
         <td class="stat-col primary">${statVal}</td>
         <td class="stat-col">${regular}</td>
         <td class="stat-col bonus-col">${bonus}</td>
+        ${extraCountryCols}
         <td class="stat-col total-col">${total}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
       `;
@@ -1015,7 +1034,7 @@ function renderTable() {
 
       const td = document.createElement('td');
       td.className = 'breakdown-cell';
-      td.colSpan = currentFilter === 'all' ? 5 : 7;
+      td.colSpan = currentFilter === 'all' ? 5 : (currentFilter === 'country' ? 9 : 7);
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {
