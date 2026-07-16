@@ -1,25 +1,98 @@
 [
-  {"id": "rg-m-shep-v-todd",           "outcome": "yes"},
-  {"id": "nba-ecf-buckley-v-jens",     "outcome": "yes"},
-  {"id": "nba-wcf-wu-v-feder",         "outcome": "yes"},
-  {"id": "nhl-wcf-tim-v-korch",        "outcome": "yes"},
-  {"id": "nhl-pts-jamzee-v-korch",     "outcome": "yes"},
-  {"id": "rg-w-fryar-v-feder",        "outcome": "yes"},
-  {"id": "nba-fin-wu-v-buckley",       "outcome": "no"},
-  {"id": "nhl-fin-tim-v-jamzee",       "outcome": "no"},
-  {"id": "uso-wu-v-molmen",            "outcome": "yes"},
-  {"id": "uso-tim-v-shep",             "outcome": "yes"},
-  {"id": "wc-theo-beats-buckley",      "outcome": "yes"},
-  {"id": "wc-shep-beats-fryar",        "outcome": "yes"},
-  {"id": "wc-jens-v-tim-group-pts",    "outcome": "push"},
-  {"id": "wc-jamzee-v-shep-group-pts", "outcome": "yes"},
-  {"id": "wc-wu-v-fryar-group-pts",    "outcome": "no"},
-  {"id": "wc-molmen-v-feder-group-pts","outcome": "yes"},
-  {"id": "mlb-wu-v-mitchell",          "outcome": "yes"},
-  {"id": "mlb-jens-v-buckley",         "outcome": "no"},
-  {"id": "mls-buckley-v-molmen",       "outcome": "yes"},
-  {"id": "wc-shep-fra-r32",            "outcome": "yes"},
-  {"id": "wc-fryar-nor-r32",           "outcome": "yes"},
-  {"id": "wc-wu-usa-r32",              "outcome": "yes"},
-  {"id": "wc-jens-ger-r32",            "outcome": "no"}
+  {
+    "id": "rg-m-shep-v-todd",
+    "outcome": "yes"
+  },
+  {
+    "id": "nba-ecf-buckley-v-jens",
+    "outcome": "yes"
+  },
+  {
+    "id": "nba-wcf-wu-v-feder",
+    "outcome": "yes"
+  },
+  {
+    "id": "nhl-wcf-tim-v-korch",
+    "outcome": "yes"
+  },
+  {
+    "id": "nhl-pts-jamzee-v-korch",
+    "outcome": "yes"
+  },
+  {
+    "id": "rg-w-fryar-v-feder",
+    "outcome": "yes"
+  },
+  {
+    "id": "nba-fin-wu-v-buckley",
+    "outcome": "no"
+  },
+  {
+    "id": "nhl-fin-tim-v-jamzee",
+    "outcome": "no"
+  },
+  {
+    "id": "uso-wu-v-molmen",
+    "outcome": "yes"
+  },
+  {
+    "id": "uso-tim-v-shep",
+    "outcome": "yes"
+  },
+  {
+    "id": "wc-theo-beats-buckley",
+    "outcome": "yes"
+  },
+  {
+    "id": "wc-shep-beats-fryar",
+    "outcome": "yes"
+  },
+  {
+    "id": "wc-jens-v-tim-group-pts",
+    "outcome": "push"
+  },
+  {
+    "id": "wc-jamzee-v-shep-group-pts",
+    "outcome": "yes"
+  },
+  {
+    "id": "wc-wu-v-fryar-group-pts",
+    "outcome": "no"
+  },
+  {
+    "id": "wc-molmen-v-feder-group-pts",
+    "outcome": "yes"
+  },
+  {
+    "id": "mlb-wu-v-mitchell",
+    "outcome": "yes"
+  },
+  {
+    "id": "mlb-jens-v-buckley",
+    "outcome": "no"
+  },
+  {
+    "id": "mls-buckley-v-molmen",
+    "outcome": "yes"
+  },
+  {
+    "id": "wc-shep-fra-r32",
+    "outcome": "yes"
+  },
+  {
+    "id": "wc-fryar-nor-r32",
+    "outcome": "yes"
+  },
+  {
+    "id": "wc-wu-usa-r32",
+    "outcome": "yes"
+  },
+  {
+    "id": "wc-jens-ger-r32",
+    "outcome": "no"
+  },
+  {
+    "id": "wimb-m-buckley-sinner-wins",
+    "outcome": "yes"
+  }
 ]
