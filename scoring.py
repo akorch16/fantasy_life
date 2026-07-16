@@ -161,6 +161,11 @@ def load_bonuses():
     _COUNTRY_CAP = 13.0
     country_olympics = bonuses.get('Country', {})
     country_wc = bonuses.pop('Country_WorldCup', {})
+    # Stash the uncapped per-source values for display (country page shows
+    # Olympics and World Cup bonus as separate columns) — 'Country' itself
+    # gets overwritten below with the capped combined total used for scoring.
+    bonuses['_country_olympics'] = dict(country_olympics)
+    bonuses['_country_worldcup'] = dict(country_wc)
     if country_wc:
         all_players = set(country_olympics) | set(country_wc)
         merged = {}
@@ -733,6 +738,11 @@ def compute_all_scores():
                 entry['hot100_weeks'] = p_data.get('hot100_weeks', 0)
             elif cat in ('Actor', 'Actress'):
                 entry['movies'] = p_data.get('movies', [])
+            elif cat == 'Country':
+                # bonus_pts above is the capped combined total (used for scoring);
+                # these two are the uncapped per-source values for display.
+                entry['olympics_bonus_pts'] = round(bonuses.get('_country_olympics', {}).get(player, 0) or 0, 2)
+                entry['world_cup_bonus_pts'] = round(bonuses.get('_country_worldcup', {}).get(player, 0) or 0, 2)
             cat_breakdown[cat] = entry
         player_totals[player] = {
             'name':       player,
