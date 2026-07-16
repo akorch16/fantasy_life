@@ -14,5 +14,12 @@
   {"id": "wc-jens-v-tim-group-pts",    "outcome": "push"},
   {"id": "wc-jamzee-v-shep-group-pts", "outcome": "yes"},
   {"id": "wc-wu-v-fryar-group-pts",    "outcome": "no"},
-  {"id": "wc-molmen-v-feder-group-pts","outcome": "yes"}
+  {"id": "wc-molmen-v-feder-group-pts","outcome": "yes"},
+  {"id": "mlb-wu-v-mitchell",          "outcome": "yes"},
+  {"id": "mlb-jens-v-buckley",         "outcome": "no"},
+  {"id": "mls-buckley-v-molmen",       "outcome": "yes"},
+  {"id": "wc-shep-fra-r32",            "outcome": "yes"},
+  {"id": "wc-fryar-nor-r32",           "outcome": "yes"},
+  {"id": "wc-wu-usa-r32",              "outcome": "yes"},
+  {"id": "wc-jens-ger-r32",            "outcome": "no"}
 ]
