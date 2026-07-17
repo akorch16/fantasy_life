@@ -231,7 +231,10 @@ CRITICAL rules:
 - Use <em> tags ONLY around FL player names — never around pick names
 - Be specific: include series scores or % moves only if the snippet gives them
 - Actor/Actress: ONLY connect a film to an FL player's pick if a SINGLE snippet contains BOTH the actor/actress name AND the film title in the same sentence or tight clause. A film title alone is never enough. An actor mentioned elsewhere on the same page does NOT count — the connection must be explicit in the same sentence. Do NOT use outside knowledge about casting.
-- Output format — TWO sections, exactly like this:
+- Output format — TWO sections, exactly like this, and NOTHING else. Do not
+  write any preamble, reasoning, or "let me check the snippets" narration —
+  your response must start immediately with the literal text "FACTS:".
+  Keep each FACTS line to one short sentence — at most 6 facts total.
 
 FACTS:
 1. quote: "<exact text copied verbatim from a snippet>" → <the fact it supports>
@@ -244,20 +247,31 @@ Every headline sentence MUST be backed by a numbered FACTS entry whose quote is 
 
         msg = client.messages.create(
             model='claude-sonnet-4-6',
-            max_tokens=700,
+            max_tokens=1200,
             temperature=0,
             messages=[{'role': 'user', 'content': prompt}],
         )
         raw = msg.content[0].text.strip()
-        # Keep only the composed headline; the FACTS section is grounding
-        # scaffolding (printed to CI logs for debugging).
-        if 'HEADLINE:' in raw:
-            facts, headline = raw.split('HEADLINE:', 1)
-            print('  Grounding facts:\n' + '\n'.join(
-                f'    {l}' for l in facts.replace('FACTS:', '').strip().splitlines() if l.strip()))
-            headline = headline.strip()
-        else:
-            headline = raw
+        # Truncation safety: if the model ran out of tokens before finishing,
+        # never publish whatever partial/reasoning text it had written so far
+        # (this shipped a raw chain-of-thought fragment to prod on 2026-07-17
+        # when 'HEADLINE:' hadn't been reached yet and the old code fell back
+        # to treating the entire raw response as the headline).
+        if msg.stop_reason == 'max_tokens':
+            print(f'  ✗ generate_headline: response truncated at max_tokens — skipping. '
+                  f'Raw tail: {raw[-300:]!r}')
+            return None
+        if 'HEADLINE:' not in raw:
+            print(f'  ✗ generate_headline: no HEADLINE: section in response — skipping. '
+                  f'Raw: {raw[:300]!r}')
+            return None
+        facts, headline = raw.split('HEADLINE:', 1)
+        print('  Grounding facts:\n' + '\n'.join(
+            f'    {l}' for l in facts.replace('FACTS:', '').strip().splitlines() if l.strip()))
+        headline = headline.strip()
+        if not headline:
+            print('  ✗ generate_headline: empty headline after HEADLINE: — skipping')
+            return None
         # Normalize markdown emphasis the model occasionally emits (*Wu*) back
         # to the <em> tags the ticker expects.
         import re
