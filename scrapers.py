@@ -258,13 +258,21 @@ def scrape_ncaab():
 
 # ── Wikipedia standings helper ────────────────────────────────────────────────
 
-def _wiki_points_table(url, name_hints, points_hints=('pts', 'points'), timeout=20):
+def _wiki_points_table(url, name_hints, points_hints=('pts', 'points'), timeout=20, max_cols=15):
     """Parse (name, points) pairs from Wikipedia wikitables.
 
     Header-driven: a table qualifies only if its header row contains BOTH a points
     column (matching points_hints) and a name column (matching name_hints), which
     avoids grabbing unrelated tables. Returns a list of {'name', 'points'} dicts,
     deduped by name keeping the max points seen. Reused by MLS and NASCAR.
+
+    `max_cols` rejects season race-by-race result GRIDS (one column per race,
+    e.g. NASCAR's "pos. | driver | atl | coa | pho | ... | pts. | stages" table)
+    which coincidentally have both a driver/team column and a trailing "pts."
+    column but hold PER-RACE finish positions, not the actual season points
+    total — a real standings table is compact (well under 15 columns). Confirmed
+    via probe: without this filter NASCAR silently scraped that grid and served
+    single-digit-race point totals (~150-180) as if they were season standings.
     """
     soup = fetch_html(url, timeout=timeout)
     found = {}
@@ -274,6 +282,8 @@ def _wiki_points_table(url, name_hints, points_hints=('pts', 'points'), timeout=
         if not rows:
             continue
         headers = [c.get_text(strip=True).lower() for c in rows[0].find_all(['th', 'td'])]
+        if len(headers) > max_cols:
+            continue
         pts_idx = next((i for i, h in enumerate(headers)
                         if any(k == h or k.strip('.') == h for k in points_hints)), None)
         if pts_idx is None:
@@ -368,8 +378,12 @@ def scrape_nascar():
                     entries.extend(group.get('standings', {}).get('entries', []) if isinstance(group, dict) else [])
             for entry in entries:
                 driver = entry.get('athlete', {}).get('displayName', '')
+                # ESPN's championship-points stat is keyed by type='points', not
+                # name='points' (its actual name is 'championshipPts') — matching
+                # on name silently returned None for every driver, which sent
+                # every scrape down to the fragile Wikipedia fallback tier below.
                 pts = next((s.get('value') for s in entry.get('stats', [])
-                            if s.get('name') == 'points'), None)
+                            if s.get('type') == 'points'), None)
                 if driver and pts is not None:
                     standings.append({'driver': driver, 'points': int(pts)})
             if standings:
@@ -754,7 +768,86 @@ def probe():
             print(f'        {url}')
 
     _probe_golf()
+    _probe_espn_nascar()
+    _probe_wiki_points_table('NASCAR', 'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series', ('driver',))
+    _probe_wiki_points_table('MLS', 'https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season', ('team',))
     print('\n🔎 Probe complete.')
+
+
+def _probe_espn_nascar():
+    """Dump the raw shape of the ESPN racing standings response — scrape_nascar's
+    tier-1 parser expects children[].standings.entries[]; if ESPN changed the
+    response shape this shows exactly where the mismatch is instead of silently
+    falling through to the (previously buggy) Wikipedia tier."""
+    print('\n  ── NASCAR ESPN tier-1 deep-probe ──')
+    try:
+        data = fetch_json('https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings', timeout=15)
+    except Exception as e:
+        print(f'    ✗ fetch_json failed: {e}')
+        return
+    print(f'    top-level keys: {list(data.keys())}')
+    children = data.get('children', [])
+    print(f'    children: {len(children)}')
+    for i, child in enumerate(children[:3]):
+        print(f'      child[{i}] keys={list(child.keys())} name={child.get("name")!r}')
+        standings = child.get('standings', {})
+        print(f'        standings keys={list(standings.keys()) if isinstance(standings, dict) else type(standings)}')
+        entries = standings.get('entries', []) if isinstance(standings, dict) else []
+        print(f'        entries: {len(entries)}')
+        if entries:
+            e = entries[0]
+            print(f'        entries[0] keys={list(e.keys())}')
+            print(f'        entries[0].athlete={e.get("athlete")}')
+            print(f'        entries[0].stats={e.get("stats")}')
+    top_standings = data.get('standings')
+    print(f'    top-level "standings" type: {type(top_standings)}'
+          + (f' len={len(top_standings)}' if isinstance(top_standings, list) else ''))
+
+
+def _probe_wiki_points_table(label, url, name_hints, points_hints=('pts', 'points')):
+    """Dump every wikitable on the page that matches (name, points) headers,
+    with its column count, row count, and top-5 values — makes it obvious if
+    a season race/match-results GRID is being mistaken for the real standings
+    table (see _wiki_points_table's max_cols guard) without deep debugging."""
+    print(f'\n  ── {label} Wikipedia deep-probe ──')
+    try:
+        soup = fetch_html(url, timeout=20)
+    except Exception as e:
+        print(f'    ✗ fetch_html failed: {e}')
+        return
+    qualifying = 0
+    for ti, table in enumerate(soup.select('table.wikitable')):
+        rows = table.select('tr')
+        if not rows:
+            continue
+        headers = [c.get_text(strip=True).lower() for c in rows[0].find_all(['th', 'td'])]
+        pts_idx = next((i for i, h in enumerate(headers)
+                        if any(k == h or k.strip('.') == h for k in points_hints)), None)
+        if pts_idx is None:
+            pts_idx = next((i for i, h in enumerate(headers)
+                            if any(k in h for k in points_hints)), None)
+        name_idx = next((i for i, h in enumerate(headers)
+                         if any(k in h for k in name_hints)), None)
+        if pts_idx is None or name_idx is None:
+            continue
+        qualifying += 1
+        parsed = []
+        for row in rows[1:]:
+            cells = row.find_all(['td', 'th'])
+            if len(cells) <= max(pts_idx, name_idx):
+                continue
+            name = cells[name_idx].get_text(' ', strip=True)
+            if not name:
+                link = cells[name_idx].find('a') or row.find('a')
+                name = link.get_text(strip=True) if link else ''
+            m = re.search(r'-?\d+', cells[pts_idx].get_text(strip=True).replace(',', ''))
+            if name and m:
+                parsed.append((name, int(m.group())))
+        top = sorted(parsed, key=lambda x: -x[1])[:5]
+        flag = '  ⚠ likely a race/match GRID, not standings' if len(headers) > 15 else ''
+        print(f'    Table #{ti}: cols={len(headers)} rows_parsed={len(parsed)} top5={top}{flag}')
+    print(f'    {qualifying} table(s) matched name_hints={name_hints} points_hints={points_hints} '
+          f'(_wiki_points_table max_cols=15 filter applies at scrape time)')
 
 
 def _probe_golf():
