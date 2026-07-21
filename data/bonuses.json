@@ -95,9 +95,10 @@
     "Buckley":13.0
   },
   "Tennis": {
-    "Todd":  4.0,
-    "Shep":  2.5,
-    "Fryar": 2.5,
-    "Theo":  4.0
+    "Todd":    4.0,
+    "Shep":    2.5,
+    "Fryar":   2.5,
+    "Theo":    6.5,
+    "Buckley": 4.0
   }
 }
