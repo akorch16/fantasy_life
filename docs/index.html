@@ -283,7 +283,7 @@
       text-transform: uppercase;
       letter-spacing: 0.12em;
       color: var(--muted);
-      padding: 8px 12px;
+      padding: 5px 12px;
       text-align: left;
       border-bottom: 1px solid var(--border);
       font-family: 'DM Mono', monospace;
@@ -302,7 +302,7 @@
     .player-row.expanded { background: var(--surface); }
 
     .player-row td {
-      padding: 14px 12px;
+      padding: 5px 12px;
       vertical-align: middle;
     }
 
@@ -312,13 +312,14 @@
       font-size: 0.8rem;
       color: var(--muted);
       width: 44px;
+      white-space: nowrap;
     }
 
     .rank-1 { }
     .rank-2 { }
     .rank-3 { }
 
-    .place-change { font-size:0.55rem; font-family:'DM Mono',monospace; letter-spacing:0.02em; display:block; margin-top:2px; }
+    .place-change { font-size:0.55rem; font-family:'DM Mono',monospace; letter-spacing:0.02em; display:inline-block; margin-left:3px; vertical-align:middle; }
     .place-change.up   { color: var(--green); }
     .place-change.down { color: var(--red); }
     .place-change.flat { color: var(--dim); }
@@ -327,7 +328,8 @@
     .week-delta.neg { color: var(--red); }
 
     .player-name {
-      font-size: 0.95rem;
+      font-size: 0.85rem;
+      line-height: 1.2;
       font-weight: 500;
       color: var(--text);
     }
@@ -340,7 +342,8 @@
     .score-cell {
       text-align: right;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem;
+      font-size: 1.15rem;
+      line-height: 1.2;
       letter-spacing: 0.04em;
       color: var(--text);
     }
@@ -631,10 +634,16 @@
       .season-stats { gap: 20px; }
       .news-bar { flex-direction: column; gap: 4px; }
       .news-bar-left { flex-direction: row; align-items: center; gap: 8px; border-right: none; padding-right: 0; border-bottom: none; }
+      /* Single scrollable row instead of a 3-line wrap — reclaims ~50px so
+         all 13 leaderboard rows fit on one screen without scrolling. */
+      .filter-row { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+      .filter-row::-webkit-scrollbar { display: none; }
+      .filter-btn { flex-shrink: 0; }
+      .page-title { font-size: 1.6rem; margin-bottom: 4px; }
     }
     .score-cell.todd-score { color: var(--muted); }
     .todd-lock-icon { display: inline-block; margin-right: 4px; font-size: 0.9em; }
-    .todd-teaser { font-size: 0.65rem; color: var(--dim); margin-top: 2px; }
+    .todd-teaser { font-size: 0.6rem; line-height: 1.2; color: var(--dim); margin-top: 1px; }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c0a91842667f4f16b87e22ebbce8e280"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
@@ -981,7 +990,7 @@ function renderTable() {
         <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td>
           <div class="player-name"><span class="todd-lock-icon">🔒</span> Todd</div>
-          <div class="todd-teaser">Score hidden — premium subscription required</div>
+          <div class="todd-teaser">Score hidden — premium required</div>
         </td>
         <td class="score-cell todd-score">??</td>
         <td></td>
