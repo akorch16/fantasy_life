@@ -754,7 +754,55 @@ def probe():
             print(f'        {url}')
 
     _probe_golf()
+    _probe_nascar_wikipedia()
     print('\n🔎 Probe complete.')
+
+
+def _probe_nascar_wikipedia():
+    """Deep probe of the NASCAR Wikipedia fallback tier — dumps every wikitable
+    on the season page that has BOTH a driver-like and points-like header, with
+    row counts and top values, so a bad table match is visible without guessing.
+    """
+    print('\n  ── NASCAR Wikipedia deep-probe ──')
+    url = 'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series'
+    try:
+        soup = fetch_html(url, timeout=20)
+    except Exception as e:
+        print(f'    ✗ fetch_html failed: {e}')
+        return
+    name_hints = ('driver',)
+    points_hints = ('pts', 'points')
+    qualifying = 0
+    for ti, table in enumerate(soup.select('table.wikitable')):
+        rows = table.select('tr')
+        if not rows:
+            continue
+        headers = [c.get_text(strip=True).lower() for c in rows[0].find_all(['th', 'td'])]
+        pts_idx = next((i for i, h in enumerate(headers)
+                        if any(k == h or k.strip('.') == h for k in points_hints)), None)
+        if pts_idx is None:
+            pts_idx = next((i for i, h in enumerate(headers)
+                            if any(k in h for k in points_hints)), None)
+        name_idx = next((i for i, h in enumerate(headers)
+                         if any(k in h for k in name_hints)), None)
+        if pts_idx is None or name_idx is None:
+            continue
+        qualifying += 1
+        parsed = []
+        for row in rows[1:]:
+            cells = row.find_all(['td', 'th'])
+            if len(cells) <= max(pts_idx, name_idx):
+                continue
+            name = cells[name_idx].get_text(' ', strip=True)
+            if not name:
+                link = cells[name_idx].find('a') or row.find('a')
+                name = link.get_text(strip=True) if link else ''
+            m = re.search(r'-?\d+', cells[pts_idx].get_text(strip=True).replace(',', ''))
+            if name and m:
+                parsed.append((name, int(m.group())))
+        top = sorted(parsed, key=lambda x: -x[1])[:5]
+        print(f'    Table #{ti}: headers={headers} rows_parsed={len(parsed)} top5={top}')
+    print(f'    {qualifying} table(s) matched name_hints={name_hints} points_hints={points_hints}')
 
 
 def _probe_golf():
