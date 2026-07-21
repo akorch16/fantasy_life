@@ -378,8 +378,12 @@ def scrape_nascar():
                     entries.extend(group.get('standings', {}).get('entries', []) if isinstance(group, dict) else [])
             for entry in entries:
                 driver = entry.get('athlete', {}).get('displayName', '')
+                # ESPN's championship-points stat is keyed by type='points', not
+                # name='points' (its actual name is 'championshipPts') — matching
+                # on name silently returned None for every driver, which sent
+                # every scrape down to the fragile Wikipedia fallback tier below.
                 pts = next((s.get('value') for s in entry.get('stats', [])
-                            if s.get('name') == 'points'), None)
+                            if s.get('type') == 'points'), None)
                 if driver and pts is not None:
                     standings.append({'driver': driver, 'points': int(pts)})
             if standings:
