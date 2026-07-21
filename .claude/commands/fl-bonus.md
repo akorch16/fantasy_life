@@ -133,16 +133,22 @@ Top-5 GDP growth ranking at season end:
 
 ### Country — FIFA World Cup 2026
 
-Milestone replacement model (same as sports championships). Write to `Country_WorldCup` in bonuses.json — **NOT** to `Country`. Scoring.py automatically merges both and caps the combined total at 13.
+Milestone replacement model (same as sports championships). Write to `Country_WorldCup` in bonuses.json — **NOT** to `Country`. Scoring.py automatically merges both and caps the combined total at 13. Values match the same 5-tier scale published in docs/rules.html ("Country — Olympics / World Cup Bonus": 1st=13, 2nd=9, 3rd=6.5, 4th=4, 5th=2.5) — do not invent a WC-specific value that departs from that table.
+
+Credit reflects the LAST ROUND THE TEAM ACTUALLY WON, not the round they were eliminated in — a team that loses its quarterfinal only earns credit for having won the Round of 16 (`round16`), not for having reached the quarterfinal.
 
 | Milestone | WC bonus total | When awarded |
 |---|---|---|
-| `round32` | 2.5 | Advances past group stage / wins Round of 32 |
-| `round16` | 4.0 | Advances past Round of 16 |
-| `quarter` | 6.5 | Reaches quarterfinal |
-| `semi` | 9.0 | Reaches semifinal |
-| `runner_up` | 11.0 | Reaches the final (loses) |
+| `round32` | 2.5 | Won the Round of 32 (eliminated in Round of 16) |
+| `round16` | 4.0 | Won the Round of 16 (eliminated in Quarterfinal) |
+| `quarter` | 6.5 | Won the Quarterfinal (eliminated in Semifinal) |
+| `runner_up` | 9.0 | Won the Semifinal — reaches the Final and either awaits it or loses it |
 | `champion` | 13.0 | Wins the World Cup |
+
+Note there is no separate "won semifinal but final not yet played" tier — a team
+that wins its semifinal is provisionally a `runner_up` (9.0) the moment it's
+through, and only moves if it goes on to win the Final (bump to `champion`,
+13.0). The loser of the Final needs no further update; 9.0 was already correct.
 
 **Cap rule:** `Country` (Winter Olympics) + `Country_WorldCup` is capped at 13.0 per player. Scoring enforces this automatically — you never need to manually subtract.
 
