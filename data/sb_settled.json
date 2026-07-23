@@ -102,5 +102,37 @@
   {
     "id": "wimb-m-theo-v-shep",
     "outcome": "yes"
+  },
+  {
+    "id": "pts-wu-v-korch",
+    "outcome": "yes"
+  },
+  {
+    "id": "pts-tim-v-molmen",
+    "outcome": "no"
+  },
+  {
+    "id": "pts-jamzee-v-fryar",
+    "outcome": "no"
+  },
+  {
+    "id": "pts-mitchell-v-todd",
+    "outcome": "yes"
+  },
+  {
+    "id": "pts-buckley-v-theo",
+    "outcome": "yes"
+  },
+  {
+    "id": "stocks-fryar-avgo-v-mitchell-cvna",
+    "outcome": "no"
+  },
+  {
+    "id": "wimb-w-fryar-v-feder",
+    "outcome": "yes"
+  },
+  {
+    "id": "wimb-w-wu-v-tim",
+    "outcome": "yes"
   }
 ]
