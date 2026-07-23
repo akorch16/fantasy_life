@@ -643,7 +643,7 @@
     }
     .score-cell.todd-score { color: var(--muted); }
     .todd-lock-icon { display: inline-block; margin-right: 4px; font-size: 0.9em; }
-    .todd-teaser { font-size: 0.6rem; line-height: 1.2; color: var(--dim); margin-top: 1px; }
+    .todd-teaser { font-size: 0.6rem; line-height: 1.2; color: var(--text); margin-top: 1px; }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c0a91842667f4f16b87e22ebbce8e280"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
@@ -990,7 +990,7 @@ function renderTable() {
         <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td>
           <div class="player-name"><span class="todd-lock-icon">🔒</span> Todd</div>
-          <div class="todd-teaser">Score hidden — premium required</div>
+          <div class="todd-teaser">premium required</div>
         </td>
         <td class="score-cell todd-score">??</td>
         <td></td>
