@@ -526,9 +526,15 @@ def _expected_bonus_preseason(p_champ):
     """
     Expected bonus for a team with championship probability p_champ and no
     current bonus (regular season / pre-playoff).
-    Approximation: E[bonus] ≈ 46.5 × p_champ  (sum of tier-prob × tier-value).
+    Approximation: E[bonus] ≈ 46.5 × p_champ (sum of tier-prob × tier-value),
+    capped at 13.0 — the maximum possible bonus (BONUS_POINTS['sports_championship']
+    ['champion']). The linear approximation is a reasonable stand-in for expected
+    value at low-to-moderate p_champ, but being an expectation of a variable
+    bounded in [0, 13], it can never legitimately exceed 13 regardless of
+    p_champ; uncapped it did (e.g. p_champ≈0.33 → 15.3, already above the max
+    a team could ever actually earn).
     """
-    return 46.5 * p_champ
+    return min(46.5 * p_champ, 13.0)
 
 
 def _expected_bonus_conf_finals(p_champ, p_finalist):
@@ -970,13 +976,25 @@ def compute_expected_additional(current_scores, odds):
     result = {name: {} for name in players}
 
     # ── NBA ──────────────────────────────────────────────────────────────────
+    # A champion (bonus_pts == 13.0) already crowned means the season is fully
+    # decided — nobody, including runner-up/semifinalists, can earn additional
+    # bonus points. Without this check, a team frozen at its final bonus (e.g.
+    # runner-up, 9.0) still fell into the conf-finals branch below and picked up
+    # a phantom addition from a stale pinned conference-finalist probability
+    # that was never zeroed out once the Finals concluded.
+    nba_decided = any(
+        (p["categories"].get("nba", {}).get("bonus_pts") or 0) >= 13.0
+        for p in current_scores
+    )
     nba_champ = _normalize(odds["nba_champ"])
     west = odds["nba_conf_finals_west"]
     east = odds["nba_conf_finals_east"]
     for player, pick in NBA_PICKS.items():
         current_bonus = players[player]["categories"].get("nba", {}).get("bonus_pts", 0)
         p_champ = nba_champ.get(player, 0)
-        if current_bonus >= 6.5:
+        if nba_decided:
+            additional = 0.0
+        elif current_bonus >= 6.5:
             # In conference finals → model finalist and champion probabilities
             if player in west:
                 p_finalist = west[player]
@@ -992,13 +1010,19 @@ def compute_expected_additional(current_scores, odds):
         result[player]["nba"] = additional
 
     # ── NHL ──────────────────────────────────────────────────────────────────
+    nhl_decided = any(
+        (p["categories"].get("nhl", {}).get("bonus_pts") or 0) >= 13.0
+        for p in current_scores
+    )
     nhl_champ = _normalize(odds["nhl_champ"])
     nhl_west = odds["nhl_conf_finals_west"]
     nhl_east = odds["nhl_conf_finals_east"]
     for player, pick in NHL_PICKS.items():
         current_bonus = players[player]["categories"].get("nhl", {}).get("bonus_pts", 0)
         p_champ = nhl_champ.get(player, 0)
-        if current_bonus >= 6.5:
+        if nhl_decided:
+            additional = 0.0
+        elif current_bonus >= 6.5:
             if player in nhl_west:
                 p_finalist = nhl_west[player]
             elif player in nhl_east:
@@ -1239,6 +1263,14 @@ def simulate(current_scores, odds, n=N_SIMS):
                    for p in current_scores}
     current_nhl = {p["name"]: p["categories"].get("nhl", {}).get("bonus_pts", 0) or 0
                    for p in current_scores}
+    # Once a champion (bonus_pts == 13.0) is crowned the season is fully decided
+    # and nobody's bonus can change further — skip re-sampling it every
+    # iteration (same rationale as compute_expected_additional's nba_decided/
+    # nhl_decided: conference-finalist odds dicts aren't zeroed out once the
+    # real Finals conclude, so sampling them post-season injects phantom
+    # variance into players who are actually locked at their final bonus).
+    nba_decided = any(v >= 13.0 for v in current_nba.values())
+    nhl_decided = any(v >= 13.0 for v in current_nhl.values())
 
     # Pre-normalize championship odds for per-sim sampling
     nba_norm    = _normalize(odds["nba_champ"])
@@ -1267,25 +1299,27 @@ def simulate(current_scores, odds, n=N_SIMS):
     for _ in range(n):
         totals = dict(base)
 
-        # ── NBA: sample conference finals + Finals ──────────────────────────
-        nba_results = _simulate_playoffs_conf(
-            odds["nba_conf_finals_west"], odds["nba_conf_finals_east"], nba_norm
-        )
-        for player in NBA_PICKS:
-            old = current_nba[player]
-            if old >= 6.5:
-                new = MILESTONES.get(nba_results.get(player, "semi"), 6.5)
-                totals[player] += max(0, new - old)
+        # ── NBA: sample conference finals + Finals (skip if already decided) ─
+        if not nba_decided:
+            nba_results = _simulate_playoffs_conf(
+                odds["nba_conf_finals_west"], odds["nba_conf_finals_east"], nba_norm
+            )
+            for player in NBA_PICKS:
+                old = current_nba[player]
+                if old >= 6.5:
+                    new = MILESTONES.get(nba_results.get(player, "semi"), 6.5)
+                    totals[player] += max(0, new - old)
 
-        # ── NHL: sample conference finals + Finals ──────────────────────────
-        nhl_results = _simulate_playoffs_conf(
-            odds["nhl_conf_finals_west"], odds["nhl_conf_finals_east"], nhl_norm
-        )
-        for player in NHL_PICKS:
-            old = current_nhl[player]
-            if old >= 6.5:
-                new = MILESTONES.get(nhl_results.get(player, "semi"), 6.5)
-                totals[player] += max(0, new - old)
+        # ── NHL: sample conference finals + Finals (skip if already decided) ─
+        if not nhl_decided:
+            nhl_results = _simulate_playoffs_conf(
+                odds["nhl_conf_finals_west"], odds["nhl_conf_finals_east"], nhl_norm
+            )
+            for player in NHL_PICKS:
+                old = current_nhl[player]
+                if old >= 6.5:
+                    new = MILESTONES.get(nhl_results.get(player, "semi"), 6.5)
+                    totals[player] += max(0, new - old)
 
         # ── MLB / MLS / NASCAR: sample full playoff outcomes ────────────────
         for player, pts in _sample_playoff_sport(mlb_norm).items():
