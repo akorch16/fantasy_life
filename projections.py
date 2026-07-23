@@ -691,14 +691,17 @@ _PROP_SCHEDULE = {
     "wc-wu-usa-r32":         ("2026-07-01T00:00:00Z", "2026-07-04T00:00:00Z"),
     "wc-jens-ger-r32":       ("2026-07-01T00:00:00Z", "2026-07-04T00:00:00Z"),
     "wc-molmen-arg-wins-wc": ("2026-07-19T00:00:00Z", "2026-07-20T00:00:00Z"),
-    # Season-long props
-    "stocks-fryar-avgo-v-mitchell-cvna": ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
+    # "By July 1" snapshot props — titles/display all say Jul 1; these were
+    # miscategorized as season-long (Dec 31) when the schedule was first built,
+    # which left wagering open on them for three weeks past their real close.
+    "stocks-fryar-avgo-v-mitchell-cvna": ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
+    "pts-wu-v-korch":        ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
+    "pts-tim-v-molmen":      ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
+    "pts-jamzee-v-fryar":    ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
+    "pts-mitchell-v-todd":   ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
+    "pts-buckley-v-theo":    ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
+    # Genuinely season-long
     "todd-wins-fl-2026":     ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
-    "pts-wu-v-korch":        ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
-    "pts-tim-v-molmen":      ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
-    "pts-jamzee-v-fryar":    ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
-    "pts-mitchell-v-todd":   ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
-    "pts-buckley-v-theo":    ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
 }
 
 # Auto-settlement rules — evaluated against RESOLVED Kalshi markets each run.
