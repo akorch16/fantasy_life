@@ -25,9 +25,9 @@
     },
     {
       "name": "Dwayne Johnson",
-      "composite_score": 0,
+      "composite_score": 14.65,
       "movies": [
-        { "title": "Moana", "release_date": "2026-07-10" },
+        { "title": "Moana", "release_date": "2026-07-10", "box_office": 43100000, "rt_score": 34, "composite": 14.65 },
         { "title": "Jumanji: Open World", "release_date": "2026-12-25" }
       ]
     },
@@ -86,5 +86,5 @@
       "composite_score": 0
     }
   ],
-  "_updated": "2026-07-20"
+  "_updated": "2026-07-24"
 }

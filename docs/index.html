@@ -776,12 +776,14 @@ const CAT_STAT = {
 // ============================================================
 // FILMOGRAPHY & OSCAR DATA
 // ============================================================
+// Kept in sync with data/actor.json + data/actress.json (source of truth for
+// scoring) — bo/rt/release here must match those files exactly, since the
+// composite that actually drives points is (rt/100) x box_office computed
+// from that data, not from this display copy.
 const FILMOGRAPHY_2026 = {
   'Actor': {
-    'Chris Hemsworth':    [{title:'Crime 101',                 release:'Feb 13, 2026', bo:'$72M',      rt:88},
-                           {title:'Avengers: Doomsday',        release:'May 1, 2026',  bo:null,        rt:null}],
-    'Robert Pattinson':   [{title:'The Bride!',                release:'Mar 6, 2026',  bo:'$23M',      rt:59},
-                           {title:'The Drama',                 release:'Apr 3, 2026',  bo:null,        rt:null},
+    'Chris Hemsworth':    [{title:'Crime 101',                 release:'Apr 17, 2026', bo:'$31.5M',    rt:88}],
+    'Robert Pattinson':   [{title:'The Drama',                 release:'Apr 3, 2026',  bo:'$48M',      rt:77},
                            {title:'The Odyssey',               release:'Jul 17, 2026', bo:'$124.5M',   rt:95}],
     'Matt Damon':         [{title:'The Rip',                   release:'Jan 16, 2026', bo:'Streaming', rt:79},
                            {title:'The Odyssey',               release:'Jul 17, 2026', bo:'$124.5M',   rt:95}],
@@ -789,20 +791,26 @@ const FILMOGRAPHY_2026 = {
                            {title:'Spider-Man: Brand New Day', release:'Jul 31, 2026', bo:null,        rt:null}],
     'Jon Bernthal':       [{title:'The Odyssey',               release:'Jul 17, 2026', bo:'$124.5M',   rt:95},
                            {title:'Spider-Man: Brand New Day', release:'Jul 31, 2026', bo:null,        rt:null}],
-    'Pedro Pascal':       [{title:'The Mandalorian & Grogu',   release:'May 22, 2026', bo:null,        rt:null}],
-    'Jeremy Allen White': [{title:'The Mandalorian & Grogu',   release:'May 22, 2026', bo:null,        rt:null}],
-    'Dwayne Johnson':     [{title:'Moana',                     release:'Jul 10, 2026', bo:null,        rt:null}],
+    'Pedro Pascal':       [{title:'The Mandalorian & Grogu',   release:'May 22, 2026', bo:'$137.4M',   rt:64},
+                           {title:'Avengers: Doomsday',        release:'Dec 18, 2026', bo:null,        rt:null}],
+    'Jeremy Allen White': [{title:'The Mandalorian & Grogu',   release:'May 22, 2026', bo:'$137.4M',   rt:64},
+                           {title:'The Social Reckoning',      release:'Oct 9, 2026',  bo:null,        rt:null}],
+    'Dwayne Johnson':     [{title:'Moana',                     release:'Jul 10, 2026', bo:'$43.1M',    rt:34},
+                           {title:'Jumanji: Open World',       release:'Dec 25, 2026', bo:null,        rt:null}],
   },
   'Actress': {
-    'Jessie Buckley':     [{title:'The Bride!',                   release:'Mar 6, 2026',  bo:'$23M', rt:59}],
-    'Anya Taylor-Joy':    [{title:'The Super Mario Galaxy Movie',  release:'Apr 1, 2026',  bo:null,   rt:null}],
-    'Zendaya':            [{title:'The Drama',                    release:'Apr 3, 2026',  bo:null,      rt:null},
+    'Jessie Buckley':     [{title:'The Bride!',                   release:'Mar 6, 2026',  bo:'$24M', rt:57}],
+    'Anya Taylor-Joy':    [{title:'The Super Mario Galaxy Movie',  release:'Apr 1, 2026',  bo:'$1.01B',  rt:42},
+                           {title:'Dune: Part Three',             release:'Dec 18, 2026', bo:null,      rt:null}],
+    'Zendaya':            [{title:'The Drama',                    release:'Apr 3, 2026',  bo:'$48M',    rt:77},
                            {title:'The Odyssey',                  release:'Jul 17, 2026', bo:'$124.5M', rt:95},
                            {title:'Spider-Man: Brand New Day',    release:'Jul 31, 2026', bo:null,      rt:null},
                            {title:'Dune: Part Three',             release:'Dec 18, 2026', bo:null,      rt:null}],
-    'Anne Hathaway':      [{title:'Mother Mary',                  release:'Apr 24, 2026', bo:null,      rt:null},
-                           {title:'The Devil Wears Prada 2',      release:'May 1, 2026',  bo:null,      rt:null},
-                           {title:'The Odyssey',                  release:'Jul 17, 2026', bo:'$124.5M', rt:95}],
+    'Anne Hathaway':      [{title:'Mother Mary',                  release:'Apr 24, 2026', bo:'$2.9M',   rt:70},
+                           {title:'The Devil Wears Prada 2',      release:'May 1, 2026',  bo:'$209.4M', rt:77},
+                           {title:'The Odyssey',                  release:'Jul 17, 2026', bo:'$124.5M', rt:95},
+                           {title:'The End of Oak Street',        release:'Aug 14, 2026', bo:null,      rt:null},
+                           {title:'Verity',                       release:'Oct 2, 2026',  bo:null,      rt:null}],
     'Charlize Theron':    [{title:'The Odyssey',                  release:'Jul 17, 2026', bo:'$124.5M', rt:95}],
     'Florence Pugh':      [{title:'Avengers: Doomsday',           release:'Dec 18, 2026', bo:null,   rt:null},
                            {title:'Dune: Part Three',             release:'Dec 18, 2026', bo:null,   rt:null}],
