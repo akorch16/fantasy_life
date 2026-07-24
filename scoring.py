@@ -566,7 +566,10 @@ def compute_baseline_musician():
                     num1   = entry.get('num1_weeks', 0) or 0
                     hot100 = entry.get('hot100_weeks', 0) or 0
                     score  = (2 * num1) + hot100
-                    chart_by_player[player] = {'num1_weeks': num1, 'hot100_weeks': hot100}
+                    chart_by_player[player] = {
+                        'num1_weeks': num1, 'hot100_weeks': hot100,
+                        'songs': entry.get('songs', []),
+                    }
                     break
         raw_values[player] = score if score is not None else -1
 
@@ -584,6 +587,7 @@ def compute_baseline_musician():
             'rank': rank, 'baseline_pts': pts, 'bonus_pts': 0,
             'num1_weeks': stats.get('num1_weeks', 0),
             'hot100_weeks': stats.get('hot100_weeks', 0),
+            'songs': stats.get('songs', []),
         }
     return result
 
@@ -736,6 +740,7 @@ def compute_all_scores():
             if cat == 'Musician':
                 entry['num1_weeks'] = p_data.get('num1_weeks', 0)
                 entry['hot100_weeks'] = p_data.get('hot100_weeks', 0)
+                entry['songs'] = p_data.get('songs', [])
             elif cat in ('Actor', 'Actress'):
                 entry['movies'] = p_data.get('movies', [])
             elif cat == 'Country':

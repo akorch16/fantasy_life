@@ -831,30 +831,50 @@ const OSCAR_AWARDS = {
   },
 };
 
-function buildMusicianBreakdown(pickName, num1Weeks, hot100Weeks) {
+function buildMusicianBreakdown(pickName, num1Weeks, hot100Weeks, songs) {
   const artistImg = pickName === 'FKA Twigs'
     ? `<img src="fka-twigs.png" alt="FKA Twigs" style="width:200px;height:200px;object-fit:cover;border-radius:8px;display:block;margin-bottom:12px;">`
     : '';
   if (num1Weeks == null && hot100Weeks == null) {
     return `<div class="breakdown-inner">${artistImg}<div class="song-no-data">No chart data available yet.</div></div>`;
   }
-  const num1Cell = num1Weeks > 0
-    ? `<span style="color:var(--gold);font-weight:600">${num1Weeks}</span>`
-    : (num1Weeks === 0 ? '0' : '—');
-  const top10Cell = hot100Weeks != null ? hot100Weeks : '—';
+  const weeksCell = (n) => n > 0
+    ? `<span style="color:var(--gold);font-weight:600">${n}</span>`
+    : (n === 0 ? '0' : '—');
+
+  let rows;
+  if (songs && songs.length) {
+    // Per-song breakdown, as scraped from Billboard's #1 and top-10 charts —
+    // one row per distinct charting song, plus a bolded artist total.
+    rows = songs.map(s => `<tr>
+        <td class="song-title-cell">${s.title}</td>
+        <td class="song-weeks-cell">${weeksCell(s.num1_weeks)}</td>
+        <td class="song-weeks-cell">${weeksCell(s.hot100_weeks)}</td>
+      </tr>`).join('');
+    rows += `<tr style="font-weight:600;border-top:1px solid var(--border)">
+        <td class="song-title-cell">Total</td>
+        <td class="song-weeks-cell">${weeksCell(num1Weeks)}</td>
+        <td class="song-weeks-cell">${weeksCell(hot100Weeks)}</td>
+      </tr>`;
+  } else {
+    // Fallback: artist-level total only (no per-song breakdown available,
+    // e.g. hand-entered data or before the next scrape populates it).
+    rows = `<tr>
+        <td class="song-title-cell">${pickName}</td>
+        <td class="song-weeks-cell">${weeksCell(num1Weeks)}</td>
+        <td class="song-weeks-cell">${weeksCell(hot100Weeks)}</td>
+      </tr>`;
+  }
+
   return `<div class="breakdown-inner">
     ${artistImg}
     <table class="song-table">
       <thead><tr>
-        <th>Artist</th>
+        <th>Song</th>
         <th style="text-align:center">#1 Wks</th>
         <th style="text-align:center">Top 10 Wks</th>
       </tr></thead>
-      <tbody><tr>
-        <td class="song-title-cell">${pickName}</td>
-        <td class="song-weeks-cell">${num1Cell}</td>
-        <td class="song-weeks-cell">${top10Cell}</td>
-      </tr></tbody>
+      <tbody>${rows}</tbody>
     </table>
   </div>`;
 }
@@ -1091,7 +1111,7 @@ function renderTable() {
         td.innerHTML = buildFilmographyBreakdown(catData.pick, catType);
       } else if (currentFilter === 'musician') {
         const catData = (player.categories || {})['musician'] || {};
-        td.innerHTML = buildMusicianBreakdown(catData.pick, catData.num1_weeks, catData.hot100_weeks);
+        td.innerHTML = buildMusicianBreakdown(catData.pick, catData.num1_weeks, catData.hot100_weeks, catData.songs);
       } else {
         td.innerHTML = `<div class="breakdown-inner"><div class="breakdown-grid">${items}</div></div>`;
       }

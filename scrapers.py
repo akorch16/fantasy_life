@@ -612,7 +612,18 @@ def scrape_billboard():
         print('  ⏸ Musician is frozen, skipping'); return True
     try:
         import re
-        scores_map = {}
+        scores_map = {}   # artist -> {'artist', 'num1_weeks', 'hot100_weeks', 'songs': {title: {...}}}
+
+        def _artist_entry(a):
+            if a not in scores_map:
+                scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0, 'songs': {}}
+            return scores_map[a]
+
+        def _song_entry(artist_entry, title):
+            songs = artist_entry['songs']
+            if title not in songs:
+                songs[title] = {'title': title, 'num1_weeks': 0, 'hot100_weeks': 0}
+            return songs[title]
 
         # ── Page 1: #1 weeks ─────────────────────────────────────────────
         try:
@@ -623,6 +634,7 @@ def scrape_billboard():
                     if len(cols) < 4:
                         continue
                     # Table: No. | Issue date | Song | Artist(s) | Ref.
+                    song_text   = cols[2].get_text(separator=' ', strip=True).strip('"').strip()
                     artist_text = cols[3].get_text(separator=' ', strip=True)
                     # Skip header rows
                     if artist_text.lower() in ('artist', 'artist(s)', 'ref.', ''):
@@ -633,10 +645,12 @@ def scrape_billboard():
                         a = a.strip().strip('"').strip()
                         if not a or len(a) < 2:
                             continue
-                        if a not in scores_map:
-                            scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0}
-                        scores_map[a]['num1_weeks'] += 1
-                        # hot100_weeks is populated entirely by the top-10 page to avoid double-counting
+                        entry = _artist_entry(a)
+                        entry['num1_weeks'] += 1
+                        # hot100_weeks (artist total) is populated entirely by the
+                        # top-10 page below to avoid double-counting.
+                        if song_text:
+                            _song_entry(entry, song_text)['num1_weeks'] += 1
             print(f'    #1 page: {len(scores_map)} artists found')
         except Exception as e:
             print(f'    ✗ #1 page: {e}')
@@ -650,6 +664,7 @@ def scrape_billboard():
                     if len(cols) < 6:
                         continue
                     # Table: Date | Single | Artist(s) | Peak | Peak date | Weeks in top ten | Ref.
+                    song_text   = cols[1].get_text(separator=' ', strip=True).strip('"').strip()
                     artist_text = cols[2].get_text(separator=' ', strip=True)
                     weeks_text  = cols[5].get_text(strip=True).replace('*', '').strip()
 
@@ -665,21 +680,35 @@ def scrape_billboard():
                         a = a.strip().strip('"').strip()
                         if not a or len(a) < 2:
                             continue
-                        if a not in scores_map:
-                            scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0}
-                        scores_map[a]['hot100_weeks'] += weeks
+                        entry = _artist_entry(a)
+                        entry['hot100_weeks'] += weeks
+                        if song_text:
+                            _song_entry(entry, song_text)['hot100_weeks'] += weeks
             print(f'    Top-10 page: {len(scores_map)} total artists found')
         except Exception as e:
             print(f'    ✗ Top-10 page: {e}')
 
         if scores_map:
+            # Flatten each artist's song dict to a list, sorted by chart impact,
+            # for storage/display (JSON doesn't preserve dict insertion order
+            # as meaningfully as an explicit sort does here).
+            for entry in scores_map.values():
+                entry['songs'] = sorted(
+                    entry['songs'].values(),
+                    key=lambda s: (-s['num1_weeks'], -s['hot100_weeks'], s['title'])
+                )
+
             # Log picks that matched
             from draft_picks_2026 import DRAFT_PICKS_2026
             picks = list(DRAFT_PICKS_2026.get('Musician', {}).values())
             for pick in picks:
                 match = next((v for k, v in scores_map.items() if name_matches(pick, k)), None)
                 if match:
-                    print(f'    ✓ {pick}: {match["num1_weeks"]} #1 wks, {match["hot100_weeks"]} top-10 wks')
+                    song_summary = ', '.join(
+                        f"{s['title']} ({s['num1_weeks']}#1/{s['hot100_weeks']}top10)"
+                        for s in match['songs']
+                    ) or 'no songs tracked'
+                    print(f'    ✓ {pick}: {match["num1_weeks"]} #1 wks, {match["hot100_weeks"]} top-10 wks — {song_summary}')
                 else:
                     print(f'    – {pick}: no chart data')
             return save_standing('Musician', {'scores': list(scores_map.values())})
