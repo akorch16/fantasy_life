@@ -619,6 +619,18 @@ def scrape_billboard():
                 scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0, 'songs': {}}
             return scores_map[a]
 
+        def _clean_song_title(raw):
+            """Wikipedia's #1s and top-10s tables format the same song's title
+            differently — the top-10s page appends stray quote marks, footnote
+            refs like [B]/[D], and ↑/↓ chart-movement arrows (e.g. the SAME
+            song comes through as 'Opalite' on one page and
+            'Opalite " [B] [D] ↑' on the other). Without stripping these, one
+            song silently splits into two rows. Removes quote chars, movement
+            arrows, and bracketed footnotes from anywhere in the string (not
+            just the ends), then collapses whitespace."""
+            cleaned = re.sub(r'["↑↓]|\[[A-Za-z0-9]+\]', '', raw)
+            return re.sub(r'\s+', ' ', cleaned).strip()
+
         def _song_entry(artist_entry, title):
             songs = artist_entry['songs']
             if title not in songs:
@@ -634,7 +646,7 @@ def scrape_billboard():
                     if len(cols) < 4:
                         continue
                     # Table: No. | Issue date | Song | Artist(s) | Ref.
-                    song_text   = cols[2].get_text(separator=' ', strip=True).strip('"').strip()
+                    song_text   = _clean_song_title(cols[2].get_text(separator=' ', strip=True))
                     artist_text = cols[3].get_text(separator=' ', strip=True)
                     # Skip header rows
                     if artist_text.lower() in ('artist', 'artist(s)', 'ref.', ''):
@@ -664,7 +676,7 @@ def scrape_billboard():
                     if len(cols) < 6:
                         continue
                     # Table: Date | Single | Artist(s) | Peak | Peak date | Weeks in top ten | Ref.
-                    song_text   = cols[1].get_text(separator=' ', strip=True).strip('"').strip()
+                    song_text   = _clean_song_title(cols[1].get_text(separator=' ', strip=True))
                     artist_text = cols[2].get_text(separator=' ', strip=True)
                     weeks_text  = cols[5].get_text(strip=True).replace('*', '').strip()
 
