@@ -19,11 +19,18 @@
     },
     {
       "name": "Amanda Seyfried",
-      "composite_score": 0
+      "composite_score": 0,
+      "movies": [
+        { "title": "The Life and Deaths of Wilson Shedd", "release_date": "2026-11-01" },
+        { "title": "Steps", "release_date": "2026-11-20" }
+      ]
     },
     {
       "name": "Teyana Taylor",
-      "composite_score": 0
+      "composite_score": 52.99,
+      "movies": [
+        { "title": "Scary Movie 6", "release_date": "2026-06-05", "box_office": 230395056, "rt_score": 23, "composite": 52.99 }
+      ]
     },
     {
       "name": "Charlize Theron",
@@ -83,5 +90,5 @@
       ]
     }
   ],
-  "_updated": "2026-07-20"
+  "_updated": "2026-07-26"
 }

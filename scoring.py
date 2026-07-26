@@ -867,7 +867,7 @@ def name_matches(pick_name, data_name):
         return True
     pick_last = pick.split()[-1] if pick.split() else pick
     data_last = data.split()[-1] if data.split() else data
-    if len(pick_last) > 3 and (pick_last in data or data_last in pick):
+    if len(pick_last) > 3 and (pick_last in data.split() or data_last in pick.split()):
         return True
     return False
 
