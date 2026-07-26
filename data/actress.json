@@ -83,9 +83,9 @@
     },
     {
       "name": "Anya Taylor-Joy",
-      "composite_score": 423.36,
+      "composite_score": 179.97,
       "movies": [
-        { "title": "The Super Mario Galaxy Movie", "release_date": "2026-04-01", "box_office": 1008000000, "rt_score": 42, "composite": 423.36 },
+        { "title": "The Super Mario Galaxy Movie", "release_date": "2026-04-01", "box_office": 428500000, "rt_score": 42, "composite": 179.97 },
         { "title": "Dune: Part Three", "release_date": "2026-12-18" }
       ]
     }
