@@ -9,10 +9,10 @@
     },
     {
       "name": "Zendaya",
-      "composite_score": 524.69,
+      "composite_score": 782.14,
       "movies": [
         { "title": "The Drama", "release_date": "2026-04-03", "box_office": 48000000, "rt_score": 77, "composite": 36.96 },
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 124500000, "rt_score": 95, "composite": 118.27 },
+        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 395500000, "rt_score": 95, "composite": 375.72 },
         { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31", "box_office": 406000000, "rt_score": 91, "composite": 369.46 },
         { "title": "Dune: Part Three", "release_date": "2026-12-18" }
       ]
@@ -34,9 +34,9 @@
     },
     {
       "name": "Charlize Theron",
-      "composite_score": 118.27,
+      "composite_score": 375.72,
       "movies": [
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 124500000, "rt_score": 95, "composite": 118.27 }
+        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 395500000, "rt_score": 95, "composite": 375.72 }
       ]
     },
     {
@@ -61,11 +61,11 @@
     },
     {
       "name": "Anne Hathaway",
-      "composite_score": 281.54,
+      "composite_score": 538.99,
       "movies": [
         { "title": "Mother Mary", "release_date": "2026-04-24", "box_office": 2900000, "rt_score": 70, "composite": 2.03 },
         { "title": "The Devil Wears Prada 2", "release_date": "2026-05-01", "box_office": 209400000, "rt_score": 77, "composite": 161.24 },
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 124500000, "rt_score": 95, "composite": 118.27 },
+        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 395500000, "rt_score": 95, "composite": 375.72 },
         { "title": "The End of Oak Street", "release_date": "2026-08-14" },
         { "title": "Verity", "release_date": "2026-10-02" }
       ]
