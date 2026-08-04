@@ -17,10 +17,10 @@
     },
     {
       "name": "Tom Holland",
-      "composite_score": 118.27,
+      "composite_score": 487.73,
       "movies": [
         { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 124500000, "rt_score": 95, "composite": 118.27 },
-        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31" }
+        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31", "box_office": 406000000, "rt_score": 91, "composite": 369.46 }
       ]
     },
     {
@@ -67,10 +67,10 @@
     },
     {
       "name": "Jon Bernthal",
-      "composite_score": 118.27,
+      "composite_score": 487.73,
       "movies": [
         { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 124500000, "rt_score": 95, "composite": 118.27 },
-        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31" }
+        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31", "box_office": 406000000, "rt_score": 91, "composite": 369.46 }
       ]
     },
     {
@@ -86,5 +86,5 @@
       "composite_score": 0
     }
   ],
-  "_updated": "2026-07-24"
+  "_updated": "2026-08-04"
 }

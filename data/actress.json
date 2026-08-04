@@ -9,11 +9,11 @@
     },
     {
       "name": "Zendaya",
-      "composite_score": 155.23,
+      "composite_score": 524.69,
       "movies": [
         { "title": "The Drama", "release_date": "2026-04-03", "box_office": 48000000, "rt_score": 77, "composite": 36.96 },
         { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 124500000, "rt_score": 95, "composite": 118.27 },
-        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31" },
+        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31", "box_office": 406000000, "rt_score": 91, "composite": 369.46 },
         { "title": "Dune: Part Three", "release_date": "2026-12-18" }
       ]
     },
@@ -90,5 +90,5 @@
       ]
     }
   ],
-  "_updated": "2026-07-26"
+  "_updated": "2026-08-04"
 }
