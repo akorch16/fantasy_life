@@ -46,7 +46,7 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 | Tennis | Supabase | women's rank gets +0.5 (Amend. 7.4) |
 | Golf | PGA Tour GraphQL API (statId 186) → `GOLF_2026_OWGR_STATIC` fallback | owgr.com 404s, ESPN 500s; PGA Tour AppSync key in scrapers.py `PGATOUR_API_KEY` |
 | MLS, NASCAR | `data/mls.json` / `data/nascar.json` → Supabase → static | local file is a manual override; MLS data with >50 pts is rejected as stale |
-| Actor, Actress | `data/actor.json` / `data/actress.json` | hand-curated; Supabase only as fallback. composite = (RT/100) × box office $M |
+| Actor, Actress | `data/actor.json` / `data/actress.json` (roster) + Supabase via OMDb scraper (live box office/RT) | movie-to-player assignments + release dates are hand-curated in the file; `scrape_actor`/`scrape_actress` refresh each movie's domestic box office + RT critic score from OMDb daily and merge in per-field (live wins when present). Requires `OMDB_API_KEY`; scraper no-ops harmlessly if unset. composite = (RT/100) × box office $M |
 | Musician | Supabase (Billboard) | |
 | Country | `data/country.json` only | hand-edited IMF data; never Supabase |
 | Stock | Supabase (Yahoo) | (L)/(S) = long/short |
@@ -72,6 +72,7 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 | `ANTHROPIC_API_KEY` | headline.py |
 | `TAVILY_API_KEY` | headline.py (news search) |
 | `KALSHI_API_KEY_ID`, `KALSHI_PRIVATE_KEY` | projections.py (RSA-PSS signed requests) |
+| `OMDB_API_KEY` | scrapers.py (`scrape_actor`/`scrape_actress` — box office + RT via omdbapi.com, free tier 1,000 req/day) |
 
 ## Conventions
 
