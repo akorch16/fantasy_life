@@ -10,7 +10,7 @@ Sources:
   NFL/NCAAF    → FROZEN in Supabase, scrapers skip these
 """
 
-import json, os, re
+import json, os, re, time
 from datetime import datetime
 
 import requests
@@ -729,6 +729,91 @@ def scrape_billboard():
     except Exception as e:
         print(f'  ✗ Musician/Wikipedia: {e}'); return False
 
+# ── Actor / Actress (OMDb) ──────────────────────────────────────────────────────
+
+def _omdb_lookup(title, api_key):
+    """Query OMDb for one movie title. Returns {'box_office': int|None, 'rt_score': int|None},
+    or None if OMDb has no match or no usable fields. box_office is OMDb's domestic
+    (US/Canada) gross in USD; rt_score is the Rotten Tomatoes critic percentage."""
+    try:
+        r = requests.get('https://www.omdbapi.com/', params={'t': title, 'apikey': api_key}, timeout=10)
+        payload = r.json()
+    except Exception as e:
+        print(f'    ✗ OMDb lookup failed for "{title}": {e}')
+        return None
+    if payload.get('Response') != 'True':
+        print(f'    – OMDb: no match for "{title}" ({payload.get("Error", "?")})')
+        return None
+
+    box_office = None
+    bo_raw = payload.get('BoxOffice')
+    if bo_raw and bo_raw != 'N/A':
+        digits = re.sub(r'[^\d]', '', bo_raw)
+        if digits:
+            box_office = int(digits)
+
+    rt_score = None
+    for rating in payload.get('Ratings', []):
+        if rating.get('Source') == 'Rotten Tomatoes':
+            m = re.match(r'(\d+)%', rating.get('Value', ''))
+            if m:
+                rt_score = int(m.group(1))
+
+    if box_office is None and rt_score is None:
+        return None
+    return {'box_office': box_office, 'rt_score': rt_score}
+
+
+def _scrape_actor_actress(category):
+    """Refresh box office / RT critic scores for the category's tracked movies via OMDb.
+
+    The movie-to-player roster (title, release date, who a movie counts for) stays
+    hand-curated in data/actor.json / data/actress.json — OMDb has no "credits by
+    actor" lookup, only per-title lookups. This reads that roster just to get the
+    list of titles to check, then writes each title's live box office/RT score to
+    Supabase; compute_baseline_actor_actress() merges those live numbers back onto
+    the roster at read time (live wins per-field when present, file value otherwise).
+    """
+    if is_frozen(category):
+        print(f'  ⏸ {category} is frozen, skipping'); return True
+    api_key = os.environ.get('OMDB_API_KEY')
+    if not api_key:
+        print(f'  ⏸ OMDB_API_KEY not set, skipping {category}'); return True
+
+    _path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', f'{category.lower()}.json')
+    try:
+        with open(_path) as f:
+            roster = json.load(f)
+    except Exception as e:
+        print(f'  ✗ Could not read {_path}: {e}'); return False
+
+    titles = sorted({
+        m['title'] for e in roster.get('scores', []) for m in e.get('movies', []) if m.get('title')
+    })
+    if not titles:
+        print(f'  ⏸ No movies tracked for {category}'); return True
+
+    movies = {}
+    for title in titles:
+        stats = _omdb_lookup(title, api_key)
+        if stats:
+            movies[title] = stats
+            print(f'    ✓ {title}: bo={stats["box_office"]} rt={stats["rt_score"]}')
+        time.sleep(0.15)  # be polite to the free tier (1,000 req/day cap)
+
+    if not movies:
+        print(f'  ✗ OMDb returned nothing usable for {category}'); return False
+    return save_standing(category, {'movies': movies})
+
+
+def scrape_actor():
+    return _scrape_actor_actress('Actor')
+
+
+def scrape_actress():
+    return _scrape_actor_actress('Actress')
+
+
 # ── Refresh All ───────────────────────────────────────────────────────────────
 
 def refresh_all():
@@ -748,6 +833,7 @@ def refresh_all():
         ('NCAAB', scrape_ncaab), ('Tennis', scrape_tennis), ('Golf', scrape_golf),
         ('NASCAR', scrape_nascar), ('MLS', scrape_mls), ('Stock', scrape_stock),
         ('Country', scrape_country_gdp), ('Musician', scrape_billboard),
+        ('Actor', scrape_actor), ('Actress', scrape_actress),
     ]
     for name, fn in all_scrapers:
         print(f'Scraping {name}...')

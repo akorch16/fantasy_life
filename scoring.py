@@ -523,6 +523,13 @@ def compute_baseline_actor_actress(category):
     except Exception:
         data = load_data(category.lower())
 
+    # Live per-movie box office/RT from the OMDb scraper (Supabase), keyed by
+    # title. The movie-to-player roster (release dates, who a movie counts
+    # for) stays file-owned — OMDb has no "credits by actor" lookup — only
+    # each movie's financial performance is merged in and auto-refreshed.
+    live = load_data(category.lower())
+    live_movies = (live or {}).get('movies') or {}
+
     raw_values = {}
     movies_by_player = {}
     for player, name in picks.items():
@@ -530,9 +537,28 @@ def compute_baseline_actor_actress(category):
         if data:
             for entry in data.get('scores', []):
                 if name_matches(name, entry.get('name', '')):
-                    composite = entry.get('composite_score')
-                    if entry.get('movies'):
-                        movies_by_player[player] = entry['movies']
+                    resolved = []
+                    total = 0.0
+                    any_scored = False
+                    for m in entry.get('movies', []):
+                        box_office = m.get('box_office')
+                        rt_score = m.get('rt_score')
+                        live_stats = live_movies.get(m.get('title'))
+                        if live_stats:
+                            if live_stats.get('box_office') is not None:
+                                box_office = live_stats['box_office']
+                            if live_stats.get('rt_score') is not None:
+                                rt_score = live_stats['rt_score']
+                        movie_composite = m.get('composite')
+                        if box_office is not None and rt_score is not None:
+                            movie_composite = round((rt_score / 100.0) * (box_office / 1_000_000.0), 2)
+                            total += movie_composite
+                            any_scored = True
+                        resolved.append({
+                            **m, 'box_office': box_office, 'rt_score': rt_score, 'composite': movie_composite,
+                        })
+                    composite = round(total, 2) if any_scored else entry.get('composite_score', 0)
+                    movies_by_player[player] = resolved
                     break
         raw_values[player] = composite if composite is not None else -1
 
