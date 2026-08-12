@@ -62,7 +62,7 @@ ALWAYS_ON_QUERIES = [
     'MLS NASCAR results 2026 this week',
     '{today} Billboard Hot 100 chart number one new entry this week',
     'NVDA TSLA COIN PLTR AVGO SMCI LULU INTC NEE stock movers this week 2026',
-    '{today} new movie opening this weekend box office',
+    '{today} domestic US box office opening weekend results North America',
 ]
 
 
@@ -230,7 +230,7 @@ CRITICAL rules:
 - Examples: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals." / "NVDA (<em>Todd</em>) surges 9% on earnings." / "USA (<em>Wu</em>) blank Morocco 2-0 in World Cup opener." / "Taylor Swift (<em>Molmen</em>) hits #1 with new single."
 - Use <em> tags ONLY around FL player names — never around pick names
 - Be specific: include series scores or % moves only if the snippet gives them
-- Actor/Actress: ONLY connect a film to an FL player's pick if a SINGLE snippet contains BOTH the actor/actress name AND the film title in the same sentence or tight clause. A film title alone is never enough. An actor mentioned elsewhere on the same page does NOT count — the connection must be explicit in the same sentence. Do NOT use outside knowledge about casting.
+- Actor/Actress: ONLY write a sentence about a film if a snippet explicitly names the film title AND at least one FL pick actor/actress in the same sentence or tight clause. Once a film is confirmed by a snippet, you MAY use your knowledge of the film's cast to also credit other FL picks who are in that film — but only if you are highly confident they appear in it. Do not invent casting. If unsure, stick to only the actors named in the snippet.
 - Output format — TWO sections, exactly like this, and NOTHING else. Do not
   write any preamble, reasoning, or "let me check the snippets" narration —
   your response must start immediately with the literal text "FACTS:".
