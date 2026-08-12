@@ -731,12 +731,24 @@ def scrape_billboard():
 
 # ── Actor / Actress (OMDb) ──────────────────────────────────────────────────────
 
-def _omdb_lookup(title, api_key):
+def _omdb_lookup(title, api_key, year=None):
     """Query OMDb for one movie title. Returns {'box_office': int|None, 'rt_score': int|None},
-    or None if OMDb has no match or no usable fields. box_office is OMDb's domestic
-    (US/Canada) gross in USD; rt_score is the Rotten Tomatoes critic percentage."""
+    or None if OMDb has no match, no usable fields, or matched an unrelated movie that
+    happens to share the title. box_office is OMDb's domestic (US/Canada) gross in USD;
+    rt_score is the Rotten Tomatoes critic percentage.
+
+    year (from the roster's release_date) is passed to OMDb's own y= filter to
+    disambiguate, but that alone isn't airtight — many of our titles ("Moana", "The
+    Bride", "Steps") collide with older, unrelated films of the same name. So the
+    match is also rejected if OMDb's returned Year is more than a year off from
+    ours: that's cheap insurance against silently overwriting a real 2026 release
+    with a decades-old movie's box office/RT numbers.
+    """
+    params = {'t': title, 'apikey': api_key}
+    if year:
+        params['y'] = year
     try:
-        r = requests.get('https://www.omdbapi.com/', params={'t': title, 'apikey': api_key}, timeout=10)
+        r = requests.get('https://www.omdbapi.com/', params=params, timeout=10)
         payload = r.json()
     except Exception as e:
         print(f'    ✗ OMDb lookup failed for "{title}": {e}')
@@ -744,6 +756,12 @@ def _omdb_lookup(title, api_key):
     if payload.get('Response') != 'True':
         print(f'    – OMDb: no match for "{title}" ({payload.get("Error", "?")})')
         return None
+
+    if year:
+        omdb_year_m = re.match(r'\d{4}', payload.get('Year', '') or '')
+        if omdb_year_m and abs(int(omdb_year_m.group()) - int(year)) > 1:
+            print(f'    – OMDb: "{title}" matched a {omdb_year_m.group()} release, expected ~{year} — likely a different movie, skipping')
+            return None
 
     box_office = None
     bo_raw = payload.get('BoxOffice')
@@ -787,15 +805,20 @@ def _scrape_actor_actress(category):
     except Exception as e:
         print(f'  ✗ Could not read {_path}: {e}'); return False
 
-    titles = sorted({
-        m['title'] for e in roster.get('scores', []) for m in e.get('movies', []) if m.get('title')
-    })
+    titles = {}
+    for e in roster.get('scores', []):
+        for m in e.get('movies', []):
+            title = m.get('title')
+            if not title or title in titles:
+                continue
+            release_date = m.get('release_date') or ''
+            titles[title] = release_date[:4] if len(release_date) >= 4 else None
     if not titles:
         print(f'  ⏸ No movies tracked for {category}'); return True
 
     movies = {}
-    for title in titles:
-        stats = _omdb_lookup(title, api_key)
+    for title, year in sorted(titles.items()):
+        stats = _omdb_lookup(title, api_key, year=year)
         if stats:
             movies[title] = stats
             print(f'    ✓ {title}: bo={stats["box_office"]} rt={stats["rt_score"]}')
