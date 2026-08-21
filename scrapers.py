@@ -417,7 +417,7 @@ def scrape_nascar():
 
 def _wiki_tennis_rankings(url, timeout=20):
     """Parse (player, rank) pairs from Wikipedia's live "Current tennis rankings"
-    page. It carries separate ATP/WTA top-N tables (Rank | Player | Points);
+    page. It carries separate ATP/WTA top-N tables (No. | Player | Points | Move);
     tour isn't distinguished here since compute_baseline_tennis matches
     purely by player name against each pick's already-known gender."""
     soup = fetch_html(url, timeout=timeout)
@@ -427,8 +427,9 @@ def _wiki_tennis_rankings(url, timeout=20):
         if not rows:
             continue
         headers = [c.get_text(strip=True).lower() for c in rows[0].find_all(['th', 'td'])]
-        rank_idx = next((i for i, h in enumerate(headers) if h.startswith('rank')), None)
-        player_idx = next((i for i, h in enumerate(headers) if 'player' in h), None)
+        rank_idx = next((i for i, h in enumerate(headers)
+                         if h.startswith('rank') or h.startswith('no.') or h == 'no'), None)
+        player_idx = next((i for i, h in enumerate(headers) if 'player' in h or 'name' in h), None)
         if rank_idx is None or player_idx is None:
             continue
         for row in rows[1:]:
@@ -488,27 +489,14 @@ def scrape_tennis():
         except Exception as e:
             print(f'    ✗ Wikipedia tennis rankings: {e}')
 
-        # Last resort: scrape ATP site directly
-        soup = fetch_html('https://www.atptour.com/en/rankings/singles')
-        for row in soup.select('table tbody tr')[:50]:
-            cols = row.find_all('td')
-            if len(cols) >= 4:
-                try:
-                    rank = int(cols[0].text.strip().replace('T', ''))
-                    # Try cols 3, 4 for player name (skip rank, move, country, points)
-                    for idx in [3, 4, 2]:
-                        candidate = cols[idx].text.strip() if len(cols) > idx else ''
-                        if candidate and not candidate.replace(',','').replace('.','').isdigit():
-                            player = candidate
-                            break
-                    if player:
-                        rankings.append({'player': player, 'rank': rank, 'tour': 'ATP'})
-                except (ValueError, AttributeError):
-                    continue
-
-        if rankings:
-            return save_standing('Tennis', {'rankings': rankings})
-        raise Exception('No rankings found')
+        # No direct-ATP-site-scrape tier here on purpose: it used to guess which
+        # column held the player name via brittle heuristics, and on the one
+        # occasion atptour.com returned a 200 (instead of its usual 403) it
+        # silently scraped garbage that matched none of our picks by name —
+        # then got written to Supabase as "fresh live data", where it won the
+        # freshness race in select_standings() over the correct local override
+        # file. Failing loudly here instead lets scoring fall back correctly.
+        raise Exception('No rankings found (ESPN 403, Wikipedia empty/unreachable)')
     except Exception as e:
         print(f'  ✗ Tennis: {e}'); return False
 
