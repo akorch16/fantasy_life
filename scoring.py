@@ -340,9 +340,33 @@ def compute_baseline_poll(category, data_key, reverse=False, static_data=None):
     return result
 
 
+TENNIS_2026_RANKINGS_STATIC = {"as_of": "2026-08-12", "rankings": [
+    {"player": "Jannik Sinner",      "rank": 1, "tour": "ATP"},
+    {"player": "Carlos Alcaraz",     "rank": 2, "tour": "ATP"},
+    {"player": "Alexander Zverev",   "rank": 3, "tour": "ATP"},
+    {"player": "Novak Djokovic",     "rank": 5, "tour": "ATP"},
+    {"player": "Daniil Medvedev",    "rank": 7, "tour": "ATP"},
+    {"player": "Taylor Fritz",       "rank": 8, "tour": "ATP"},
+    {"player": "Aryna Sabalenka",    "rank": 1, "tour": "WTA"},
+    {"player": "Jessica Pegula",     "rank": 3, "tour": "WTA"},
+    {"player": "Coco Gauff",         "rank": 4, "tour": "WTA"},
+    {"player": "Iga Swiatek",        "rank": 5, "tour": "WTA"},
+    {"player": "Amanda Anisimova",   "rank": 10, "tour": "WTA"},
+    # Paolini withdrew from Cincinnati injured; post-withdrawal rank is
+    # disputed 19-20 across sources as of 2026-08-12 — best estimate.
+    {"player": "Jasmine Paolini",    "rank": 19, "tour": "WTA"},
+    {"player": "Madison Keys",       "rank": 23, "tour": "WTA"},
+]}
+
 def compute_baseline_tennis():
     picks = DRAFT_PICKS_2026.get('Tennis', {})
-    data = load_data('tennis')
+    # Live (ESPN via Supabase) → manual data/tennis.json → static, by freshness.
+    # ESPN's ATP/WTA rankings endpoints and atptour.com's own site have all been
+    # returning 403 on every scrape this season, so without this fallback chain
+    # compute_baseline_tennis silently returned raw_value=None for all 13 picks.
+    data, _category_source['tennis'] = select_standings(
+        'Tennis', 'rankings', 'tennis', TENNIS_2026_RANKINGS_STATIC,
+        TENNIS_2026_RANKINGS_STATIC.get('as_of', '2026-08-12'))
 
     adjusted = {}
     for player, name in picks.items():
