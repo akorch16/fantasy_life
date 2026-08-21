@@ -435,7 +435,11 @@ def _wiki_tennis_rankings(url, timeout=20):
         rows = table.select('tr')
         if len(rows) < 2:
             continue
-        caption = rows[0].get_text(' ', strip=True).lower()
+        # Whitespace-stripped before matching: the caption cell has nested
+        # markup (wikilinks, [update]/footnote superscripts) whose exact text
+        # spacing depends on get_text()'s separator choice — normalizing
+        # avoids re-breaking this match on a markup-detail technicality again.
+        caption = re.sub(r'\s+', '', rows[0].get_text(' ', strip=True)).lower()
         if 'rankings(singles)' not in caption:
             continue
         headers = [c.get_text(strip=True).lower() for c in rows[1].find_all(['th', 'td'])]
