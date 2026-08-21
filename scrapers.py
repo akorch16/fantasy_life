@@ -950,7 +950,39 @@ def probe():
     _probe_espn_nascar()
     _probe_wiki_points_table('NASCAR', 'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series', ('driver',))
     _probe_wiki_points_table('MLS', 'https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season', ('team',))
+    _probe_wiki_raw_tables('Tennis', 'https://en.wikipedia.org/wiki/Current_tennis_rankings')
     print('\n🔎 Probe complete.')
+
+
+def _probe_wiki_raw_tables(label, url):
+    """Dump EVERY table's raw header row + first data row on a page, unfiltered
+    by any header-matching logic — for when a scraper's targeted match finds
+    nothing and we need to see the real structure to know why, rather than
+    keep guessing header text blind."""
+    print(f'\n  ── {label} Wikipedia RAW dump ──')
+    try:
+        soup = fetch_html(url, timeout=20)
+    except Exception as e:
+        print(f'    ✗ fetch_html failed: {e}')
+        return
+    all_tables = soup.find_all('table')
+    print(f'    {len(all_tables)} total <table> element(s) on page '
+          f'({len(soup.select("table.wikitable"))} with class "wikitable")')
+    for ti, table in enumerate(all_tables):
+        classes = table.get('class') or []
+        rows = table.select('tr')
+        if not rows:
+            continue
+        header_cells = rows[0].find_all(['th', 'td'])
+        headers = [c.get_text(strip=True) for c in header_cells]
+        if not headers:
+            continue
+        second_row = rows[1].find_all(['td', 'th']) if len(rows) > 1 else []
+        second_vals = [c.get_text(' ', strip=True) for c in second_row]
+        print(f'    Table #{ti} class={classes} cols={len(headers)} rows={len(rows)}')
+        print(f'      headers: {headers}')
+        if second_vals:
+            print(f'      row[1]:  {second_vals}')
 
 
 def _probe_espn_nascar():
