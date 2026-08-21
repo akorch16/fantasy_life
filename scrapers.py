@@ -417,22 +417,34 @@ def scrape_nascar():
 
 def _wiki_tennis_rankings(url, timeout=20):
     """Parse (player, rank) pairs from Wikipedia's live "Current tennis rankings"
-    page. It carries separate ATP/WTA top-N tables (No. | Player | Points | Move);
-    tour isn't distinguished here since compute_baseline_tennis matches
-    purely by player name against each pick's already-known gender."""
+    page. Confirmed via probe.yml (2026-08-21): each table's first <tr> is a
+    merged caption cell ("ATP rankings(singles)as of 10 August 2026[update][2]"),
+    NOT the header row — the real header (No. | Player | Points | Move) is the
+    SECOND <tr>. The page also has doubles and "race" (year-end points race, a
+    different ranking system) tables; only the ones whose caption reads
+    "rankings(singles)" are the official ATP/WTA singles rankings we want.
+    Tour isn't distinguished here since compute_baseline_tennis matches purely
+    by player name against each pick's already-known gender.
+
+    Coverage note: this table only lists the top ~20 per tour, so any pick
+    ranked lower (e.g. deep-30s) won't be found here and falls back to
+    whatever select_standings() picks next (local override / static)."""
     soup = fetch_html(url, timeout=timeout)
     found = {}
     for table in soup.select('table.wikitable'):
         rows = table.select('tr')
-        if not rows:
+        if len(rows) < 2:
             continue
-        headers = [c.get_text(strip=True).lower() for c in rows[0].find_all(['th', 'td'])]
+        caption = rows[0].get_text(' ', strip=True).lower()
+        if 'rankings(singles)' not in caption:
+            continue
+        headers = [c.get_text(strip=True).lower() for c in rows[1].find_all(['th', 'td'])]
         rank_idx = next((i for i, h in enumerate(headers)
                          if h.startswith('rank') or h.startswith('no.') or h == 'no'), None)
         player_idx = next((i for i, h in enumerate(headers) if 'player' in h or 'name' in h), None)
         if rank_idx is None or player_idx is None:
             continue
-        for row in rows[1:]:
+        for row in rows[2:]:
             cells = row.find_all(['td', 'th'])
             if len(cells) <= max(rank_idx, player_idx):
                 continue
