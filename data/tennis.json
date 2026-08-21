@@ -16,18 +16,18 @@
       "tour": "ATP"
     },
     {
-      "player": "Taylor Fritz",
-      "rank": 4,
-      "tour": "ATP"
-    },
-    {
       "player": "Novak Djokovic",
-      "rank": 7,
+      "rank": 5,
       "tour": "ATP"
     },
     {
       "player": "Daniil Medvedev",
-      "rank": 5,
+      "rank": 7,
+      "tour": "ATP"
+    },
+    {
+      "player": "Taylor Fritz",
+      "rank": 8,
       "tour": "ATP"
     },
     {
@@ -36,35 +36,35 @@
       "tour": "WTA"
     },
     {
-      "player": "Iga Swiatek",
-      "rank": 2,
-      "tour": "WTA"
-    },
-    {
-      "player": "Coco Gauff",
+      "player": "Jessica Pegula",
       "rank": 3,
       "tour": "WTA"
     },
     {
-      "player": "Jessica Pegula",
+      "player": "Coco Gauff",
       "rank": 4,
       "tour": "WTA"
     },
     {
-      "player": "Madison Keys",
-      "rank": 7,
-      "tour": "WTA"
-    },
-    {
-      "player": "Jasmine Paolini",
+      "player": "Iga Swiatek",
       "rank": 5,
       "tour": "WTA"
     },
     {
       "player": "Amanda Anisimova",
-      "rank": 18,
+      "rank": 10,
+      "tour": "WTA"
+    },
+    {
+      "player": "Jasmine Paolini",
+      "rank": 19,
+      "tour": "WTA"
+    },
+    {
+      "player": "Madison Keys",
+      "rank": 23,
       "tour": "WTA"
     }
   ],
-  "_updated": "2026-03-06T23:14:42.786337"
+  "_updated": "2026-08-12"
 }

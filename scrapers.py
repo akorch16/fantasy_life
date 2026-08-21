@@ -415,6 +415,37 @@ def scrape_nascar():
 
 # ── Tennis (ESPN) ─────────────────────────────────────────────────────────────
 
+def _wiki_tennis_rankings(url, timeout=20):
+    """Parse (player, rank) pairs from Wikipedia's live "Current tennis rankings"
+    page. It carries separate ATP/WTA top-N tables (Rank | Player | Points);
+    tour isn't distinguished here since compute_baseline_tennis matches
+    purely by player name against each pick's already-known gender."""
+    soup = fetch_html(url, timeout=timeout)
+    found = {}
+    for table in soup.select('table.wikitable'):
+        rows = table.select('tr')
+        if not rows:
+            continue
+        headers = [c.get_text(strip=True).lower() for c in rows[0].find_all(['th', 'td'])]
+        rank_idx = next((i for i, h in enumerate(headers) if h.startswith('rank')), None)
+        player_idx = next((i for i, h in enumerate(headers) if 'player' in h), None)
+        if rank_idx is None or player_idx is None:
+            continue
+        for row in rows[1:]:
+            cells = row.find_all(['td', 'th'])
+            if len(cells) <= max(rank_idx, player_idx):
+                continue
+            rank_m = re.search(r'\d+', cells[rank_idx].get_text(strip=True))
+            name = cells[player_idx].get_text(' ', strip=True)
+            name = re.sub(r'\s*\([A-Z]{2,3}\)\s*$', '', name).strip()  # drop trailing country code
+            if not rank_m or not name:
+                continue
+            rank = int(rank_m.group())
+            if name not in found or rank < found[name]:
+                found[name] = rank
+    return [{'player': n, 'rank': r} for n, r in found.items()]
+
+
 def scrape_tennis():
     if is_frozen('Tennis'):
         print('  ⏸ Tennis is frozen, skipping'); return True
@@ -447,7 +478,17 @@ def scrape_tennis():
         if rankings:
             return save_standing('Tennis', {'rankings': rankings})
 
-        # Fallback to scraping ATP site
+        # ESPN's ATP/WTA endpoints have been 403ing consistently — fall back to
+        # Wikipedia's live-updated rankings page before the direct ATP site scrape.
+        try:
+            wiki_rankings = _wiki_tennis_rankings('https://en.wikipedia.org/wiki/Current_tennis_rankings')
+            if wiki_rankings:
+                print(f'    ✓ Wikipedia tennis rankings: {len(wiki_rankings)} players')
+                return save_standing('Tennis', {'rankings': wiki_rankings, '_source': 'wikipedia'})
+        except Exception as e:
+            print(f'    ✗ Wikipedia tennis rankings: {e}')
+
+        # Last resort: scrape ATP site directly
         soup = fetch_html('https://www.atptour.com/en/rankings/singles')
         for row in soup.select('table tbody tr')[:50]:
             cols = row.find_all('td')
