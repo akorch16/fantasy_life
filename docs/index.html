@@ -987,7 +987,7 @@ function renderTable() {
     if (currentFilter === 'all') {
       tr.onclick = isTodd ? () => {} : isBuckley ? () => openBuckley() : () => toggleBreakdown(idx);
     } else {
-      tr.onclick = () => toggleBreakdown(idx);
+      tr.onclick = isTodd ? () => {} : () => toggleBreakdown(idx);
     }
 
     const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
@@ -1010,6 +1010,24 @@ function renderTable() {
         <td class="score-cell">${(player.total || 0).toFixed(1)}</td>
         <td class="score-cell">${weekDeltaHtml(player.week_delta)}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
+      `;
+    } else if (isTodd) {
+      const extraCountryColsTodd = currentFilter === 'country' ? `
+        <td class="stat-col bonus-col todd-score">??</td>
+        <td class="stat-col bonus-col todd-score">??</td>
+      ` : '';
+      tr.innerHTML = `
+        <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
+        <td>
+          <div class="player-name"><span class="todd-lock-icon">🔒</span> Todd</div>
+          <div class="todd-teaser">premium required</div>
+        </td>
+        <td class="stat-col primary todd-score">??</td>
+        <td class="stat-col todd-score">??</td>
+        <td class="stat-col bonus-col todd-score">??</td>
+        ${extraCountryColsTodd}
+        <td class="stat-col total-col todd-score">??</td>
+        <td class="expand-cell">$</td>
       `;
     } else {
       const catData = (player.categories || {})[currentFilter] || {};
@@ -1044,8 +1062,8 @@ function renderTable() {
 
     tbody.appendChild(tr);
 
-    // Breakdown row (skip for Todd on the all-scores tab)
-    if (isTodd && currentFilter === 'all') { tbody.appendChild(document.createElement('tr')); return; }
+    // Breakdown row (skip for Todd everywhere — premium content, no tab leaks it)
+    if (isTodd) { tbody.appendChild(document.createElement('tr')); return; }
     const br = document.createElement('tr');
       br.className = 'breakdown-row';
       br.id = 'breakdown-' + idx;
