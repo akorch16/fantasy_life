@@ -48,27 +48,16 @@ TENNIS_WOMEN = {p: n for p, n in DRAFT_PICKS_2026["Tennis"].items() if TENNIS_GE
 # rt:         (p10, p50, p90) Rotten Tomatoes score — normal distribution, capped 0–100
 # actor/actress: [player_key, ...]  — just need to be in the movie
 FILM_PIPELINE = [
-    {
-        "title": "Moana",
-        "box_office": (130, 190, 260),
-        "rt": (48, 62, 75),
-        "actor":   ["Theo"],
-        "actress": [],
-    },
-    {
-        "title": "The Odyssey",
-        "box_office": (175, 275, 375),
-        "rt": (78, 88, 96),
-        "actor":   ["Molmen", "Feder", "Buckley", "Korch"],
-        "actress": ["Korch", "Wu", "Mitchell"],
-    },
-    {
-        "title": "Spider-Man: Brand New Day",
-        "box_office": (450, 750, 1100),
-        "rt": (72, 84, 94),
-        "actor":   ["Feder"],
-        "actress": ["Wu"],
-    },
+    # Moana, The Odyssey, and Spider-Man: Brand New Day all released and got
+    # real confirmed box office/RT/composite in data/actor.json + actress.json
+    # months ago — they were left in here as "pending" long after release, so
+    # every simulation draw was adding a SECOND random contribution on top of
+    # the already-known real value for 7 of 13 players (Korch, Wu, Molmen,
+    # Feder, Buckley, Mitchell, Theo), double-counting resolved outcomes as
+    # if they were still uncertain. Removed. A film belongs here only from
+    # the moment it's added until its real numbers land in data/actor.json /
+    # data/actress.json — check both files before adding a new title, and
+    # prune it the same day its composite gets filled in.
     {
         "title": "The Social Reckoning",
         "box_office": (60, 100, 160),  # Oct 9; Social Network comp ($97M); award-season prestige
@@ -77,7 +66,10 @@ FILM_PIPELINE = [
         "actress": [],
     },
     {
-        "title": "Flowervale Street",
+        # data/actress.json calls this "The End of Oak Street" (title updated
+        # since this entry was added) — released 2026-08-14 per that file but
+        # still no composite there as of this fix, so genuinely still pending.
+        "title": "The End of Oak Street",
         "box_office": (15, 35, 60),
         "rt": (62, 75, 88),
         "actor":   [],
