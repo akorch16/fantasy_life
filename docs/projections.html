@@ -306,7 +306,7 @@ fetch('./projections.json')
       players.map((p, i) => `
         <tr>
           <td class="rank-num num">${i + 1}</td>
-          <td><strong>${p.name}</strong></td>
+          <td><strong>${p.name}</strong>${p.win_pct < 0.05 ? ' 💀' : ''}</td>
           <td class="num ${winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
           <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
           <td class="num">${p.current_total.toFixed(1)}</td>
