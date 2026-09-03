@@ -248,7 +248,11 @@ Every headline sentence MUST be backed by a numbered FACTS entry whose quote is 
         msg = client.messages.create(
             model='claude-sonnet-4-6',
             max_tokens=1200,
-            temperature=0,
+            # anthropic-python 1.x dropped temperature as a typed create() param
+            # (requirements.txt pins anthropic>=0.25 with no upper bound, so CI
+            # picked up the new major version) — extra_body still passes it
+            # through to the underlying Messages API, which is unchanged.
+            extra_body={'temperature': 0},
             messages=[{'role': 'user', 'content': prompt}],
         )
         raw = msg.content[0].text.strip()
