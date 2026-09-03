@@ -526,15 +526,24 @@ def _expected_bonus_preseason(p_champ):
     """
     Expected bonus for a team with championship probability p_champ and no
     current bonus (regular season / pre-playoff).
-    Approximation: E[bonus] ≈ 46.5 × p_champ (sum of tier-prob × tier-value),
-    capped at 13.0 — the maximum possible bonus (BONUS_POINTS['sports_championship']
-    ['champion']). The linear approximation is a reasonable stand-in for expected
-    value at low-to-moderate p_champ, but being an expectation of a variable
-    bounded in [0, 13], it can never legitimately exceed 13 regardless of
-    p_champ; uncapped it did (e.g. p_champ≈0.33 → 15.3, already above the max
-    a team could ever actually earn).
+
+    Only p_champ is available here (no separate finalist/semifinalist odds
+    the way NBA/NHL conf-finals get — see _expected_bonus_conf_finals), so the
+    intermediate-tier probabilities (runner-up, semis) can't be measured and
+    have to be approximated from p_champ alone.
+
+    Uses 13.0 × sqrt(p_champ): concave, strictly increasing, bounded in
+    [0, 13], and — critically — only reaches the 13.0 ceiling as p_champ → 1.
+    The previous linear formula (46.5 × p_champ, capped at 13.0) saturated at
+    the cap for any p_champ ≥ ~28%, so a 37%-favorite and a 100%-certain
+    champion both got the identical expected value of 13.0 — capping fixed
+    the formula exceeding the max, but not this: it was still flatly wrong
+    for the entire ≥28% range. sqrt keeps every probability distinguishable
+    (37% → 7.9, 90% → 12.3, 100% → 13.0) while still giving more than the
+    naive p_champ×13 alone, as partial credit for deep-but-short-of-champion
+    playoff runs.
     """
-    return min(46.5 * p_champ, 13.0)
+    return 13.0 * (max(0.0, min(1.0, p_champ)) ** 0.5)
 
 
 def _expected_bonus_conf_finals(p_champ, p_finalist):
