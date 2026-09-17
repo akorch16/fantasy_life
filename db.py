@@ -674,7 +674,7 @@ def migrate_ledger(execute: bool = False) -> bool:
     all_match = True
     for player in sorted(live.keys() | computed.keys()):
         live_bal = live.get(player)
-        fold_bal = computed.get(player)
+        fold_bal = computed.get(player, 1000)  # no events at all → correct fold is the starting balance, not "unknown"
         ok = live_bal == fold_bal
         all_match = all_match and ok
         print(f'{player:<10} {str(live_bal):>12} {str(fold_bal):>12} {"✓" if ok else "✗ MISMATCH":>7}')
