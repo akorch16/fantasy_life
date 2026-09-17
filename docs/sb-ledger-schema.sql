@@ -41,3 +41,13 @@ create trigger sb_ledger_no_update
 create trigger sb_ledger_no_delete
   before delete on sb_ledger
   for each row execute function sb_ledger_reject_mutation();
+
+-- Row Level Security, with NO policies for anon/authenticated. Under RLS,
+-- no policy means no access — not "unrestricted." service_role (used by
+-- db.py / GitHub Actions) bypasses RLS entirely by Supabase design, so the
+-- backend is unaffected. The browser's anon key (embedded client-side in
+-- sportsbook.html, readable by anyone) gets zero read/write on this table.
+-- Without this, the append-only trigger above stops someone from editing
+-- an existing row but does nothing to stop them inserting a fabricated one
+-- straight from the browser console.
+alter table sb_ledger enable row level security;
