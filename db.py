@@ -734,6 +734,51 @@ def test_place_bet_phase3() -> bool:
     return True
 
 
+# The public anon key from docs/sportsbook.html's SB_ANON constant. Not a
+# secret -- it's shipped to every browser that loads the page, protected
+# only by RLS. Duplicated here (rather than imported, since this is a
+# separate Python runtime from that JS file) specifically so this
+# verification exercises the exact access level a browser console user has.
+_SB_ANON_KEY = ('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIs'
+                'InJlZiI6InhwZWtocHVmdWNqdmhoc3hobWVvIiwicm9sZSI6ImFub24iLCJp'
+                'YXQiOjE3NzMzNDg4MzMsImV4cCI6MjA4ODkyNDgzM30.dyvhXCdVwVAgsNHG'
+                'V9olc8D3fh_8Ia-_IF6tIoK9ZoE')
+
+
+def verify_anon_lockdown() -> bool:
+    """Verify RLS actually blocks anon-key writes to sb_players/sb_bets while
+    still allowing anon-key reads (docs/sb-anon-write-lockdown.sql). Uses the
+    real public anon key, not the service_role SUPABASE_KEY secret -- this
+    must exercise the same access level a browser console user has, not the
+    trusted backend's."""
+    if not SUPABASE_URL:
+        print('  ✗ verify_anon_lockdown: SUPABASE_URL not set')
+        return False
+    anon_headers = {'apikey': _SB_ANON_KEY, 'Authorization': f'Bearer {_SB_ANON_KEY}',
+                     'Content-Type': 'application/json'}
+
+    r1 = requests.get(f'{SUPABASE_URL}/rest/v1/sb_players', headers=anon_headers,
+                       params={'select': 'name', 'limit': '1'}, timeout=_TIMEOUT)
+    print(f'  anon SELECT sb_players -> {r1.status_code} (expect 200)')
+    r2 = requests.get(f'{SUPABASE_URL}/rest/v1/sb_bets', headers=anon_headers,
+                       params={'select': 'id', 'limit': '1'}, timeout=_TIMEOUT)
+    print(f'  anon SELECT sb_bets -> {r2.status_code} (expect 200)')
+
+    r3 = requests.post(f'{SUPABASE_URL}/rest/v1/sb_players', headers=anon_headers,
+                        json={'name': 'AnonHackTest', 'balance': 999999}, timeout=_TIMEOUT)
+    print(f'  anon INSERT sb_players -> {r3.status_code} {r3.text[:200]!r} (expect rejected)')
+    r4 = requests.post(f'{SUPABASE_URL}/rest/v1/sb_bets', headers=anon_headers,
+                        json={'player': 'Korch', 'bet_id': 'anon-hack-test', 'side': 'yes',
+                              'wager': 1, 'potential_return': 999999}, timeout=_TIMEOUT)
+    print(f'  anon INSERT sb_bets -> {r4.status_code} {r4.text[:200]!r} (expect rejected)')
+
+    reads_ok = r1.status_code == 200 and r2.status_code == 200
+    writes_blocked = r3.status_code >= 400 and r4.status_code >= 400
+    print('  ✓ Lockdown verified: reads work, writes rejected.' if reads_ok and writes_blocked
+          else '  ✗ Lockdown NOT fully verified — check status codes above.')
+    return reads_ok and writes_blocked
+
+
 if __name__ == '__main__':
     import sys
 
@@ -742,6 +787,9 @@ if __name__ == '__main__':
 
     elif '--test-place-bet-phase3' in sys.argv:
         test_place_bet_phase3()
+
+    elif '--verify-anon-lockdown' in sys.argv:
+        verify_anon_lockdown()
 
     elif '--dump-sb' in sys.argv:
         print('=== sb_players ===')
