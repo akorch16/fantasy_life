@@ -433,9 +433,15 @@ def settle_market(market_id: str, result: bool) -> int:
 
 
 def settle_sb_bet(bet_id: str, outcome: str) -> int:
-    """Settle all sb_bets rows for a sportsbook prop.
+    """Settle all unsettled sb_bets rows for a sportsbook prop.
     outcome: 'yes' | 'no' | 'push'
-    Credits potential_return to winners; on push credits wager back to all sides (settled_outcome='void').
+    Writes a bet_settled event to sb_ledger for each bet (the source of truth
+    for balance). sb_bets.settled_outcome is also patched as a read-model
+    convenience column for the frontend, but nothing derives balance from it.
+    Does NOT touch sb_players.balance directly — both call sites of this
+    function (scoring.py, projections.py) already run recalculate_sb_balance()
+    for every player immediately afterward, so there is exactly one function
+    in the whole codebase that ever writes sb_players.balance.
     Returns number of bets processed."""
     if not SUPABASE_URL or not SUPABASE_KEY:
         return 0
@@ -446,7 +452,7 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
             params={
                 'bet_id': f'eq.{bet_id}',
                 'settled_outcome': 'is.null',
-                'select': 'id,player,side,wager,potential_return,placed_at',
+                'select': 'id,player,side,wager,potential_return',
             },
             timeout=_TIMEOUT,
         )
@@ -455,17 +461,13 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
         print(f'  ✗ settle_sb_bet fetch ({bet_id}): {e}')
         return 0
 
-    def _parse_ts(ts):
-        try:
-            return datetime.fromisoformat(str(ts).replace('Z', '+00:00'))
-        except Exception:
-            return None
-
     count = 0
     for bet in bets:
         is_push = outcome == 'push'
         won = (not is_push) and bet['side'] == outcome
         settled_outcome = 'void' if is_push else ('won' if won else 'lost')
+        delta = bet['wager'] if is_push else (bet['potential_return'] if won else 0)
+
         requests.patch(
             f'{SUPABASE_URL}/rest/v1/sb_bets',
             headers=_headers(),
@@ -473,43 +475,21 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
             json={'settled_outcome': settled_outcome},
             timeout=_TIMEOUT,
         )
-        if won or is_push:
-            try:
-                r2 = requests.get(
-                    f'{SUPABASE_URL}/rest/v1/sb_players',
-                    headers=_headers(),
-                    params={'name': f'eq.{bet["player"]}', 'select': 'balance,updated_at'},
-                    timeout=_TIMEOUT,
-                )
-                rows = r2.json()
-                if rows:
-                    # Invariant: sb_players.balance covers all bet history up to
-                    # updated_at — recalculate_sb_balance deducts EVERY wager,
-                    # including still-pending ones. So a bet placed after the
-                    # last recalc never had its wager deducted: credit only the
-                    # profit (return − wager); an older bet's wager is already
-                    # out of the balance, so credit the full return. Never bump
-                    # updated_at here — moving it forward drops other pending
-                    # wagers out of place_bet's available-balance window, which
-                    # briefly re-opens the concurrent-overdraw hole that
-                    # place_bet's SELECT FOR UPDATE exists to close.
-                    placed = _parse_ts(bet.get('placed_at'))
-                    recalced = _parse_ts(rows[0].get('updated_at'))
-                    pre_deducted = bool(placed and recalced and placed <= recalced)
-                    if is_push:
-                        credit = bet['wager'] if pre_deducted else 0
-                    else:
-                        credit = bet['potential_return'] - (0 if pre_deducted else bet['wager'])
-                    if credit:
-                        requests.patch(
-                            f'{SUPABASE_URL}/rest/v1/sb_players',
-                            headers=_headers(),
-                            params={'name': f'eq.{bet["player"]}'},
-                            json={'balance': rows[0]['balance'] + credit},
-                            timeout=_TIMEOUT,
-                        )
-            except Exception as e:
-                print(f'  ✗ settle_sb_bet balance update ({bet["player"]}): {e}')
+        try:
+            requests.post(
+                f'{SUPABASE_URL}/rest/v1/sb_ledger',
+                headers=_headers(),
+                json={
+                    'player': bet['player'],
+                    'event_type': 'bet_settled',
+                    'bet_row_id': bet['id'],
+                    'delta': delta,
+                    'reason': settled_outcome,
+                },
+                timeout=_TIMEOUT,
+            )
+        except Exception as e:
+            print(f'  ✗ settle_sb_bet ledger insert ({bet["player"]}, bet {bet["id"]}): {e}')
         count += 1
 
     if count:
@@ -518,9 +498,10 @@ def settle_sb_bet(bet_id: str, outcome: str) -> int:
 
 
 def _load_sb_adjustments() -> dict:
-    """Load per-player balance adjustments from data/sb_adjustments.json.
-    These encode history that can't be recovered from sb_bets (e.g. deleted records,
-    manual credits). Formula: balance = 1000 + adjustment - wagered + won."""
+    """Historical only — used by _synthesize_ledger_events() (the one-time
+    migration script) to reproduce what data/sb_adjustments.json used to
+    encode. No longer read by the live balance path; every adjustment it held
+    was backfilled into sb_ledger as a real balance_adjusted event."""
     path = os.path.join(os.path.dirname(__file__), 'data', 'sb_adjustments.json')
     try:
         with open(path) as f:
@@ -530,29 +511,28 @@ def _load_sb_adjustments() -> dict:
 
 
 def recalculate_sb_balance(player: str, starting_bb: int = 1000) -> bool:
-    """Recompute a player's BB balance from their actual bet records and update Supabase.
-    balance = starting_bb + adjustment - sum(all wagers) + sum(won potential_returns)
-    adjustment comes from data/sb_adjustments.json to preserve history not in sb_bets.
+    """Recompute a player's BB balance by summing sb_ledger and update Supabase.
+    sb_ledger is the sole source of truth for balance history now — this is
+    the ONLY function in the codebase that writes sb_players.balance, and it
+    uses the exact same formula place_bet() uses to check available balance.
+    There is no longer a second, independent formula that has to agree with
+    this one (the old settle_sb_bet incremental-patch path is gone).
     Returns True on success."""
     if not SUPABASE_URL or not SUPABASE_KEY:
         return False
     try:
         r = requests.get(
-            f'{SUPABASE_URL}/rest/v1/sb_bets',
+            f'{SUPABASE_URL}/rest/v1/sb_ledger',
             headers=_headers(),
-            params={'player': f'eq.{player}', 'select': 'wager,potential_return,settled_outcome'},
+            params={'player': f'eq.{player}', 'select': 'delta'},
             timeout=_TIMEOUT,
         )
-        bets = r.json() if isinstance(r.json(), list) else []
+        deltas = r.json() if isinstance(r.json(), list) else []
     except Exception as e:
         print(f'  ✗ recalculate_sb_balance fetch ({player}): {e}')
         return False
 
-    adjustments   = _load_sb_adjustments()
-    adjustment    = adjustments.get(player, 0)
-    total_wagered = sum(b['wager'] for b in bets)
-    total_won     = sum(b['potential_return'] for b in bets if b.get('settled_outcome') == 'won')
-    new_balance   = starting_bb + adjustment - total_wagered + total_won
+    new_balance = starting_bb + sum(d['delta'] for d in deltas)
 
     try:
         requests.patch(
@@ -563,7 +543,7 @@ def recalculate_sb_balance(player: str, starting_bb: int = 1000) -> bool:
             timeout=_TIMEOUT,
         )
         print(f'  ✓ {player} BB balance recalculated → {new_balance} BB '
-              f'(adj={adjustment}, wagered={total_wagered}, won_returns={total_won})')
+              f'(from {len(deltas)} ledger events)')
         return True
     except Exception as e:
         print(f'  ✗ recalculate_sb_balance patch ({player}): {e}')
