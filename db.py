@@ -586,10 +586,131 @@ def get_all_markets() -> list:
         return []
 
 
+def _synthesize_ledger_events() -> list:
+    """Read sb_bets + sb_adjustments.json and produce the sb_ledger rows that
+    would represent the same history if it had been recorded as a ledger from
+    day one. Pure function of what's already in Supabase/the repo — makes no
+    writes. Returns a list of dicts shaped like sb_ledger rows (minus id)."""
+    events = []
+
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/sb_bets',
+        headers=_headers(),
+        params={'select': 'id,player,wager,potential_return,settled_outcome,placed_at',
+                'order': 'player.asc,placed_at.asc'},
+        timeout=_TIMEOUT,
+    )
+    bets = r.json() if isinstance(r.json(), list) else []
+
+    for bet in bets:
+        events.append({
+            'player': bet['player'],
+            'event_type': 'bet_placed',
+            'bet_row_id': bet['id'],
+            'delta': -bet['wager'],
+            'reason': None,
+            'created_at': bet['placed_at'],
+        })
+        outcome = bet.get('settled_outcome')
+        if outcome is not None:
+            delta = {'won': bet['potential_return'], 'void': bet['wager'], 'lost': 0}.get(outcome)
+            if delta is None:
+                print(f'  ⚠ bet {bet["id"]} ({bet["player"]}) has unrecognized settled_outcome={outcome!r} — skipped')
+                continue
+            events.append({
+                'player': bet['player'],
+                'event_type': 'bet_settled',
+                'bet_row_id': bet['id'],
+                'delta': delta,
+                'reason': outcome,
+                # Settlement doesn't carry its own timestamp in sb_bets today — placed_at
+                # is the best available ordering proxy. Real settlement timestamps start
+                # existing once settle_sb_bet itself writes to sb_ledger (Phase 3).
+                'created_at': bet['placed_at'],
+            })
+
+    adjustments = _load_sb_adjustments()
+    for player, amount in adjustments.items():
+        if amount:
+            events.append({
+                'player': player,
+                'event_type': 'balance_adjusted',
+                'bet_row_id': None,
+                'delta': amount,
+                'reason': 'backfilled from data/sb_adjustments.json — original incident/reason not recorded',
+                'created_at': '2026-01-01T00:00:00Z',
+            })
+
+    return events
+
+
+def migrate_ledger(execute: bool = False) -> bool:
+    """Phase 2: backfill sb_ledger from existing sb_bets + sb_adjustments.json.
+
+    Default is a dry run — computes and prints a diff against live sb_players
+    balances, writes nothing. Pass execute=True to actually insert the rows
+    into sb_ledger. The default being "safe" rather than "the flag you might
+    forget" is deliberate: --migrate-ledger alone can never mutate anything.
+    """
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        print('  ✗ migrate_ledger: SUPABASE_URL/SUPABASE_KEY not set')
+        return False
+
+    events = _synthesize_ledger_events()
+
+    computed = {}
+    for e in events:
+        computed[e['player']] = computed.get(e['player'], 1000) + e['delta']
+
+    r = requests.get(
+        f'{SUPABASE_URL}/rest/v1/sb_players',
+        headers=_headers(),
+        params={'select': 'name,balance', 'order': 'name.asc'},
+        timeout=_TIMEOUT,
+    )
+    live = {row['name']: row['balance'] for row in (r.json() if isinstance(r.json(), list) else [])}
+
+    print(f'{"player":<10} {"live balance":>12} {"ledger fold":>12} {"match":>7}')
+    all_match = True
+    for player in sorted(live.keys() | computed.keys()):
+        live_bal = live.get(player)
+        fold_bal = computed.get(player)
+        ok = live_bal == fold_bal
+        all_match = all_match and ok
+        print(f'{player:<10} {str(live_bal):>12} {str(fold_bal):>12} {"✓" if ok else "✗ MISMATCH":>7}')
+
+    print(f'\n{len(events)} ledger events synthesized from sb_bets + sb_adjustments.json.')
+
+    if not all_match:
+        print('  ✗ Mismatch(es) found — do not proceed to --execute until every player matches.')
+        return False
+
+    print('  ✓ All players match. Safe to backfill for real.')
+
+    if not execute:
+        print('  (dry run — nothing written. Re-run with --migrate-ledger --execute to insert.)')
+        return True
+
+    r = requests.post(
+        f'{SUPABASE_URL}/rest/v1/sb_ledger',
+        headers=_headers(),
+        json=events,
+        timeout=_TIMEOUT * 3,
+    )
+    if r.status_code >= 400:
+        print(f'  ✗ Insert failed: {r.status_code} {r.text}')
+        return False
+    print(f'  ✓ Inserted {len(events)} ledger rows.')
+    return True
+
+
 if __name__ == '__main__':
     import sys
 
-    if '--dump-sb' in sys.argv:
+    if '--migrate-ledger' in sys.argv:
+        migrate_ledger(execute='--execute' in sys.argv)
+
+    elif '--dump-sb' in sys.argv:
         print('=== sb_players ===')
         r = requests.get(
             f'{SUPABASE_URL}/rest/v1/sb_players',
