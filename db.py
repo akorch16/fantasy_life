@@ -684,11 +684,64 @@ def migrate_ledger(execute: bool = False) -> bool:
     return True
 
 
+def test_place_bet_phase3() -> bool:
+    """One-time manual verification of the Phase 3 place_bet RPC rewrite
+    (docs/sb-ledger-phase3.sql), against a synthetic player name that is
+    never one of the 13 real league members -- zero effect on any real
+    player's balance or bet history. Prints results for a human to read;
+    this is a verification aid, not an automated test (no assertions)."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        print('  ✗ test_place_bet_phase3: SUPABASE_URL/SUPABASE_KEY not set')
+        return False
+
+    player = 'Phase3Test'
+
+    print(f'--- place_bet({player}, wager=10) — should succeed ---')
+    r = requests.post(
+        f'{SUPABASE_URL}/rest/v1/rpc/place_bet',
+        headers=_headers(),
+        json={'p_player': player, 'p_bet_id': 'phase3-verify', 'p_side': 'yes',
+              'p_wager': 10, 'p_potential_return': 18, 'p_sport': 'test'},
+        timeout=_TIMEOUT,
+    )
+    print(f'  status={r.status_code} body={r.json()}')
+
+    r2 = requests.get(
+        f'{SUPABASE_URL}/rest/v1/sb_ledger',
+        headers=_headers(),
+        params={'player': f'eq.{player}', 'select': '*', 'order': 'id.asc'},
+        timeout=_TIMEOUT,
+    )
+    print(f'  sb_ledger rows for {player}: {r2.json()}')
+
+    print(f'\n--- place_bet({player}, wager=99999) — should be REJECTED, no new ledger row ---')
+    r3 = requests.post(
+        f'{SUPABASE_URL}/rest/v1/rpc/place_bet',
+        headers=_headers(),
+        json={'p_player': player, 'p_bet_id': 'phase3-overdraw', 'p_side': 'yes',
+              'p_wager': 99999, 'p_potential_return': 100000, 'p_sport': 'test'},
+        timeout=_TIMEOUT,
+    )
+    print(f'  status={r3.status_code} body={r3.json()}')
+
+    r4 = requests.get(
+        f'{SUPABASE_URL}/rest/v1/sb_ledger',
+        headers=_headers(),
+        params={'player': f'eq.{player}', 'select': '*', 'order': 'id.asc'},
+        timeout=_TIMEOUT,
+    )
+    print(f'  sb_ledger rows for {player} (should be unchanged from above): {r4.json()}')
+    return True
+
+
 if __name__ == '__main__':
     import sys
 
     if '--migrate-ledger' in sys.argv:
         migrate_ledger(execute='--execute' in sys.argv)
+
+    elif '--test-place-bet-phase3' in sys.argv:
+        test_place_bet_phase3()
 
     elif '--dump-sb' in sys.argv:
         print('=== sb_players ===')
