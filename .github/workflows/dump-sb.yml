@@ -1,7 +1,13 @@
 name: Sportsbook DB Diagnostic
 
 # Manual-only: dump sb_players and sb_bets from Supabase to verify state,
-# or run --repair-korch to insert Korch's missing bet records.
+# run --repair-korch to insert Korch's missing bet records, run
+# --migrate-ledger to dry-run the sb_ledger backfill (read-only), run
+# --migrate-ledger --execute to perform the real, one-time backfill insert
+# (still refuses to write if any player's fold doesn't match live balance —
+# see db.py migrate_ledger()), or run --test-place-bet-phase3 to verify the
+# new place_bet RPC against a synthetic test player (zero effect on any
+# real league member).
 
 on:
   workflow_dispatch:
@@ -14,6 +20,9 @@ on:
         options:
           - '--dump-sb'
           - '--repair-korch'
+          - '--migrate-ledger'
+          - '--migrate-ledger --execute'
+          - '--test-place-bet-phase3'
 
 jobs:
   db-tool:

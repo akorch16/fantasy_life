@@ -59,10 +59,10 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 | `docs/scores.json` | scoring.py via Actions | always take **origin/main** |
 | `docs/projections.json` | projections.py via Actions | always take **origin/main** |
 | `data/bonuses.json` | hand-edited | **manually merge** — combine entries from both sides |
-| `data/sb_adjustments.json` | hand-edited | take feature branch (HEAD); never delete entries |
 | `data/*.json` (others) | hand-edited overrides | take feature branch (HEAD) |
 | `*.py`, `docs/*.html`, `.github/**` | hand-edited | take feature branch (HEAD) |
 | `docs/sb-schema.sql`, `docs/draft-schema.sql` | hand-edited | reference copies of Supabase schemas |
+| `docs/sb-ledger-schema.sql`, `docs/sb-ledger-phase3.sql` | hand-edited | reference copies of Supabase schema/RPC — sb_ledger is the sportsbook balance source of truth |
 
 ## Secrets (GitHub Actions)
 
@@ -88,12 +88,17 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   winners, pins the prop in projections.json (`settled`+`outcome`), and the frontend derives
   closed/PUSH state from that JSON. No HTML/`_PROP_DEFS_SETTLED` edits — that list is gone.
   Wagering auto-locks client-side at `closes_at`; Kalshi-resolvable props settle themselves.
-- **Sportsbook balance authority:** `db.py` `recalculate_sb_balance()` is the sole writer of
-  `sb_players.balance`. Formula: `1000 + adjustment - wagered + won_returns`. Per-player baseline
-  adjustments live in `data/sb_adjustments.json` (currently Jens=1438). The browser
-  (`sbSyncState`) only inserts new `sb_bets` rows — it never writes balance or `settled_outcome`.
-  `sbResetPlayer` no longer deletes bets. Use `dump-sb.yml` (workflow_dispatch) to inspect live
-  Supabase state.
+- **Sportsbook balance authority:** `sb_ledger` (Supabase, append-only — see `docs/sb-ledger-schema.sql`)
+  is the sole source of truth for balance history: every bet placement, settlement, and manual
+  adjustment is a row (`event_type`, `delta`), RLS-locked so only `service_role` can write, with
+  triggers rejecting any `UPDATE`/`DELETE`. `db.py` `recalculate_sb_balance()` is the sole writer of
+  `sb_players.balance` (a cached projection), formula `1000 + sum(sb_ledger.delta for that player)`.
+  `place_bet` (the Supabase RPC, `docs/sb-ledger-phase3.sql`) checks available balance the same way.
+  `data/sb_adjustments.json` is retired — its one entry (Jens) was backfilled into `sb_ledger` as a
+  `balance_adjusted` event; do not resurrect that file. The browser (`sbSyncState`) only inserts new
+  `sb_bets` rows — it never writes balance or `settled_outcome`. `sbResetPlayer` no longer deletes
+  bets. Use `dump-sb.yml` (workflow_dispatch) to inspect live Supabase state, or its `--migrate-ledger`
+  command to re-verify the ledger fold against live balances.
 - projections.py odds sources, in priority order: Kalshi live markets → Monte Carlo
   pairwise sim → standings-based normal approximation (`_mlb_h2h`/`_mls_h2h`/`_pts_h2h`) → static `FALLBACK`.
 - Headlines must only state facts present in Tavily snippets — the prompt forbids
