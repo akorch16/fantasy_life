@@ -1323,44 +1323,22 @@ function showSettleToasts(results) {
 
 // ─── SUPABASE HELPERS ──────────────────────────────────────────
 
-// Push current player's bets to Supabase (non-blocking).
-// Balance is intentionally NOT written here — scoring.py owns sb_players.balance.
-// settled_outcome is intentionally omitted — scoring.py owns that field too.
-function sbSyncState(state) {
-  if (!sbClient) return;
-  const player = getPlayer();
-  if (!player) return;
-  const betsPayload = state.bets.map(b => ({
-    player,
-    bet_id:           b.id,
-    side:             b.side,
-    wager:            b.wager,
-    potential_return: b.potentialReturn,
-    sport:            b.sport || '',
-    placed_at:        b.timestamp,
-  }));
-  if (betsPayload.length) {
-    sbClient.from('sb_bets')
-      .upsert(betsPayload, { onConflict: 'player,bet_id,placed_at' })
-      .catch(err => console.warn('[sbSyncState] Supabase error:', err));
-  }
-}
+// Historically pushed the local bet list directly into sb_bets with the
+// anon key. Removed: it bypassed place_bet's balance check and row lock
+// entirely (anyone could insert an arbitrary wager/return for any player
+// straight from the browser console), and place_bet already performs the
+// real, validated insert server-side for every bet actually placed through
+// this app. sb_players/sb_bets now also have RLS with no anon/authenticated
+// write policies (docs/sb-anon-write-lockdown.sql), so this call would fail
+// silently anyway — removed rather than left as dead, misleading code.
+function sbSyncState(state) {}
 
-// Called on identity switch. Server records are preserved — only localStorage is cleared.
-// scoring.py owns sb_players.balance; sbHydrate will restore the correct balance on load.
-function sbResetPlayer(player) {
-  if (!sbClient) return;
-  // Only create the sb_players row if it doesn't already exist (first-time pick)
-  sbClient.from('sb_players')
-    .select('name').eq('name', player).maybeSingle()
-    .then(({ data }) => {
-      if (!data) {
-        sbClient.from('sb_players')
-          .upsert({ name: player, balance: STARTING_BB, updated_at: new Date().toISOString() })
-          .catch(() => {});
-      }
-    }).catch(() => {});
-}
+// Historically created a new sb_players row via a direct anon-key upsert on
+// identity switch. Removed: all 13 real league members are pre-seeded in
+// sb_players (docs/sb-schema.sql), and place_bet auto-creates a player row
+// on their first bet regardless (SECURITY DEFINER, unaffected by the RLS
+// lockdown above) — this call never did anything for real use.
+function sbResetPlayer(player) {}
 
 // Fetch all players + open bets for the leaderboard, then re-render
 async function sbRefreshLeaderboard() {
