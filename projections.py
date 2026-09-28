@@ -282,9 +282,19 @@ def _market_haystack(m):
 
 
 def _pick_market(markets, pick_name):
-    """Best ACTIVE market for a pick. Exact yes_sub_title match first — Kalshi
-    uses city-style names ('New York Y', 'Los Angeles D'), so fuzzy word overlap
-    alone would hit both New York teams. Fuzzy haystack match is the fallback."""
+    """Best market for a pick. Exact yes_sub_title match first, searched across
+    ALL markets regardless of resolution status — Kalshi uses city-style names
+    ('New York Y', 'Los Angeles D'), so fuzzy word overlap alone would hit both
+    New York teams. Fuzzy haystack match (ACTIVE markets only) is the fallback.
+
+    The exact-match tier deliberately does NOT restrict to active markets: a
+    team that's been eliminated has its market resolved (result='no'), and
+    that's real, useful information (see _extract_probs) -- excluding it here
+    used to mean an eliminated team's exact match was silently skipped, falling
+    through to the fuzzy tier, which then matched a *different* team sharing
+    the same city purely on the word 'York'/'Angeles'/'Chicago' overlap
+    (confirmed live: New York Mets, resolved/eliminated, fell through and
+    fuzzy-matched the still-active New York Yankees market instead)."""
     words = pick_name.split()
     cands = {pick_name.lower().strip()}
     if len(words) >= 2:
@@ -293,12 +303,12 @@ def _pick_market(markets, pick_name):
         cands.add(city + " " + words[-1][0].lower())   # 'new york y'
         if city == "la":
             cands.add("los angeles")                   # Kalshi lists LA Galaxy as 'Los Angeles'
+    for m in markets:
+        if str(m.get("yes_sub_title") or "").lower().strip() in cands:
+            return m
     # NOTE: active markets have result == '' (empty string), NOT null —
     # a `result is not None` check would skip every live market.
     active = [m for m in markets if not m.get("result")]
-    for m in active:
-        if str(m.get("yes_sub_title") or "").lower().strip() in cands:
-            return m
     for m in active:
         if _name_matches(_market_haystack(m), pick_name):
             return m
@@ -311,6 +321,13 @@ def _extract_probs(markets, picks_dict):
     return {player: yes_probability (0–1)}.
     Prices: midpoint of yes_bid_dollars/yes_ask_dollars, falling back to
     last_price_dollars when the book is empty.
+
+    A resolved market (result='yes'/'no') is priced from that result directly,
+    NOT from bid/ask — a dead market's orderbook is stale noise, not a signal.
+    Confirmed live: an eliminated team's finalized market still reported
+    yes_ask_dollars=1.0000/yes_bid_dollars=0.0000 (leftover pre-resolution
+    quotes), which the old bid/ask-midpoint logic would have averaged into a
+    nonsensical 50% instead of the correct 0%.
     """
     probs = {}
     for player, pick in picks_dict.items():
@@ -318,6 +335,12 @@ def _extract_probs(markets, picks_dict):
         if m is None:
             continue
         try:
+            result = m.get("result")
+            if result == "yes":
+                probs[player] = 1.0
+                continue
+            if result == "no":
+                continue  # resolved loser: 0% — omit, same as "not found"
             yes_ask = m.get("yes_ask_dollars")
             yes_bid = m.get("yes_bid_dollars")
             if yes_ask is not None and yes_bid is not None and float(yes_ask) > 0:
