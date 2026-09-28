@@ -1619,6 +1619,12 @@ def probe():
     mlb = _fetch_markets_for_series("KXMLB")
     if mlb:
         print("  " + json.dumps(mlb[0], default=str))
+    print("\n  All KXMLB tickers (ground truth for disambiguating same-city picks,")
+    print("  e.g. New York Mets vs New York Yankees, whose yes_sub_title is just")
+    print("  the bare city name and can't tell them apart):")
+    for m in sorted(mlb, key=lambda m: m.get("ticker", "")):
+        print(f"    ticker={m.get('ticker'):20} yes_sub={str(m.get('yes_sub_title')):20} "
+              f"title={str(m.get('title'))[:55]!r}")
 
     # ── 3. Current KNOWN_SERIES fetch attempts with pick matching ──────────────
     print("\n── KNOWN_SERIES fetch + match check ───────────────────────────────")
