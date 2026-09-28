@@ -779,6 +779,48 @@ def verify_anon_lockdown() -> bool:
     return reads_ok and writes_blocked
 
 
+def repair_nhl_freeze() -> bool:
+    """One-time repair: the 2025-26 NHL season concluded in June, but nothing
+    ever froze the category (unlike NFL/NCAAF, which are frozen on purpose
+    for exactly this reason) -- so once the 2026-27 season started, the daily
+    live scrape overwrote every player's final standing with the fresh,
+    ungamed new season (every team 0-0-0, every player tied at rank 7).
+    Bonus points were untouched (they come from data/bonuses.json, a
+    separate source), only the regular-season baseline ranking was wiped.
+
+    Restores the last known-good standings (from the 2026-09-27 commit,
+    the day before the wipe) and freezes the category so scrape_nhl()'s
+    existing is_frozen('NHL') check makes it skip NHL going forward --
+    no code change needed, the freeze mechanism already existed and just
+    hadn't been applied to this category."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        print('  ✗ repair_nhl_freeze: SUPABASE_URL/SUPABASE_KEY not set')
+        return False
+
+    # (team, points_pct) as of the 2026-09-27 13:25 UTC commit, the last
+    # snapshot before the 2026-27 season wipe.
+    final_2025_26_standings = [
+        ('Colorado Avalanche',   0.7378),
+        ('New Jersey Devils',    0.5305),
+        ('Carolina Hurricanes',  0.689),
+        ('Tampa Bay Lightning',  0.6463),
+        ('New York Rangers',     0.4695),
+        ('Edmonton Oilers',      0.5671),
+        ('Florida Panthers',     0.5122),
+        ('Dallas Stars',         0.6829),
+        ('Detroit Red Wings',    0.561),
+        ('Vegas Golden Knights', 0.5793),
+        ('Washington Capitals',  0.5793),
+        ('Toronto Maple Leafs',  0.4756),
+        ('Boston Bruins',        0.6098),
+    ]
+    payload = {'standings': [{'team': t, 'points_pct': p} for t, p in final_2025_26_standings]}
+    ok = save_standing('NHL', payload, frozen=True)
+    print('  ✓ NHL restored to final 2025-26 standings and frozen.' if ok
+          else '  ✗ NHL repair failed — see error above.')
+    return ok
+
+
 if __name__ == '__main__':
     import sys
 
@@ -790,6 +832,9 @@ if __name__ == '__main__':
 
     elif '--verify-anon-lockdown' in sys.argv:
         verify_anon_lockdown()
+
+    elif '--repair-nhl-freeze' in sys.argv:
+        repair_nhl_freeze()
 
     elif '--dump-sb' in sys.argv:
         print('=== sb_players ===')
