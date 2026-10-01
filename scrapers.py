@@ -966,6 +966,8 @@ def probe():
     _probe_espn_nascar()
     _probe_wiki_points_table('NASCAR', 'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series', ('driver',))
     _probe_wiki_points_table('NASCAR post-Daytona (pre-playoff-reset)', 'https://en.wikipedia.org/wiki/2026_Coke_Zero_Sugar_400', ('driver',))
+    for _ti in (5, 6, 7, 8):
+        _probe_dump_full_table('https://en.wikipedia.org/wiki/2026_Coke_Zero_Sugar_400', table_index=_ti)
     _probe_wiki_points_table('MLS', 'https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season', ('team',))
     _probe_wiki_raw_tables('Tennis', 'https://en.wikipedia.org/wiki/Current_tennis_rankings')
     print('\n  ── Tennis: direct _wiki_tennis_rankings() call ──')
@@ -1084,6 +1086,25 @@ def _probe_wiki_points_table(label, url, name_hints, points_hints=('pts', 'point
         print(f'    Table #{ti}: cols={len(headers)} rows_parsed={len(parsed)} top5={top}{flag}')
     print(f'    {qualifying} table(s) matched name_hints={name_hints} points_hints={points_hints} '
           f'(_wiki_points_table max_cols=15 filter applies at scrape time)')
+
+
+def _probe_dump_full_table(url, table_index):
+    """Dump every row of one specific wikitable (by its index among table.wikitable
+    elements) in full, unlike _probe_wiki_points_table which truncates to top5."""
+    print(f'\n  ── full dump of table #{table_index} on {url} ──')
+    try:
+        soup = fetch_html(url, timeout=20)
+    except Exception as e:
+        print(f'    ✗ fetch_html failed: {e}')
+        return
+    tables = soup.select('table.wikitable')
+    if table_index >= len(tables):
+        print(f'    ✗ only {len(tables)} wikitables found, no index {table_index}')
+        return
+    table = tables[table_index]
+    for row in table.select('tr'):
+        cells = row.find_all(['td', 'th'])
+        print('    ' + ' | '.join(c.get_text(' ', strip=True) for c in cells))
 
 
 def _probe_golf():
