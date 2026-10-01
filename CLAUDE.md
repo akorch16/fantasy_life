@@ -41,11 +41,11 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 
 | Category | Primary source | Notes |
 |---|---|---|
-| NFL, NCAAF | static dicts in scoring.py | 2025 seasons, frozen |
-| NBA, MLB, NHL, NCAAB | Supabase (live scrape) | sports-reference daily |
+| NFL, NCAAF, NASCAR | static dicts in scoring.py (NFL/NCAAF); `data/nascar.json` → Supabase → static (NASCAR) | 2025 seasons frozen (NFL/NCAAF); NASCAR frozen at the real 2026 regular-season end (Aug 29, Coke Zero Sugar 400) since NASCAR resets all Chase qualifiers' points to a seed-based scale once the playoffs start — see `data/nascar.json`'s `_note` and `db.py repair_nascar_freeze()` |
+| NBA, MLB, NHL, NCAAB | Supabase (live scrape) | sports-reference daily; NHL was frozen/restored once already (2026-27 season rollover wiped it, see `db.py repair_nhl_freeze()`) |
 | Tennis | Supabase | women's rank gets +0.5 (Amend. 7.4) |
 | Golf | PGA Tour GraphQL API (statId 186) → `GOLF_2026_OWGR_STATIC` fallback | owgr.com 404s, ESPN 500s; PGA Tour AppSync key in scrapers.py `PGATOUR_API_KEY` |
-| MLS, NASCAR | `data/mls.json` / `data/nascar.json` → Supabase → static | local file is a manual override; MLS data with >50 pts is rejected as stale |
+| MLS | `data/mls.json` → Supabase → static | local file is a manual override; freshness-timestamp comparison in `select_standings()` is the only staleness guard (the old >50-pts rejection heuristic was removed — it started rejecting legitimate fresh data as a season progresses) |
 | Actor, Actress | `data/actor.json` / `data/actress.json` (roster) + Supabase via OMDb scraper (live box office/RT) | movie-to-player assignments + release dates are hand-curated in the file; `scrape_actor`/`scrape_actress` refresh each movie's domestic box office + RT critic score from OMDb daily and merge in per-field (live wins when present). Requires `OMDB_API_KEY`; scraper no-ops harmlessly if unset. composite = (RT/100) × box office $M |
 | Musician | Supabase (Billboard) | |
 | Country | `data/country.json` only | hand-edited IMF data; never Supabase |
