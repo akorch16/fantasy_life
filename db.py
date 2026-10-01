@@ -821,6 +821,46 @@ def repair_nhl_freeze() -> bool:
     return ok
 
 
+def repair_nascar_freeze() -> bool:
+    """One-time repair: real NASCAR resets all 16 Chase-qualifying drivers'
+    points to a seed-based scale at the start of the playoffs, so the live
+    daily scrape (which just reads ESPN's current championship-points stat)
+    started reporting those reset/ongoing-playoff totals once the postseason
+    began -- a completely different scale from the 13-driver fantasy league's
+    actual real-world regular-season standing, and incomparable against the
+    2 drafted drivers who missed the Chase (who keep accumulating on the old
+    unreset scale instead). Freezes NASCAR, matching the NFL/NCAAF/NHL
+    precedent, and restores the real final-regular-season standing (sourced
+    from Wikipedia's 2026 Coke Zero Sugar 400 article -- the Aug 29 2026
+    regular-season finale, after which the Chase field was set) so scoring
+    uses an apples-to-apples snapshot going forward. See data/nascar.json's
+    _note for exact sourcing and the non-qualifier placement judgment call."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        print('  ✗ repair_nascar_freeze: SUPABASE_URL/SUPABASE_KEY not set')
+        return False
+
+    final_regular_season_2026 = [
+        ('Denny Hamlin',        2100),
+        ('Ryan Blaney',         2075),
+        ('Tyler Reddick',       2065),
+        ('Chase Briscoe',       2055),
+        ('Christopher Bell',    2050),
+        ('Kyle Larson',         2045),
+        ('Chase Elliott',       2040),
+        ('Joey Logano',         2035),
+        ('Daniel Suarez',       2025),
+        ('William Byron',       2015),
+        ('Bubba Wallace',       2010),
+        ('Shane van Gisbergen', 1990),
+        ('Ross Chastain',       1950),
+    ]
+    payload = {'standings': [{'driver': d, 'points': p} for d, p in final_regular_season_2026]}
+    ok = save_standing('NASCAR', payload, frozen=True)
+    print('  ✓ NASCAR restored to final 2026 regular-season standings and frozen.' if ok
+          else '  ✗ NASCAR repair failed — see error above.')
+    return ok
+
+
 if __name__ == '__main__':
     import sys
 
@@ -835,6 +875,9 @@ if __name__ == '__main__':
 
     elif '--repair-nhl-freeze' in sys.argv:
         repair_nhl_freeze()
+
+    elif '--repair-nascar-freeze' in sys.argv:
+        repair_nascar_freeze()
 
     elif '--dump-sb' in sys.argv:
         print('=== sb_players ===')

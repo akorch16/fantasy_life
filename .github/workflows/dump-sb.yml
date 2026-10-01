@@ -11,7 +11,10 @@ name: Supabase DB Diagnostic
 # anon key can still read but not write sb_players/sb_bets, or run
 # --repair-nhl-freeze to restore NHL's final 2025-26 standings (wiped by
 # the 2026-27 season starting) and freeze the category so it can't happen
-# again — same fix NFL/NCAAF already have.
+# again — same fix NFL/NCAAF already have, or --repair-nascar-freeze to
+# restore NASCAR's real final 2026 regular-season standing (the live scrape
+# started reporting post-Chase-reset points once the playoffs began) and
+# freeze the category the same way.
 
 on:
   workflow_dispatch:
@@ -29,6 +32,7 @@ on:
           - '--test-place-bet-phase3'
           - '--verify-anon-lockdown'
           - '--repair-nhl-freeze'
+          - '--repair-nascar-freeze'
 
 jobs:
   db-tool:

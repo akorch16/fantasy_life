@@ -1,18 +1,19 @@
 {
+  "_note": "Frozen at the real 2026 regular-season end (Coke Zero Sugar 400, Daytona, Aug 29 2026) per the FL constitution's playoff-freeze rule. NASCAR resets all 16 Chase qualifiers' points to a seed-based scale (2100 down to 2000 in 16 playoff-points-adjusted steps) at the start of the postseason, so live in-season scraping after this date reflects reset/ongoing playoff totals, not real regular-season standing -- comparing that against the 2 drivers who missed the Chase (who keep accumulating on the old unreset scale) is apples-to-oranges. The 11 Chase qualifiers below use NASCAR's official post-Daytona seed points (Wikipedia, 2026 Coke Zero Sugar 400 article, 'Official driver's standings' table). Shane van Gisbergen and Ross Chastain did not qualify; NASCAR does not publish reset points for non-qualifiers, so their values here are placeholders below 2000 that preserve their reported real-world order (van Gisbergen missed the final Chase berth by 17 points to Ryan Preece; Chastain had been mathematically eliminated before the finale even ran) -- not official totals.",
   "standings": [
-    {"driver": "Denny Hamlin",        "points": 719},
-    {"driver": "Tyler Reddick",       "points": 718},
-    {"driver": "Ryan Blaney",         "points": 615},
-    {"driver": "Kyle Larson",         "points": 571},
-    {"driver": "Chase Elliott",       "points": 554},
-    {"driver": "Daniel Suarez",       "points": 478},
-    {"driver": "Bubba Wallace",       "points": 444},
-    {"driver": "Christopher Bell",    "points": 440},
-    {"driver": "Chase Briscoe",       "points": 431},
-    {"driver": "William Byron",       "points": 421},
-    {"driver": "Shane van Gisbergen", "points": 387},
-    {"driver": "Joey Logano",         "points": 357},
-    {"driver": "Ross Chastain",       "points": 327}
+    {"driver": "Denny Hamlin",        "points": 2100},
+    {"driver": "Ryan Blaney",         "points": 2075},
+    {"driver": "Tyler Reddick",       "points": 2065},
+    {"driver": "Chase Briscoe",       "points": 2055},
+    {"driver": "Christopher Bell",    "points": 2050},
+    {"driver": "Kyle Larson",         "points": 2045},
+    {"driver": "Chase Elliott",       "points": 2040},
+    {"driver": "Joey Logano",         "points": 2035},
+    {"driver": "Daniel Suarez",       "points": 2025},
+    {"driver": "William Byron",       "points": 2015},
+    {"driver": "Bubba Wallace",       "points": 2010},
+    {"driver": "Shane van Gisbergen", "points": 1990},
+    {"driver": "Ross Chastain",       "points": 1950}
   ],
-  "_updated": "2026-06-29"
+  "_updated": "2026-08-29"
 }
