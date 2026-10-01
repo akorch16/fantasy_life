@@ -965,6 +965,7 @@ def probe():
     _probe_golf()
     _probe_espn_nascar()
     _probe_wiki_points_table('NASCAR', 'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series', ('driver',))
+    _probe_wiki_points_table('NASCAR post-Daytona (pre-playoff-reset)', 'https://en.wikipedia.org/wiki/2026_Coke_Zero_Sugar_400', ('driver',))
     _probe_wiki_points_table('MLS', 'https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season', ('team',))
     _probe_wiki_raw_tables('Tennis', 'https://en.wikipedia.org/wiki/Current_tennis_rankings')
     print('\n  ── Tennis: direct _wiki_tennis_rankings() call ──')
