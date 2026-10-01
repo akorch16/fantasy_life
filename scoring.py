@@ -101,7 +101,11 @@ def select_standings(category, data_key, local_name, static_data, static_date, r
          and the in-code static dict (static_date). This keeps a fresh manual
          override above an older static dict, while preventing a months-stale
          override (e.g. golf.json) from beating fresher data.
-    `reject(data)` optionally drops a candidate (used for the MLS >50-pts rule).
+    `reject(data)` optionally drops a candidate (no current caller uses this --
+    the MLS >50-pts rule that used to live here was removed, see
+    compute_baseline_mls, since a point-value heuristic needs recalibrating
+    as a season progresses and the freshness-timestamp comparison above is
+    the actually robust check).
     source_label ∈ {live, wikipedia, local_json, static_fallback}.
     """
     now = datetime.now(timezone.utc)
@@ -474,10 +478,19 @@ MLS_2026_STANDINGS_STATIC = {"standings": [
 
 def compute_baseline_mls():
     # Live (Wikipedia/ESPN via Supabase) → manual data/mls.json → static, by
-    # freshness. Reject any source whose max points >50 (end-of-season stale data).
-    _mls_reject = lambda d: max((e.get('points', 0) for e in d.get('standings', [])), default=0) > 50
+    # freshness. The old `reject` callback dropped any source whose max points
+    # exceeded 50, meant to catch a scrape accidentally matching a PRIOR
+    # season's final standings table (much higher totals early in a new
+    # season). By October a legitimate CURRENT-season leader routinely clears
+    # 50-60 points too (confirmed live: Nashville SC at 60), so the check
+    # could no longer tell "wrong season" apart from "just far into this one"
+    # -- it was silently rejecting correct, fresh live data every day and
+    # falling back to data/mls.json's June 9 snapshot instead. Removed rather
+    # than re-tuned: the real protection against stale data is the freshness
+    # timestamp comparison select_standings() already does, which doesn't
+    # need recalibrating as the season progresses.
     data, _category_source['mls'] = select_standings(
-        'MLS', 'standings', 'mls', MLS_2026_STANDINGS_STATIC, '2026-05-27', reject=_mls_reject)
+        'MLS', 'standings', 'mls', MLS_2026_STANDINGS_STATIC, '2026-05-27')
     return compute_baseline_sports('MLS', 'mls', 'points', reverse=True, static_data=data)
 
 
