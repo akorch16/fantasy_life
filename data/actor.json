@@ -82,7 +82,7 @@
       "composite_score": 0,
       "movies": [
         {"title": "The Last House"},
-        {"title": "Forgotten Island"},
+        {"title": "Forgotten Island", "release_date": "2026-09-25", "box_office": 14989130},
         {"title": "The Last Day"}
       ]
     },
