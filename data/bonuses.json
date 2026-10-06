@@ -69,11 +69,16 @@
   },
   "NFL": {
     "Feder":    9.0,
+    "Fryar":    0.0,
+    "Jamzee":   0.0,
     "Jens":     2.5,
+    "Korch":    0.0,
     "Mitchell": 4.0,
     "Molmen":   4.0,
+    "Shep":     0.0,
     "Tim":     13.0,
-    "Todd":     2.5
+    "Todd":     2.5,
+    "Wu":       0.0
   },
   "NHL": {
     "Shep":    2.5,
