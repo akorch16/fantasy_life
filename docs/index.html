@@ -909,6 +909,12 @@ function buildFilmographyBreakdown(pickName, catType, movies) {
 // ============================================================
 let currentFilter = 'all';
 
+// Todd's premium paywall is currently OFF (his real score/breakdown render
+// normally everywhere). Flip this back to true to re-lock his row behind
+// the "premium required" teaser + Stripe checkout (STRIPE_LINKS below) --
+// all of that markup/CSS/logic is still intact, just gated on this flag.
+const TODD_PAYWALL_ENABLED = false;
+
 function updateHeader() {
   const header = document.getElementById('table-header');
   if (currentFilter === 'all') {
@@ -951,8 +957,8 @@ function renderTable() {
   let sorted = [...data];
   if (currentFilter !== 'all') {
     sorted.sort((a, b) => {
-      const aIsTodd = a.name === 'Todd';
-      const bIsTodd = b.name === 'Todd';
+      const aIsTodd = TODD_PAYWALL_ENABLED && a.name === 'Todd';
+      const bIsTodd = TODD_PAYWALL_ENABLED && b.name === 'Todd';
       if (aIsTodd) return 1;
       if (bIsTodd) return -1;
       const apts = ((a.categories || {})[currentFilter] || {});
@@ -977,7 +983,7 @@ function renderTable() {
   }
 
   sorted.forEach((player, idx) => {
-    const isTodd = player.name === 'Todd';
+    const isTodd = TODD_PAYWALL_ENABLED && player.name === 'Todd';
     const isBuckley = player.name === 'Buckley';
     const rank = idx + 1;
 
