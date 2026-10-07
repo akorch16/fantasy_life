@@ -17,7 +17,8 @@ name: Supabase DB Diagnostic
 # freeze the category the same way, or --repair-ncaab-freeze to restore the
 # real final 2025-26 AP poll (the live scrape was ranking teams by a
 # meaningless 0-0 preseason win percentage for the not-yet-started
-# 2026-27 season) and freeze NCAAB the same way.
+# 2026-27 season) and freeze NCAAB the same way, or --freeze-nba to mark the
+# finished NBA season frozen (its scraper is a no-op stub).
 
 on:
   workflow_dispatch:
@@ -37,6 +38,7 @@ on:
           - '--repair-nhl-freeze'
           - '--repair-nascar-freeze'
           - '--repair-ncaab-freeze'
+          - '--freeze-nba'
 
 jobs:
   db-tool:

@@ -58,8 +58,8 @@ Determine which source should be authoritative for this category:
 | NBA, NHL, MLB, MLS | Live Supabase standings | Scraped daily |
 | Tennis | Live Supabase standings | Scraped daily |
 | NASCAR | Live Supabase standings | Scraped daily |
-| Actor, Actress | Live Supabase via TMDB scraper | Scraped daily |
-| Musician | Live Supabase via Billboard scraper | Scraped daily |
+| Actor, Actress | Roster in `data/actor.json`/`actress.json`; box office from Box Office Mojo, RT from OMDb (Supabase) | Scraped daily |
+| Musician | Live Supabase; tallied from Billboard's weekly Hot 100 charts (2026 issues) | Scraped daily |
 | Stock | Live Supabase via Yahoo Finance scraper | Scraped daily |
 
 ---

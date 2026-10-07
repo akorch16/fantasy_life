@@ -26,6 +26,9 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 - `headline.yml` (07:00 UTC): Tavily news search + Claude writes `headline` into scores.json.
   Manual dispatch always passes `--force` (bypasses the 24h dedup guard); scheduled runs don't.
   scoring.py re-preserves `headline`/`headline_generated_at` when it rewrites scores.json.
+- `audit.yml` (1st & 15th, 15:17 UTC): `audit.py` — scripted health checks (unmatched picks, stale/unfrozen
+  categories near a season rollover, bonus bookkeeping, FILM_PIPELINE double-counts, projection drift,
+  stale calendar) → opens an `audit` GitHub issue. Run `/fl-audit` for the judgment half.
 - `app.py`/`templates/` are the legacy Flask app — **not** the production frontend. Prod is `docs/`.
 
 ## League constants
@@ -103,5 +106,23 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   pairwise sim → standings-based normal approximation (`_mlb_h2h`/`_mls_h2h`/`_pts_h2h`) → static `FALLBACK`.
 - Headlines must only state facts present in Tavily snippets — the prompt forbids
   training-knowledge casting claims and stale events; keep those rules intact when editing headline.py.
-- Skills: `/fl-merge` (ship to prod), `/fl-repair` (broken Actions run), `/fl-bonus`
+## Rulings (decided by the league — don't re-ask)
+
+- **Actor/Actress:** score = RT critic % × domestic box office ($M), summed over a pick's 2026 releases.
+  Cameos count; a photo/headshot-only appearance does not; streaming-only titles are listed
+  (`"streaming": true`) but score nothing; 2025 releases don't count (Oscar bonuses are separate).
+- **Musician:** 2 × weeks at #1 + top-10 song-weeks (each song counts, so a 9-song week = 9), from 2026
+  weekly Hot 100 issues only. Grammy bonus: Record/Album/Song of the Year win +7, other win +3,
+  nomination +1.
+- **Bonus cap:** 13 per category (Amend. 7.14); Country Olympics + World Cup combined also capped at 13.
+- **Country/Olympics:** ranked by **total medal count**, not golds. World Cup by finish.
+- **Playoff bonuses (NFL/MLB):** keyed to the round a team was *eliminated* in — lost first round 2.5,
+  next 4.0, next 6.5, lost the final 9.0, champion 13.0; teams still alive are credited at their
+  guaranteed floor. NCAAB: nothing before the Sweet 16 (S16 2.5, E8 4.0, F4 6.5, runner-up 9.0, champ 13.0).
+- **NASCAR:** baseline frozen at the Aug 29 regular-season finish; bonus = final Chase standings 1st–5th
+  (13 / 9 / 6.5 / 4 / 2.5). The 2026 Chase has no eliminations (title = most points over 10 races).
+- **Odds in recaps:** round American odds to the nearest 100 (hundreds), nearest 1,000 (thousands to tens
+  of thousands), nearest 100,000 (hundred-thousands); 0% shows as +∞.
+
+- Skills: `/fl-audit` (biweekly audit), `/fl-merge` (ship to prod), `/fl-repair` (broken Actions run), `/fl-bonus`
   (award bonus points), `/fl-category-fix` (bad category data), `/fl-headline` (manual headline).

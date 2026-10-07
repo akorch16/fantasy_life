@@ -918,6 +918,11 @@ if __name__ == '__main__':
     elif '--repair-ncaab-freeze' in sys.argv:
         repair_ncaab_freeze()
 
+    elif '--freeze-nba' in sys.argv:
+        # NBA's scrape_nba() is a no-op stub that returns False (reported as DEGRADED every day);
+        # freezing makes it skip cleanly and protects the final 2025-26 table from the Oct 20 rollover.
+        print('  ✓ NBA frozen.' if freeze_category('NBA') else '  ✗ NBA freeze failed.')
+
     elif '--dump-sb' in sys.argv:
         print('=== sb_players ===')
         r = requests.get(

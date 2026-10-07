@@ -66,13 +66,6 @@ FILM_PIPELINE = [
         "actress": [],
     },
     {
-        "title": "Verity",
-        "box_office": (40, 75, 110),
-        "rt": (55, 68, 80),
-        "actor":   [],
-        "actress": ["Korch"],
-    },
-    {
         "title": "Avengers: Doomsday",
         "box_office": (350, 500, 700),
         "rt": (68, 80, 90),
@@ -101,7 +94,7 @@ FILM_PIPELINE = [
         "actress": ["Tim"],
     },
     {
-        "title": "Jumanji",
+        "title": "Jumanji: Open World",
         "box_office": (120, 175, 240),
         "rt": (60, 72, 80),
         "actor":   ["Theo"],

@@ -1,0 +1,43 @@
+name: Biweekly Audit
+
+# Runs audit.py (the deterministic half of /fl-audit) twice a month and opens a
+# GitHub issue with the findings. cron has no "every 14 days", so this fires on
+# the 1st and 15th. The judgment half (bonuses vs what actually happened, roster
+# completeness, cross-source checks) is the /fl-audit runbook — start it from the
+# audit issue. Manual dispatch works any time.
+
+on:
+  schedule:
+    - cron: '17 15 1,15 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run deterministic audit
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python audit.py --out audit-report.md || true
+
+      - name: Open audit issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create audit --color FBCA04 --description "Biweekly audit" 2>/dev/null || true
+          SUMMARY=$(sed -n 3p audit-report.md | tr -d '*')
+          gh issue create --title "Audit $(date +%F) — ${SUMMARY}" --label audit --body-file audit-report.md
