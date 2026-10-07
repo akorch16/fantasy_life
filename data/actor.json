@@ -35,7 +35,8 @@
       "name": "Chris Hemsworth",
       "composite_score": 32.2,
       "movies": [
-        { "title": "Crime 101", "release_date": "2026-02-13", "box_office": 36588336, "rt_score": 88, "composite": 32.2 }
+        { "title": "Crime 101", "release_date": "2026-02-13", "box_office": 36588336, "rt_score": 88, "composite": 32.2 },
+        { "title": "Avengers: Doomsday", "release_date": "2026-12-18" }
       ]
     },
     {
