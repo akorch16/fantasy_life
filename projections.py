@@ -1064,12 +1064,14 @@ def compute_expected_additional(current_scores, odds):
     for cat, picks_dict, key in [
         ("mlb",    MLB_PICKS,    "mlb_champ"),
         ("mls",    MLS_PICKS,    "mls_champ"),
-        ("nascar", NASCAR_PICKS, "nascar_champ"),
     ]:
         champ_probs = _normalize(odds[key])
         for player in picks_dict:
             p_champ = champ_probs.get(player, 0)
             result[player][cat] = _expected_bonus_preseason(p_champ)
+    nascar_exp = _expected_nascar_bonus(_normalize(odds["nascar_champ"]))
+    for player in NASCAR_PICKS:
+        result[player]["nascar"] = nascar_exp.get(player, 0.0)
 
     # ── Golf (2 remaining majors, additive) ──────────────────────────────────
     golf_pairs = [
@@ -1189,6 +1191,42 @@ def _sample_playoff_sport(champ_probs):
             remaining.pop(semi)
 
     return results
+
+
+# NASCAR's 2026 Chase has no eliminations: the champion is whoever has the most
+# points after all 10 postseason races (Nov 8, Homestead), and the bonus pays the
+# final standings positions 1-5 (rules.html). Position odds come from Plackett-Luce
+# sampling off the Kalshi champion odds, over the 16-driver Chase field.
+NASCAR_FINISH_PTS = (13.0, 9.0, 6.5, 4.0, 2.5)
+NASCAR_CHASE_FIELD = 16
+
+
+def _sample_nascar_finish(champ_probs):
+    """Sample the top-5 final standings. Returns {player: bonus_pts} for picks only.
+    Probability mass not held by our picks is spread over dummy field drivers, so
+    other drivers can take podium spots (and the pick's points) too."""
+    weights = {k: v for k, v in champ_probs.items() if v > 0}
+    n_other = max(1, NASCAR_CHASE_FIELD - len(weights))
+    other = _other_prob(champ_probs)
+    for i in range(n_other):
+        weights[("_other", i)] = other / n_other if other > 0 else 1e-9
+    results = {}
+    for pts in NASCAR_FINISH_PTS:
+        key = _weighted_sample({k: w / sum(weights.values()) for k, w in weights.items()})
+        if key is None:
+            break
+        if not isinstance(key, tuple):
+            results[key] = pts
+        weights.pop(key)
+    return results
+
+
+def _expected_nascar_bonus(champ_probs, n=4000):
+    totals = {}
+    for _ in range(n):
+        for player, pts in _sample_nascar_finish(champ_probs).items():
+            totals[player] = totals.get(player, 0.0) + pts
+    return {player: t / n for player, t in totals.items()}
 
 
 def _simulate_playoffs_conf(conf_west_probs, conf_east_probs, champ_probs):
@@ -1350,7 +1388,7 @@ def simulate(current_scores, odds, n=N_SIMS):
             totals[player] += pts
         for player, pts in _sample_playoff_sport(mls_norm).items():
             totals[player] += pts
-        for player, pts in _sample_playoff_sport(nascar_norm).items():
+        for player, pts in _sample_nascar_finish(nascar_norm).items():
             totals[player] += pts
 
         # ── Golf: sample each remaining major independently ─────────────────
