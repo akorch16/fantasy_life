@@ -5,6 +5,7 @@ Reads all data from Supabase via db.py instead of local JSON files.
 """
 
 import os
+import unicodedata
 
 from datetime import datetime, timezone, timedelta
 
@@ -921,11 +922,22 @@ def team_matches(pick_name, data_name):
     return False
 
 
+def _strip_accents(s):
+    """Fold diacritics to their plain-ASCII base letter (Åberg -> Aberg,
+    Hovland -> Hovland unchanged) so name matching doesn't depend on a data
+    source's choice of accented vs. unaccented spelling. Confirmed bug:
+    Ludvig Aberg (draft_picks_2026.py's plain-ASCII spelling) never matched
+    live PGA Tour data's "Ludvig Åberg", silently sending him to the
+    unranked/999 fallback every day instead of his real OWGR rank."""
+    return ''.join(c for c in unicodedata.normalize('NFKD', s)
+                   if not unicodedata.combining(c))
+
+
 def name_matches(pick_name, data_name):
     if not pick_name or not data_name:
         return False
-    pick = pick_name.lower().strip()
-    data = data_name.lower().strip()
+    pick = _strip_accents(pick_name.lower().strip())
+    data = _strip_accents(data_name.lower().strip())
     if pick in data or data in pick:
         return True
     pick_last = pick.split()[-1] if pick.split() else pick
