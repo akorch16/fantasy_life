@@ -4,54 +4,126 @@
       "name": "Timothee Chalamet",
       "composite_score": 0,
       "movies": [
-        { "title": "Dune: Part Three", "release_date": "2026-12-18" }
+        {
+          "title": "Dune: Part Three",
+          "release_date": "2026-12-18"
+        }
       ]
     },
     {
       "name": "Pedro Pascal",
       "composite_score": 113.75,
       "movies": [
-        { "title": "Star Wars: The Mandalorian & Grogu", "release_date": "2026-05-22", "box_office": 177730060, "rt_score": 64, "composite": 113.75 },
-        { "title": "Avengers: Doomsday", "release_date": "2026-12-18" }
+        {
+          "title": "Star Wars: The Mandalorian & Grogu",
+          "release_date": "2026-05-22",
+          "box_office": 177730060,
+          "rt_score": 64,
+          "composite": 113.75
+        },
+        {
+          "title": "Avengers: Doomsday",
+          "release_date": "2026-12-18"
+        },
+        {
+          "title": "Behemoth!",
+          "release_date": "2026-12-04"
+        }
       ]
     },
     {
       "name": "Tom Holland",
       "composite_score": 1442.61,
       "movies": [
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 620585090, "rt_score": 94, "composite": 583.35 },
-        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31", "box_office": 954734627, "rt_score": 90, "composite": 859.26 }
+        {
+          "title": "The Odyssey",
+          "release_date": "2026-07-17",
+          "box_office": 620585090,
+          "rt_score": 94,
+          "composite": 583.35
+        },
+        {
+          "title": "Spider-Man: Brand New Day",
+          "release_date": "2026-07-31",
+          "box_office": 954734627,
+          "rt_score": 90,
+          "composite": 859.26
+        }
       ]
     },
     {
       "name": "Dwayne Johnson",
       "composite_score": 41.66,
       "movies": [
-        { "title": "Moana", "release_date": "2026-07-10", "box_office": 126229663, "rt_score": 33, "composite": 41.66 },
-        { "title": "Jumanji: Open World", "release_date": "2026-12-25" }
+        {
+          "title": "Moana",
+          "release_date": "2026-07-10",
+          "box_office": 126229663,
+          "rt_score": 33,
+          "composite": 41.66
+        },
+        {
+          "title": "Jumanji: Open World",
+          "release_date": "2026-12-25"
+        }
       ]
     },
     {
       "name": "Chris Hemsworth",
       "composite_score": 32.2,
       "movies": [
-        { "title": "Crime 101", "release_date": "2026-02-13", "box_office": 36588336, "rt_score": 88, "composite": 32.2 },
-        { "title": "Avengers: Doomsday", "release_date": "2026-12-18" }
+        {
+          "title": "Crime 101",
+          "release_date": "2026-02-13",
+          "box_office": 36588336,
+          "rt_score": 88,
+          "composite": 32.2
+        },
+        {
+          "title": "Avengers: Doomsday",
+          "release_date": "2026-12-18"
+        }
       ]
     },
     {
       "name": "Robert Pattinson",
       "composite_score": 619.88,
       "movies": [
-        { "title": "The Drama", "release_date": "2026-04-03", "box_office": 48062006, "rt_score": 76, "composite": 36.53 },
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 620585090, "rt_score": 94, "composite": 583.35 }
+        {
+          "title": "The Drama",
+          "release_date": "2026-04-03",
+          "box_office": 48062006,
+          "rt_score": 76,
+          "composite": 36.53
+        },
+        {
+          "title": "The Odyssey",
+          "release_date": "2026-07-17",
+          "box_office": 620585090,
+          "rt_score": 94,
+          "composite": 583.35
+        },
+        {
+          "title": "Primetime",
+          "release_date": "2026-09-25"
+        },
+        {
+          "title": "Dune: Part Three",
+          "release_date": "2026-12-18"
+        }
       ]
     },
     {
       "name": "Matt Damon",
       "composite_score": 583.35,
       "movies": [
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 620585090, "rt_score": 94, "composite": 583.35 }
+        {
+          "title": "The Odyssey",
+          "release_date": "2026-07-17",
+          "box_office": 620585090,
+          "rt_score": 94,
+          "composite": 583.35
+        }
       ]
     },
     {
@@ -62,16 +134,37 @@
       "name": "Jeremy Allen White",
       "composite_score": 113.75,
       "movies": [
-        { "title": "Star Wars: The Mandalorian & Grogu", "release_date": "2026-05-22", "box_office": 177730060, "rt_score": 64, "composite": 113.75 },
-        { "title": "The Social Reckoning", "release_date": "2026-10-09" }
+        {
+          "title": "Star Wars: The Mandalorian & Grogu",
+          "release_date": "2026-05-22",
+          "box_office": 177730060,
+          "rt_score": 64,
+          "composite": 113.75
+        },
+        {
+          "title": "The Social Reckoning",
+          "release_date": "2026-10-09"
+        }
       ]
     },
     {
       "name": "Jon Bernthal",
       "composite_score": 1442.61,
       "movies": [
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 620585090, "rt_score": 94, "composite": 583.35 },
-        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31", "box_office": 954734627, "rt_score": 90, "composite": 859.26 }
+        {
+          "title": "The Odyssey",
+          "release_date": "2026-07-17",
+          "box_office": 620585090,
+          "rt_score": 94,
+          "composite": 583.35
+        },
+        {
+          "title": "Spider-Man: Brand New Day",
+          "release_date": "2026-07-31",
+          "box_office": 954734627,
+          "rt_score": 90,
+          "composite": 859.26
+        }
       ]
     },
     {
@@ -82,9 +175,16 @@
       "name": "Wagner Moura",
       "composite_score": 22.91,
       "movies": [
-        { "title": "The Last House" },
-        { "title": "Forgotten Island", "release_date": "2026-09-25", "box_office": 24115870, "rt_score": 95, "composite": 22.91 },
-        { "title": "The Last Day" }
+        {
+          "title": "Forgotten Island",
+          "release_date": "2026-09-25",
+          "box_office": 24115870,
+          "rt_score": 95,
+          "composite": 22.91
+        },
+        {
+          "title": "The Last Day"
+        }
       ]
     },
     {

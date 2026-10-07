@@ -87,6 +87,13 @@ FILM_PIPELINE = [
         "actress": ["Wu", "Fryar", "Buckley"],
     },
     {
+        "title": "Behemoth!",
+        "box_office": (25, 55, 100),   # Dec 4; mid-budget original — wide uncertainty
+        "rt": (50, 66, 80),
+        "actor":   ["Mitchell"],
+        "actress": [],
+    },
+    {
         "title": "Focker-in-Law",
         "box_office": (55, 95, 145),
         "rt": (40, 58, 72),
