@@ -257,6 +257,7 @@
           <th class="rank-num">#</th>
           <th>Player</th>
           <th class="num" title="Win probability">Win%</th>
+          <th class="num" title="American odds implied by win probability">Odds</th>
           <th class="num" title="Top-4 probability">Top4%</th>
           <th class="num" title="Current total points">Now</th>
           <th class="num" title="Expected points still to be earned">+Exp</th>
@@ -265,7 +266,7 @@
         </tr>
       </thead>
       <tbody id="proj-body">
-        <tr><td colspan="8" class="loading-msg">Loading projections…</td></tr>
+        <tr><td colspan="9" class="loading-msg">Loading projections…</td></tr>
       </tbody>
     </table>
   </div>
@@ -292,6 +293,24 @@ function winColor(pct) {
   return 'win-low';
 }
 
+// American odds implied by a win probability (0-100 scale). Rounds to the
+// nearest 100 under 1,000, nearest 1,000 under 100,000, else nearest 100,000
+// -- odds output doesn't need more precision than that, and rounding this
+// way keeps it readable instead of a jagged "+76823".
+function toAmericanOdds(pct) {
+  const f = pct / 100;
+  if (f <= 0) return null; // no wins in any simulated trial -- no odds to quote
+  const raw = f >= 0.5 ? -(f / (1 - f)) * 100 : ((1 - f) / f) * 100;
+  const unit = Math.abs(raw) < 1000 ? 100 : Math.abs(raw) < 100000 ? 1000 : 100000;
+  return Math.round(raw / unit) * unit;
+}
+
+function oddsHtml(pct) {
+  const odds = toAmericanOdds(pct);
+  if (odds === null) return '—';
+  return (odds > 0 ? '+' : '') + odds.toLocaleString('en-US');
+}
+
 fetch('./projections.json')
   .then(r => r.json())
   .then(data => {
@@ -308,6 +327,7 @@ fetch('./projections.json')
           <td class="rank-num num">${i + 1}</td>
           <td><strong>${p.name}</strong>${p.win_pct < 0.05 ? ' 💀' : ''}</td>
           <td class="num ${winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
+          <td class="num" style="color:var(--muted)">${oddsHtml(p.win_pct)}</td>
           <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
           <td class="num">${p.current_total.toFixed(1)}</td>
           <td class="num" style="color:${p.projected_additional >= 0 ? 'var(--blue)' : 'var(--red)'}">${p.projected_additional > 0 ? '+' : ''}${p.projected_additional.toFixed(1)}</td>
@@ -316,7 +336,7 @@ fetch('./projections.json')
         </tr>
       `).join('') + `
         <tr class="proj-footer">
-          <td colspan="8">As of ${genAt} · ${nSims} sims · ${liveOdds ? 'Live Kalshi odds' : 'Static fallback odds'}</td>
+          <td colspan="9">As of ${genAt} · ${nSims} sims · ${liveOdds ? 'Live Kalshi odds' : 'Static fallback odds'}</td>
         </tr>`;
 
     // Category breakdown table
@@ -354,7 +374,7 @@ fetch('./projections.json')
   })
   .catch(() => {
     document.getElementById('proj-body').innerHTML =
-      '<tr><td colspan="8" class="loading-msg">Could not load projections.</td></tr>';
+      '<tr><td colspan="9" class="loading-msg">Could not load projections.</td></tr>';
   });
 </script>
 
