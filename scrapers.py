@@ -823,25 +823,98 @@ def _omdb_lookup(title, api_key, year=None):
                 rt_score = int(m.group(1))
 
     if box_office is None and rt_score is None:
+        print(f'    – OMDb: "{title}" found ({payload.get("Year", "?")}) but has no BoxOffice or Rotten Tomatoes rating yet')
         return None
     return {'box_office': box_office, 'rt_score': rt_score}
 
 
+_BOXOFFICE_YEAR = 2026
+_GROSS_CACHE = {}
+
+# (label, url, title-column header, gross-column header substring). Box Office Mojo's
+# year listing is primary: cumulative domestic ("Total Gross"), updated daily. The
+# Numbers is the fallback (it truncates long titles with "...", so it matches fewer).
+_BOXOFFICE_SOURCES = [
+    ('Box Office Mojo', 'https://www.boxofficemojo.com/year/{year}/', 'release', 'total gross'),
+    ('The Numbers',
+     'https://www.the-numbers.com/box-office-records/domestic/all-movies/cumulative/released-in-{year}',
+     'movie', 'domestic gross'),
+]
+
+
+def _norm_title(title):
+    """Case/punctuation-insensitive key so roster titles match listing titles:
+    'The Bride' == 'The Bride!', '...Mandalorian & Grogu' == '...Mandalorian and Grogu',
+    'Focker-in-Law' == 'Focker In-Law'."""
+    return re.sub(r'[^a-z0-9]', '', (title or '').lower().replace('&', 'and'))
+
+
+def _fetch_domestic_grosses(year):
+    """{normalized title: cumulative domestic (US+Canada) gross in USD} for every film
+    released in `year`, from a live box office listing (one request, whole year).
+
+    OMDb's BoxOffice field is a stale snapshot -- confirmed via probe on 2026-10-07:
+    Spider-Man: Brand New Day showed $655M vs. a true $955M, The Odyssey $589M vs.
+    $621M -- because OMDb stops refreshing it while a film is still earning. It matched
+    exactly only for films whose runs had already ended. Returns ({}, None) if every
+    source fails, in which case callers fall back to OMDb."""
+    if year in _GROSS_CACHE:
+        return _GROSS_CACHE[year]
+    hdr = {'User-Agent': HEADERS['User-Agent'], 'Accept': 'text/html,application/xhtml+xml',
+           'Accept-Language': 'en-US,en;q=0.9', 'Accept-Encoding': 'gzip, deflate'}
+    result = ({}, None)
+    for label, url, title_hdr, gross_hdr in _BOXOFFICE_SOURCES:
+        try:
+            r = requests.get(url.format(year=year), headers=hdr, timeout=25)
+            r.raise_for_status()
+            soup = BeautifulSoup(r.text, 'html.parser')
+            grosses = {}
+            for table in soup.find_all('table'):
+                rows = table.find_all('tr')
+                if not rows:
+                    continue
+                heads = [c.get_text(' ', strip=True).lower() for c in rows[0].find_all(['th', 'td'])]
+                ti = next((i for i, h in enumerate(heads) if h == title_hdr), None)
+                gi = next((i for i, h in enumerate(heads) if gross_hdr in h), None)
+                if ti is None or gi is None:
+                    continue
+                for row in rows[1:]:
+                    cells = [c.get_text(' ', strip=True) for c in row.find_all(['td', 'th'])]
+                    if len(cells) <= max(ti, gi):
+                        continue
+                    digits = re.sub(r'[^\d]', '', cells[gi])
+                    key = _norm_title(cells[ti])
+                    if key and digits:
+                        grosses[key] = max(grosses.get(key, 0), int(digits))
+            if len(grosses) >= 10:  # a real year listing has dozens of rows
+                print(f'    ✓ {label}: {len(grosses)} films with a domestic gross')
+                result = (grosses, label)
+                break
+            print(f'    ✗ {label}: only {len(grosses)} rows parsed -- layout changed?')
+        except Exception as e:
+            print(f'    ✗ {label}: {e}')
+    _GROSS_CACHE[year] = result
+    return result
+
+
 def _scrape_actor_actress(category):
-    """Refresh box office / RT critic scores for the category's tracked movies via OMDb.
+    """Refresh box office / RT critic scores for the category's tracked movies.
 
     The movie-to-player roster (title, release date, who a movie counts for) stays
-    hand-curated in data/actor.json / data/actress.json — OMDb has no "credits by
-    actor" lookup, only per-title lookups. This reads that roster just to get the
-    list of titles to check, then writes each title's live box office/RT score to
-    Supabase; compute_baseline_actor_actress() merges those live numbers back onto
-    the roster at read time (live wins per-field when present, file value otherwise).
+    hand-curated in data/actor.json / data/actress.json -- no public API has "credits by
+    actor". This reads that roster just to get the list of titles, then writes each
+    title's live numbers to Supabase; compute_baseline_actor_actress() merges them back
+    onto the roster at read time (live wins per-field when present, file value otherwise).
+
+    Domestic box office comes from a live listing (Box Office Mojo, then The Numbers);
+    OMDb supplies the Rotten Tomatoes score, and box office only as a fallback for titles
+    the listings don't match.
     """
     if is_frozen(category):
         print(f'  ⏸ {category} is frozen, skipping'); return True
     api_key = os.environ.get('OMDB_API_KEY')
     if not api_key:
-        print(f'  ⏸ OMDB_API_KEY not set, skipping {category}'); return True
+        print('  ⚠ OMDB_API_KEY not set -- no RT scores / OMDb fallback; box office listings only')
 
     _path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', f'{category.lower()}.json')
     try:
@@ -861,16 +934,24 @@ def _scrape_actor_actress(category):
     if not titles:
         print(f'  ⏸ No movies tracked for {category}'); return True
 
+    grosses, gross_src = _fetch_domestic_grosses(_BOXOFFICE_YEAR)
+
     movies = {}
     for title, year in sorted(titles.items()):
-        stats = _omdb_lookup(title, api_key, year=year)
+        stats = _omdb_lookup(title, api_key, year=year) if api_key else None
+        src = 'OMDb'
+        gross = grosses.get(_norm_title(title))
+        if gross:
+            stats = {'box_office': gross, 'rt_score': (stats or {}).get('rt_score')}
+            src = gross_src
         if stats:
             movies[title] = stats
-            print(f'    ✓ {title}: bo={stats["box_office"]} rt={stats["rt_score"]}')
-        time.sleep(0.15)  # be polite to the free tier (1,000 req/day cap)
+            print(f'    ✓ {title}: bo={stats["box_office"]} ({src}) rt={stats["rt_score"]}')
+        if api_key:
+            time.sleep(0.15)  # be polite to the free tier (1,000 req/day cap)
 
     if not movies:
-        print(f'  ✗ OMDb returned nothing usable for {category}'); return False
+        print(f'  ✗ No box office listing or OMDb data usable for {category}'); return False
     return save_standing(category, {'movies': movies})
 
 
