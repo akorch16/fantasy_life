@@ -176,6 +176,10 @@
       "composite_score": 22.91,
       "movies": [
         {
+          "title": "The Last House",
+          "streaming": true
+        },
+        {
           "title": "Forgotten Island",
           "release_date": "2026-09-25",
           "box_office": 24115870,
