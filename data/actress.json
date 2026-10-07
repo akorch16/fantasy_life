@@ -84,6 +84,11 @@
           "box_office": 620585090,
           "rt_score": 94,
           "composite": 583.35
+        },
+        {
+          "title": "Apex",
+          "release_date": "2026-04-24",
+          "streaming": true
         }
       ]
     },
@@ -192,6 +197,11 @@
         {
           "title": "Dune: Part Three",
           "release_date": "2026-12-18"
+        },
+        {
+          "title": "Sacrifice",
+          "release_date": "2026-10-16",
+          "streaming": true
         }
       ]
     }
