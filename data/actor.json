@@ -123,6 +123,11 @@
           "box_office": 620585090,
           "rt_score": 94,
           "composite": 583.35
+        },
+        {
+          "title": "The Rip",
+          "release_date": "2026-01-16",
+          "streaming": true
         }
       ]
     },
@@ -169,7 +174,14 @@
     },
     {
       "name": "George Clooney",
-      "composite_score": 0
+      "composite_score": 0,
+      "movies": [
+        {
+          "title": "Call My Agent!",
+          "release_date": "2026-09-10",
+          "streaming": true
+        }
+      ]
     },
     {
       "name": "Wagner Moura",
