@@ -1,12 +1,5 @@
 name: Probe Scraper Sources
 
-# Manual-only diagnostic: GET each candidate data source from the Actions runner
-# (which has open internet + secrets, unlike the dev sandbox) and print what's
-# found. Saves nothing to Supabase and writes no files.
-#   scrapers → python scrapers.py --probe   (golf/NASCAR/MLS data endpoints)
-#   kalshi   → python projections.py --probe (series catalog, market field
-#              shapes, KNOWN_SERIES ticker health + pick matching)
-
 on:
   workflow_dispatch:
     inputs:
@@ -31,14 +24,26 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Probe candidate sources
-        if: ${{ inputs.mode == 'scrapers' }}
-        run: python scrapers.py --probe
-
-      - name: Probe Kalshi series + markets
-        if: ${{ inputs.mode == 'kalshi' }}
-        env:
-          KALSHI_API_KEY: ${{ secrets.KALSHI_API_KEY }}
-          KALSHI_API_KEY_ID: ${{ secrets.KALSHI_API_KEY_ID }}
-          KALSHI_PRIVATE_KEY: ${{ secrets.KALSHI_PRIVATE_KEY }}
-        run: python projections.py --probe
+      - name: Probe Billboard Wikipedia tables
+        run: |
+          python - <<'PY'
+          from scrapers import fetch_html
+          picks = ['Kendrick','FKA','Sabrina','Olivia','Bad Bunny','Drake','BTS','Gaga','Bieber','SZA','Swift','Weeknd','Beyonc']
+          print('=== #1 PAGE (every row: [tag rowspan text]) ===')
+          s1 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number_ones_of_2026', timeout=20)
+          for ti, t in enumerate(s1.select('table.wikitable')):
+              print('table', ti)
+              for r in t.select('tr'):
+                  cells = r.find_all(['td','th'])
+                  print(len(cells), [(c.name, c.get('rowspan'), c.get_text(' ', strip=True)[:40]) for c in cells])
+          print('=== TOP-10 PAGE (rows mentioning a pick, plus first 3 rows) ===')
+          s2 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2026', timeout=20)
+          for ti, t in enumerate(s2.select('table.wikitable')):
+              rows = t.select('tr')
+              print('table', ti, 'rows', len(rows))
+              for i, r in enumerate(rows):
+                  cells = r.find_all(['td','th'])
+                  txt = ' '.join(c.get_text(' ', strip=True) for c in cells)
+                  if i < 3 or any(p.lower() in txt.lower() for p in picks):
+                      print(i, len(cells), [(c.name, c.get('rowspan'), c.get_text(' ', strip=True)[:40]) for c in cells])
+          PY
