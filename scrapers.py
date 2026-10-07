@@ -963,6 +963,7 @@ def probe():
             print(f'        {url}')
 
     _probe_boxoffice()
+    _probe_imdb_filmography()
     _probe_golf()
     _probe_espn_nascar()
     _probe_wiki_points_table('NASCAR', 'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series', ('driver',))
@@ -1145,6 +1146,84 @@ def _probe_boxoffice():
                   f'released={d.get("Released")} BoxOffice={d.get("BoxOffice")} RT={rt}')
         except Exception as e:
             print(f'    {title}: ERR {e}')
+
+
+def _probe_imdb_filmography():
+    """Diagnostic: cross-check each drafted actor/actress's 2025-2027 titles against IMDb's
+    official bulk datasets (datasets.imdbws.com): name.basics -> title.principals -> title.basics.
+    principals only lists the top-billed ~10 people per title, so cameos won't appear."""
+    import gzip, io, unicodedata
+    print('\n  -- IMDb reachability --')
+    ua = {'User-Agent': HEADERS['User-Agent']}
+    for url in ['https://www.imdb.com/name/nm0000228/', 'https://v3.sg.media-imdb.com/suggestion/n/sean%20penn.json',
+                'https://datasets.imdbws.com/title.basics.tsv.gz']:
+        try:
+            r = requests.get(url, headers=ua, timeout=20, stream=True)
+            print(f'  [{r.status_code}] {url} ({r.headers.get("content-length", "?")} bytes)')
+            r.close()
+        except Exception as e:
+            print(f'  [ERR] {url}: {e}')
+
+    def norm(x):
+        return ''.join(c for c in unicodedata.normalize('NFKD', x) if not unicodedata.combining(c)).lower()
+
+    want = ['Sean Penn', 'Wagner Moura', 'George Clooney', 'Leonardo DiCaprio', 'Pedro Pascal',
+            'Jeremy Allen White', 'Dwayne Johnson', 'Tom Holland', 'Chris Hemsworth', 'Jon Bernthal',
+            'Matt Damon', 'Timothee Chalamet', 'Robert Pattinson', 'Ariana Grande', 'Zendaya',
+            'Amanda Seyfried', 'Teyana Taylor', 'Charlize Theron', 'Tessa Thompson', 'Sydney Sweeney',
+            'Cynthia Erivo', 'Florence Pugh', 'Anne Hathaway', 'Jessie Buckley', 'Emma Stone',
+            'Anya Taylor-Joy']
+    wantn = {norm(n): n for n in want}
+
+    def lines(fname):
+        r = requests.get('https://datasets.imdbws.com/' + fname, headers=ua, stream=True, timeout=300)
+        r.raise_for_status()
+        return io.TextIOWrapper(gzip.GzipFile(fileobj=r.raw), encoding='utf-8')
+
+    cand = {}   # nconst -> display name
+    for i, ln in enumerate(lines('name.basics.tsv.gz')):
+        parts = ln.rstrip('\n').split('\t')
+        if len(parts) >= 5 and norm(parts[1]) in wantn and ('actor' in parts[4] or 'actress' in parts[4]):
+            cand[parts[0]] = wantn[norm(parts[1])]
+    print(f'  name.basics: {len(cand)} candidate nconsts for {len(want)} names')
+
+    credits = {}  # nconst -> [(tconst, ordering, category, characters)]
+    n = 0
+    for ln in lines('title.principals.tsv.gz'):
+        n += 1
+        parts = ln.rstrip('\n').split('\t')
+        if len(parts) >= 6 and parts[2] in cand:
+            credits.setdefault(parts[2], []).append((parts[0], parts[1], parts[3], parts[5]))
+    print(f'  title.principals: scanned {n:,} rows, {sum(len(v) for v in credits.values()):,} matching credits')
+
+    need = {c[0] for v in credits.values() for c in v}
+    tb = {}
+    for ln in lines('title.basics.tsv.gz'):
+        parts = ln.split('\t', 6)
+        if parts[0] in need:
+            tb[parts[0]] = (parts[1], parts[2], parts[5])  # type, title, startYear
+    print(f'  title.basics: resolved {len(tb):,} titles')
+
+    def recent(nc):
+        return sum(1 for c in credits.get(nc, []) if tb.get(c[0], ('', '', '0'))[2] >= '2024')
+
+    best = {}
+    for nc, name in cand.items():
+        if name not in best or recent(nc) > recent(best[name]):
+            best[name] = nc
+    print('\n  -- 2025-2027 title credits per person (IMDb principals, top-billed only) --')
+    for name in want:
+        nc = best.get(name)
+        if not nc:
+            print(f'  {name}: NOT FOUND in name.basics'); continue
+        rows = []
+        for tc, order, cat, chars in credits.get(nc, []):
+            typ, title, yr = tb.get(tc, ('?', '?', '0'))
+            if yr in ('2025', '2026', '2027') and typ in ('movie', 'tvMovie', 'video', 'short'):
+                rows.append((yr, title, typ, order, cat, chars))
+        print(f'  {name} [{nc}] ({recent(nc)} credits 2024+)')
+        for yr, title, typ, order, cat, chars in sorted(rows):
+            print(f'      {yr} {typ:7s} {title}  (billing {order}, {cat}, {chars})')
 
 
 def _probe_golf():
