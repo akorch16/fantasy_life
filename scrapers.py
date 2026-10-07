@@ -676,7 +676,12 @@ def _billboard_issue_dates(year, today=None):
 
 def _billboard_top10(issue_date):
     """[(song, artist_text)] for ranks 1-10 of the Hot 100 issue dated issue_date."""
-    soup = fetch_html(f'https://www.billboard.com/charts/hot-100/{issue_date.isoformat()}/', timeout=30)
+    # Plain browser UA only: fetch_html's ESPN-style headers (espn.com Referer/Origin,
+    # Sec-Fetch-*, brotli) come back from billboard.com as an unparseable page.
+    r = requests.get(f'https://www.billboard.com/charts/hot-100/{issue_date.isoformat()}/',
+                     headers={'User-Agent': 'Mozilla/5.0'}, timeout=30)
+    r.raise_for_status()
+    soup = BeautifulSoup(r.text, 'html.parser')
     top = []
     for row in soup.select('ul.o-chart-results-list-row')[:10]:
         title = row.select_one('h3#title-of-a-story')
@@ -726,6 +731,7 @@ def scrape_billboard():
                     print(f'    ✗ {d} attempt {attempt + 1}: {e}')
                 time.sleep(2)
             if len(top10) != 10:
+                print(f'    ✗ {d}: parsed {len(top10)} chart rows (expected 10)')
                 continue
             _tally_billboard_week(scores_map, top10)
             fetched += 1
