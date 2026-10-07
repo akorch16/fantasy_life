@@ -20,6 +20,27 @@ Whenever the judgment pass finds a new class of bug that a script could catch, *
 
 ---
 
+## Unattended mode (the scheduled routine)
+
+A recurring routine starts a fresh session on the 1st and 15th (after `audit.yml` has opened that
+cycle's `audit` issue) and runs this runbook with **no human watching**. In that mode:
+
+- **Open PRs; never merge them.** No `/fl-merge`, no pushing to main, no `daily.yml` runs. One PR per
+  logical fix, branch `audit/<yyyy-mm-dd>-<topic>`, PR body = what was wrong, evidence (links), and the
+  point impact per player.
+- **Fix only what is unambiguous**: a matching/spelling bug, a stale pipeline entry, a doc that
+  contradicts the code, a result that is a plain fact (a bracket outcome, a medal table). Anything that
+  needs a judgment call or changes standings by interpretation (rules, disputed results, cameo
+  questions) goes in the report as a **decision for the user**, not in a PR.
+- **Don't re-litigate `CLAUDE.md` Rulings.** If new evidence contradicts one, flag it; don't change it.
+- **Evidence standard:** every claim in a PR cites a primary source or an Actions-runner probe. Search
+  snippets alone are leads, not facts — if you can't confirm it, say "couldn't verify".
+- **Report**: post one comment on the cycle's `audit` issue: PRs opened (with point impact), decisions
+  needed, categories verified clean, things you couldn't verify. If nothing is wrong say so briefly.
+- Delete any `probe/*` branch you created.
+
+---
+
 ## Step 0 — Orient
 
 ```bash
