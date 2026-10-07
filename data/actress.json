@@ -9,11 +9,11 @@
     },
     {
       "name": "Zendaya",
-      "composite_score": 782.14,
+      "composite_score": 1479.14,
       "movies": [
-        { "title": "The Drama", "release_date": "2026-04-03", "box_office": 48000000, "rt_score": 77, "composite": 36.96 },
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 395500000, "rt_score": 95, "composite": 375.72 },
-        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31", "box_office": 406000000, "rt_score": 91, "composite": 369.46 },
+        { "title": "The Drama", "release_date": "2026-04-03", "box_office": 48062006, "rt_score": 76, "composite": 36.53 },
+        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 620585090, "rt_score": 94, "composite": 583.35 },
+        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31", "box_office": 954734627, "rt_score": 90, "composite": 859.26 },
         { "title": "Dune: Part Three", "release_date": "2026-12-18" }
       ]
     },
@@ -27,16 +27,16 @@
     },
     {
       "name": "Teyana Taylor",
-      "composite_score": 52.99,
+      "composite_score": 24.9,
       "movies": [
-        { "title": "Scary Movie 6", "release_date": "2026-06-05", "box_office": 230395056, "rt_score": 23, "composite": 52.99 }
+        { "title": "Scary Movie", "release_date": "2026-06-05", "box_office": 108277762, "rt_score": 23, "composite": 24.9 }
       ]
     },
     {
       "name": "Charlize Theron",
-      "composite_score": 375.72,
+      "composite_score": 583.35,
       "movies": [
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 395500000, "rt_score": 95, "composite": 375.72 }
+        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 620585090, "rt_score": 94, "composite": 583.35 }
       ]
     },
     {
@@ -61,20 +61,20 @@
     },
     {
       "name": "Anne Hathaway",
-      "composite_score": 538.99,
+      "composite_score": 803.78,
       "movies": [
-        { "title": "Mother Mary", "release_date": "2026-04-24", "box_office": 2900000, "rt_score": 70, "composite": 2.03 },
-        { "title": "The Devil Wears Prada 2", "release_date": "2026-05-01", "box_office": 209400000, "rt_score": 77, "composite": 161.24 },
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 395500000, "rt_score": 95, "composite": 375.72 },
-        { "title": "The End of Oak Street", "release_date": "2026-08-14" },
-        { "title": "Verity", "release_date": "2026-10-02" }
+        { "title": "Mother Mary", "release_date": "2026-04-24", "box_office": 2565507, "rt_score": 69, "composite": 1.77 },
+        { "title": "The Devil Wears Prada 2", "release_date": "2026-05-01", "box_office": 220556651, "rt_score": 78, "composite": 172.03 },
+        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 620585090, "rt_score": 94, "composite": 583.35 },
+        { "title": "The End of Oak Street", "release_date": "2026-08-14", "box_office": 54217417, "rt_score": 86, "composite": 46.63 },
+        { "title": "Verity", "release_date": "2026-10-02", "box_office": 34433247 }
       ]
     },
     {
       "name": "Jessie Buckley",
-      "composite_score": 13.68,
+      "composite_score": 7.26,
       "movies": [
-        { "title": "The Bride", "release_date": "2026-03-06", "box_office": 24000000, "rt_score": 57, "composite": 13.68 }
+        { "title": "The Bride", "release_date": "2026-03-06", "box_office": 12744025, "rt_score": 57, "composite": 7.26 }
       ]
     },
     {
@@ -83,12 +83,12 @@
     },
     {
       "name": "Anya Taylor-Joy",
-      "composite_score": 179.97,
+      "composite_score": 180.52,
       "movies": [
-        { "title": "The Super Mario Galaxy Movie", "release_date": "2026-04-01", "box_office": 428500000, "rt_score": 42, "composite": 179.97 },
+        { "title": "The Super Mario Galaxy Movie", "release_date": "2026-04-01", "box_office": 429814610, "rt_score": 42, "composite": 180.52 },
         { "title": "Dune: Part Three", "release_date": "2026-12-18" }
       ]
     }
   ],
-  "_updated": "2026-08-04"
+  "_updated": "2026-10-07"
 }
