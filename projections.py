@@ -66,16 +66,6 @@ FILM_PIPELINE = [
         "actress": [],
     },
     {
-        # data/actress.json calls this "The End of Oak Street" (title updated
-        # since this entry was added) — released 2026-08-14 per that file but
-        # still no composite there as of this fix, so genuinely still pending.
-        "title": "The End of Oak Street",
-        "box_office": (15, 35, 60),
-        "rt": (62, 75, 88),
-        "actor":   [],
-        "actress": ["Korch"],
-    },
-    {
         "title": "Verity",
         "box_office": (40, 75, 110),
         "rt": (55, 68, 80),
