@@ -14,7 +14,10 @@ name: Supabase DB Diagnostic
 # again — same fix NFL/NCAAF already have, or --repair-nascar-freeze to
 # restore NASCAR's real final 2026 regular-season standing (the live scrape
 # started reporting post-Chase-reset points once the playoffs began) and
-# freeze the category the same way.
+# freeze the category the same way, or --repair-ncaab-freeze to restore the
+# real final 2025-26 AP poll (the live scrape was ranking teams by a
+# meaningless 0-0 preseason win percentage for the not-yet-started
+# 2026-27 season) and freeze NCAAB the same way.
 
 on:
   workflow_dispatch:
@@ -33,6 +36,7 @@ on:
           - '--verify-anon-lockdown'
           - '--repair-nhl-freeze'
           - '--repair-nascar-freeze'
+          - '--repair-ncaab-freeze'
 
 jobs:
   db-tool:
