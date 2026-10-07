@@ -48,6 +48,11 @@
         {
           "title": "The Life and Deaths of Wilson Shedd",
           "release_date": "2026-11-01"
+        },
+        {
+          "title": "Steps",
+          "release_date": "2026-11-20",
+          "streaming": true
         }
       ]
     },
@@ -61,6 +66,11 @@
           "box_office": 108277762,
           "rt_score": 23,
           "composite": 24.9
+        },
+        {
+          "title": "72 Hours",
+          "release_date": "2026-07-24",
+          "streaming": true
         }
       ]
     },
