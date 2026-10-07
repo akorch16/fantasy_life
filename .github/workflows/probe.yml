@@ -33,6 +33,8 @@ jobs:
 
       - name: Probe candidate sources
         if: ${{ inputs.mode == 'scrapers' }}
+        env:
+          OMDB_API_KEY: ${{ secrets.OMDB_API_KEY }}
         run: python scrapers.py --probe
 
       - name: Probe Kalshi series + markets

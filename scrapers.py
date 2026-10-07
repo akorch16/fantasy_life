@@ -962,6 +962,7 @@ def probe():
             print(f'  [ERR] {label}: {e}')
             print(f'        {url}')
 
+    _probe_boxoffice()
     _probe_golf()
     _probe_espn_nascar()
     _probe_wiki_points_table('NASCAR', 'https://en.wikipedia.org/wiki/2026_NASCAR_Cup_Series', ('driver',))
@@ -1083,6 +1084,67 @@ def _probe_wiki_points_table(label, url, name_hints, points_hints=('pts', 'point
         print(f'    Table #{ti}: cols={len(headers)} rows_parsed={len(parsed)} top5={top}{flag}')
     print(f'    {qualifying} table(s) matched name_hints={name_hints} points_hints={points_hints} '
           f'(_wiki_points_table max_cols=15 filter applies at scrape time)')
+
+
+def _probe_boxoffice():
+    """Diagnostic: can the Actions runner read a live domestic-gross source, and
+    how does OMDb's BoxOffice field compare? Prints status + table samples for
+    Box Office Mojo / The Numbers year listings, then OMDb's raw payload for each
+    tracked title (needs OMDB_API_KEY)."""
+    print('\n  -- Box office source probe --')
+    hdr = {'User-Agent': HEADERS['User-Agent'], 'Accept': 'text/html,application/xhtml+xml',
+           'Accept-Language': 'en-US,en;q=0.9', 'Accept-Encoding': 'gzip, deflate'}
+    wanted = ['odyssey', 'spider-man', 'prada', 'mario', 'scary movie', 'moana', 'mandalorian',
+              'the drama', 'crime 101', 'the bride', 'mother mary', 'oak street',
+              'forgotten island', 'verity', 'social reckoning', 'last house', 'last day']
+    for label, url in [
+        ('BoxOfficeMojo 2026', 'https://www.boxofficemojo.com/year/2026/'),
+        ('TheNumbers 2026 cumulative',
+         'https://www.the-numbers.com/box-office-records/domestic/all-movies/cumulative/released-in-2026'),
+    ]:
+        try:
+            r = requests.get(url, headers=hdr, timeout=25)
+            print(f'  [{r.status_code}] {label} ({len(r.content)} bytes) {url}')
+            if r.status_code != 200:
+                print('      ' + r.text[:200].replace('\n', ' '))
+                continue
+            soup = BeautifulSoup(r.text, 'html.parser')
+            tables = soup.find_all('table')
+            print(f'    {len(tables)} table(s)')
+            for ti, t in enumerate(tables[:3]):
+                rows = t.find_all('tr')
+                heads = [c.get_text(' ', strip=True) for c in rows[0].find_all(['th', 'td'])] if rows else []
+                print(f'    table#{ti}: {len(rows)} rows, headers={heads}')
+                shown = 0
+                for row in rows[1:]:
+                    txt = ' | '.join(c.get_text(' ', strip=True) for c in row.find_all(['td', 'th']))
+                    if shown < 3 or any(w in txt.lower() for w in wanted):
+                        print('      ' + txt[:230])
+                        shown += 1
+        except Exception as e:
+            print(f'  [ERR] {label}: {e}')
+
+    key = os.environ.get('OMDB_API_KEY')
+    if not key:
+        print('  (OMDB_API_KEY not set -- skipping OMDb raw dump)')
+        return
+    print('\n  -- OMDb raw payloads (t=title, y=2026) --')
+    for title in ['The Odyssey', 'Spider-Man: Brand New Day', 'The Devil Wears Prada 2',
+                  'The Super Mario Galaxy Movie', 'Scary Movie 6', 'Moana', 'The Drama',
+                  'Crime 101', 'The Bride', 'Mother Mary', 'The End of Oak Street', 'Verity',
+                  'Forgotten Island', 'The Social Reckoning', 'The Last House', 'The Last Day',
+                  'Star Wars: The Mandalorian & Grogu']:
+        try:
+            d = requests.get('https://www.omdbapi.com/', params={'t': title, 'y': '2026', 'apikey': key},
+                             timeout=10).json()
+            if d.get('Response') != 'True':
+                print(f'    {title}: {d.get("Error")}')
+                continue
+            rt = next((x['Value'] for x in d.get('Ratings', []) if x.get('Source') == 'Rotten Tomatoes'), None)
+            print(f'    {title}: matched={d.get("Title")!r} year={d.get("Year")} id={d.get("imdbID")} '
+                  f'released={d.get("Released")} BoxOffice={d.get("BoxOffice")} RT={rt}')
+        except Exception as e:
+            print(f'    {title}: ERR {e}')
 
 
 def _probe_golf():
