@@ -28,22 +28,55 @@ jobs:
         run: |
           python - <<'PY'
           from scrapers import fetch_html
-          picks = ['Kendrick','FKA','Sabrina','Olivia','Bad Bunny','Drake','BTS','Gaga','Bieber','SZA','Swift','Weeknd','Beyonc']
-          print('=== #1 PAGE (every row: [tag rowspan text]) ===')
-          s1 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number_ones_of_2026', timeout=20)
-          for ti, t in enumerate(s1.select('table.wikitable')):
-              print('table', ti)
-              for r in t.select('tr'):
-                  cells = r.find_all(['td','th'])
-                  print(len(cells), [(c.name, c.get('rowspan'), c.get_text(' ', strip=True)[:40]) for c in cells])
-          print('=== TOP-10 PAGE (rows mentioning a pick, plus first 3 rows) ===')
-          s2 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2026', timeout=20)
-          for ti, t in enumerate(s2.select('table.wikitable')):
-              rows = t.select('tr')
-              print('table', ti, 'rows', len(rows))
-              for i, r in enumerate(rows):
-                  cells = r.find_all(['td','th'])
-                  txt = ' '.join(c.get_text(' ', strip=True) for c in cells)
-                  if i < 3 or any(p.lower() in txt.lower() for p in picks):
-                      print(i, len(cells), [(c.name, c.get('rowspan'), c.get_text(' ', strip=True)[:40]) for c in cells])
+          picks = ['Kendrick','FKA','Sabrina','Olivia Rodrigo','Bad Bunny','Drake','BTS','Gaga','Bieber','SZA','Swift','Weeknd','Beyonc']
+
+          def expand(table):
+              rows, carry = [], {}
+              for tr in table.select('tr'):
+                  cells = tr.find_all(['td', 'th'])
+                  row, col, ci = [], 0, 0
+                  while ci < len(cells) or col in carry:
+                      if col in carry:
+                          rem, txt = carry[col]
+                          row.append(txt)
+                          if rem > 1:
+                              carry[col] = (rem - 1, txt)
+                          else:
+                              del carry[col]
+                          col += 1
+                          continue
+                      c = cells[ci]; ci += 1
+                      txt = c.get_text(' ', strip=True)
+                      rs = int(c.get('rowspan') or 1); cs = int(c.get('colspan') or 1)
+                      for _ in range(cs):
+                          row.append(txt)
+                          if rs > 1:
+                              carry[col] = (rs - 1, txt)
+                          col += 1
+                  rows.append(row)
+              return rows
+
+          def heading(table):
+              h = table.find_previous(['h2', 'h3', 'h4'])
+              return h.get_text(' ', strip=True) if h else None
+
+          for label, url in [
+              ('2026 TOP-10', 'https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2026'),
+              ('2025 TOP-10', 'https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2025'),
+          ]:
+              print('=====', label, '=====')
+              soup = fetch_html(url, timeout=20)
+              for ti, t in enumerate(soup.select('table.wikitable')):
+                  rows = expand(t)
+                  print('table', ti, 'heading:', heading(t), 'rows', len(rows))
+                  for i, r in enumerate(rows):
+                      txt = ' '.join(r)
+                      if i == 0 or any(p.lower() in txt.lower() for p in picks):
+                          print('  ', i, r)
+          print('===== 2025 #1 page: Swift rows =====')
+          soup = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number_ones_of_2025', timeout=20)
+          for ti, t in enumerate(soup.select('table.wikitable')):
+              for r in expand(t):
+                  if any(p.lower() in ' '.join(r).lower() for p in ['Swift', 'Bad Bunny', 'Drake', 'Rodrigo']):
+                      print('  ', ti, r)
           PY
