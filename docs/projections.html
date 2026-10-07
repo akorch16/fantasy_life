@@ -314,7 +314,17 @@ function oddsHtml(pct) {
 fetch('./projections.json')
   .then(r => r.json())
   .then(data => {
-    const players = data.players.slice().sort((a, b) => b.projected_total - a.projected_total);
+    // Ranked by win probability (the actual "who's most likely to take #1"
+    // metric), not projected_total -- those two can and do disagree near
+    // the bottom of the standings (e.g. a player with a slightly higher
+    // median simulated total but a lower win_pct, because win_pct only
+    // counts outright #1 finishes while projected_total is an average
+    // across the whole distribution). Sorting by projected_total made the
+    // table's order silently drift out of sync with the Win% column next
+    // to it. projected_total stays as the tiebreaker for players tied on
+    // win_pct (common at the bottom, where several round to 0.0%).
+    const players = data.players.slice().sort((a, b) =>
+      (b.win_pct - a.win_pct) || (b.projected_total - a.projected_total));
     const genAt = data.generated_at ? data.generated_at.slice(0, 10) : '—';
     const liveOdds = data.kalshi_markets_used && data.kalshi_markets_used.length;
     const nSims = (data.n_simulations || 10000).toLocaleString();
@@ -345,7 +355,7 @@ fetch('./projections.json')
     players.forEach(p => Object.keys(p.category_expected || {}).forEach(c => catSet.add(c)));
     const cats = [...catSet].sort();
 
-    // Sort players by projected total for breakdown too
+    // Reuses the same win_pct-sorted `players` array for the breakdown table.
     const CAT_LABELS = {
       nba: 'NBA', nhl: 'NHL', mlb: 'MLB', mls: 'MLS',
       nascar: 'NASCAR', golf: 'Golf', tennis: 'Tennis',
