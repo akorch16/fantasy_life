@@ -4,39 +4,77 @@
       "name": "Ariana Grande",
       "composite_score": 0,
       "movies": [
-        { "title": "Focker-in-Law", "release_date": "2026-11-25" }
+        {
+          "title": "Focker-in-Law",
+          "release_date": "2026-11-25"
+        }
       ]
     },
     {
       "name": "Zendaya",
       "composite_score": 1479.14,
       "movies": [
-        { "title": "The Drama", "release_date": "2026-04-03", "box_office": 48062006, "rt_score": 76, "composite": 36.53 },
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 620585090, "rt_score": 94, "composite": 583.35 },
-        { "title": "Spider-Man: Brand New Day", "release_date": "2026-07-31", "box_office": 954734627, "rt_score": 90, "composite": 859.26 },
-        { "title": "Dune: Part Three", "release_date": "2026-12-18" }
+        {
+          "title": "The Drama",
+          "release_date": "2026-04-03",
+          "box_office": 48062006,
+          "rt_score": 76,
+          "composite": 36.53
+        },
+        {
+          "title": "The Odyssey",
+          "release_date": "2026-07-17",
+          "box_office": 620585090,
+          "rt_score": 94,
+          "composite": 583.35
+        },
+        {
+          "title": "Spider-Man: Brand New Day",
+          "release_date": "2026-07-31",
+          "box_office": 954734627,
+          "rt_score": 90,
+          "composite": 859.26
+        },
+        {
+          "title": "Dune: Part Three",
+          "release_date": "2026-12-18"
+        }
       ]
     },
     {
       "name": "Amanda Seyfried",
       "composite_score": 0,
       "movies": [
-        { "title": "The Life and Deaths of Wilson Shedd", "release_date": "2026-11-01" },
-        { "title": "Steps", "release_date": "2026-11-20" }
+        {
+          "title": "The Life and Deaths of Wilson Shedd",
+          "release_date": "2026-11-01"
+        }
       ]
     },
     {
       "name": "Teyana Taylor",
       "composite_score": 24.9,
       "movies": [
-        { "title": "Scary Movie", "release_date": "2026-06-05", "box_office": 108277762, "rt_score": 23, "composite": 24.9 }
+        {
+          "title": "Scary Movie",
+          "release_date": "2026-06-05",
+          "box_office": 108277762,
+          "rt_score": 23,
+          "composite": 24.9
+        }
       ]
     },
     {
       "name": "Charlize Theron",
       "composite_score": 583.35,
       "movies": [
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 620585090, "rt_score": 94, "composite": 583.35 }
+        {
+          "title": "The Odyssey",
+          "release_date": "2026-07-17",
+          "box_office": 620585090,
+          "rt_score": 94,
+          "composite": 583.35
+        }
       ]
     },
     {
@@ -45,7 +83,12 @@
     },
     {
       "name": "Sydney Sweeney",
-      "composite_score": 0
+      "composite_score": 0,
+      "movies": [
+        {
+          "title": "One Night Only"
+        }
+      ]
     },
     {
       "name": "Cynthia Erivo",
@@ -55,26 +98,70 @@
       "name": "Florence Pugh",
       "composite_score": 0,
       "movies": [
-        { "title": "Avengers: Doomsday", "release_date": "2026-12-18" },
-        { "title": "Dune: Part Three", "release_date": "2026-12-18" }
+        {
+          "title": "Avengers: Doomsday",
+          "release_date": "2026-12-18"
+        },
+        {
+          "title": "Dune: Part Three",
+          "release_date": "2026-12-18"
+        },
+        {
+          "title": "Spider-Man: Brand New Day",
+          "release_date": "2026-07-31"
+        }
       ]
     },
     {
       "name": "Anne Hathaway",
       "composite_score": 803.78,
       "movies": [
-        { "title": "Mother Mary", "release_date": "2026-04-24", "box_office": 2565507, "rt_score": 69, "composite": 1.77 },
-        { "title": "The Devil Wears Prada 2", "release_date": "2026-05-01", "box_office": 220556651, "rt_score": 78, "composite": 172.03 },
-        { "title": "The Odyssey", "release_date": "2026-07-17", "box_office": 620585090, "rt_score": 94, "composite": 583.35 },
-        { "title": "The End of Oak Street", "release_date": "2026-08-14", "box_office": 54217417, "rt_score": 86, "composite": 46.63 },
-        { "title": "Verity", "release_date": "2026-10-02", "box_office": 34433247 }
+        {
+          "title": "Mother Mary",
+          "release_date": "2026-04-24",
+          "box_office": 2565507,
+          "rt_score": 69,
+          "composite": 1.77
+        },
+        {
+          "title": "The Devil Wears Prada 2",
+          "release_date": "2026-05-01",
+          "box_office": 220556651,
+          "rt_score": 78,
+          "composite": 172.03
+        },
+        {
+          "title": "The Odyssey",
+          "release_date": "2026-07-17",
+          "box_office": 620585090,
+          "rt_score": 94,
+          "composite": 583.35
+        },
+        {
+          "title": "The End of Oak Street",
+          "release_date": "2026-08-14",
+          "box_office": 54217417,
+          "rt_score": 86,
+          "composite": 46.63
+        },
+        {
+          "title": "Verity",
+          "release_date": "2026-10-02",
+          "box_office": 34433247
+        }
       ]
     },
     {
       "name": "Jessie Buckley",
       "composite_score": 7.26,
       "movies": [
-        { "title": "The Bride", "release_date": "2026-03-06", "box_office": 12744025, "rt_score": 57, "composite": 7.26 }
+        {
+          "title": "The Bride",
+          "release_date": "2026-03-06",
+          "box_office": 12744025,
+          "rt_score": 57,
+          "composite": 7.26
+        }
       ]
     },
     {
@@ -85,8 +172,17 @@
       "name": "Anya Taylor-Joy",
       "composite_score": 180.52,
       "movies": [
-        { "title": "The Super Mario Galaxy Movie", "release_date": "2026-04-01", "box_office": 429814610, "rt_score": 42, "composite": 180.52 },
-        { "title": "Dune: Part Three", "release_date": "2026-12-18" }
+        {
+          "title": "The Super Mario Galaxy Movie",
+          "release_date": "2026-04-01",
+          "box_office": 429814610,
+          "rt_score": 42,
+          "composite": 180.52
+        },
+        {
+          "title": "Dune: Part Three",
+          "release_date": "2026-12-18"
+        }
       ]
     }
   ],
