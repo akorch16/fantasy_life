@@ -14,6 +14,9 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -24,24 +27,25 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Probe billboard.com weekly Hot 100
+      - name: Dump live NBA standings from Supabase
         run: |
           python - <<'PY'
-          import requests, cloudscraper
-          from bs4 import BeautifulSoup
-          for d in ['2026-01-03', '2026-01-10', '2026-10-10']:
-              url = f'https://www.billboard.com/charts/hot-100/{d}/'
-              for name, getter in [('requests', lambda u: requests.get(u, timeout=25, headers={'User-Agent': 'Mozilla/5.0'})),
-                                   ('cloudscraper', lambda u: cloudscraper.create_scraper().get(u, timeout=25))]:
-                  try:
-                      r = getter(url)
-                      soup = BeautifulSoup(r.text, 'html.parser')
-                      items = soup.select('ul.o-chart-results-list-row')
-                      print(d, name, r.status_code, len(r.text), 'rows:', len(items))
-                      for it in items[:10]:
-                          title = it.select_one('h3#title-of-a-story')
-                          artist = title.find_next('span') if title else None
-                          print('    ', title.get_text(strip=True) if title else None, '|', artist.get_text(strip=True) if artist else None)
-                  except Exception as e:
-                      print(d, name, 'ERR', e)
+          import db
+          from scoring import team_matches
+          for cat in ['NBA', 'NHL', 'MLB', 'MLS', 'NCAAB', 'NFL', 'NCAAF']:
+              d = db.get_standing(cat)
+              rows = (d or {}).get('standings') or (d or {}).get('scores') or []
+              print('=====', cat, 'rows:', len(rows), 'frozen:', db.is_frozen(cat), 'updated_at:', db.get_standing_updated_at(cat) if hasattr(db, 'get_standing_updated_at') else None)
+              if cat == 'NBA':
+                  for r in rows:
+                      print('   ', r)
+              else:
+                  names = [r.get('team') or r.get('name') for r in rows]
+                  print('   teams:', names)
+          from draft_picks_2026 import DRAFT_PICKS_2026
+          d = db.get_standing('NBA') or {}
+          rows = d.get('standings') or []
+          for player, pick in DRAFT_PICKS_2026['NBA'].items():
+              hit = [r.get('team') for r in rows if team_matches(pick, r.get('team'))]
+              print('NBA pick', player, pick, '->', hit)
           PY
