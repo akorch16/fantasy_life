@@ -861,6 +861,42 @@ def repair_nascar_freeze() -> bool:
     return ok
 
 
+def repair_ncaab_freeze() -> bool:
+    """One-time repair: this league's NCAAB category is supposed to track the
+    already-concluded 2025-26 season (Michigan won the title in April 2026),
+    but nothing ever froze the category -- so now that a new 2026-27 season
+    is about to tip off, scrape_ncaab() (which ranks teams by CURRENT win
+    percentage) has been serving an essentially meaningless signal: every
+    team sits at 0-0 in October, so the "poll" it saves is just ESPN's
+    default listing order, not a real ranking. Same root cause as the NHL
+    season-rollover bug (see repair_nhl_freeze) -- a category nobody
+    remembered to freeze once its real season ended.
+
+    Restores the actual final 2025-26 AP Top 25 poll (released 2026-04-07,
+    after the championship game) and freezes the category so scrape_ncaab()'s
+    existing is_frozen('NCAAB') check makes it skip NCAAB going forward."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        print('  ✗ repair_ncaab_freeze: SUPABASE_URL/SUPABASE_KEY not set')
+        return False
+
+    final_ap_poll_2025_26 = [
+        (1,  'Michigan'),        (2,  'UConn'),           (3,  'Arizona'),
+        (4,  'Duke'),            (5,  'Illinois'),        (6,  'Purdue'),
+        (7,  'Houston'),         (8,  'Iowa State'),      (9,  'Florida'),
+        (10, "St. John's"),      (11, 'Michigan State'),  (12, 'Tennessee'),
+        (13, 'Arkansas'),        (14, 'Nebraska'),        (15, 'Iowa'),
+        (16, 'Alabama'),         (17, 'Virginia'),        (18, 'Gonzaga'),
+        (19, 'Vanderbilt'),      (20, 'Kansas'),          (21, 'Texas Tech'),
+        (22, 'Texas'),           (23, 'Louisville'),      (24, 'Miami (FL)'),
+        (25, 'Wisconsin'),
+    ]
+    payload = {'poll': [{'rank': r, 'team': t} for r, t in final_ap_poll_2025_26]}
+    ok = save_standing('NCAAB', payload, frozen=True)
+    print('  ✓ NCAAB restored to final 2025-26 AP poll and frozen.' if ok
+          else '  ✗ NCAAB repair failed — see error above.')
+    return ok
+
+
 if __name__ == '__main__':
     import sys
 
@@ -878,6 +914,9 @@ if __name__ == '__main__':
 
     elif '--repair-nascar-freeze' in sys.argv:
         repair_nascar_freeze()
+
+    elif '--repair-ncaab-freeze' in sys.argv:
+        repair_ncaab_freeze()
 
     elif '--dump-sb' in sys.argv:
         print('=== sb_players ===')

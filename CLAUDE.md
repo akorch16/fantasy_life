@@ -41,8 +41,8 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 
 | Category | Primary source | Notes |
 |---|---|---|
-| NFL, NCAAF, NASCAR | static dicts in scoring.py (NFL/NCAAF); `data/nascar.json` → Supabase → static (NASCAR) | 2025 seasons frozen (NFL/NCAAF); NASCAR frozen at the real 2026 regular-season end (Aug 29, Coke Zero Sugar 400) since NASCAR resets all Chase qualifiers' points to a seed-based scale once the playoffs start — see `data/nascar.json`'s `_note` and `db.py repair_nascar_freeze()` |
-| NBA, MLB, NHL, NCAAB | Supabase (live scrape) | sports-reference daily; NHL was frozen/restored once already (2026-27 season rollover wiped it, see `db.py repair_nhl_freeze()`) |
+| NFL, NCAAF, NASCAR, NCAAB | static dicts in scoring.py (NFL/NCAAF); `data/nascar.json` → Supabase → static (NASCAR); Supabase poll (NCAAB) | 2025 seasons frozen (NFL/NCAAF); NASCAR frozen at the real 2026 regular-season end (Aug 29, Coke Zero Sugar 400) since NASCAR resets all Chase qualifiers' points to a seed-based scale once the playoffs start — see `data/nascar.json`'s `_note` and `db.py repair_nascar_freeze()`; NCAAB frozen at the final 2025-26 AP Top 25 poll (Michigan won the title, April 2026) since this league's NCAAB category tracks that already-concluded season, not whatever a live scrape of a not-yet-started new season would show — see `db.py repair_ncaab_freeze()` |
+| NBA, MLB, NHL | Supabase (live scrape) | sports-reference daily; NHL was frozen/restored once already (2026-27 season rollover wiped it, see `db.py repair_nhl_freeze()`) |
 | Tennis | Supabase | women's rank gets +0.5 (Amend. 7.4) |
 | Golf | PGA Tour GraphQL API (statId 186) → `GOLF_2026_OWGR_STATIC` fallback | owgr.com 404s, ESPN 500s; PGA Tour AppSync key in scrapers.py `PGATOUR_API_KEY` |
 | MLS | `data/mls.json` → Supabase → static | local file is a manual override; freshness-timestamp comparison in `select_standings()` is the only staleness guard (the old >50-pts rejection heuristic was removed — it started rejecting legitimate fresh data as a season progresses) |
