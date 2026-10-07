@@ -47,13 +47,19 @@
     "Wu":       4.0
   },
   "Musician": {
+    "Buckley":  0.0,
     "Feder":   13.0,
     "Fryar":    4.0,
+    "Jamzee":   0.0,
+    "Jens":     6.0,
     "Korch":   13.0,
     "Mitchell":13.0,
+    "Shep":     1.0,
+    "Theo":     0.0,
     "Tim":     13.0,
+    "Todd":     0.0,
     "Wu":       3.0,
-    "Jens":     6.0
+    "Molmen":   0.0
   },
   "NCAAB": {
     "Tim":     2.5,
