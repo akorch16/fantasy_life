@@ -6,7 +6,7 @@ Sources:
   Golf         → OWGR scrape
   Stock        → Yahoo Finance
   Country      → IMF DataMapper API
-  Musician     → Billboard scrape (fragile, fallback to manual)
+  Musician     → Billboard weekly Hot 100 charts (top 10 of every 2026 issue)
   NFL/NCAAF    → FROZEN in Supabase, scrapers skip these
 """
 
@@ -652,127 +652,112 @@ def scrape_country_gdp():
 
 
 # ── Musician (Billboard) ──────────────────────────────────────────────────────
+# Tallied from Billboard's own weekly Hot 100 charts (top 10 of every 2026 issue),
+# not Wikipedia's year-summary tables: those list a song's WHOLE top-ten run (so
+# 2025 weeks leaked into the 2026 tally, e.g. Daisies' 17 weeks all came in 2025),
+# and their rowspan'd cells made a scraper skip every week of a multi-week #1 run.
+_BILLBOARD_YEAR = 2026
+
+
+def _billboard_issue_dates(year, today=None):
+    """Saturday issue dates of `year` Billboard has published so far (an issue
+    dated Saturday D goes live the Tuesday before it, D - 4 days)."""
+    from datetime import date, timedelta
+    today = today or date.today()
+    d = date(year, 1, 1)
+    while d.weekday() != 5:
+        d += timedelta(days=1)
+    dates = []
+    while d.year == year and d - timedelta(days=4) <= today:
+        dates.append(d)
+        d += timedelta(days=7)
+    return dates
+
+
+def _billboard_top10(issue_date):
+    """[(song, artist_text)] for ranks 1-10 of the Hot 100 issue dated issue_date."""
+    soup = fetch_html(f'https://www.billboard.com/charts/hot-100/{issue_date.isoformat()}/', timeout=30)
+    top = []
+    for row in soup.select('ul.o-chart-results-list-row')[:10]:
+        title = row.select_one('h3#title-of-a-story')
+        if not title:
+            continue
+        artist = title.find_next('span')
+        top.append((title.get_text(strip=True), artist.get_text(strip=True) if artist else ''))
+    return top
+
+
+def _tally_billboard_week(scores_map, top10):
+    """Add one weekly top-10 chart to scores_map: every artist credited on a
+    top-10 song gets a top-10 week (summed per song, as before) and the #1 song's
+    artists also get a #1 week."""
+    for rank, (song, artist_text) in enumerate(top10, 1):
+        artists = re.split(r'\s*[,&]\s*|\s+(?:featuring|feat\.?|with|x|and)\s+', artist_text, flags=re.IGNORECASE)
+        for a in artists:
+            a = a.strip().strip('"').strip()
+            if not a or len(a) < 2:
+                continue
+            entry = scores_map.setdefault(
+                a, {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0, 'songs': {}})
+            song_entry = entry['songs'].setdefault(
+                song, {'title': song, 'num1_weeks': 0, 'hot100_weeks': 0})
+            entry['hot100_weeks'] += 1
+            song_entry['hot100_weeks'] += 1
+            if rank == 1:
+                entry['num1_weeks'] += 1
+                song_entry['num1_weeks'] += 1
+
+
 def scrape_billboard():
     if is_frozen('Musician'):
         print('  ⏸ Musician is frozen, skipping'); return True
     try:
-        import re
         scores_map = {}   # artist -> {'artist', 'num1_weeks', 'hot100_weeks', 'songs': {title: {...}}}
+        dates = _billboard_issue_dates(_BILLBOARD_YEAR)
+        fetched = 0
+        for d in dates:
+            top10 = []
+            for attempt in range(2):
+                try:
+                    top10 = _billboard_top10(d)
+                    if len(top10) == 10:
+                        break
+                except Exception as e:
+                    print(f'    ✗ {d} attempt {attempt + 1}: {e}')
+                time.sleep(2)
+            if len(top10) != 10:
+                continue
+            _tally_billboard_week(scores_map, top10)
+            fetched += 1
+            time.sleep(0.4)
+        print(f'    Billboard: {fetched}/{len(dates)} weekly Hot 100 charts, {len(scores_map)} artists')
+        if not dates or fetched < len(dates):
+            # A missing week would silently undercount, so keep the last good tally.
+            raise Exception(f'only {fetched}/{len(dates)} weekly charts fetched — not saving a partial tally')
 
-        def _artist_entry(a):
-            if a not in scores_map:
-                scores_map[a] = {'artist': a, 'num1_weeks': 0, 'hot100_weeks': 0, 'songs': {}}
-            return scores_map[a]
+        # Flatten each artist's song dict to a list, sorted by chart impact.
+        for entry in scores_map.values():
+            entry['songs'] = sorted(
+                entry['songs'].values(),
+                key=lambda s: (-s['num1_weeks'], -s['hot100_weeks'], s['title'])
+            )
 
-        def _clean_song_title(raw):
-            """Wikipedia's #1s and top-10s tables format the same song's title
-            differently — the top-10s page appends stray quote marks, footnote
-            refs like [B]/[D], and ↑/↓ chart-movement arrows (e.g. the SAME
-            song comes through as 'Opalite' on one page and
-            'Opalite " [B] [D] ↑' on the other). Without stripping these, one
-            song silently splits into two rows. Removes quote chars, movement
-            arrows, and bracketed footnotes from anywhere in the string (not
-            just the ends), then collapses whitespace."""
-            cleaned = re.sub(r'["↑↓]|\[[A-Za-z0-9]+\]', '', raw)
-            return re.sub(r'\s+', ' ', cleaned).strip()
-
-        def _song_entry(artist_entry, title):
-            songs = artist_entry['songs']
-            if title not in songs:
-                songs[title] = {'title': title, 'num1_weeks': 0, 'hot100_weeks': 0}
-            return songs[title]
-
-        # ── Page 1: #1 weeks ─────────────────────────────────────────────
-        try:
-            soup1 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number_ones_of_2026', timeout=15)
-            for table in soup1.select('table.wikitable'):
-                for row in table.select('tr'):
-                    cols = row.find_all(['td', 'th'])
-                    if len(cols) < 4:
-                        continue
-                    # Table: No. | Issue date | Song | Artist(s) | Ref.
-                    song_text   = _clean_song_title(cols[2].get_text(separator=' ', strip=True))
-                    artist_text = cols[3].get_text(separator=' ', strip=True)
-                    # Skip header rows
-                    if artist_text.lower() in ('artist', 'artist(s)', 'ref.', ''):
-                        continue
-                    # Each row = 1 week at #1
-                    artists = re.split(r'\s*[,&]\s*|\s+feat\.\s+|\s+and\s+', artist_text, flags=re.IGNORECASE)
-                    for a in artists:
-                        a = a.strip().strip('"').strip()
-                        if not a or len(a) < 2:
-                            continue
-                        entry = _artist_entry(a)
-                        entry['num1_weeks'] += 1
-                        # hot100_weeks (artist total) is populated entirely by the
-                        # top-10 page below to avoid double-counting.
-                        if song_text:
-                            _song_entry(entry, song_text)['num1_weeks'] += 1
-            print(f'    #1 page: {len(scores_map)} artists found')
-        except Exception as e:
-            print(f'    ✗ #1 page: {e}')
-
-        # ── Page 2: top-10 weeks ──────────────────────────────────────────
-        try:
-            soup2 = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2026', timeout=15)
-            for table in soup2.select('table.wikitable'):
-                for row in table.select('tr'):
-                    cols = row.find_all(['td', 'th'])
-                    if len(cols) < 6:
-                        continue
-                    # Table: Date | Single | Artist(s) | Peak | Peak date | Weeks in top ten | Ref.
-                    song_text   = _clean_song_title(cols[1].get_text(separator=' ', strip=True))
-                    artist_text = cols[2].get_text(separator=' ', strip=True)
-                    weeks_text  = cols[5].get_text(strip=True).replace('*', '').strip()
-
-                    if not weeks_text or artist_text.lower() in ('artist', 'artist(s)'):
-                        continue
-                    try:
-                        weeks = int(weeks_text.split()[0])
-                    except ValueError:
-                        continue
-
-                    artists = re.split(r'\s*[,&]\s*|\s+feat\.\s+|\s+and\s+', artist_text, flags=re.IGNORECASE)
-                    for a in artists:
-                        a = a.strip().strip('"').strip()
-                        if not a or len(a) < 2:
-                            continue
-                        entry = _artist_entry(a)
-                        entry['hot100_weeks'] += weeks
-                        if song_text:
-                            _song_entry(entry, song_text)['hot100_weeks'] += weeks
-            print(f'    Top-10 page: {len(scores_map)} total artists found')
-        except Exception as e:
-            print(f'    ✗ Top-10 page: {e}')
-
-        if scores_map:
-            # Flatten each artist's song dict to a list, sorted by chart impact,
-            # for storage/display (JSON doesn't preserve dict insertion order
-            # as meaningfully as an explicit sort does here).
-            for entry in scores_map.values():
-                entry['songs'] = sorted(
-                    entry['songs'].values(),
-                    key=lambda s: (-s['num1_weeks'], -s['hot100_weeks'], s['title'])
-                )
-
-            # Log picks that matched
-            from draft_picks_2026 import DRAFT_PICKS_2026
-            picks = list(DRAFT_PICKS_2026.get('Musician', {}).values())
-            for pick in picks:
-                match = next((v for k, v in scores_map.items() if name_matches(pick, k)), None)
-                if match:
-                    song_summary = ', '.join(
-                        f"{s['title']} ({s['num1_weeks']}#1/{s['hot100_weeks']}top10)"
-                        for s in match['songs']
-                    ) or 'no songs tracked'
-                    print(f'    ✓ {pick}: {match["num1_weeks"]} #1 wks, {match["hot100_weeks"]} top-10 wks — {song_summary}')
-                else:
-                    print(f'    – {pick}: no chart data')
-            return save_standing('Musician', {'scores': list(scores_map.values())})
-
-        raise Exception('No chart data found')
+        # Log picks that matched
+        from draft_picks_2026 import DRAFT_PICKS_2026
+        picks = list(DRAFT_PICKS_2026.get('Musician', {}).values())
+        for pick in picks:
+            match = next((v for k, v in scores_map.items() if name_matches(pick, k)), None)
+            if match:
+                song_summary = ', '.join(
+                    f"{s['title']} ({s['num1_weeks']}#1/{s['hot100_weeks']}top10)"
+                    for s in match['songs']
+                ) or 'no songs tracked'
+                print(f'    ✓ {pick}: {match["num1_weeks"]} #1 wks, {match["hot100_weeks"]} top-10 wks — {song_summary}')
+            else:
+                print(f'    – {pick}: no chart data')
+        return save_standing('Musician', {'scores': list(scores_map.values())})
     except Exception as e:
-        print(f'  ✗ Musician/Wikipedia: {e}'); return False
+        print(f'  ✗ Musician/Billboard: {e}'); return False
 
 # ── Actor / Actress (OMDb) ──────────────────────────────────────────────────────
 
