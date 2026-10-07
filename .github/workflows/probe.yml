@@ -24,59 +24,24 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Probe Billboard Wikipedia tables
+      - name: Probe billboard.com weekly Hot 100
         run: |
           python - <<'PY'
-          from scrapers import fetch_html
-          picks = ['Kendrick','FKA','Sabrina','Olivia Rodrigo','Bad Bunny','Drake','BTS','Gaga','Bieber','SZA','Swift','Weeknd','Beyonc']
-
-          def expand(table):
-              rows, carry = [], {}
-              for tr in table.select('tr'):
-                  cells = tr.find_all(['td', 'th'])
-                  row, col, ci = [], 0, 0
-                  while ci < len(cells) or col in carry:
-                      if col in carry:
-                          rem, txt = carry[col]
-                          row.append(txt)
-                          if rem > 1:
-                              carry[col] = (rem - 1, txt)
-                          else:
-                              del carry[col]
-                          col += 1
-                          continue
-                      c = cells[ci]; ci += 1
-                      txt = c.get_text(' ', strip=True)
-                      rs = int(c.get('rowspan') or 1); cs = int(c.get('colspan') or 1)
-                      for _ in range(cs):
-                          row.append(txt)
-                          if rs > 1:
-                              carry[col] = (rs - 1, txt)
-                          col += 1
-                  rows.append(row)
-              return rows
-
-          def heading(table):
-              h = table.find_previous(['h2', 'h3', 'h4'])
-              return h.get_text(' ', strip=True) if h else None
-
-          for label, url in [
-              ('2026 TOP-10', 'https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2026'),
-              ('2025 TOP-10', 'https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_top-ten_singles_in_2025'),
-          ]:
-              print('=====', label, '=====')
-              soup = fetch_html(url, timeout=20)
-              for ti, t in enumerate(soup.select('table.wikitable')):
-                  rows = expand(t)
-                  print('table', ti, 'heading:', heading(t), 'rows', len(rows))
-                  for i, r in enumerate(rows):
-                      txt = ' '.join(r)
-                      if i == 0 or any(p.lower() in txt.lower() for p in picks):
-                          print('  ', i, r)
-          print('===== 2025 #1 page: Swift rows =====')
-          soup = fetch_html('https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number_ones_of_2025', timeout=20)
-          for ti, t in enumerate(soup.select('table.wikitable')):
-              for r in expand(t):
-                  if any(p.lower() in ' '.join(r).lower() for p in ['Swift', 'Bad Bunny', 'Drake', 'Rodrigo']):
-                      print('  ', ti, r)
+          import requests, cloudscraper
+          from bs4 import BeautifulSoup
+          for d in ['2026-01-03', '2026-01-10', '2026-10-10']:
+              url = f'https://www.billboard.com/charts/hot-100/{d}/'
+              for name, getter in [('requests', lambda u: requests.get(u, timeout=25, headers={'User-Agent': 'Mozilla/5.0'})),
+                                   ('cloudscraper', lambda u: cloudscraper.create_scraper().get(u, timeout=25))]:
+                  try:
+                      r = getter(url)
+                      soup = BeautifulSoup(r.text, 'html.parser')
+                      items = soup.select('ul.o-chart-results-list-row')
+                      print(d, name, r.status_code, len(r.text), 'rows:', len(items))
+                      for it in items[:10]:
+                          title = it.select_one('h3#title-of-a-story')
+                          artist = title.find_next('span') if title else None
+                          print('    ', title.get_text(strip=True) if title else None, '|', artist.get_text(strip=True) if artist else None)
+                  except Exception as e:
+                      print(d, name, 'ERR', e)
           PY
