@@ -102,6 +102,11 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   `sb_bets` rows — it never writes balance or `settled_outcome`. `sbResetPlayer` no longer deletes
   bets. Use `dump-sb.yml` (workflow_dispatch) to inspect live Supabase state, or its `--migrate-ledger`
   command to re-verify the ledger fold against live balances.
+- **Projection bookkeeping invariant:** `simulate()` starts every player from their *current* total, strips only
+  the baseline of re-ranked categories (actor/actress/stock/country), and adds playoff/major bonuses as deltas
+  over what is already banked — so league-wide Σ(projected − current) ≥ 0 and `PROJ = NOW + EXP` per row
+  (`projected_additional` is derived from the sim, not a separate heuristic). Finished events (all four golf
+  majors, all four slams) are skipped via `EVENT_END`; add new dates there. `audit.py` enforces the invariant.
 - projections.py odds sources, in priority order: Kalshi live markets → Monte Carlo
   pairwise sim → standings-based normal approximation (`_mlb_h2h`/`_mls_h2h`/`_pts_h2h`) → static `FALLBACK`.
 - Headlines must only state facts present in Tavily snippets — the prompt forbids

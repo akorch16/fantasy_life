@@ -249,12 +249,22 @@ def check_projections(proj, scores, today):
     if n < 50000:
         add('INFO', 'projections', f'{n:,} sims: win odds under ~0.1% are sampling noise (±2x run to run); '
             'do not quote the +100,000 tail as signal')
-    drift = [p['name'] for p in proj.get('players', [])
-             if None not in (p.get('current_total'), p.get('projected_additional'), p.get('projected_total'))
-             and p['projected_additional'] > 0 and p['projected_total'] < p['current_total'] - 1]
-    if drift:
-        add('INFO', 'projections', f'projected_total < current_total for {", ".join(drift)} despite a positive '
-            f'expected gain (re-ranking effect — known; trust win_pct, not projected_total)')
+    # Bookkeeping invariants of simulate(): re-ranking is zero-sum and bonuses only add, so the
+    # league-wide drift (projected_total - current_total) can never be negative, and every row must
+    # satisfy projected_total == current_total + projected_additional. A negative drift means the
+    # simulation is dropping already-earned points (it once stripped earned NBA/NHL/golf/tennis
+    # bonuses: -49 points league-wide).
+    rows = [p for p in proj.get('players', [])
+            if None not in (p.get('current_total'), p.get('projected_additional'), p.get('projected_total'))]
+    drift = sum(p['projected_total'] - p['current_total'] for p in rows)
+    if rows and drift < -1.0:
+        add('ERROR', 'projections', f'simulation drift is {drift:+.1f} points league-wide (must be >= 0) — it is '
+            f'dropping earned bonus points or double-removing a category baseline')
+    for p in rows:
+        gap = p['projected_total'] - p['current_total'] - p['projected_additional']
+        if abs(gap) > 0.15:
+            add('ERROR', 'projections', f'{p["name"]}: projected_total {p["projected_total"]} != current '
+                f'{p["current_total"]} + expected {p["projected_additional"]} (off by {gap:+.1f})')
     fb = proj.get('fallback_as_of')
     if fb:
         try:

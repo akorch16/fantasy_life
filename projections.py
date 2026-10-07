@@ -498,13 +498,6 @@ def _sample_normal_capped(p10, p50, p90, lo=0.0, hi=100.0):
     return max(lo, min(hi, random.gauss(p50, sigma)))
 
 
-def _expected_lognormal(p10, p50, p90):
-    """E[X] for lognormal parameterized by (p10, median, p90)."""
-    mu = math.log(p50)
-    sigma = math.log(p90 / p10) / (2 * 1.28)
-    return math.exp(mu + 0.5 * sigma * sigma)
-
-
 def _rank_composites(players_list, comp_dict):
     """
     Rank players by composite score, averaging ranks for ties.
@@ -527,38 +520,6 @@ def _rank_composites(players_list, comp_dict):
 
 
 # ─── Expected bonus helpers ──────────────────────────────────────────────────
-def _expected_bonus_preseason(p_champ):
-    """
-    Expected bonus for a team with championship probability p_champ and no
-    current bonus (regular season / pre-playoff).
-
-    Only p_champ is available here (no separate finalist/semifinalist odds
-    the way NBA/NHL conf-finals get — see _expected_bonus_conf_finals), so the
-    intermediate-tier probabilities (runner-up, semis) can't be measured and
-    have to be approximated from p_champ alone.
-
-    Uses 13.0 × sqrt(p_champ): concave, strictly increasing, bounded in
-    [0, 13], and — critically — only reaches the 13.0 ceiling as p_champ → 1.
-    The previous linear formula (46.5 × p_champ, capped at 13.0) saturated at
-    the cap for any p_champ ≥ ~28%, so a 37%-favorite and a 100%-certain
-    champion both got the identical expected value of 13.0 — capping fixed
-    the formula exceeding the max, but not this: it was still flatly wrong
-    for the entire ≥28% range. sqrt keeps every probability distinguishable
-    (37% → 7.9, 90% → 12.3, 100% → 13.0) while still giving more than the
-    naive p_champ×13 alone, as partial credit for deep-but-short-of-champion
-    playoff runs.
-    """
-    return 13.0 * (max(0.0, min(1.0, p_champ)) ** 0.5)
-
-
-def _expected_bonus_conf_finals(p_champ, p_finalist):
-    """
-    Expected ADDITIONAL bonus for a team currently at semi (6.5) in conf finals.
-    E[additional] = p_champ × 4 + p_finalist × 2.5   (over current 6.5)
-    """
-    return p_champ * 4.0 + p_finalist * 2.5
-
-
 # ─── Kalshi fetch + merge ─────────────────────────────────────────────────────
 KNOWN_SERIES = {
     # Kalshi tickers, verified against the live series catalog 2026-07-05
@@ -984,166 +945,6 @@ def build_odds(markets_used):
 
 
 # ─── Expected additional points (deterministic) ──────────────────────────────
-def compute_expected_additional(current_scores, odds):
-    """
-    For each player, compute expected additional points from live categories.
-    Returns {player: {category: expected_additional_pts}}.
-    """
-    players = {p["name"]: p for p in current_scores}
-    result = {name: {} for name in players}
-
-    # ── NBA ──────────────────────────────────────────────────────────────────
-    # A champion (bonus_pts == 13.0) already crowned means the season is fully
-    # decided — nobody, including runner-up/semifinalists, can earn additional
-    # bonus points. Without this check, a team frozen at its final bonus (e.g.
-    # runner-up, 9.0) still fell into the conf-finals branch below and picked up
-    # a phantom addition from a stale pinned conference-finalist probability
-    # that was never zeroed out once the Finals concluded.
-    nba_decided = any(
-        (p["categories"].get("nba", {}).get("bonus_pts") or 0) >= 13.0
-        for p in current_scores
-    )
-    nba_champ = _normalize(odds["nba_champ"])
-    west = odds["nba_conf_finals_west"]
-    east = odds["nba_conf_finals_east"]
-    for player, pick in NBA_PICKS.items():
-        current_bonus = players[player]["categories"].get("nba", {}).get("bonus_pts", 0)
-        p_champ = nba_champ.get(player, 0)
-        if nba_decided:
-            additional = 0.0
-        elif current_bonus >= 6.5:
-            # In conference finals → model finalist and champion probabilities
-            if player in west:
-                p_finalist = west[player]
-            elif player in east:
-                p_finalist = east[player]
-            else:
-                p_finalist = 2 * p_champ  # rough estimate
-            additional = _expected_bonus_conf_finals(p_champ, p_finalist)
-        elif current_bonus >= 2.5:
-            additional = 0.0  # already eliminated
-        else:
-            additional = _expected_bonus_preseason(p_champ)
-        result[player]["nba"] = additional
-
-    # ── NHL ──────────────────────────────────────────────────────────────────
-    nhl_decided = any(
-        (p["categories"].get("nhl", {}).get("bonus_pts") or 0) >= 13.0
-        for p in current_scores
-    )
-    nhl_champ = _normalize(odds["nhl_champ"])
-    nhl_west = odds["nhl_conf_finals_west"]
-    nhl_east = odds["nhl_conf_finals_east"]
-    for player, pick in NHL_PICKS.items():
-        current_bonus = players[player]["categories"].get("nhl", {}).get("bonus_pts", 0)
-        p_champ = nhl_champ.get(player, 0)
-        if nhl_decided:
-            additional = 0.0
-        elif current_bonus >= 6.5:
-            if player in nhl_west:
-                p_finalist = nhl_west[player]
-            elif player in nhl_east:
-                p_finalist = nhl_east.get(player, 0.50)
-            else:
-                p_finalist = 2 * p_champ
-            additional = _expected_bonus_conf_finals(p_champ, p_finalist)
-        elif current_bonus >= 2.5:
-            additional = 0.0
-        else:
-            additional = _expected_bonus_preseason(p_champ)
-        result[player]["nhl"] = additional
-
-    # ── MLB / MLS / NASCAR (pre-playoff, use preseason formula) ──────────────
-    for cat, picks_dict, key in [
-        ("mlb",    MLB_PICKS,    "mlb_champ"),
-        ("mls",    MLS_PICKS,    "mls_champ"),
-    ]:
-        champ_probs = _normalize(odds[key])
-        for player in picks_dict:
-            p_champ = champ_probs.get(player, 0)
-            result[player][cat] = _expected_bonus_preseason(p_champ)
-    nascar_exp = _expected_nascar_bonus(_normalize(odds["nascar_champ"]))
-    for player in NASCAR_PICKS:
-        result[player]["nascar"] = nascar_exp.get(player, 0.0)
-
-    # ── Golf (2 remaining majors, additive) ──────────────────────────────────
-    golf_pairs = [
-        (odds["golf_uso_win"],  odds["golf_uso_ru"],  6.0, 2.5),
-        (odds["golf_open_win"], odds["golf_open_ru"],  6.0, 2.5),
-    ]
-    for player in GOLF_PICKS:
-        total = 0.0
-        for win_probs, ru_probs, win_pts, ru_pts in golf_pairs:
-            p_win = win_probs.get(player, 0)
-            p_ru  = ru_probs.get(player, 0)
-            total += p_win * win_pts + p_ru * ru_pts
-        result[player]["golf"] = total
-
-    # ── Tennis (3 remaining slams × 2 genders, additive) ─────────────────────
-    tennis_pairs = [
-        ("tennis_french_men_win",    "tennis_french_men_ru",    4.0, 2.5),
-        ("tennis_french_women_win",  "tennis_french_women_ru",  4.0, 2.5),
-        ("tennis_wimbledon_men_win", "tennis_wimbledon_men_ru",  4.0, 2.5),
-        ("tennis_wimbledon_women_win","tennis_wimbledon_women_ru",4.0, 2.5),
-        ("tennis_usopen_men_win",    "tennis_usopen_men_ru",    4.0, 2.5),
-        ("tennis_usopen_women_win",  "tennis_usopen_women_ru",  4.0, 2.5),
-    ]
-    all_tennis = {**TENNIS_MEN, **TENNIS_WOMEN}
-    for player in all_tennis:
-        total = 0.0
-        for wk, rk, wp, rp in tennis_pairs:
-            p_win = odds.get(wk, {}).get(player, 0)
-            p_ru  = odds.get(rk, {}).get(player, 0)
-            total += p_win * wp + p_ru * rp
-        result[player]["tennis"] = total
-
-    # ── Actor / Actress: expected composite from upcoming films → rank delta ──
-    players_list = list(players.keys())
-    for cat in ("actor", "actress"):
-        # Start from current composites (already-released films)
-        composites = {
-            name: (players[name]["categories"].get(cat, {}).get("raw_value") or 0.0)
-            for name in players_list
-        }
-        # Add expected composite from each upcoming film (E[lognormal] × median RT/100)
-        for film in FILM_PIPELINE:
-            e_box = _expected_lognormal(*film["box_office"])
-            e_rt  = film["rt"][1]  # median RT as point estimate
-            e_contrib = (e_rt / 100.0) * e_box
-            for player in film[cat]:
-                composites[player] = composites.get(player, 0.0) + e_contrib
-        # Rank by expected composite → pts
-        expected_pts = _rank_composites(players_list, composites)
-        # Delta vs current baseline_pts (bonus_pts stay frozen)
-        for name in players_list:
-            current_base = players[name]["categories"].get(cat, {}).get("baseline_pts") or 0.0
-            result[name][cat] = expected_pts.get(name, 0.0) - current_base
-
-    # ── Stock: expected rank delta from remaining-year return distributions ───
-    stock_exp = {}
-    for player in STOCK_SIM:
-        current = players[player]["categories"].get("stock", {}).get("raw_value") or 0.0
-        exp_add, _ = STOCK_SIM[player]
-        stock_exp[player] = current + exp_add
-    expected_stock_pts = _rank_composites(players_list, stock_exp)
-    for name in players_list:
-        current_base = players[name]["categories"].get("stock", {}).get("baseline_pts") or 0.0
-        result[name]["stock"] = expected_stock_pts.get(name, 0.0) - current_base
-
-    # ── Country: expected rank delta from Oct 2026 IMF revision ─────────────
-    country_exp = {}
-    for player in COUNTRY_SIM:
-        current = players[player]["categories"].get("country", {}).get("raw_value") or 0.0
-        exp_rev, _ = COUNTRY_SIM[player]
-        country_exp[player] = current + exp_rev
-    expected_country_pts = _rank_composites(players_list, country_exp)
-    for name in players_list:
-        current_base = players[name]["categories"].get("country", {}).get("baseline_pts") or 0.0
-        result[name]["country"] = expected_country_pts.get(name, 0.0) - current_base
-
-    return result
-
-
 # ─── Monte Carlo simulation ───────────────────────────────────────────────────
 def _sample_major(win_probs, ru_probs):
     """
@@ -1214,14 +1015,6 @@ def _sample_nascar_finish(champ_probs):
     return results
 
 
-def _expected_nascar_bonus(champ_probs, n=4000):
-    totals = {}
-    for _ in range(n):
-        for player, pts in _sample_nascar_finish(champ_probs).items():
-            totals[player] = totals.get(player, 0.0) + pts
-    return {player: t / n for player, t in totals.items()}
-
-
 def _simulate_playoffs_conf(conf_west_probs, conf_east_probs, champ_probs):
     """
     Simulate a conference-finals-style playoff (NBA or NHL).
@@ -1274,127 +1067,147 @@ def _simulate_playoffs_conf(conf_west_probs, conf_east_probs, champ_probs):
     return results
 
 
+# Last day of each recurring event. Once it has passed, the result is history that is
+# already in scores.json (as baseline/bonus points) — NOT a forecast. All four golf majors
+# and all four slams are done for 2026; simulating them again from stale June FALLBACK
+# odds was handing out phantom bonus points.
+EVENT_END = {
+    "golf_uso":         datetime.date(2026, 6, 21),
+    "golf_open":        datetime.date(2026, 7, 19),
+    "tennis_french":    datetime.date(2026, 6, 7),
+    "tennis_wimbledon": datetime.date(2026, 7, 12),
+    "tennis_usopen":    datetime.date(2026, 9, 13),
+}
+
+
+def _event_done(odds_key, today=None):
+    """True once the event behind an odds key (golf_uso_win, tennis_french_men_ru…) has ended."""
+    end = EVENT_END.get("_".join(odds_key.split("_")[:2]))
+    return bool(end) and (today or datetime.date.today()) > end
+
+
+# Categories whose points are re-ranked from sampled raw values each run.
+RERANKED = ("actor", "actress", "stock", "country")
+SIM_CATS = ("nba", "nhl", "mlb", "mls", "nascar", "golf", "tennis") + RERANKED
+
+
 def simulate(current_scores, odds, n=N_SIMS):
     """
     Run n Monte Carlo simulations.
-    Returns {player: {win_pct, top4_pct, projected_total, projected_p10, projected_p90, ...}}.
+    Returns ({player: {win_pct, top4_pct, projected_total, projected_p10, projected_p90,
+    category_expected}}, pairwise).
+
+    Bookkeeping invariant: every player starts from their CURRENT total, minus only the
+    baseline points of the categories that are re-ranked each run (actor/actress/stock/country).
+    Earned bonus points are never stripped. Each bonus block adds only what can still change,
+    as a delta over what is already banked. So Σ(projected_total − current_total) over the
+    league is >= 0 (re-ranking is zero-sum; bonuses only add), and
+    projected_total == current_total + Σ category_expected for every player.
     """
     players_list = [p["name"] for p in current_scores]
+    by_name = {p["name"]: p for p in current_scores}
 
-    # Base totals: strip the portions we re-sample each run.
-    # Sports: subtract bonus_pts only (baseline rank is frozen).
-    # Actor/Actress/Stock/Country: subtract baseline_pts (ranking re-simulated);
-    #   bonus_pts stay frozen (already earned).
-    base = {}
+    base, cur_pts = {}, {c: {} for c in RERANKED}
     for p in current_scores:
-        name = p["name"]
         total = p["total"]
-        for cat in ("nba", "nhl", "mlb", "mls", "nascar", "golf", "tennis"):
-            total -= p["categories"].get(cat, {}).get("bonus_pts", 0) or 0
-        for cat in ("actor", "actress", "stock", "country"):
-            total -= p["categories"].get(cat, {}).get("baseline_pts", 0) or 0
-        base[name] = total
+        for cat in RERANKED:
+            bp = p["categories"].get(cat, {}).get("baseline_pts", 0) or 0
+            cur_pts[cat][p["name"]] = bp
+            total -= bp
+        base[p["name"]] = total
 
-    # Pre-extract composite/raw scores for re-ranked categories
-    current_actor_comp = {
-        p["name"]: p["categories"].get("actor", {}).get("raw_value") or 0.0
-        for p in current_scores
-    }
-    current_actress_comp = {
-        p["name"]: p["categories"].get("actress", {}).get("raw_value") or 0.0
-        for p in current_scores
-    }
-    current_stock_raw = {
-        p["name"]: p["categories"].get("stock", {}).get("raw_value") or 0.0
-        for p in current_scores
-    }
-    current_country_raw = {
-        p["name"]: p["categories"].get("country", {}).get("raw_value") or 0.0
-        for p in current_scores
-    }
+    def raw(cat):
+        return {nm: by_name[nm]["categories"].get(cat, {}).get("raw_value") or 0.0 for nm in players_list}
 
-    # Current bonuses for in-progress playoff categories
-    current_nba = {p["name"]: p["categories"].get("nba", {}).get("bonus_pts", 0) or 0
-                   for p in current_scores}
-    current_nhl = {p["name"]: p["categories"].get("nhl", {}).get("bonus_pts", 0) or 0
-                   for p in current_scores}
-    # Once a champion (bonus_pts == 13.0) is crowned the season is fully decided
-    # and nobody's bonus can change further — skip re-sampling it every
-    # iteration (same rationale as compute_expected_additional's nba_decided/
-    # nhl_decided: conference-finalist odds dicts aren't zeroed out once the
-    # real Finals conclude, so sampling them post-season injects phantom
-    # variance into players who are actually locked at their final bonus).
+    def bonus(cat):
+        return {nm: by_name[nm]["categories"].get(cat, {}).get("bonus_pts", 0) or 0 for nm in players_list}
+
+    current_actor_comp, current_actress_comp = raw("actor"), raw("actress")
+    current_stock_raw, current_country_raw = raw("stock"), raw("country")
+    current_nba, current_nhl = bonus("nba"), bonus("nhl")
+    current_mlb, current_mls, current_nascar = bonus("mlb"), bonus("mls"), bonus("nascar")
+
+    # Once a champion (bonus_pts == 13.0) is crowned the season is fully decided and nobody's
+    # bonus can change further — nothing to sample.
     nba_decided = any(v >= 13.0 for v in current_nba.values())
     nhl_decided = any(v >= 13.0 for v in current_nhl.values())
 
-    # Pre-normalize championship odds for per-sim sampling
     nba_norm    = _normalize(odds["nba_champ"])
     nhl_norm    = _normalize(odds["nhl_champ"])
     mlb_norm    = _normalize(odds["mlb_champ"])
     mls_norm    = _normalize(odds["mls_champ"])
     nascar_norm = _normalize(odds["nascar_champ"])
 
-    tennis_pairs = [
+    tennis_pairs = [pr for pr in [
         ("tennis_french_men_win",     "tennis_french_men_ru"),
         ("tennis_french_women_win",   "tennis_french_women_ru"),
         ("tennis_wimbledon_men_win",  "tennis_wimbledon_men_ru"),
         ("tennis_wimbledon_women_win","tennis_wimbledon_women_ru"),
         ("tennis_usopen_men_win",     "tennis_usopen_men_ru"),
         ("tennis_usopen_women_win",   "tennis_usopen_women_ru"),
-    ]
-    golf_pairs = [
+    ] if not _event_done(pr[0])]
+    golf_pairs = [pr for pr in [
         ("golf_uso_win",  "golf_uso_ru"),
         ("golf_open_win", "golf_open_ru"),
-    ]
+    ] if not _event_done(pr[0])]
 
     sim_totals = {name: [] for name in players_list}
+    cat_add = {c: {name: 0.0 for name in players_list} for c in SIM_CATS}
     wins  = {name: 0 for name in players_list}
     top4s = {name: 0 for name in players_list}
+    totals = {}
+
+    def add(cat, player, pts):
+        if pts:
+            totals[player] += pts
+            cat_add[cat][player] += pts
+
+    def add_bonus(cat, player, new, old):
+        """Playoff bonuses replace what is banked: only the increase is new points."""
+        if new > old:
+            add(cat, player, new - old)
+
+    def add_reranked(cat, ranked_pts):
+        for player, pts in ranked_pts.items():
+            totals[player] += pts
+            cat_add[cat][player] += pts - cur_pts[cat][player]
 
     for _ in range(n):
         totals = dict(base)
 
-        # ── NBA: sample conference finals + Finals (skip if already decided) ─
+        # ── NBA / NHL: sample conference finals + Finals (skip if already decided) ─
         if not nba_decided:
-            nba_results = _simulate_playoffs_conf(
-                odds["nba_conf_finals_west"], odds["nba_conf_finals_east"], nba_norm
-            )
+            res = _simulate_playoffs_conf(odds["nba_conf_finals_west"], odds["nba_conf_finals_east"], nba_norm)
             for player in NBA_PICKS:
                 old = current_nba[player]
                 if old >= 6.5:
-                    new = MILESTONES.get(nba_results.get(player, "semi"), 6.5)
-                    totals[player] += max(0, new - old)
-
-        # ── NHL: sample conference finals + Finals (skip if already decided) ─
+                    add_bonus("nba", player, MILESTONES.get(res.get(player, "semi"), 6.5), old)
         if not nhl_decided:
-            nhl_results = _simulate_playoffs_conf(
-                odds["nhl_conf_finals_west"], odds["nhl_conf_finals_east"], nhl_norm
-            )
+            res = _simulate_playoffs_conf(odds["nhl_conf_finals_west"], odds["nhl_conf_finals_east"], nhl_norm)
             for player in NHL_PICKS:
                 old = current_nhl[player]
                 if old >= 6.5:
-                    new = MILESTONES.get(nhl_results.get(player, "semi"), 6.5)
-                    totals[player] += max(0, new - old)
+                    add_bonus("nhl", player, MILESTONES.get(res.get(player, "semi"), 6.5), old)
 
         # ── MLB / MLS / NASCAR: sample full playoff outcomes ────────────────
+        # Eliminated teams keep what they banked; teams still alive keep their floor unless
+        # the sampled outcome beats it.
         for player, pts in _sample_playoff_sport(mlb_norm).items():
-            totals[player] += pts
+            add_bonus("mlb", player, pts, current_mlb[player])
         for player, pts in _sample_playoff_sport(mls_norm).items():
-            totals[player] += pts
+            add_bonus("mls", player, pts, current_mls[player])
         for player, pts in _sample_nascar_finish(nascar_norm).items():
-            totals[player] += pts
+            add_bonus("nascar", player, pts, current_nascar[player])
 
-        # ── Golf: sample each remaining major independently ─────────────────
+        # ── Golf / Tennis: only events that have not happened yet ───────────
         for wk, rk in golf_pairs:
             winner, runner_up = _sample_major(odds[wk], odds[rk])
-            if winner:     totals[winner]     += 6.0
-            if runner_up:  totals[runner_up]  += 2.5
-
-        # ── Tennis: sample each remaining slam independently ────────────────
+            if winner:     add("golf", winner, 6.0)
+            if runner_up:  add("golf", runner_up, 2.5)
         for wk, rk in tennis_pairs:
             winner, runner_up = _sample_major(odds.get(wk, {}), odds.get(rk, {}))
-            if winner:     totals[winner]     += 4.0
-            if runner_up:  totals[runner_up]  += 2.5
+            if winner:     add("tennis", winner, 4.0)
+            if runner_up:  add("tennis", runner_up, 2.5)
 
         # ── Actor / Actress: sample each upcoming film's box office + RT ────
         actor_comp   = dict(current_actor_comp)
@@ -1407,25 +1220,16 @@ def simulate(current_scores, odds, n=N_SIMS):
                 actor_comp[player]   = actor_comp.get(player, 0.0)   + contrib
             for player in film["actress"]:
                 actress_comp[player] = actress_comp.get(player, 0.0) + contrib
-        for comp_dict in (actor_comp, actress_comp):
-            for player, pts in _rank_composites(players_list, comp_dict).items():
-                totals[player] += pts
+        add_reranked("actor",   _rank_composites(players_list, actor_comp))
+        add_reranked("actress", _rank_composites(players_list, actress_comp))
 
         # ── Stock: sample additional return, re-rank ────────────────────────
-        stock_sim = {}
-        for player in STOCK_SIM:
-            exp_add, std = STOCK_SIM[player]
-            stock_sim[player] = current_stock_raw.get(player, 0.0) + random.gauss(exp_add, std)
-        for player, pts in _rank_composites(players_list, stock_sim).items():
-            totals[player] += pts
+        stock_sim = {pl: current_stock_raw.get(pl, 0.0) + random.gauss(*STOCK_SIM[pl]) for pl in STOCK_SIM}
+        add_reranked("stock", _rank_composites(players_list, stock_sim))
 
         # ── Country: sample Oct IMF revision, re-rank ──────────────────────
-        country_sim = {}
-        for player in COUNTRY_SIM:
-            exp_rev, std = COUNTRY_SIM[player]
-            country_sim[player] = current_country_raw.get(player, 0.0) + random.gauss(exp_rev, std)
-        for player, pts in _rank_composites(players_list, country_sim).items():
-            totals[player] += pts
+        country_sim = {pl: current_country_raw.get(pl, 0.0) + random.gauss(*COUNTRY_SIM[pl]) for pl in COUNTRY_SIM}
+        add_reranked("country", _rank_composites(players_list, country_sim))
 
         # Rank and tally
         ranked = sorted(players_list, key=lambda x: -totals[x])
@@ -1445,6 +1249,8 @@ def simulate(current_scores, odds, n=N_SIMS):
             "projected_total": round(sum(sims) / n, 1),
             "projected_p10":   round(sims[int(n * 0.10)], 1),
             "projected_p90":   round(sims[int(n * 0.90)], 1),
+            "category_expected": {c: round(cat_add[c][name] / n, 2) for c in SIM_CATS
+                                  if abs(cat_add[c][name] / n) > 0.01},
         }
 
     # Pairwise head-to-head win rates: fraction of sims where A finishes above B
@@ -1472,29 +1278,25 @@ def run():
         print(f"  Kalshi key ID: {KALSHI_KEY_ID[:8]}... PEM set: {bool(KALSHI_PEM)}")
     odds = build_odds(markets_used)
 
-    print("\n── Computing expected additional points ───────────────────────")
-    expected = compute_expected_additional(current_scores, odds)
-
     print("\n── Running Monte Carlo simulation ─────────────────────────────")
     sim_results, pairwise = simulate(current_scores, odds)
 
-    # Assemble output
+    # Assemble output. projected_additional is derived from the SAME simulation as
+    # projected_total, so PROJ == NOW + EXP always holds (a separate heuristic used to disagree).
     players_out = []
     for p in current_scores:
         name = p["name"]
-        cat_exp = expected.get(name, {})
-        total_additional = sum(cat_exp.values())
         sr = sim_results[name]
         players_out.append({
             "name":               name,
             "current_total":      p["total"],
-            "projected_additional": round(total_additional, 1),
+            "projected_additional": round(sr["projected_total"] - p["total"], 1),
             "projected_total":    sr["projected_total"],
             "projected_p10":      sr["projected_p10"],
             "projected_p90":      sr["projected_p90"],
             "win_pct":            sr["win_pct"],
             "top4_pct":           sr["top4_pct"],
-            "category_expected":  {k: round(v, 2) for k, v in cat_exp.items() if abs(v) > 0.01},
+            "category_expected":  sr["category_expected"],
         })
 
     # Sort by projected total
