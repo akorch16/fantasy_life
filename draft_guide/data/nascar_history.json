@@ -1,0 +1,44 @@
+{
+ "as_of": "2026-10-08",
+ "source": "user-supplied final Cup standings top-5 history (7 drivers); 2026 is projected, Chase unfinished",
+ "note": "Unlisted slots (2021 2nd/5th, 2022 2nd, 2024 4th, 2025 3rd) belong to drivers outside the table.",
+ "years": {
+  "2021": {
+   "Kyle Larson": 1,
+   "Denny Hamlin": 3,
+   "Chase Elliott": 4
+  },
+  "2022": {
+   "Joey Logano": 1,
+   "Christopher Bell": 3,
+   "Chase Elliott": 4,
+   "Denny Hamlin": 5
+  },
+  "2023": {
+   "Ryan Blaney": 1,
+   "Kyle Larson": 2,
+   "William Byron": 3,
+   "Christopher Bell": 4,
+   "Denny Hamlin": 5
+  },
+  "2024": {
+   "Joey Logano": 1,
+   "Ryan Blaney": 2,
+   "William Byron": 3,
+   "Christopher Bell": 5
+  },
+  "2025": {
+   "Kyle Larson": 1,
+   "Denny Hamlin": 2,
+   "William Byron": 4,
+   "Christopher Bell": 5
+  },
+  "2026": {
+   "Kyle Larson": 1,
+   "Denny Hamlin": 2,
+   "Christopher Bell": 3,
+   "Joey Logano": 4,
+   "Ryan Blaney": 5
+  }
+ }
+}
