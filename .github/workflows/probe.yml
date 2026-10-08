@@ -24,39 +24,26 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: "Box Office Mojo 2027 calendar (weekly pages)"
+      - name: "BOM calendar structure"
         run: |
           python - <<'PY'
-          import requests, re, json, datetime, time
+          import requests, re
           from bs4 import BeautifulSoup
           H = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36', 'Accept-Language': 'en-US,en;q=0.9'}
-          # 1) does the year page list upcoming films?
-          for u in ['https://www.boxofficemojo.com/year/2027/', 'https://www.boxofficemojo.com/calendar/2027-01-01/']:
-              try:
-                  r = requests.get(u, headers=H, timeout=40)
-                  print('PAGE', u, r.status_code, len(r.text))
-              except Exception as e:
-                  print('PAGE', u, 'ERR', e)
-          d = datetime.date(2027, 1, 1)
-          while d.weekday() != 4: d += datetime.timedelta(days=1)   # first Friday
-          n = 0
-          while d.year == 2027:
-              url = f'https://www.boxofficemojo.com/calendar/{d.isoformat()}/'
-              try:
-                  r = requests.get(url, headers=H, timeout=40)
-                  soup = BeautifulSoup(r.text, 'html.parser')
-                  rows = []
-                  for tr in soup.select('table tr'):
-                      a = tr.select_one('a[href*="/release/"]')
-                      if not a: continue
+          for url in ['https://www.boxofficemojo.com/calendar/2027-06-04/', 'https://www.boxofficemojo.com/calendar/2027-12-17/']:
+              r = requests.get(url, headers=H, timeout=40)
+              soup = BeautifulSoup(r.text, 'html.parser')
+              print('=====', url, r.status_code)
+              tables = soup.select('table')
+              print('tables:', len(tables), [len(t.select('tr')) for t in tables])
+              # headings + first table rows with their parent chain
+              for h in soup.select('h1,h2,h3,h4')[:12]:
+                  print('HEAD', h.name, h.get_text(' ', strip=True)[:90])
+              t = tables[0] if tables else None
+              if t is not None:
+                  for tr in t.select('tr')[:70]:
+                      cls = ' '.join(tr.get('class') or [])
                       txt = tr.get_text(' | ', strip=True)
-                      rows.append({'date': d.isoformat(), 'title': a.get_text(strip=True), 'href': a.get('href', '')[:40], 'row': txt[:330]})
-                  print('WEEK', d.isoformat(), r.status_code, len(rows))
-                  for x in rows:
-                      print('REL ' + json.dumps(x, ensure_ascii=False)); n += 1
-              except Exception as e:
-                  print('WEEK', d.isoformat(), 'ERR', e)
-              d += datetime.timedelta(days=7)
-              time.sleep(0.4)
-          print('releases', n)
+                      a = tr.select_one('a[href*="/release/"]')
+                      print('TR', cls, '|', txt[:150], '|', (a.get('href') if a else '')[:34])
           PY
