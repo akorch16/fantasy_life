@@ -24,26 +24,59 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: "BOM calendar structure"
+      - name: "IMF WEO sources"
         run: |
           python - <<'PY'
-          import requests, re
+          import requests, json
+          H = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36', 'Accept': 'application/json,*/*'}
+          urls = [
+            'https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH',
+            'https://api.db.nomics.world/v22/series/IMF/WEO:latest?dimensions=%7B%22weo-subject%22%3A%5B%22NGDP_RPCH%22%5D%7D&limit=300&observations=1&format=json',
+            'https://api.db.nomics.world/v22/datasets/IMF/WEO',
+            'https://api.db.nomics.world/v22/providers/IMF',
+          ]
+          for u in urls:
+              try:
+                  r = requests.get(u, headers=H, timeout=60)
+                  print('=====', r.status_code, u, len(r.text))
+                  print(r.text[:700].replace('\n', ' '))
+                  if r.status_code == 200:
+                      fn = 'imf_' + str(abs(hash(u)) % 10000) + '.json'
+                      open(fn, 'w').write(r.text)
+              except Exception as e:
+                  print('=====ERR', u, repr(e)[:200])
+          PY
+
+      - name: "BOM 2027 calendar full"
+        run: |
+          python - <<'PY'
+          import requests, re, datetime, json
           from bs4 import BeautifulSoup
           H = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36', 'Accept-Language': 'en-US,en;q=0.9'}
-          for url in ['https://www.boxofficemojo.com/calendar/2027-06-04/', 'https://www.boxofficemojo.com/calendar/2027-12-17/']:
-              r = requests.get(url, headers=H, timeout=40)
-              soup = BeautifulSoup(r.text, 'html.parser')
-              print('=====', url, r.status_code)
-              tables = soup.select('table')
-              print('tables:', len(tables), [len(t.select('tr')) for t in tables])
-              # headings + first table rows with their parent chain
-              for h in soup.select('h1,h2,h3,h4')[:12]:
-                  print('HEAD', h.name, h.get_text(' ', strip=True)[:90])
-              t = tables[0] if tables else None
-              if t is not None:
-                  for tr in t.select('tr')[:70]:
+          seen = {}
+          d = datetime.date(2027, 1, 1)
+          while d.year == 2027:
+              url = f'https://www.boxofficemojo.com/calendar/{d.isoformat()}/'
+              try:
+                  r = requests.get(url, headers=H, timeout=40)
+                  soup = BeautifulSoup(r.text, 'html.parser')
+                  t = soup.select_one('table')
+                  cur = None
+                  for tr in (t.select('tr') if t else []):
                       cls = ' '.join(tr.get('class') or [])
-                      txt = tr.get_text(' | ', strip=True)
+                      if 'mojo-group-label' in cls:
+                          cur = tr.get_text(' ', strip=True)
+                          continue
                       a = tr.select_one('a[href*="/release/"]')
-                      print('TR', cls, '|', txt[:150], '|', (a.get('href') if a else '')[:34])
+                      if not a or not cur: continue
+                      txt = tr.get_text(' | ', strip=True)
+                      key = (cur, a.get('href'))
+                      if key not in seen:
+                          seen[key] = {'date': cur, 'href': a.get('href'), 'row': txt[:300]}
+              except Exception as e:
+                  print('ERR', url, repr(e)[:120])
+              d += datetime.timedelta(days=28)
+          out = list(seen.values())
+          print('RELEASES', len(out))
+          print('BOMJSON>>' + json.dumps(out) + '<<BOMJSON')
           PY
