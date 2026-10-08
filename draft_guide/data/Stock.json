@@ -1,0 +1,227 @@
+{
+ "category": "Stock",
+ "as_of": "2026-10-08",
+ "note": "Placeholder research: researchers could not retrieve live prices. Treat as a screening list, not a recommendation. 2026 league used Long/Short picks scored on calendar-year return.",
+ "entries": [
+  {
+   "name": "NVDA (Long)",
+   "detail": "mega-cap AI; ~$221 (Sep 1); beta ~1.7",
+   "odds": null,
+   "mu": 15,
+   "sd": 45,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": "consensus target $300-345; Q4 FY27 earnings Feb"
+  },
+  {
+   "name": "AMD (Long)",
+   "detail": "MI400/Helios ramp 2H26-27",
+   "odds": null,
+   "mu": 18,
+   "sd": 55,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "MU (Long)",
+   "detail": "HBM4; memory-cycle peak risk",
+   "odds": null,
+   "mu": 10,
+   "sd": 60,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "AVGO (Long)",
+   "detail": "custom ASIC demand",
+   "odds": null,
+   "mu": 15,
+   "sd": 42,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "SMCI (Long)",
+   "detail": "high-variance AI servers",
+   "odds": null,
+   "mu": 10,
+   "sd": 80,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "PLTR (Long)",
+   "detail": "momentum; valuation risk",
+   "odds": null,
+   "mu": 8,
+   "sd": 60,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "COIN (Long)",
+   "detail": "BTC-cycle beta",
+   "odds": null,
+   "mu": 15,
+   "sd": 75,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "MSTR (Long)",
+   "detail": "levered BTC proxy",
+   "odds": null,
+   "mu": 10,
+   "sd": 90,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "HOOD (Long)",
+   "detail": "crypto/retail volumes",
+   "odds": null,
+   "mu": 15,
+   "sd": 65,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "TSLA (Long)",
+   "detail": "robotaxi/Optimus narrative",
+   "odds": null,
+   "mu": 12,
+   "sd": 60,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "RKLB (Long)",
+   "detail": "Neutron first launch",
+   "odds": null,
+   "mu": 20,
+   "sd": 80,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "IONQ (Long)",
+   "detail": "quantum lottery",
+   "odds": null,
+   "mu": 10,
+   "sd": 100,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "OKLO (Long)",
+   "detail": "nuclear/AI power milestones",
+   "odds": null,
+   "mu": 15,
+   "sd": 90,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "CRWV (Long)",
+   "detail": "neocloud; leverage",
+   "odds": null,
+   "mu": 15,
+   "sd": 90,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "CRCL (Long)",
+   "detail": "stablecoin; rate-cut sensitivity",
+   "odds": null,
+   "mu": 10,
+   "sd": 80,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "INTC (Long)",
+   "detail": "foundry / 14A news; +187% in 2026 already",
+   "odds": null,
+   "mu": 8,
+   "sd": 55,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "UNH (Long)",
+   "detail": "turnaround",
+   "odds": null,
+   "mu": 12,
+   "sd": 35,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "TSLA (Short)",
+   "detail": "squeeze risk",
+   "odds": null,
+   "mu": -5,
+   "sd": 60,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "PLTR (Short)",
+   "detail": "valuation short; painful if momentum persists",
+   "odds": null,
+   "mu": -3,
+   "sd": 60,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "MSTR (Short)",
+   "detail": "huge variance both ways",
+   "odds": null,
+   "mu": 0,
+   "sd": 90,
+   "confidence": "C",
+   "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  }
+ ]
+}

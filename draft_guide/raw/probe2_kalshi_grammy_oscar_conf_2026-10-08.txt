@@ -1,0 +1,669 @@
+candidate series: 193
+===== KXSCOTTIESLAM | Scottie grand slam | markets 1 | close 2028-01-01
+   0.055 | KXSCOTTIESLAM-28 | Before 2028
+===== KXGRAMAOTY | Grammy for Album of the Year | markets 12 | close 2027-12-31
+   0.475 | KXGRAMAOTY-69 | you seem pretty sad for a girl so in love
+   0.210 | KXGRAMAOTY-69 | Lux
+   0.155 | KXGRAMAOTY-69 | The Art of Loving
+   0.095 | KXGRAMAOTY-69 | Lost Weekend
+   0.065 | KXGRAMAOTY-69 | The Great Divide
+   0.045 | KXGRAMAOTY-69 | Dandelion
+   0.025 | KXGRAMAOTY-69 | The Life of a Showgirl
+   0.005 | KXGRAMAOTY-69 | Tie
+   0.005 | KXGRAMAOTY-69 | The Romantics
+===== KXWTAGRANDSLAM | WTA Grand Slam | markets 39 | close 2026-09-12
+   0.500 | KXWTAGRANDSLAM-26 | Victoria Mboko
+   0.500 | KXWTAGRANDSLAM-26 | Elina Svitolina
+   0.500 | KXWTAGRANDSLAM-26 | Iva Jovic
+   0.500 | KXWTAGRANDSLAM-26 | Naomi Osaka
+   0.500 | KXWTAGRANDSLAM-26 | Madison Keys
+   0.500 | KXWTAGRANDSLAM-26 | Leylah Fernandez
+   0.500 | KXWTAGRANDSLAM-26 | Jessica Pegula
+   0.500 | KXWTAGRANDSLAM-26 | Jasmine Paolini
+   0.500 | KXWTAGRANDSLAM-26 | Iga Swiatek
+===== KXRANKLISTSONGBBH100 | WHICH SONGS WILL ENTER THE BILLBOARD HOT 100 | markets 7 | close 2026-02-07
+   0.000 | KXRANKLISTSONGBBH100-26FEB07 | WHERE IS MY HUSBAND!
+   0.000 | KXRANKLISTSONGBBH100-26FEB07 | What You Saying
+   0.000 | KXRANKLISTSONGBBH100-26FEB07 | Mutt
+   0.000 | KXRANKLISTSONGBBH100-26FEB07 | Folded
+   0.000 | KXRANKLISTSONGBBH100-26FEB07 | End of Beginning
+   0.000 | KXRANKLISTSONGBBH100-26FEB07 | Die on this Hill
+   0.000 | KXRANKLISTSONGBBH100-26FEB07 | Aperture
+===== KXNBASOUTHEAST | Pro Basketball Southeast Division Winner | markets 5 | close 2027-07-14
+   0.345 | KXNBASOUTHEAST-26 | Miami
+   0.250 | KXNBASOUTHEAST-26 | Atlanta
+   0.215 | KXNBASOUTHEAST-26 | Orlando
+   0.095 | KXNBASOUTHEAST-26 | Charlotte
+   0.070 | KXNBASOUTHEAST-26 | Washington
+===== KXNBANEWCHAMPION | Pro Basketball New Champion | markets 1 | close 2027-07-08
+   0.580 | KXNBANEWCHAMPION-27 | 9th straight different Pro Basketball champion
+===== KXNFLAFCNORTH | American Football Conference North Winner | markets 4 | close 2027-01-25
+   0.575 | KXNFLAFCNORTH-27 | Baltimore
+   0.255 | KXNFLAFCNORTH-27 | Cincinnati
+   0.105 | KXNFLAFCNORTH-27 | Cleveland
+   0.070 | KXNFLAFCNORTH-27 | Pittsburgh
+===== KXMLBALEAST | American League East Winner | markets 5 | close 2026-09-18
+   0.500 | KXMLBALEAST-26 | Toronto
+   0.500 | KXMLBALEAST-26 | Tampa Bay
+   0.500 | KXMLBALEAST-26 | New York Y
+   0.500 | KXMLBALEAST-26 | Boston
+   0.500 | KXMLBALEAST-26 | Baltimore
+===== KXNHLEAST | Eastern Conference Championship | markets 16 | close 2027-07-15
+   0.180 | KXNHLEAST-27 | Florida Panthers
+   0.165 | KXNHLEAST-27 | Carolina Hurricanes
+   0.135 | KXNHLEAST-27 | Washington Capitals
+   0.125 | KXNHLEAST-27 | Tampa Bay Lightning
+   0.065 | KXNHLEAST-27 | New Jersey Devils
+   0.055 | KXNHLEAST-27 | Montreal Canadiens
+   0.055 | KXNHLEAST-27 | Buffalo Sabres
+   0.045 | KXNHLEAST-27 | New York Rangers
+   0.035 | KXNHLEAST-27 | Toronto Maple Leafs
+===== KXCHESSWORLDCHAMPION | World Chess Champion | markets 9 | close 2028-12-30
+   0.695 | KXCHESSWORLDCHAMPION-CHESS26 | Javokhir Sindarov
+   0.295 | KXCHESSWORLDCHAMPION-CHESS26 | Gukesh Dommaraju
+   0.005 | KXCHESSWORLDCHAMPION-CHESS26 | Andrey Esipenko
+   0.005 | KXCHESSWORLDCHAMPION-CHESS26 | Matthias Bluebaum
+   0.005 | KXCHESSWORLDCHAMPION-CHESS26 | Anish Giri
+   0.005 | KXCHESSWORLDCHAMPION-CHESS26 | Wei Yi
+   0.005 | KXCHESSWORLDCHAMPION-CHESS26 | Rameshbabu Praggnanandhaa
+   0.005 | KXCHESSWORLDCHAMPION-CHESS26 | Hikaru Nakamura
+   0.005 | KXCHESSWORLDCHAMPION-CHESS26 | Fabiano Caruana
+===== KXBUCKMASTERSUE | Who will Tristan Buckmaster sue? | markets 1 | close 2027-01-01
+   0.130 | KXBUCKMASTERSUE-26SEP | Yes
+===== KXNFLNFCNORTH | National Football Conference North Winner | markets 4 | close 2027-01-25
+   0.375 | KXNFLNFCNORTH-27 | Minnesota
+   0.285 | KXNFLNFCNORTH-27 | Chicago
+   0.255 | KXNFLNFCNORTH-27 | Detroit
+   0.085 | KXNFLNFCNORTH-27 | Green Bay
+===== KXGRANDSLAMJFONSECA | Wil Joao Fonseca Win a grand slam | markets 1 | close 2026-08-31
+   0.500 | KXGRANDSLAMJFONSECA-26 | Joao Fonseca
+===== KXGRAMMY | who will win grammy | markets 200 | close 2027-12-31
+   0.630 | KXGRAMMY-BCCA69 | Dandelion
+   0.500 | KXGRAMMY-BRBCGP69 | Tie
+   0.495 | KXGRAMMY-BRBCGP69 | To Be Honest
+   0.495 | KXGRAMMY-BRBCGP69 | Shoulda Never
+   0.495 | KXGRAMMY-BRBCGP69 | She Knows Too Much
+   0.495 | KXGRAMMY-BRBCGP69 | Goodbye Henry
+   0.495 | KXGRAMMY-BRBCGP69 | Fear (Hey Friend)
+   0.495 | KXGRAMMY-BRBCGP69 | Fallin'
+   0.495 | KXGRAMMY-BRBCGP69 | Don't Break Her Heart
+===== KXLPL | Lanka Premier League Champion | markets 5 | close 2026-08-09
+   0.500 | KXLPL-26 | Kandy Falcons
+   0.500 | KXLPL-26 | Jaffna Kings
+   0.500 | KXLPL-26 | Galle Marvels
+   0.500 | KXLPL-26 | Dambulla Sixers
+   0.500 | KXLPL-26 | Colombo Strikers
+===== KXNFLNFCSOUTH | National Football Conference South Winner | markets 4 | close 2027-01-25
+   0.380 | KXNFLNFCSOUTH-27 | Atlanta
+   0.295 | KXNFLNFCSOUTH-27 | Carolina
+   0.205 | KXNFLNFCSOUTH-27 | New Orleans
+   0.085 | KXNFLNFCSOUTH-27 | Tampa Bay
+===== KXEPLPOINTMARGIN | English Premier League Champion Winning Margin | markets 12 | close 2027-06-13
+   0.490 | KXEPLPOINTMARGIN-27P | 9 to 14 points
+   0.485 | KXEPLPOINTMARGIN-27P | 2 to 3 points
+   0.485 | KXEPLPOINTMARGIN-27P | 0 to 1 points
+   0.470 | KXEPLPOINTMARGIN-27P | 6 to 8 points
+   0.465 | KXEPLPOINTMARGIN-27P | 15+ points
+   0.460 | KXEPLPOINTMARGIN-27P | 4 to 5 points
+   0.000 | KXEPLPOINTMARGIN-27 | 15+ points
+   0.000 | KXEPLPOINTMARGIN-27 | 9 to 14 points
+   0.000 | KXEPLPOINTMARGIN-27 | 6 to 8 points
+===== KXOSCARNOMSUPACTO | Oscar nominations for Best Supporting Actor | markets 27 | close 2027-12-31
+   0.870 | KXOSCARNOMSUPACTO-27 | Paul Giamatti
+   0.775 | KXOSCARNOMSUPACTO-27 | Sam Rockwell
+   0.740 | KXOSCARNOMSUPACTO-27 | John Leguizamo
+   0.690 | KXOSCARNOMSUPACTO-27 | Andrew Garfield
+   0.685 | KXOSCARNOMSUPACTO-27 | Guitarricadelafuente
+   0.610 | KXOSCARNOMSUPACTO-27 | Edward Norton
+   0.315 | KXOSCARNOMSUPACTO-27 | Channing Tatum
+   0.250 | KXOSCARNOMSUPACTO-27 | Robert Pattinson
+   0.250 | KXOSCARNOMSUPACTO-27 | Colman Domingo
+===== KXNCAAFCONFMATCHUP | College Football Conference Championship Matchup | markets 200 | close 2027-01-07
+   0.530 | KXNCAAFCONFMATCHUP-26MW | New Mexico vs North Dakota St.
+   0.300 | KXNCAAFCONFMATCHUP-26PAC12 | Boise St. vs Oregon St.
+   0.240 | KXNCAAFCONFMATCHUP-26MAC | Toledo vs Western Michigan
+   0.210 | KXNCAAFCONFMATCHUP-26SBELT | James Madison vs Louisiana
+   0.200 | KXNCAAFCONFMATCHUP-26PAC12 | Oregon St. vs Texas St.
+   0.190 | KXNCAAFCONFMATCHUP-26MW | North Dakota St. vs UNLV
+   0.190 | KXNCAAFCONFMATCHUP-26SBELT | James Madison vs Louisiana Tech
+   0.165 | KXNCAAFCONFMATCHUP-26PAC12 | Boise St. vs Texas St.
+   0.120 | KXNCAAFCONFMATCHUP-26MW | New Mexico vs UNLV
+===== KXNCAAF | NCAAF Championship | markets 51 | close 2027-02-23
+   0.165 | KXNCAAF-27 | Ohio St.
+   0.155 | KXNCAAF-27 | Georgia
+   0.135 | KXNCAAF-27 | Texas
+   0.115 | KXNCAAF-27 | Notre Dame
+   0.105 | KXNCAAF-27 | Miami (FL)
+   0.095 | KXNCAAF-27 | Alabama
+   0.075 | KXNCAAF-27 | Indiana
+   0.045 | KXNCAAF-27 | Oregon
+   0.045 | KXNCAAF-27 | LSU
+===== KXNRLCHAMP | National Rugby League Champion | markets 17 | close 2026-09-20
+   0.500 | KXNRLCHAMP-26 | Wests Tigers
+   0.500 | KXNRLCHAMP-26 | New Zealand Warriors
+   0.500 | KXNRLCHAMP-26 | Sydney Roosters
+   0.500 | KXNRLCHAMP-26 | South Sydney Rabbitohs
+   0.500 | KXNRLCHAMP-26 | St. George Illawarra Dragons
+   0.500 | KXNRLCHAMP-26 | Penrith Panthers
+   0.500 | KXNRLCHAMP-26 | Parramatta Eels
+   0.500 | KXNRLCHAMP-26 | North Queensland Cowboys
+   0.500 | KXNRLCHAMP-26 | Newcastle Knights
+===== KXSLRCHAMP | England Super League Champion | markets 14 | close 2028-10-04
+   0.500 | KXSLRCHAMP-26 | York Knights
+   0.500 | KXSLRCHAMP-26 | Wigan Warriors
+   0.500 | KXSLRCHAMP-26 | Warrington Wolves
+   0.500 | KXSLRCHAMP-26 | Wakefield Trinity
+   0.500 | KXSLRCHAMP-26 | Toulouse Olympique
+   0.500 | KXSLRCHAMP-26 | St Helens
+   0.500 | KXSLRCHAMP-26 | Leigh Leopards
+   0.500 | KXSLRCHAMP-26 | Hull Kingston Rovers
+   0.500 | KXSLRCHAMP-26 | Huddersfield Giants
+===== KXTEAMSINSC | Teams in Stanley Cup | markets 200 | close 2027-06-15
+   0.040 | KXTEAMSINSC-27 | FLA Panthers vs MIN Wild
+   0.030 | KXTEAMSINSC-27 | FLA Panthers vs COL Avalanche
+   0.015 | KXTEAMSINSC-27 | WSH Capitals vs COL Avalanche
+   0.015 | KXTEAMSINSC-27 | PIT Penguins vs WPG Jets
+   0.015 | KXTEAMSINSC-27 | OTT Senators vs WPG Jets
+   0.015 | KXTEAMSINSC-27 | OTT Senators vs EDM Oilers
+   0.015 | KXTEAMSINSC-27 | OTT Senators vs COL Avalanche
+   0.015 | KXTEAMSINSC-27 | FLA Panthers vs VGK Golden Knights
+   0.015 | KXTEAMSINSC-27 | FLA Panthers vs EDM Oilers
+===== KXNFLNFCWEST | National Football Conference West Winner | markets 4 | close 2027-01-25
+   0.425 | KXNFLNFCWEST-27 | San Francisco
+   0.295 | KXNFLNFCWEST-27 | Seattle
+   0.275 | KXNFLNFCWEST-27 | Los Angeles R
+   0.005 | KXNFLNFCWEST-27 | Arizona
+===== KX10SONG | WHICH SONG WILL BE TOP 10 ON THE BILLBOARD HOT 100 CHART | markets 110 | close 2026-12-26
+   0.980 | KX10SONG-26 | Don Toliver
+   0.970 | KX10SONG-26 | Mariah Carey
+   0.790 | KX10SONG-26 | Michael Jackson
+   0.760 | KX10SONG-26 | Tate McRae
+   0.550 | KX10SONG-26 | Post Malone
+   0.520 | KX10SONG-26 | Chappell Roan
+   0.500 | KX10SONG-26 | KAROL G
+   0.490 | KX10SONG-26 | SZA
+   0.490 | KX10SONG-26 | Bryson Tiller
+===== KXNFLNFCCHAMP | National Football Conference Champion | markets 16 | close 2027-02-22
+   0.195 | KXNFLNFCCHAMP-27 | Los Angeles R
+   0.175 | KXNFLNFCCHAMP-27 | San Francisco
+   0.145 | KXNFLNFCCHAMP-27 | Seattle
+   0.095 | KXNFLNFCCHAMP-27 | Chicago
+   0.085 | KXNFLNFCCHAMP-27 | Minnesota
+   0.085 | KXNFLNFCCHAMP-27 | Dallas
+   0.055 | KXNFLNFCCHAMP-27 | Detroit
+   0.045 | KXNFLNFCCHAMP-27 | Philadelphia
+   0.035 | KXNFLNFCCHAMP-27 | Atlanta
+===== KXEARNINGSMENTIONMS | Morgan Stanley Earnings Call | markets 15 | close 2027-03-31
+   0.895 | KXEARNINGSMENTIONMS-26OCT14 | Parametric
+   0.890 | KXEARNINGSMENTIONMS-26OCT14 | AI / Artificial Intelligence
+   0.730 | KXEARNINGSMENTIONMS-26OCT14 | Investment Grade
+   0.695 | KXEARNINGSMENTIONMS-26OCT14 | Tailwind
+   0.620 | KXEARNINGSMENTIONMS-26OCT14 | Private Credit
+   0.425 | KXEARNINGSMENTIONMS-26OCT14 | Buyback / Buy Back
+   0.380 | KXEARNINGSMENTIONMS-26OCT14 | Basel
+   0.360 | KXEARNINGSMENTIONMS-26OCT14 | Private Market
+   0.305 | KXEARNINGSMENTIONMS-26OCT14 | Tokenized / Tokenization
+===== KXUSOPENPRICE | US Open Ticket Prices | markets 39 | close 2026-09-08
+   0.500 | KXUSOPENPRICE-26SEPQFAVG | Above $175
+   0.500 | KXUSOPENPRICE-26SEPQFAVG | Above $200
+   0.500 | KXUSOPENPRICE-26SEPQFAVG | Above $425
+   0.500 | KXUSOPENPRICE-26SEPQFAVG | Above $400
+   0.500 | KXUSOPENPRICE-26SEPQFAVG | Above $375
+   0.500 | KXUSOPENPRICE-26SEPQFAVG | Above $350
+   0.500 | KXUSOPENPRICE-26SEPQFAVG | Above $325
+   0.500 | KXUSOPENPRICE-26SEPQFAVG | Above $300
+   0.500 | KXUSOPENPRICE-26SEPQFAVG | Above $275
+===== KXOSCARNOMACTR | Oscar nominations for Best ActRESS | markets 26 | close 2027-12-31
+   0.940 | KXOSCARNOMACTR-27 | Julianne Moore
+   0.735 | KXOSCARNOMACTR-27 | Inde Navarrette
+   0.690 | KXOSCARNOMACTR-27 | Sandra Hüller
+   0.610 | KXOSCARNOMACTR-27 | Olivia Wilde
+   0.440 | KXOSCARNOMACTR-27 | Ruth Madeley
+   0.395 | KXOSCARNOMACTR-27 | Renate Reinsve
+   0.390 | KXOSCARNOMACTR-27 | Virginie Efira
+   0.165 | KXOSCARNOMACTR-27 | Rosalind Eleazar
+   0.120 | KXOSCARNOMACTR-27 | Emily Blunt
+===== KXMLBNL | MLB National League Championship | markets 15 | close 2028-10-31
+   0.595 | KXMLBNL-26 | Los Angeles D
+   0.500 | KXMLBNL-26 | Washington
+   0.500 | KXMLBNL-26 | St. Louis
+   0.500 | KXMLBNL-26 | San Francisco
+   0.500 | KXMLBNL-26 | San Diego
+   0.500 | KXMLBNL-26 | Pittsburgh
+   0.500 | KXMLBNL-26 | Philadelphia
+   0.500 | KXMLBNL-26 | New York M
+   0.500 | KXMLBNL-26 | Miami
+===== KXHAMSTONEYBY | Hamilton East-Stoney Creek by-election winner | markets 6 | close 2026-09-16
+   0.500 | KXHAMSTONEYBY-26SEP03 | Wieslawa Derlatka
+   0.500 | KXHAMSTONEYBY-26SEP03 | Pascale Marchand
+   0.500 | KXHAMSTONEYBY-26SEP03 | Monique Taylor
+   0.500 | KXHAMSTONEYBY-26SEP03 | Jeff Beattie
+   0.500 | KXHAMSTONEYBY-26SEP03 | Heino Doessing
+   0.500 | KXHAMSTONEYBY-26SEP03 | Heather Curnew
+===== KXGRANDSLAM | Grand Slam Wins by Year | markets 2 | close 2026-09-09
+   0.500 | KXGRANDSLAM-CALC26 | 2+ Grand Slam wins
+   0.500 | KXGRANDSLAM-JSIN26 | 2+ Grand Slam wins
+===== KXNFLAFCWEST | American Football Conference West Winner | markets 4 | close 2027-01-25
+   0.655 | KXNFLAFCWEST-27 | Kansas City
+   0.235 | KXNFLAFCWEST-27 | Denver
+   0.095 | KXNFLAFCWEST-27 | Las Vegas
+   0.015 | KXNFLAFCWEST-27 | Los Angeles C
+===== KXNHL | Stanley Cup | markets 32 | close 2029-06-30
+   0.125 | KXNHL-27 | Colorado Avalanche
+   0.105 | KXNHL-27 | Florida Panthers
+   0.095 | KXNHL-27 | Carolina Hurricanes
+   0.085 | KXNHL-27 | Edmonton Oilers
+   0.075 | KXNHL-27 | Vegas Golden Knights
+   0.065 | KXNHL-27 | Minnesota Wild
+   0.055 | KXNHL-27 | Washington Capitals
+   0.055 | KXNHL-27 | Tampa Bay Lightning
+   0.055 | KXNHL-27 | Dallas Stars
+===== KXNORDRHEINWESTFALEN | North Rhine-Westphalia state election winner | markets 7 | close 2028-04-25
+   0.665 | KXNORDRHEINWESTFALEN-27APR25 | CDU
+   0.180 | KXNORDRHEINWESTFALEN-27APR25 | AfD
+   0.025 | KXNORDRHEINWESTFALEN-27APR25 | FDP
+   0.015 | KXNORDRHEINWESTFALEN-27APR25 | SPD
+   0.015 | KXNORDRHEINWESTFALEN-27APR25 | Grüne
+   0.015 | KXNORDRHEINWESTFALEN-27APR25 | Die Linke
+   0.015 | KXNORDRHEINWESTFALEN-27APR25 | BSW
+===== KXNCAAFMWC | Mountain West Champion | markets 10 | close 2027-01-03
+   0.410 | KXNCAAFMWC-26 | New Mexico
+   0.410 | KXNCAAFMWC-26 | North Dakota St.
+   0.100 | KXNCAAFMWC-26 | UNLV
+   0.015 | KXNCAAFMWC-26 | Air Force
+   0.010 | KXNCAAFMWC-26 | San Jose St.
+   0.010 | KXNCAAFMWC-26 | Nevada
+   0.005 | KXNCAAFMWC-26 | Wyoming
+   0.005 | KXNCAAFMWC-26 | UTEP
+   0.005 | KXNCAAFMWC-26 | Northern Illinois
+===== KXRANKLISTSONGTOP10 | WHICH SONG WILL BE IN THE TOP 10 OF THE BILLBOARD HOT 100 HUNDERED FOR | markets 200 | close 2026-10-12
+   0.995 | KXRANKLISTSONGTOP10-26OCT17 | Patient Zero
+   0.995 | KXRANKLISTSONGTOP10-26OCT17 | Choosin' Texas
+   0.995 | KXRANKLISTSONGTOP10-26OCT17 | Boston
+   0.800 | KXRANKLISTSONGTOP10-26OCT17 | Been By Now
+   0.735 | KXRANKLISTSONGTOP10-26OCT17 | Solar Eclipse
+   0.500 | KXRANKLISTSONGTOP10-26OCT10 | Classic PT2
+   0.500 | KXRANKLISTSONGTOP10-26OCT10 | Draw You Out
+   0.500 | KXRANKLISTSONGTOP10-26OCT10 | Cold Shoulder
+   0.500 | KXRANKLISTSONGTOP10-26OCT10 | Quebec
+===== KXGRAMMYNOMSOTY | Grammy nominees for Song of the Year | markets 11 | close 2027-11-01
+   0.910 | KXGRAMMYNOMSOTY-69 | Man I Need
+   0.905 | KXGRAMMYNOMSOTY-69 | the cure
+   0.850 | KXGRAMMYNOMSOTY-69 | Choosin' Texas
+   0.810 | KXGRAMMYNOMSOTY-69 | I Knew It, I Knew You
+   0.810 | KXGRAMMYNOMSOTY-69 | WHERE IS MY HUSBAND!
+   0.510 | KXGRAMMYNOMSOTY-69 | I Just Might
+   0.350 | KXGRAMMYNOMSOTY-69 | hate that i made you love me
+   0.245 | KXGRAMMYNOMSOTY-69 | Aperture
+   0.055 | KXGRAMMYNOMSOTY-69 | drop dead
+===== KX1SONG | WILL ARTIST HAVE A NUMBER ONE SONG ON BILLBOARD HOT 100 THIS YEAR | markets 115 | close 2026-12-21
+   0.925 | KX1SONG-DEC2626 | Mariah Carey
+   0.305 | KX1SONG-DEC2626 | Morgan Wallen 
+   0.265 | KX1SONG-DEC2626 | Beyoncé
+   0.205 | KX1SONG-DEC2626 | Kendrick Lamar
+   0.190 | KX1SONG-DEC2626 | Sabrina Carpenter
+   0.170 | KX1SONG-DEC2626 | Post Malone
+   0.160 | KX1SONG-DEC2626 | Tate McRae
+   0.140 | KX1SONG-DEC2626 | Olivia Dean
+   0.130 | KX1SONG-DEC2626 | Billie Eilish
+===== KXNCAAFMWCQUAL | College Football Mountain West Conference Championship Qualifiers | markets 10 | close 2027-01-10
+   0.780 | KXNCAAFMWCQUAL-26 | North Dakota St.
+   0.615 | KXNCAAFMWCQUAL-26 | New Mexico
+   0.345 | KXNCAAFMWCQUAL-26 | UNLV
+   0.095 | KXNCAAFMWCQUAL-26 | Air Force
+   0.085 | KXNCAAFMWCQUAL-26 | San Jose St.
+   0.050 | KXNCAAFMWCQUAL-26 | Nevada
+   0.035 | KXNCAAFMWCQUAL-26 | Wyoming
+   0.030 | KXNCAAFMWCQUAL-26 | UTEP
+   0.030 | KXNCAAFMWCQUAL-26 | Northern Illinois
+===== KXGRAMMYNOMROTY | Grammy nominees for Record of the Year | markets 7 | close 2027-11-01
+   0.915 | KXGRAMMYNOMROTY-69 | Choosin' Texas
+   0.900 | KXGRAMMYNOMROTY-69 | Man I Need
+   0.885 | KXGRAMMYNOMROTY-69 | The Fate of Ophelia
+   0.880 | KXGRAMMYNOMROTY-69 | I Just Might
+   0.790 | KXGRAMMYNOMROTY-69 | WHERE IS MY HUSBAND!
+   0.490 | KXGRAMMYNOMROTY-69 | Aperture
+   0.130 | KXGRAMMYNOMROTY-69 | So Easy (To Fall In Love)
+===== KXAISONG | AI-generated Hot 100 song | markets 1 | close 2026-08-07
+   0.500 | KXAISONG-27 | Before 2027
+===== KXATPGRANDSLAM | ATP Grand Slam | markets 34 | close 2026-09-13
+   0.500 | KXATPGRANDSLAM-26 | Taylor Fritz
+   0.500 | KXATPGRANDSLAM-26 | Novak Djokovic
+   0.500 | KXATPGRANDSLAM-26 | Lorenzo Musetti
+   0.500 | KXATPGRANDSLAM-26 | Karen Khachanov
+   0.500 | KXATPGRANDSLAM-26 | Jack Draper
+   0.500 | KXATPGRANDSLAM-26 | Frances Tiafoe
+   0.500 | KXATPGRANDSLAM-26 | Felix Auger-Aliassime
+   0.500 | KXATPGRANDSLAM-26 | Daniil Medvedev
+   0.500 | KXATPGRANDSLAM-26 | Casper Ruud
+===== KXNCAAMBBIGEASTREG | Men's College Basketball Big East Regular Season Champion | markets 11 | close 2027-03-21
+   0.490 | KXNCAAMBBIGEASTREG-27 | UConn
+   0.165 | KXNCAAMBBIGEASTREG-27 | Villanova
+   0.165 | KXNCAAMBBIGEASTREG-27 | St. John's
+   0.155 | KXNCAAMBBIGEASTREG-27 | Creighton
+   0.120 | KXNCAAMBBIGEASTREG-27 | Marquette
+   0.090 | KXNCAAMBBIGEASTREG-27 | Xavier
+   0.090 | KXNCAAMBBIGEASTREG-27 | Providence
+   0.085 | KXNCAAMBBIGEASTREG-27 | DePaul
+   0.080 | KXNCAAMBBIGEASTREG-27 | Seton Hall
+===== KXNBAEAST | Pro Basketball Eastern Conference Champion | markets 15 | close 2029-06-29
+   0.235 | KXNBAEAST-27 | Philadelphia
+   0.205 | KXNBAEAST-27 | New York
+   0.125 | KXNBAEAST-27 | Boston
+   0.105 | KXNBAEAST-27 | Miami
+   0.075 | KXNBAEAST-27 | Toronto
+   0.070 | KXNBAEAST-27 | Cleveland
+   0.060 | KXNBAEAST-27 | Detroit
+   0.050 | KXNBAEAST-27 | Indiana
+   0.025 | KXNBAEAST-27 | Orlando
+===== KXNBASOUTHWEST | Pro Basketball Southwest Division Winner | markets 5 | close 2027-07-14
+   0.855 | KXNBASOUTHWEST-26 | San Antonio
+   0.120 | KXNBASOUTHWEST-26 | Houston
+   0.010 | KXNBASOUTHWEST-26 | Dallas
+   0.005 | KXNBASOUTHWEST-26 | New Orleans
+   0.005 | KXNBASOUTHWEST-26 | Memphis
+===== KXCPL | Caribbean Premier League Champion | markets 7 | close 2026-09-16
+   0.500 | KXCPL-26 | Trinbago Knight Riders
+   0.500 | KXCPL-26 | St. Lucia Kings
+   0.500 | KXCPL-26 | St. Kitts and Nevis Patriots
+   0.500 | KXCPL-26 | Jamaica Kingsmen
+   0.500 | KXCPL-26 | Guyana Amazon Warriors
+   0.500 | KXCPL-26 | Barbados Royals
+   0.500 | KXCPL-26 | Antigua And Barbuda Falcons
+===== KXNFLAFCSOUTH | American Football Conference South Winner | markets 4 | close 2027-01-25
+   0.705 | KXNFLAFCSOUTH-27 | Jacksonville
+   0.175 | KXNFLAFCSOUTH-27 | Indianapolis
+   0.135 | KXNFLAFCSOUTH-27 | Houston
+   0.010 | KXNFLAFCSOUTH-27 | Tennessee
+===== KXOSCARNOMPIC | Oscar nominations for Best Picture | markets 53 | close 2027-12-31
+   0.980 | KXOSCARNOMPIC-27 | The Odyssey
+   0.955 | KXOSCARNOMPIC-27 | The Black Ball
+   0.935 | KXOSCARNOMPIC-27 | Wild Horse Nine
+   0.835 | KXOSCARNOMPIC-27 | Project Hail Mary
+   0.800 | KXOSCARNOMPIC-27 | The Debut
+   0.795 | KXOSCARNOMPIC-27 | Dune: Part Three
+   0.635 | KXOSCARNOMPIC-27 | The Invite
+   0.485 | KXOSCARNOMPIC-27 | You Can See Everything
+   0.445 | KXOSCARNOMPIC-27 | Fjord
+===== KXMLBNLEAST | National League East Winner | markets 5 | close 2026-09-18
+   0.500 | KXMLBNLEAST-26 | Washington
+   0.500 | KXMLBNLEAST-26 | Philadelphia
+   0.500 | KXMLBNLEAST-26 | New York M
+   0.500 | KXMLBNLEAST-26 | Miami
+   0.500 | KXMLBNLEAST-26 | Atlanta
+===== KXMLB | World Series | markets 30 | close 2026-09-18
+   0.500 | KXMLB-26 | Washington
+   0.500 | KXMLB-26 | Toronto
+   0.500 | KXMLB-26 | Texas
+   0.500 | KXMLB-26 | St. Louis
+   0.500 | KXMLB-26 | San Francisco
+   0.500 | KXMLB-26 | Seattle
+   0.500 | KXMLB-26 | San Diego
+   0.500 | KXMLB-26 | Pittsburgh
+   0.500 | KXMLB-26 | Philadelphia
+===== KXNFLAFCCHAMP | American Football Conference Champion | markets 16 | close 2027-02-22
+   0.195 | KXNFLAFCCHAMP-27 | Buffalo
+   0.175 | KXNFLAFCCHAMP-27 | Kansas City
+   0.155 | KXNFLAFCCHAMP-27 | Baltimore
+   0.125 | KXNFLAFCCHAMP-27 | Jacksonville
+   0.075 | KXNFLAFCCHAMP-27 | Cincinnati
+   0.065 | KXNFLAFCCHAMP-27 | New England
+   0.065 | KXNFLAFCCHAMP-27 | Denver
+   0.035 | KXNFLAFCCHAMP-27 | Houston
+   0.025 | KXNFLAFCCHAMP-27 | Cleveland
+===== KXNBAWEST | Pro Basketball Western Conference Champion | markets 15 | close 2029-06-29
+   0.345 | KXNBAWEST-27 | Oklahoma City
+   0.325 | KXNBAWEST-27 | San Antonio
+   0.090 | KXNBAWEST-27 | Minnesota
+   0.065 | KXNBAWEST-27 | Los Angeles L
+   0.055 | KXNBAWEST-27 | Denver
+   0.035 | KXNBAWEST-27 | Houston
+   0.025 | KXNBAWEST-27 | Golden State
+   0.015 | KXNBAWEST-27 | Utah
+   0.015 | KXNBAWEST-27 | Portland
+===== KXNCAAFCONF | NCAAF Championship Conference | markets 5 | close 2027-03-01
+   0.480 | KXNCAAFCONF-26 | SEC
+   0.305 | KXNCAAFCONF-26 | Big Ten
+   0.125 | KXNCAAFCONF-26 | Any Other Conference/Independent
+   0.100 | KXNCAAFCONF-26 | ACC
+   0.015 | KXNCAAFCONF-26 | Big 12
+===== KXMLBAL | MLB American League Championship | markets 15 | close 2028-10-31
+   0.635 | KXMLBAL-26 | Tampa Bay
+   0.500 | KXMLBAL-26 | Toronto
+   0.500 | KXMLBAL-26 | Texas
+   0.500 | KXMLBAL-26 | Seattle
+   0.500 | KXMLBAL-26 | New York Y
+   0.500 | KXMLBAL-26 | Minnesota
+   0.500 | KXMLBAL-26 | Los Angeles A
+   0.500 | KXMLBAL-26 | Kansas City
+   0.500 | KXMLBAL-26 | Houston
+===== KXNCAAFAAC | American Athletic Conference Champion | markets 14 | close 2027-01-03
+   0.295 | KXNCAAFAAC-26 | Memphis
+   0.230 | KXNCAAFAAC-26 | UTSA
+   0.140 | KXNCAAFAAC-26 | North Texas
+   0.060 | KXNCAAFAAC-26 | Florida Atlantic
+   0.060 | KXNCAAFAAC-26 | Army
+   0.055 | KXNCAAFAAC-26 | South Florida
+   0.050 | KXNCAAFAAC-26 | East Carolina
+   0.045 | KXNCAAFAAC-26 | Tulane
+   0.030 | KXNCAAFAAC-26 | Temple
+===== KXGRAMMYNOMAOTY | Grammy nominees for Album of the Year | markets 15 | close 2027-11-01
+   0.950 | KXGRAMMYNOMAOTY-69 | you seem pretty sad for a girl so in love
+   0.895 | KXGRAMMYNOMAOTY-69 | The Art of Loving
+   0.880 | KXGRAMMYNOMAOTY-69 | The Romantic
+   0.820 | KXGRAMMYNOMAOTY-69 | The Life of a Showgirl
+   0.750 | KXGRAMMYNOMAOTY-69 | Lux
+   0.690 | KXGRAMMYNOMAOTY-69 | The Great Divide
+   0.625 | KXGRAMMYNOMAOTY-69 | Dandelion
+   0.560 | KXGRAMMYNOMAOTY-69 | Lost Weekend
+   0.490 | KXGRAMMYNOMAOTY-69 | Kiss All the Time. Disco, Occasionally
+===== KXSCARBOROSWBY | Scarborough Southwest by-election winner | markets 5 | close 2026-09-16
+   0.500 | KXSCARBOROSWBY-26SEP03 | Noor Tarun
+   0.500 | KXSCARBOROSWBY-26SEP03 | Mark Bekkering
+   0.500 | KXSCARBOROSWBY-26SEP03 | Fatima Shaban
+   0.500 | KXSCARBOROSWBY-26SEP03 | Chris Rees
+   0.500 | KXSCARBOROSWBY-26SEP03 | Ahsanul Hafiz
+===== KXMLSWEST | MLS Western Conference winner? | markets 15 | close 2027-01-08
+   0.300 | KXMLSWEST-26 | Vancouver
+   0.190 | KXMLSWEST-26 | Saint Louis
+   0.115 | KXMLSWEST-26 | Houston
+   0.110 | KXMLSWEST-26 | San Jose
+   0.085 | KXMLSWEST-26 | Dallas
+   0.070 | KXMLSWEST-26 | Los Angeles F
+   0.055 | KXMLSWEST-26 | Seattle
+   0.015 | KXMLSWEST-26 | Portland
+   0.015 | KXMLSWEST-26 | Minnesota
+===== KXNFLNFCEAST | National Football Conference East Winner | markets 4 | close 2027-01-25
+   0.465 | KXNFLNFCEAST-27 | Dallas
+   0.315 | KXNFLNFCEAST-27 | Philadelphia
+   0.135 | KXNFLNFCEAST-27 | New York G
+   0.065 | KXNFLNFCEAST-27 | Washington
+===== KXNBANORTHWEST | Pro Basketball Northwest Division Winner | markets 5 | close 2027-07-14
+   0.735 | KXNBANORTHWEST-26 | Oklahoma City
+   0.100 | KXNBANORTHWEST-26 | Minnesota
+   0.085 | KXNBANORTHWEST-26 | Denver
+   0.020 | KXNBANORTHWEST-26 | Portland
+   0.015 | KXNBANORTHWEST-26 | Utah
+===== KXNHLWEST | Western Conference Champion | markets 16 | close 2027-07-15
+   0.195 | KXNHLWEST-27 | Colorado Avalanche
+   0.165 | KXNHLWEST-27 | Edmonton Oilers
+   0.125 | KXNHLWEST-27 | Vegas Golden Knights
+   0.115 | KXNHLWEST-27 | Dallas Stars
+   0.110 | KXNHLWEST-27 | San Jose Sharks
+   0.100 | KXNHLWEST-27 | Minnesota Wild
+   0.085 | KXNHLWEST-27 | Utah Mammoth
+   0.045 | KXNHLWEST-27 | Anaheim Ducks
+   0.035 | KXNHLWEST-27 | Los Angeles Kings
+===== KXTOPSONG | Billboard Hot 100 #1 | markets 200 | close 2026-10-12
+   0.995 | KXTOPSONG-26OCT17 | Patient Zero
+   0.645 | KXTOPSONG-26OCT24 | Patient Zero
+   0.500 | KXTOPSONG-26OCT10 | Classic PT2
+   0.500 | KXTOPSONG-26OCT10 | Draw You Out
+   0.500 | KXTOPSONG-26OCT10 | Cold Shoulder
+   0.500 | KXTOPSONG-26OCT10 | Quebec
+   0.500 | KXTOPSONG-26OCT10 | Solar Eclipse
+   0.500 | KXTOPSONG-26OCT10 | I CAN'T LOVE YOU ANYMORE
+   0.500 | KXTOPSONG-26OCT10 | Opalite
+===== KXMLBALWEST | American League West Winner | markets 5 | close 2026-09-27
+   0.500 | KXMLBALWEST-26 | Texas
+   0.500 | KXMLBALWEST-26 | Seattle
+   0.500 | KXMLBALWEST-26 | Los Angeles A
+   0.500 | KXMLBALWEST-26 | Houston
+   0.500 | KXMLBALWEST-26 | A's
+===== KXGRAMMYNOMNAOTY | Grammy nominees for New Artist of the Year | markets 72 | close 2027-11-01
+   0.980 | KXGRAMMYNOMNAOTY-69 | Ella Langley
+   0.895 | KXGRAMMYNOMNAOTY-69 | SIENNA SPIRO
+   0.840 | KXGRAMMYNOMNAOTY-69 | Malcolm Todd
+   0.735 | KXGRAMMYNOMNAOTY-69 | Slayyyter
+   0.660 | KXGRAMMYNOMNAOTY-69 | Geese
+   0.640 | KXGRAMMYNOMNAOTY-69 | Audrey Hobert
+   0.500 | KXGRAMMYNOMNAOTY-69 | Zara Larsson
+   0.305 | KXGRAMMYNOMNAOTY-69 | Ravyn Lenae
+   0.255 | KXGRAMMYNOMNAOTY-69 | Bella Kay
+===== KXOSCARNOMSUPACTR | Oscar nominations for Best Supporting Actress | markets 19 | close 2027-12-31
+   0.920 | KXOSCARNOMSUPACTR-27 | Anne Hathaway
+   0.745 | KXOSCARNOMSUPACTR-27 | Samantha Morton
+   0.730 | KXOSCARNOMSUPACTR-27 | Penélope Cruz
+   0.460 | KXOSCARNOMSUPACTR-27 | Tao Okamoto
+   0.410 | KXOSCARNOMSUPACTR-27 | Mariana di Girolamo
+   0.300 | KXOSCARNOMSUPACTR-27 | Kate O'Flynn
+   0.285 | KXOSCARNOMSUPACTR-27 | Sandra Hüller
+   0.240 | KXOSCARNOMSUPACTR-27 | Olivia Colman
+   0.210 | KXOSCARNOMSUPACTR-27 | Amanda Seyfried
+===== KXHONEYDEUCE | Honey Deuce sales at the US Open | markets 7 | close 2027-01-01
+   0.790 | KXHONEYDEUCE-01JAN27 | Above 650,000 units
+   0.755 | KXHONEYDEUCE-01JAN27 | Above 700,000 units
+   0.605 | KXHONEYDEUCE-01JAN27 | Above 800,000 units
+   0.555 | KXHONEYDEUCE-01JAN27 | Above 750,000 units
+   0.220 | KXHONEYDEUCE-01JAN27 | Above 850,000 units
+   0.075 | KXHONEYDEUCE-01JAN27 | Above 900,000 units
+   0.050 | KXHONEYDEUCE-01JAN27 | Above 950,000 units
+===== KXOSCARNOMDOCU | Oscar nominations for Best Documentary Feature Film | markets 10 | close 2027-12-31
+   0.850 | KXOSCARNOMDOCU-27 | Once Upon a Time in Harlem
+   0.810 | KXOSCARNOMDOCU-27 | NAZA
+   0.760 | KXOSCARNOMDOCU-27 | You Can See Everything
+   0.645 | KXOSCARNOMDOCU-27 | American Doctor
+   0.330 | KXOSCARNOMDOCU-27 | Nuisance Bear
+   0.285 | KXOSCARNOMDOCU-27 | 14th
+   0.280 | KXOSCARNOMDOCU-27 | One in a Million
+   0.205 | KXOSCARNOMDOCU-27 | Tutu
+   0.180 | KXOSCARNOMDOCU-27 | Sometimes, I Imagine Them All at a Party
+===== KXNCAAFAACQUAL | College Football American Athletic Conference Championship Qualifiers | markets 14 | close 2027-01-10
+   0.460 | KXNCAAFAACQUAL-26 | Memphis
+   0.420 | KXNCAAFAACQUAL-26 | UTSA
+   0.310 | KXNCAAFAACQUAL-26 | North Texas
+   0.185 | KXNCAAFAACQUAL-26 | Tulane
+   0.150 | KXNCAAFAACQUAL-26 | East Carolina
+   0.130 | KXNCAAFAACQUAL-26 | Florida Atlantic
+   0.115 | KXNCAAFAACQUAL-26 | Army
+   0.105 | KXNCAAFAACQUAL-26 | South Florida
+   0.100 | KXNCAAFAACQUAL-26 | Temple
+===== KXGRAMBNA | Grammy for Best New Artist | markets 68 | close 2027-12-31
+   0.655 | KXGRAMBNA-69 | Ella Langley
+   0.490 | KXGRAMBNA-69 | Tie
+   0.260 | KXGRAMBNA-69 | SIENNA SPIRO
+   0.035 | KXGRAMBNA-69 | Geese
+   0.020 | KXGRAMBNA-69 | Megan Moroney
+   0.015 | KXGRAMBNA-69 | Renee Rapp
+   0.010 | KXGRAMBNA-69 | Adéla
+   0.005 | KXGRAMBNA-69 | Yazmin Lacey
+   0.005 | KXGRAMBNA-69 | Whitney
+--- table 0
+Opening | Title | Production company | Cast and crew
+J A N U A R Y | 1 | Pendulum | Vertical / Protozoa Pictures
+15 | Children of Blood and Bone | Paramount Pictures / Temple Hill Entertainment | Gina Prince-Bythewood (director/screenplay); Tomi Adeyemi (screenplay); Thuso Mb
+The Beekeeper 2 | Metro-Goldwyn-Mayer / Miramax / Punch Palace Productions | Timo Tjahjanto (director); Umair Aleem (screenplay); Jason Statham , Emmy Raver- | [ 3 ]
+River | Universal Pictures / Blumhouse Productions / Atomic Monster / Shudder / Spooky P | Joshua Giuliano (director/screenplay); Jane Levy , Jessica Rothe , Max Mattern,
+22 | Animal Friends | Warner Bros. Pictures / Legendary Pictures / Maximum Effort / Prime Focus Studio | Peter Atencio (director); Kevin Burrows, Matt Mider (screenplay);
+Air Bud Returns | Cineverse | Robert Vince (director/screenplay); Aydin Artis, Tracy Ifeachor , Edwin Lee Gibs | [ 5 ]
+The Third Parent | Bleecker Street | Daniel Michaels (director/screenplay); Rob Lowe , Roselyn Sánchez , Crispin Glov | [ 5 ]
+29 | The Rescue | Paramount Pictures / Spyglass Media Group / Hideout Pictures | Potsy Ponciroli (director); John Fusco (screenplay); Brandon Sklenar , Josh Luca
+Karoshi | Lionsgate / 87Eleven Entertainment | Takashi Doscher (director/screenplay); Teo Yoo , Isabel May , Cynthia Erivo , Ta | [ 7 ]
+Drag | Briarcliff Entertainment | Raviv Ullman , Greg Yagonlnitzer (directors/screenplay); Lizzy Caplan , Lucy DeV | [ 8 ]
+F E B R U A R Y | 5 | Ice Age: Boiling Point | 20th Century Studios / 20th Century Animation
+Remain | Warner Bros. Pictures / Blinding Edge Pictures | M. Night Shyamalan (director/screenplay); Nicholas Sparks (screenplay); Jake Gyl | [ 10 ]
+The Comeback King | Universal Pictures / Apatow Productions | Judd Apatow (director/screenplay); Glen Powell (screenplay); Glen Powell, Cristi | [ 11 ]
+12 | Narnia: The Magician's Nephew | Netflix / Pascal Pictures / Entertainment One | Greta Gerwig (director/screenplay); David McKenna, Beatrice Campbell, Emma Macke
+Wishful Thinking | Sony Pictures Classics / Pinky Promise | Graham Parkes (director/screenplay); Maya Hawke , Lewis Pullman , Randall Park , | [ 13 ]
+19 | CoComelon: The Movie | Universal Pictures / DreamWorks Animation / Moonbug Entertainment / Prime Focus  | Kat Good (director); Adam Pava (screenplay); SZA , Connor E
+Wife \u0026 Dog | Black Bear Pictures | Guy Ritchie (director/screenplay); Benedict Cumberbatch , Rosamund Pike , Anthon | [ 15 ]
+26 | The Revenge of La Llorona | Warner Bros. Pictures / New Line Cinema / Atomic Monster | Santiago Menghini (director); Sean Tretta (screenplay); Monica Raymund , Jay H
+K-Pop: The Debut | Paramount Pictures / Hybe America / Epic | Benson Lee (director); Eileen Shim (screenplay); Ji-young Yoo , Eric Nam , Tony  | [ 17 ]
+Live Like That | Affirm Films | Dito Montiel (director/screenplay); Esai Morales , Roselyn Sanchez , Jesse Garci | [ 18 ]
+M A R C H | 5 | Gatto | Walt Disney Pictures / Pixar Animation Studios
+The Thomas Crown Affair | Metro-Goldwyn-Mayer / Outlier Society / Atlas Entertainment | Michael B. Jordan (director); Drew Pearce (screenplay); Michael B. Jordan, Kenne |
+12 | The Exorcist: Martyrs | Universal Pictures / Blumhouse Productions / Atomic Monster / Morgan Creek Enter | Mike Flanagan (director/screenplay); Scarlett Johansson , 
+19 | Sonic the Hedgehog 4 | Paramount Pictures / Sega Sammy Group / Original Film | Jeff Fowler (director); Jim Carrey , Ben Schwartz , Kristen Bell , Colleen O'Sha
+The Nightingale | TriStar Pictures / Lewellen Pictures / Hello Sunshine | Michael Morris (director); Dana Stevens (screenplay); Dakota Fanning , Elle Fann | [ 23 ]
+26 | Godzilla x Kong: Supernova | Warner Bros. Pictures / Legendary Pictures | Grant Sputore (director); David Callaham (screenplay); Kaitlyn Dever , Dan Steve
+Day Drinker | Lionsgate / Thunder Road Films / Infinitum Nihil | Marc Webb (director); Zach Dean (screenplay); Johnny Depp , Madelyn Cline , Pené | [ 25 ]
+The Saviors | Vertical | Kevin Hamedani (director/screenplay); Travis Betz (screenplay); Adam Scott , Dan | [ 26 ]
+--- table 1
+Opening | Title | Production company | Cast and crew
+A P R I L | 2 | The Surgeon | Sony Pictures / Thunder Road Films / Tango Entertainment
+9 | Panic Carefully | Warner Bros. Pictures / Esmail Corp / Red Om Films | Sam Esmail (director/screenplay); Julia Roberts , Elizabeth Olsen , Eddie Redmay
+Boys for Life | Paramount Primal | Tyler Falbo (director/screenplay); Max Barrett (screenplay) | [ 28 ]
+16 | Not Alone | Universal Pictures / Illumination | Eric Guillon , Claire Dodgson, Jonathan Del Val (directors); Timothée Chalamet ,
+Monitor | Searchlight Pictures / Temple Hill Entertainment | Matt Black, Ryan Polly (director/screenplay); Brittany O'Grady , Taz Skylar , Vi | [ 30 ]
+23 | Spaceballs: The New One | Metro-Goldwyn-Mayer / Imagine Entertainment / Brooksfilms | Josh Greenbaum (director); Josh Gad , Mel Brooks , Benji Samit , Dan Hernandez 
+A Place in Hell | Neon / Republic Pictures / MRC / T-Street Productions | Chloe Domont (director/screenplay); Michelle Williams , Daisy Edgar-Jones , Andr | [ 32 ]
+Family Movie | Variance Films / Dark Castle Entertainment | Kyra Sedgwick , Kevin Bacon (directors); Dan Beers (screenplay); Kevin Bacon, Ky | [ 33 ]
+30 | The Legend of Zelda | Columbia Pictures / Nintendo / Arad Productions / OddBall Entertainment | Wes Ball (director); Derek Connolly , T. S. Nowlin (screenplay); Benj
+M A Y | 6 | The Resurrection of the Christ: Part One | Lionsgate / Icon Productions
+7 | Beach Read | 20th Century Studios / Original Film | Yulin Kuang (director/screenplay); Phoebe Dynevor , Patrick Schwarzenegger , Kri
+Anything but Ghosts | Focus Features / Blumhouse Productions / Atomic Monster / Spooky Pictures / Divi | Curry Barker (director/screenplay); Cooper Tomlinson (screenplay)
+14 | F.A.S.T. | Warner Bros. Pictures / Heyday Films | Ben Richardson (director); Taylor Sheridan (screenplay); Brandon Sklenar , Julia
+21 | Paranormal Activity 8 | Paramount Pictures / Blumhouse Productions / Atomic Monster | Ian Tuason (director/screenplay); Chase Yi, Sonia Mena, Maya Da Costa
+The Catch | Universal Pictures / 21 Laps Entertainment / Fruit Tree | Dave McCary (director); Patrick Kang, Michael Levin (screenplay); Emma Stone , C | [ 40 ]
+Bad Fairies | Warner Bros. Pictures / Warner Bros. Pictures Animation / Locksmith Animation | Megan Nicole Dong (director); Deborah Frances-White , Zoë Tomalin (screenpla
+28 | Star Wars: Starfighter | Lucasfilm / 21 Laps Entertainment | Shawn Levy (director); Jonathan Tropper (screenplay); Ryan Gosling , Flynn Gray 
+J U N E | 4 | John Rambo | Lionsgate / Millennium Media / AGBO
+Skeletons | Columbia Pictures / Bad Robot / Infrared Pictures | JT Mollner (director); Brian Duffield (screenplay); Brie Larson , Kyle Gallner , | [ 44 ]
+11 | How to Train Your Dragon 2 | Universal Pictures / DreamWorks Animation / Marc Platt Productions | Dean DeBlois (director/screenplay); Mason Thames , Nico Parker , Ni
+Possession | Paramount Pictures / Vertigo Entertainment | Parker Finn (director/screenplay); Margaret Qualley , Callum Turner , Diego Calv | [ 46 ]
+18 | Spider-Man: Beyond the Spider-Verse | Columbia Pictures / Sony Pictures Animation / Marvel Entertainment / Pascal Pict | Bob Persichetti , Justin K. Thompson (direct
+Untitled New Line Cinema film | New Line Cinema |  | [ 47 ]
+25 | Untitled Ocean's Eleven prequel | Warner Bros. Pictures / Alcon Entertainment / LuckyChap Entertainment / Everyman | Bradley Cooper (director/screenplay); Margot Rob
+30 | Shrek 5 | Universal Pictures / DreamWorks Animation | Walt Dohrn , Conrad Vernon (directors); Mike Myers , Eddie Murphy , Cameron Diaz
+--- table 2
+Opening | Title | Production company | Cast and crew
+J U L Y | 9 | Man of Tomorrow | Warner Bros. Pictures / DC Studios / Troll Court Entertainment / The Safran Comp
+16 | Crawl 2 | Paramount Pictures | Alexandre Aja (director/screenplay); Jason Harry Pagan, Andrew Deutschman, Grego
+Fake Skating | Columbia Pictures / Olive Bridge Entertainment | Josh Boone (director/screenplay); Victoria Bata, Morgan Lehmann (screenplay); Am | [ 52 ]
+23 | A Minecraft Movie Squared | Warner Bros. Pictures / Legendary Pictures / Vertigo Entertainment / Mojang Stud | Jared Hess (director/screenplay); Chris Galletta (scre
+30 | A Quiet Place Part III | Paramount Pictures / Platinum Dunes / Sunday Night Productions | John Krasinski (director/screenplay); Emily Blunt , Cillian Murphy , Millic
+The Comebacker | Columbia Pictures / Playtone | Marielle Heller (director/screenplay); Tom Hanks , Colman Domingo , Bad Bunny ,  | [ 55 ]
+A U G U S T | 6 | Snoop | Universal Pictures / Imagine Entertainment / Death Row Pictures
+Jason Statham Stole My Bike | Black Bear Pictures / 87North Productions | David Leitch (director); Alison Flierl (screenplay); Jason Statham , Hannah Wadd | [ 57 ]
+13 | Untitled Teenage Mutant Ninja Turtles: Mutant Mayhem sequel | Paramount Pictures / Paramount Animation / Nickelodeon Movies / Point Grey Pictu | Jeff Rowe (director)
+Shiver | Warner Bros. Pictures / FilmNation Entertainment / Marv Studios | Tim Miller (director); Ian Shorr (screenplay); Keanu Reeves , Callie Cooke , Ste | [ 59 ]
+Untitled Blumhouse Productions film | Universal Pictures / Blumhouse Productions |  | [ 60 ]
+20 | Narcs | Columbia Pictures | John Phillips (director/screenplay); Mason Thames , Ella Bright
+Get Lite | Paramount Pictures / Khalabo Ink Society | Teyana Taylor (director); Eric Gross (screenplay); Storm Reid , Ceyair Wright ,  | [ 28 ]
+S E P T E M B E R | 3 | The New Simpsons Movie | 20th Century Studios / 20th Century Animation / Gracie Films
+10 | The Conjuring: First Communion | Warner Bros. Pictures / New Line Cinema / The Safran Company | Rodrigue Huart (director); Richard Naing, Ian B. Goldberg (screenplay
+24 | Untitled DreamWorks Animation film | Universal Pictures / DreamWorks Animation | 
+Untitled Blair Witch film | Lionsgate / Blumhouse Productions / Atomic Monster | Dylan Clark (director); Chris Thomas Devlin (screenplay) | [ 63 ]
+--- table 3
+Opening | Title | Production company | Cast and crew
+O C T O B E R | 1 | The Great Beyond | Warner Bros. Pictures / Bad Robot
+8 | The Haunting of Hotel Transylvania | Columbia Pictures / Metro-Goldwyn-Mayer / Sony Pictures Animation | Jennifer Kluska , Alan Hawkins (directors)
+Sleepover | Universal Pictures / Blumhouse Productions / Atomic Monster | Jacob Chase (director/screenplay); Bryce McGuire (screenplay) | [ 65 ]
+15 | Untitled The Mummy Returns sequel | Universal Pictures / Radio Silence Productions / Project X Entertainment | Matt Bettinelli-Olpin , Tyler Gillett (directors); Dav
+N O V E M B E R | 5 | Naughty | Universal Pictures / LuckyChap Entertainment
+Charlie vs. the Chocolate Factory | Netflix / Netflix Animation Studios | Jared Stern , Elaine Bogan (directors); Taika Waititi , Kit Connor , Nicola Coug | [ 68 ]
+11 | Treasure Island | Sony Pictures / Scott Free Productions | Ridley Scott (director); Jack Thorne (screenplay); Hugh Jackman
+12 | Margie Claus | Warner Bros. Pictures / Warner Bros. Pictures Animation / On the Day Productions | Kirk DeMicco (director); Ben Falcone , Damon Jones (screenplay); Me
+Tomorrow, and Tomorrow, and Tomorrow | Paramount Pictures / Temple Hill Entertainment | Sian Heder (director/screenplay); Daisy Edgar-Jones , Sky Yang , Sean Kaufman | [ 
+Seasons | Amazon MGM Studios / 21 Laps Entertainment / Blumhouse Productions / Atomic Mons | Drew Hancock (director/screenplay); Lily James , Jack Reynor , Ron Perlman , 
+19 | Untitled Daniels film | Universal Pictures | Daniels (directors/screenplay); Matt Damon , Sandra Oh , Charles Melton , Sean K
+24 | Frozen 3 | Walt Disney Pictures / Walt Disney Animation Studios | Jennifer Lee (director/screenplay); Idina Menzel , Kristen Bell , Josh Gad , Jon
+D E C E M B E R | 10 | 24 Jump Street | Columbia Pictures / Original Film / Lord Miller Productions
+17 | Avengers: Secret Wars | Marvel Studios / AGBO | Anthony and Joe Russo (directors); Stephen McFeely , Michael Waldron , Chris McK
+The Lord of the Rings: The Hunt for Gollum | Warner Bros. Pictures / New Line Cinema / WingNut Films / The Imaginarium Studio | Andy Serkis (director); Fran Walsh , Phili
+The Housemaid's Secret | Lionsgate / Mandeville Films | Paul Feig (director); Rebecca Sonnenshine (screenplay); Sydney Sweeney , Kirsten | [ 76 ]
+22 | Buds | Columbia Pictures / Sony Pictures Animation | 
+25 | Paris Paramount | Warner Bros. Pictures | Nancy Meyers (director/screenplay); Penélope Cruz , Kieran Culkin , Erin Doherty
+Alone at Dawn | Amazon MGM Studios / Hideaway / Imagine Entertainment | Ron Howard (director); Michael Russell Gunn (screenplay); Adam Driver , Anne Hat | [ 79 ]
+Post job cleanup.
+Post job cleanup.
