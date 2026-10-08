@@ -14,6 +14,10 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
+    env:
+      KALSHI_API_KEY: ${{ secrets.KALSHI_API_KEY }}
+      KALSHI_API_KEY_ID: ${{ secrets.KALSHI_API_KEY_ID }}
+      KALSHI_PRIVATE_KEY: ${{ secrets.KALSHI_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -24,33 +28,80 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: "Hot 100 top-30, every 2026 issue"
+      - name: "Kalshi league-structure markets"
         run: |
           python - <<'PY'
-          import requests, time, json, datetime
-          from bs4 import BeautifulSoup
-          d = datetime.date(2026, 1, 3)
-          today = datetime.date.today()
+          import json, re
+          import projections as p
           out = []
-          while d.year == 2026 and d - datetime.timedelta(days=4) <= today:
+          cursor = None
+          allser = []
+          for _ in range(30):
+              params = {'limit': 1000}
+              if cursor: params['cursor'] = cursor
+              d = p._kalshi_get('/series', params)
+              if not d: break
+              allser += d.get('series', [])
+              cursor = d.get('cursor')
+              if not cursor: break
+          print('SERIES total', len(allser))
+          kw = re.compile(r'(nfl|nba|nhl|football|basketball|hockey)', re.I)
+          kw2 = re.compile(r'(playoff|division|seed|bye|win total|wins|make|champ|finals|conference)', re.I)
+          hits = [s for s in allser if kw.search((s.get('title') or '') + ' ' + s.get('ticker', '')) and kw2.search((s.get('title') or '') + ' ' + s.get('ticker', ''))]
+          print('MATCHED', len(hits))
+          for s in hits:
+              print('SER', s.get('ticker'), '|', s.get('title'), '|', s.get('category'))
+          for s in hits[:60]:
+              t = s.get('ticker')
+              try:
+                  ms = p._fetch_markets_for_series(t)
+              except Exception as e:
+                  print('MKT ERR', t, repr(e)[:80]); continue
               rows = []
-              for attempt in range(3):
+              for m in ms[:45]:
+                  yb, ya, lp = m.get('yes_bid_dollars'), m.get('yes_ask_dollars'), m.get('last_price_dollars')
                   try:
-                      r = requests.get(f'https://www.billboard.com/charts/hot-100/{d.isoformat()}/', headers={'User-Agent': 'Mozilla/5.0'}, timeout=40)
-                      soup = BeautifulSoup(r.text, 'html.parser')
-                      for rank, row in enumerate(soup.select('ul.o-chart-results-list-row')[:30], 1):
-                          t = row.select_one('h3#title-of-a-story')
-                          if not t: continue
-                          a = t.find_next('span')
-                          rows.append([rank, t.get_text(strip=True), a.get_text(strip=True) if a else ''])
-                      if len(rows) >= 10: break
-                  except Exception as e:
-                      print('ERR', d, repr(e)[:100])
-                  time.sleep(2)
-              out.append([d.isoformat(), rows])
-              time.sleep(0.4)
-              d += datetime.timedelta(days=7)
-          print('WEEKS', len(out), [ (w[0], len(w[1])) for w in out][-3:])
-          for w in out:
-              print('HOT>>' + json.dumps(w, ensure_ascii=False) + '<<HOT')
+                      px = (float(yb) + float(ya)) / 2 if yb not in (None, '', '0.0000') and ya not in (None, '', '0.0000') else float(lp or 0)
+                  except Exception:
+                      px = None
+                  rows.append([m.get('ticker'), m.get('yes_sub_title') or m.get('title'), px])
+              print('MKT>>' + json.dumps([t, len(ms), rows], ensure_ascii=False) + '<<MKT')
+          PY
+
+      - name: "ESPN schedules and scores"
+        run: |
+          python - <<'PY'
+          import requests, json, datetime
+          H = {'User-Agent': 'Mozilla/5.0'}
+          def games(url, params):
+              r = requests.get(url, params=params, headers=H, timeout=60)
+              j = r.json()
+              out = []
+              for ev in j.get('events', []):
+                  c = ev['competitions'][0]
+                  teams = {x['homeAway']: x for x in c['competitors']}
+                  out.append([ev['date'][:10], teams['away']['team']['displayName'], teams['home']['team']['displayName'],
+                              teams['away'].get('score'), teams['home'].get('score'), c['status']['type']['name']])
+              return out
+          nfl = []
+          for wk in range(1, 19):
+              try:
+                  nfl += games('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard', {'dates': 2026, 'seasontype': 2, 'week': wk, 'limit': 100})
+              except Exception as e:
+                  print('NFL ERR', wk, repr(e)[:80])
+          print('NFL games', len(nfl))
+          print('NFLJSON>>' + json.dumps(nfl, ensure_ascii=False) + '<<NFLJSON')
+          for lg, path, a, b in [('NBA', 'basketball/nba', '20261020', '20270415'), ('NHL', 'hockey/nhl', '20260929', '20270417')]:
+              rows = []
+              d0 = datetime.datetime.strptime(a, '%Y%m%d').date(); d1 = datetime.datetime.strptime(b, '%Y%m%d').date()
+              while d0 <= d1:
+                  e = min(d0 + datetime.timedelta(days=13), d1)
+                  try:
+                      rows += games(f'https://site.api.espn.com/apis/site/v2/sports/{path}/scoreboard', {'dates': f"{d0:%Y%m%d}-{e:%Y%m%d}", 'limit': 1000})
+                  except Exception as ex:
+                      print(lg, 'ERR', d0, repr(ex)[:80])
+                  d0 = e + datetime.timedelta(days=1)
+              rows = list({tuple(r[:3]): r for r in rows}.values())
+              print(lg, 'games', len(rows))
+              print(lg + 'JSON>>' + json.dumps(rows, ensure_ascii=False) + '<<' + lg + 'JSON')
           PY
