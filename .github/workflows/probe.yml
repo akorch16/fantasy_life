@@ -28,58 +28,49 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: "A. Kalshi markets by series keyword"
+      - name: "A. Wikipedia 2027 films with FULL cast (JSON lines)"
         run: |
           python - <<'PY'
-          import re, projections as P
-          cursor, series = None, []
-          for _ in range(30):
-              params = {'limit': 1000}
-              if cursor: params['cursor'] = cursor
-              data = P._kalshi_get('/series', params) or {}
-              series += data.get('series', [])
-              cursor = data.get('cursor')
-              if not cursor: break
-          want = re.compile(r'(AFC|NFC)(CHAMP|WIN)|NFL(AFC|NFC)|CONFERENCE (CHAMP|WIN)|(Eastern|Western|East|West).*(Champion|Winner)|Stanley|Grammy|Oscar nomin|nominations for|Hot 100|Billboard Hot|PGA Major|Masters|Open Championship|US Open|Grand Slam|Australian Open|Champion$|NCAA.*(Champ|Title)|College Basketball Champ|World Series|Pennant|League Champion', re.I)
-          bad = re.compile(r'Game|Spread|Total|Mention|Player|Quarter|Half|Prop|Receiving|Passing|Rushing|Interception|Tackle|Yards|Touchdown|Sack|Score|Strokes|Round|Playoff Series|Lacrosse|Wrestling|Softball|Baseball Golden|WNBA|Soccer|Cricket|Hockey Player|MVP|Draft|Award|Rookie|Coach|Streak|Leader|Wins$|Delay|Cover|Lawsuit', re.I)
-          hit = [s for s in series if want.search((s.get('title') or '') + ' ' + s.get('ticker', '')) and not bad.search(s.get('title') or '')]
-          print('candidate series:', len(hit))
+          import requests, re, json
+          from bs4 import BeautifulSoup
+          H = {'User-Agent': 'Mozilla/5.0'}
+          r = requests.get('https://en.wikipedia.org/wiki/List_of_American_films_of_2027', headers=H, timeout=40)
+          soup = BeautifulSoup(r.text, 'html.parser')
+          month, day, n = '', '', 0
+          for t in soup.select('table.wikitable'):
+              for tr in t.select('tr'):
+                  cells = tr.find_all(['td', 'th'])
+                  txt = [re.sub(r'\[ ?\w+ ?\]', '', c.get_text(' ', strip=True)).strip() for c in cells]
+                  if not txt or txt[0] == 'Opening': continue
+                  i = 0
+                  if re.fullmatch(r'(?:[A-Z] )+[A-Z]', txt[0]):
+                      month = txt[0].replace(' ', ''); i = 1
+                  if i < len(txt) and re.fullmatch(r'\d{1,2}', txt[i]) and len(txt) - i >= 3:
+                      day = txt[i]; i += 1
+                  rest = txt[i:]
+                  if len(rest) < 2: continue
+                  title, studio = rest[0], rest[1]
+                  cast = rest[2] if len(rest) > 2 else ''
+                  casts = [s.strip() for s in cast.split(';')]
+                  people = casts[-1] if casts else ''
+                  print('FILM ' + json.dumps({'m': month, 'd': day, 'title': title, 'studio': studio[:60], 'cast': people[:700], 'all': cast[:900]}, ensure_ascii=False))
+                  n += 1
+          print('films', n)
+          PY
+
+      - name: "B. Kalshi: actor nominations + hot 100 #1 markets + other"
+        run: |
+          python - <<'PY'
+          import projections as P
           def px(m):
               a, b = m.get('yes_ask_dollars'), m.get('yes_bid_dollars')
               try:
                   if a is not None and b is not None and float(a) > 0: return (float(a) + float(b)) / 2
                   return float(m.get('last_price_dollars') or 0)
               except Exception: return 0
-          shown = 0
-          for s in hit:
-              if shown >= 70: break
-              ms = P._fetch_markets_for_series(s['ticker'])
-              ms = [m for m in ms if (m.get('close_time') or '')[:4] in ('2026', '2027', '2028', '2029')]
-              if not ms: continue
-              ms = sorted(ms, key=lambda m: -px(m))
-              shown += 1
-              print('=====', s['ticker'], '|', (s.get('title') or '')[:70], '| markets', len(ms), '| close', (ms[0].get('close_time') or '')[:10])
-              for m in ms[:9]:
-                  print('   %.3f' % px(m), '|', m.get('event_ticker'), '|', (m.get('yes_sub_title') or m.get('subtitle') or m.get('title') or '')[:70])
-          PY
-
-      - name: "B. Wikipedia 2027 American films (all rows)"
-        run: |
-          python - <<'PY'
-          import requests
-          from bs4 import BeautifulSoup
-          H = {'User-Agent': 'Mozilla/5.0'}
-          r = requests.get('https://en.wikipedia.org/wiki/List_of_American_films_of_2027', headers=H, timeout=40)
-          soup = BeautifulSoup(r.text, 'html.parser')
-          n = 0
-          for ti, t in enumerate(soup.select('table.wikitable')):
-              print('--- table', ti)
-              month = ''
-              for tr in t.select('tr'):
-                  cells = [c.get_text(' ', strip=True) for c in tr.find_all(['td', 'th'])]
-                  if not cells: continue
-                  print(' | '.join(c[:80] for c in cells[:4]))
-                  n += 1
-                  if n > 520: break
-              if n > 520: break
+          for t in ['KXOSCARNOMACTO', 'OSCARNOMACTR', 'KX1SONG', 'KXGRAMMYWINNERS']:
+              ms = sorted(P._fetch_markets_for_series(t), key=lambda m: -px(m))
+              print('=====', t, len(ms))
+              for m in ms[:40 if t == 'KX1SONG' else 22]:
+                  print('   %.3f' % px(m), '|', m.get('event_ticker'), '|', (m.get('yes_sub_title') or m.get('subtitle') or m.get('title') or '')[:80])
           PY
