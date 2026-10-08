@@ -231,11 +231,20 @@ def rank_points_mc(ents, seed=2027):
     mu = np.array([e.get("mu") if e.get("mu") is not None else 0.0 for e in ents], dtype=float)
     sd = np.array([max(e.get("sd") or 1e-6, 1e-6) for e in ents], dtype=float)
     order = np.argsort(-mu)
+    qs = [np.array(e["q"], dtype=float) if e.get("q") else None for e in ents]
+    grid = np.linspace(0, 1, 101)
+
+    def draw(j, size):
+        """Normal(mu, sd), or the entry's own quantile curve when it has one (skewed, e.g. Musician)."""
+        if qs[j] is not None:
+            return np.interp(rng.random(size), grid, qs[j])
+        return rng.normal(mu[j], sd[j], size=size)
+
     out = []
     for i in range(n):
         opp = [j for j in order if j != i][:12]
-        x = rng.normal(mu[i], sd[i], size=SIMS)
-        opp_draw = rng.normal(mu[opp][:, None], sd[opp][:, None], size=(len(opp), SIMS))
+        x = draw(i, SIMS)
+        opp_draw = np.stack([draw(j, SIMS) for j in opp])
         better = (opp_draw > x[None, :]).sum(axis=0)
         pts = 13 - np.minimum(better, 12)           # 13..1
         out.append((float(pts.mean()), float(pts.std())))
