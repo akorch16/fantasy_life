@@ -52,6 +52,8 @@ Rules decisions are in `CLAUDE.md` **Rulings** (cameos count, streaming scores 0
 
 - Draft history: `data/draft_log_2026.json` is the pick-by-pick record of the 2025 draft (round 0 = keeper round, 1-14 snake, slots Tim..Buckley); `python3 draft_guide/draft_history.py --player Korch` grades it against `docs/scores.json` and prints when each category was taken. Add the 2026 draft the same way after Oct 25.
 
+- Draft Plan tab: `draft_guide/draft_moneyball.py` (projected final per 2025-draft pick = current + `docs/projections.json` category_expected) and `build_workbook.draft_plan()` combine the draft log with the 2027 board: cost of waiting per category at the 2026 pace. Re-run after refreshing scores/projections; add the 2026 draft log after Oct 25.
+
 ## Step 1 — Pull fresh data (the sandbox can't reach most sites)
 
 WebSearch is snippet-only; subagent reports are leads. Real prices come from an **Actions runner**:

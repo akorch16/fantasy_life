@@ -301,6 +301,50 @@ def rank_points_mc(ents, seed=2027):
     return out
 
 
+def draft_plan(table):
+    """Rows for the Draft Plan tab (needs data/draft_log_2026.json; payoff columns need docs/scores.json + projections.json)."""
+    logd = load_json("draft_log_2026.json")
+    if not logd:
+        return []
+    log = logd["picks"]
+    pay = {}
+    try:
+        import draft_moneyball as dm
+        plog, _, _ = dm.build()
+        for c in CATS:
+            L = [e for e in plog if e["category"] == c]
+            pay[c] = (sum(e["final"] for e in L) / len(L), sum(e["surplus"] for e in L) / len(L))
+    except Exception:
+        pass
+    rows = []
+    for c in CATS:
+        d = sorted(e["round"] for e in log if e["category"] == c and e["round"] > 0)
+        ev = sorted((r["total"] for r in table[c]), reverse=True)
+        best = ev[0] if ev else 0.0
+        gone = lambda r: sum(1 for e in log if e["category"] == c and e["round"] <= r)
+        left = lambda r: ev[min(gone(r), len(ev) - 1)] if ev else 0.0
+        free = max([r for r in range(0, 15) if best - left(r) <= 1.0], default=0)
+        big = next((r for r in range(0, 15) if best - left(r) > 3.0), None)
+        first = min(e["overall"] for e in log if e["category"] == c and e["round"] > 0)
+        if c == "Stock":
+            read = "COIN FLIP: take last, no edge"
+        elif free >= 4:
+            read = f"WAIT: the field leaves it alone until ~R{free + 1}; the best player is free through R{free}"
+        elif big is not None and big <= 2:
+            rr = max(big, 1)
+            read = f"TAKE EARLY (R1-2): by R{rr} the field has taken {gone(rr)} and the best left is {left(rr):.1f} vs {best:.1f}"
+        elif big is not None and big <= 5:
+            read = f"TAKE BY R{big - 1}: from R{big} the best left drops {best - left(big):.0f}+ pts below the top"
+        else:
+            read = f"FLEXIBLE: within 1 pt through R{free}; by R{(big or 7) - 1} you still get most of it"
+        f, s_ = pay.get(c, (None, None))
+        rows.append([c, first, sorted(d)[len(d) // 2] if d else None, f"{gone(2)} / {gone(4)} / {gone(7)}",
+                     round(f, 1) if f is not None else None, round(s_, 1) if s_ is not None else None, round(best, 1),
+                     round(left(2), 1), round(left(4), 1), round(left(7), 1), round(best - left(2), 1),
+                     round(best - left(4), 1), round(best - left(7), 1), free, read])
+    return rows
+
+
 # ── workbook ─────────────────────────────────────────────────────────────────
 def build(today):
     assum_file = load_json("assumptions.json", {}) or {}
@@ -344,6 +388,7 @@ def build(today):
     ws_readme.title = "README"
     ws_master = wb.create_sheet("Master")
     ws_rost = wb.create_sheet("Rosters")
+    ws_plan = wb.create_sheet("Draft Plan")
     ws_board = wb.create_sheet("Draft Board")
     ws_as = wb.create_sheet("Assumptions")
 
@@ -585,6 +630,34 @@ def build(today):
         ws_master.column_dimensions[get_column_letter(j + 2)].width = 30
     ws_master.freeze_panes = "B2"
 
+    # Draft Plan: what each category cost in the 2025 draft vs what waiting costs on the 2027 board
+    plan_rows = draft_plan(table)
+    ws_plan.append(["Category", "2026: 1st pick #", "2026: median rd", "2026: gone by R2 / R4 / R7", "2026: avg projected final",
+                    "2026: surplus vs slot", "2027 best EV", "EV left @R2", "EV left @R4", "EV left @R7",
+                    "Cost to wait: R2", "R4", "R7", "Free until round (<=1 pt)", "Read"])
+    for c in ws_plan[1]:
+        c.fill, c.font = HEAD, WHITE
+        c.alignment = Alignment(wrap_text=True, vertical="top")
+    for row in plan_rows:
+        ws_plan.append(row)
+    for i in range(2, len(plan_rows) + 2):
+        r = ws_plan.cell(i, 15).value or ""
+        ws_plan.cell(i, 15).fill = GREEN if r.startswith("WAIT") else GOLD if r.startswith("TAKE") else GREY
+        ws_plan.cell(i, 15).alignment = Alignment(wrap_text=True, vertical="top")
+    n0 = len(plan_rows) + 3
+    notes = [
+        "How to read: assumes the field strips each category in order of 2027 EV at the pace it did in the 2025 draft (keeper round + snake). 'EV left @Rk' = best player still there after the 2026-style number of teams are gone by round k.",
+        "Free until round = last round where the best player left is within 1 pt of the best on the board. WAIT = the field leaves the category alone; TAKE EARLY = it strips it fast.",
+        "2026 payoff: projected final = current points + projected remaining (MLS / NASCAR / MLB bonuses are not realised yet). Surplus = projected final minus the average pick in that round.",
+        "Caveats: Country's 2026 surplus is the Olympics/World Cup bonus (13 pts) which does not exist in 2027. Musician surplus is the Feb-2026 Grammy bonus (repeats in Feb 2027). Per-pick surplus is mostly luck; category averages are the signal.",
+        "The field does not draft by my EV order (it overweights Grammy/Oscar names), so Musician/Actor/Actress availability is approximate. Keepers may change who is already gone before round 1.",
+    ]
+    for k, t_ in enumerate(notes):
+        ws_plan.cell(n0 + k, 1, t_)
+    for col, w in zip("ABCDEFGHIJKLMNO", [11, 9, 9, 16, 11, 11, 9, 9, 9, 9, 9, 7, 7, 10, 52]):
+        ws_plan.column_dimensions[col].width = w
+    ws_plan.freeze_panes = "B2"
+
     # QA
     ws_qa = wb.create_sheet("QA")
     ws_qa.append(["Severity", "Category", "Candidate", "Issue"])
@@ -712,6 +785,9 @@ def build(today):
         ("", False),
         ("NFL / NBA / NHL ladders (v7)", True),
         ("Round probabilities come from league_sim.py: the remaining schedule and the real playoff bracket are simulated, ratings fitted to Kalshi title, conference-champion and make-playoffs prices. Total bonus points across each league now equal the league ladder (NFL 66, NBA/NHL 71) and the win% baseline is a simulated distribution.", False),
+        ("", False),
+        ("Draft Plan tab (v8)", True),
+        ("Combines the 2025 draft log (when each category went) with the 2027 EV board: how much a category's best player is worth, what is left after the field has stripped it at the 2026 pace, and the last round it is still 'free'. Use it to decide which categories to take early and which to let come to you.", False),
         ("", False),
         ("Draft-market bias (the edge)", True),
         ("The league over-drafts Grammy/Oscar names. For Musician, Actor and Actress the 'Field draft score' column (V) = baseline + w x award-EV (w on Assumptions) predicts the order your leaguemates pick in; the replacement level used for VOR is the best candidate OUTSIDE the field's first M picks.", False),
