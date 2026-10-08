@@ -62,14 +62,30 @@ for n, g in [("Timothée Chalamet", 'M'), ("Pedro Pascal", 'M'), ("Chris Hemswor
     if not any(e['name'].lower() in (n.lower(), n.replace('é', 'e').lower()) for e in tgt):
         tgt.append(entry(n, g))
 
+# Oscar-race names need a row even with no 2027 film (their bonus EV alone can be ~7 pts)
+aw_path = D + '/Awards.json'
+if os.path.exists(aw_path):
+    for a in json.load(open(aw_path))['entries']:
+        tgt = actors if a['category'] in ('Best Actor', 'Best Supporting Actor') else actresses
+        if not any(e['name'].replace('é', 'e').lower() == a['name'].replace('é', 'e').lower() for e in tgt):
+            tgt.append(entry(a['name'], 'M' if tgt is actors else 'F'))
+
 # pull the Timothee/ Timothée duplicate guard
+PROTECTED = set()
+if os.path.exists(D + '/Awards.json'):
+    PROTECTED |= {x['name'].replace('é', 'e').lower() for x in json.load(open(D + '/Awards.json'))['entries']}
+PROTECTED |= {n.replace('é', 'e').lower() for n in ["Timothée Chalamet", "Pedro Pascal", "Chris Hemsworth", "Matt Damon", "Tom Holland", "Robert Pattinson", "Jon Bernthal",
+    "Dwayne Johnson", "Jeremy Allen White", "Leonardo DiCaprio", "George Clooney", "Sean Penn", "Wagner Moura", "Zendaya", "Florence Pugh", "Anya Taylor-Joy",
+    "Anne Hathaway", "Charlize Theron", "Jessie Buckley", "Ariana Grande", "Emma Stone", "Sydney Sweeney", "Cynthia Erivo", "Teyana Taylor", "Amanda Seyfried", "Tessa Thompson"]}
 def fix(entries):
     seen = {}; out = []
     for e in sorted(entries, key=lambda e: -e['mu']):
         k = e['name'].replace('é', 'e').lower()
         if k in seen: continue
-        seen[k] = 1; out.append(e)
-    return out[:70]
+        seen[k] = 1
+        if len(out) < 70 or k in PROTECTED:
+            out.append(e)
+    return out
 actors, actresses = fix(actors), fix(actresses)
 # manual caveats
 notes = {

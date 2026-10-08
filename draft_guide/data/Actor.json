@@ -1542,6 +1542,329 @@
      "rt_mid": 85
     }
    ]
+  },
+  {
+   "name": "Timothée Chalamet",
+   "detail": "Not Alone (Apr 16)",
+   "odds": null,
+   "mu": 81.9,
+   "sd": 41.0,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "Voice lead in Illumination's Not Alone (Apr 16, 2027). Dune 3 (Dec 18, 2026) scores 0 in 2027",
+   "films": [
+    {
+     "title": "Not Alone",
+     "date": "Apr 16",
+     "p_release": 0.9,
+     "bo_mid": 130,
+     "rt_mid": 70
+    }
+   ]
+  },
+  {
+   "name": "Wagner Moura",
+   "detail": "Untitled Ocean's Eleven prequel (Jun 25)",
+   "odds": null,
+   "mu": 63.4,
+   "sd": 31.7,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Untitled Ocean's Eleven prequel",
+     "date": "Jun 25",
+     "p_release": 0.8,
+     "bo_mid": 110,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Matt Damon",
+   "detail": "Untitled Daniels film (Nov 19)",
+   "odds": null,
+   "mu": 50.7,
+   "sd": 25.4,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "Untitled Daniels film (Nov 19) only; The Odyssey is a 2026 film -> 0",
+   "films": [
+    {
+     "title": "Untitled Daniels film",
+     "date": "Nov 19",
+     "p_release": 0.65,
+     "bo_mid": 100,
+     "rt_mid": 78
+    }
+   ]
+  },
+  {
+   "name": "Andrew Scott",
+   "detail": "Margie Claus (Nov 12); A Place in Hell (Apr 23)",
+   "odds": null,
+   "mu": 25.8,
+   "sd": 12.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "A Place in Hell",
+     "date": "Apr 23",
+     "p_release": 0.9,
+     "bo_mid": 15,
+     "rt_mid": 65
+    },
+    {
+     "title": "Margie Claus",
+     "date": "Nov 12",
+     "p_release": 0.85,
+     "bo_mid": 40,
+     "rt_mid": 50
+    }
+   ]
+  },
+  {
+   "name": "Anne Hathaway",
+   "detail": "Alone at Dawn (Dec 25)",
+   "odds": null,
+   "mu": 9.4,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "Alone at Dawn (Dec 25) opens 6 days before year-end",
+   "films": [
+    {
+     "title": "Alone at Dawn",
+     "date": "Dec 25",
+     "p_release": 0.9,
+     "bo_mid": 15,
+     "rt_mid": 70
+    }
+   ]
+  },
+  {
+   "name": "Chris Hemsworth",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Tom Holland",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Robert Pattinson",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Jon Bernthal",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Dwayne Johnson",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Jeremy Allen White",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Leonardo DiCaprio",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "George Clooney",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Sean Penn",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "John Malkovich",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Tom Cruise",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Anthony Ippolito",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "John Turturro",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Sebastian Stan",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Paul Giamatti",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Andrew Garfield",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Sam Rockwell",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Edward Norton",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
   }
  ]
 }
