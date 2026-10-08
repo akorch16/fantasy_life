@@ -28,80 +28,52 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: "Kalshi league-structure markets"
+      - name: "Kalshi targeted markets"
         run: |
           python - <<'PY'
-          import json, re
+          import json
           import projections as p
-          out = []
-          cursor = None
-          allser = []
-          for _ in range(30):
-              params = {'limit': 1000}
-              if cursor: params['cursor'] = cursor
-              d = p._kalshi_get('/series', params)
-              if not d: break
-              allser += d.get('series', [])
-              cursor = d.get('cursor')
-              if not cursor: break
-          print('SERIES total', len(allser))
-          kw = re.compile(r'(nfl|nba|nhl|football|basketball|hockey)', re.I)
-          kw2 = re.compile(r'(playoff|division|seed|bye|win total|wins|make|champ|finals|conference)', re.I)
-          hits = [s for s in allser if kw.search((s.get('title') or '') + ' ' + s.get('ticker', '')) and kw2.search((s.get('title') or '') + ' ' + s.get('ticker', ''))]
-          print('MATCHED', len(hits))
-          for s in hits:
-              print('SER', s.get('ticker'), '|', s.get('title'), '|', s.get('category'))
-          for s in hits[:60]:
-              t = s.get('ticker')
+          SER = ['KXNFLPLAYOFF', 'KXNFL1SEED', 'KXNFLAFCEAST', 'KXNFLAFCNORTH', 'KXNFLAFCSOUTH', 'KXNFLAFCWEST', 'KXNFLNFCEAST', 'KXNFLNFCNORTH',
+                 'KXNFLNFCSOUTH', 'KXNFLNFCWEST', 'KXNFLWINS', 'KXNFLAFCCHAMP', 'KXNFLNFCCHAMP', 'KXSB',
+                 'KXNBAPLAYOFF', 'KXNBAWINS', 'KXNBAEAST1SEED', 'KXNBAWEST1SEED', 'KXNBAECFQUAL', 'KXNBAWCFQUAL', 'KXTEAMSINNBAF', 'KXNBAEAST', 'KXNBAWEST', 'KXNBA',
+                 'KXNBAPLAYIN', 'KXNBAATLANTIC', 'KXNBACENTRAL', 'KXNBASOUTHEAST', 'KXNBANORTHWEST', 'KXNBAPACIFIC', 'KXNBASOUTHWEST',
+                 'KXNHLPLAYOFF', 'KXNHLWINS', 'KXNHLATLANTIC', 'KXNHLMETROPOLITAN', 'KXNHLCENTRAL', 'KXNHLPACIFIC', 'KXNHLEAST', 'KXNHLWEST', 'KXNHL']
+          for t in SER:
               try:
                   ms = p._fetch_markets_for_series(t)
               except Exception as e:
                   print('MKT ERR', t, repr(e)[:80]); continue
               rows = []
-              for m in ms[:45]:
-                  yb, ya, lp = m.get('yes_bid_dollars'), m.get('yes_ask_dollars'), m.get('last_price_dollars')
-                  try:
-                      px = (float(yb) + float(ya)) / 2 if yb not in (None, '', '0.0000') and ya not in (None, '', '0.0000') else float(lp or 0)
-                  except Exception:
-                      px = None
-                  rows.append([m.get('ticker'), m.get('yes_sub_title') or m.get('title'), px])
+              for m in ms[:70]:
+                  rows.append([m.get('ticker'), m.get('yes_sub_title') or m.get('title'), m.get('yes_bid_dollars'), m.get('yes_ask_dollars'),
+                               m.get('last_price_dollars'), m.get('status'), (m.get('close_time') or '')[:10]])
               print('MKT>>' + json.dumps([t, len(ms), rows], ensure_ascii=False) + '<<MKT')
           PY
 
-      - name: "ESPN schedules and scores"
+      - name: "ESPN NBA/NHL schedules per day"
         run: |
           python - <<'PY'
-          import requests, json, datetime
+          import requests, json, datetime, time
           H = {'User-Agent': 'Mozilla/5.0'}
-          def games(url, params):
-              r = requests.get(url, params=params, headers=H, timeout=60)
-              j = r.json()
+          def day(path, d):
+              r = requests.get(f'https://site.api.espn.com/apis/site/v2/sports/{path}/scoreboard', params={'dates': d.strftime('%Y%m%d'), 'limit': 100}, headers=H, timeout=30)
               out = []
-              for ev in j.get('events', []):
+              for ev in r.json().get('events', []):
                   c = ev['competitions'][0]
                   teams = {x['homeAway']: x for x in c['competitors']}
                   out.append([ev['date'][:10], teams['away']['team']['displayName'], teams['home']['team']['displayName'],
-                              teams['away'].get('score'), teams['home'].get('score'), c['status']['type']['name']])
+                              teams['away'].get('score'), teams['home'].get('score'), c['status']['type']['name'], ev.get('season', {}).get('type')])
               return out
-          nfl = []
-          for wk in range(1, 19):
-              try:
-                  nfl += games('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard', {'dates': 2026, 'seasontype': 2, 'week': wk, 'limit': 100})
-              except Exception as e:
-                  print('NFL ERR', wk, repr(e)[:80])
-          print('NFL games', len(nfl))
-          print('NFLJSON>>' + json.dumps(nfl, ensure_ascii=False) + '<<NFLJSON')
-          for lg, path, a, b in [('NBA', 'basketball/nba', '20261020', '20270415'), ('NHL', 'hockey/nhl', '20260929', '20270417')]:
+          for lg, path, a, b in [('NBA', 'basketball/nba', datetime.date(2026, 10, 19), datetime.date(2027, 4, 15)),
+                                 ('NHL', 'hockey/nhl', datetime.date(2026, 9, 28), datetime.date(2027, 4, 17))]:
               rows = []
-              d0 = datetime.datetime.strptime(a, '%Y%m%d').date(); d1 = datetime.datetime.strptime(b, '%Y%m%d').date()
-              while d0 <= d1:
-                  e = min(d0 + datetime.timedelta(days=13), d1)
+              d = a
+              while d <= b:
                   try:
-                      rows += games(f'https://site.api.espn.com/apis/site/v2/sports/{path}/scoreboard', {'dates': f"{d0:%Y%m%d}-{e:%Y%m%d}", 'limit': 1000})
-                  except Exception as ex:
-                      print(lg, 'ERR', d0, repr(ex)[:80])
-                  d0 = e + datetime.timedelta(days=1)
-              rows = list({tuple(r[:3]): r for r in rows}.values())
-              print(lg, 'games', len(rows))
+                      rows += day(path, d)
+                  except Exception as e:
+                      print(lg, 'ERR', d, repr(e)[:60])
+                  d += datetime.timedelta(days=1)
+              print(lg, 'games', len(rows), 'types', sorted({r[6] for r in rows}, key=str))
               print(lg + 'JSON>>' + json.dumps(rows, ensure_ascii=False) + '<<' + lg + 'JSON')
           PY
