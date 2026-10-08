@@ -7,8 +7,8 @@ League score (CLAUDE.md Rulings) = 2 x weeks at #1 + top-10 song-weeks, from wee
    Markov chain over rank buckets {1, 2-5, 6-10, 11-30, off}, with transition rates estimated from every week-to-week
    move of every song in the 2026 issues (raw/hot100_2026_*.json). Run to the first 2027 issue, then 52 issues of
    scoring. Songs no longer charting (Bad Bunny's) contribute nothing.
-2. NEW HITS: a compound Poisson. Number of new top-10 songs ~ Poisson(LAMBDA_BASE + LAMBDA_PER_HIT x their count of
-   top-10 songs that debuted in 2026); each new song's value is drawn from the empirical distribution of 2026
+2. NEW HITS: a compound Poisson. Number of new top-10 songs ~ Poisson(LAMBDA_HIT if they had a top-10 song debut in 2026 else LAMBDA_BASE;
+   in 2026 the count of earlier hits did not predict more); each new song's value is drawn from the empirical distribution of 2026
    debuts' (top-10 weeks + 2 x #1 weeks), scaled by IN_YEAR for runs cut off by year-end.
 
 Output per artist: mean, sd, 101 quantiles (rank_points_mc samples these directly, so the heavy right tail is kept).
@@ -25,7 +25,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STATES = ["1", "2-5", "6-10", "11-30", "off"]
 STEPS_TO_2027 = 12          # latest 2026 issue (Oct 10) -> Jan 2 2027 issue
 WEEKS_2027 = 52
-LAMBDA_BASE, LAMBDA_PER_HIT, LAMBDA_CAP = 0.15, 0.5, 2.0
+LAMBDA_BASE, LAMBDA_HIT = 0.15, 1.1   # hit-having artists: 2026 H1 hitters (n=19) got 0.53 new top-10 debuts in the next 21 wks = 1.3/yr, shrunk
 IN_YEAR = 0.9
 SIMS = 20_000
 
@@ -59,30 +59,45 @@ def song_tables(weeks):
     return songs
 
 
+OLD_AGE = 16          # weeks on the chart after which a song decays more slowly (long-runners like Choosin' Texas)
+
+
 def transition_matrix(songs):
-    c = np.ones((5, 5)) * 0.05         # light smoothing
+    """(young, old) 5x5 row-stochastic matrices from every week-to-week move in the 2026 issues."""
+    cs = [np.ones((5, 5)) * 0.05, np.ones((5, 5)) * 0.05]       # light smoothing
     for ranks in songs.values():
-        for a, b in zip(ranks, ranks[1:]):
-            if a is None:
+        first = next((i for i, r in enumerate(ranks) if r is not None), None)
+        if first is None:
+            continue
+        for i in range(first, len(ranks) - 1):
+            if ranks[i] is None:
                 continue
-            c[bucket(a), bucket(b)] += 1
-    c[4] = [0, 0, 0, 0, 1]             # off is absorbing: a returning song is a "new" hit, modelled separately
-    return c / c.sum(axis=1, keepdims=True)
+            old = 1 if (i - first) >= OLD_AGE else 0
+            cs[old][bucket(ranks[i]), bucket(ranks[i + 1])] += 1
+    young = cs[0] / cs[0].sum(axis=1, keepdims=True)
+    cs[1] = cs[1] + 6 * young          # long-runners are few (one #1 song drives the old row), so lean on the young rates
+    out = []
+    for c in cs:
+        c[4] = [0, 0, 0, 0, 1]         # off is absorbing: a returning song is a "new" hit, modelled separately
+        out.append(c / c.sum(axis=1, keepdims=True))
+    return out
 
 
 def raw_score_per_state(s):
     return {0: 3, 1: 1, 2: 1, 3: 0, 4: 0}[s]        # top-10 week (+1) and #1 week (+2 extra)
 
 
-def simulate_carry(P, start_state, rng, n=SIMS):
+def simulate_carry(P, start_state, age, rng, n=SIMS):
+    """P = (young, old) matrices; age = weeks the song has already been charting."""
     state = np.full(n, start_state)
-    cum = np.cumsum(P, axis=1)
+    cums = [np.cumsum(M, axis=1) for M in P]
     total = np.zeros(n)
     for step in range(STEPS_TO_2027 + WEEKS_2027):
         u = rng.random(n)
+        cum = cums[1] if age + step >= OLD_AGE else cums[0]
         state = (u[:, None] > cum[state]).sum(axis=1).clip(0, 4)
         if step >= STEPS_TO_2027:
-            total += np.vectorize(raw_score_per_state)(state) if False else np.take([3, 1, 1, 0, 0], state)
+            total += np.take([3, 1, 1, 0, 0], state)
     return total
 
 
@@ -106,12 +121,14 @@ def artist_index(songs, weeks):
         t10 = sum(1 for r in ranks if r is not None and r <= 10)
         n1 = sum(1 for r in ranks if r == 1)
         now = ranks[-1]
+        first = next((i for i, r in enumerate(ranks) if r is not None), 0)
+        age = len(ranks) - 1 - first
         debuted_2026 = ranks[0] is None
         for a in split_artists(credit):
             e = idx.setdefault(norm(a), dict(name=a, raw=0, now=[], hits=0))
             e["raw"] += t10 + 2 * n1
             if now is not None:
-                e["now"].append((title, now))
+                e["now"].append((title, now, age))
             if debuted_2026 and t10 > 0:
                 e["hits"] += 1
     return idx
@@ -121,9 +138,9 @@ def project(name, idx, P, vals, rng, aliases=None):
     key = norm((aliases or {}).get(name, name))
     e = idx.get(key, dict(name=name, raw=0, now=[], hits=0))
     carry = np.zeros(SIMS)
-    for title, rank in e["now"]:
-        carry += simulate_carry(P, bucket(rank), rng)
-    lam = min(LAMBDA_BASE + LAMBDA_PER_HIT * e["hits"], LAMBDA_CAP)
+    for title, rank, age in e["now"]:
+        carry += simulate_carry(P, bucket(rank), age, rng)
+    lam = LAMBDA_HIT if e["hits"] >= 1 else LAMBDA_BASE
     k = rng.poisson(lam, SIMS)
     new = np.zeros(SIMS)
     for i in range(int(k.max()) if k.size else 0):
@@ -147,11 +164,11 @@ def main():
     d = json.load(open(mpath))
     aliases = {"Beyoncé": "Beyonce"}
     print(f"weeks {len(weeks)} ({weeks[0][0]}..{weeks[-1][0]}), songs {len(songs)}, debut hits {len(vals)} (mean {vals.mean():.1f}, p90 {np.quantile(vals, .9):.0f})")
-    print("transition matrix rows 1,2-5,6-10,11-30:\n", np.round(P[:4], 2))
+    print("young matrix rows:\n", np.round(P[0][:4], 2), "\nold matrix rows:\n", np.round(P[1][:4], 2))
     for e in d["entries"]:
         r = project(e["name"], idx, P, vals, rng, aliases)
         e["mu"], e["sd"], e["q"] = round(r["mean"], 1), round(r["sd"], 1), r["q"]
-        now = "; ".join(f"{t} (#{k})" for t, k in r["now"][:3]) or "none charting"
+        now = "; ".join(f"{t} (#{k})" for t, k, _ in r["now"][:3]) or "none charting"
         e["detail"] = (f"2026 raw {r['raw2026']}; charting now: {now}; carry-over {r['carry_mean']:.1f} + new hits {r['new_mean']:.1f} "
                        f"(lambda {r['lam']:.2f}, P(~0) {r['p_zero']:.0%})")
         print(f"{e['name']:18} 2026 raw {r['raw2026']:3d} now {len(r['now'])} carry {r['carry_mean']:5.1f} new {r['new_mean']:5.1f} -> mu {r['mean']:5.1f} sd {r['sd']:5.1f}")
