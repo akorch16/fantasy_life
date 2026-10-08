@@ -1486,6 +1486,218 @@
      "rt_mid": 70
     }
    ]
+  },
+  {
+   "name": "Anne Hathaway",
+   "detail": "Alone at Dawn (Dec 25)",
+   "odds": null,
+   "mu": 9.4,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "Alone at Dawn (Dec 25) opens 6 days before year-end",
+   "films": [
+    {
+     "title": "Alone at Dawn",
+     "date": "Dec 25",
+     "p_release": 0.9,
+     "bo_mid": 15,
+     "rt_mid": 70
+    }
+   ]
+  },
+  {
+   "name": "Florence Pugh",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Charlize Theron",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Jessie Buckley",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Ariana Grande",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Teyana Taylor",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Amanda Seyfried",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Tessa Thompson",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Julianne Moore",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Inde Navarrette",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Sandra Hüller",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Olivia Wilde",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Renate Reinsve",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Kate O'Flynn",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Samantha Morton",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Tao Okamoto",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
+  },
+  {
+   "name": "Mariana di Girolamo",
+   "detail": "no 2027 film found in Wikipedia's cast lists",
+   "odds": null,
+   "mu": 0.0,
+   "sd": 8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": []
   }
  ]
 }
