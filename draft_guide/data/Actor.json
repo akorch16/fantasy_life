@@ -1,0 +1,1547 @@
+{
+ "category": "Actor",
+ "as_of": "2026-10-08",
+ "note": "mu = sum over 2027 releases of p(release) x RT/100 x domestic $M through Dec 31 2027. Cast lists are Wikipedia's billed leads; cameos not captured. Box office/RT are comp-based estimates (C).",
+ "entries": [
+  {
+   "name": "Aaron Pierre",
+   "detail": "Starfighter (May 28); Man of Tomorrow (Jul 9)",
+   "odds": null,
+   "mu": 487.2,
+   "sd": 243.6,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "Starfighter + Man of Tomorrow (Superman credit is a Wikipedia cast-list read; verify)",
+   "films": [
+    {
+     "title": "Starfighter",
+     "date": "May 28",
+     "p_release": 0.92,
+     "bo_mid": 380,
+     "rt_mid": 72
+    },
+    {
+     "title": "Man of Tomorrow",
+     "date": "Jul 9",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 80
+    }
+   ]
+  },
+  {
+   "name": "Skyler Gisondo",
+   "detail": "Man of Tomorrow (Jul 9); Shrek 5 (Jun 30)",
+   "odds": null,
+   "mu": 431.4,
+   "sd": 215.7,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Shrek 5",
+     "date": "Jun 30",
+     "p_release": 0.9,
+     "bo_mid": 320,
+     "rt_mid": 68
+    },
+    {
+     "title": "Man of Tomorrow",
+     "date": "Jul 9",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 80
+    }
+   ]
+  },
+  {
+   "name": "Ryan Gosling",
+   "detail": "Starfighter (May 28); Avengers: Secret Wars (Dec 17)",
+   "odds": null,
+   "mu": 363.5,
+   "sd": 181.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "Also cast in Avengers: Secret Wars per Wikipedia (unconfirmed by Marvel); Secret Wars may slip to 2028",
+   "films": [
+    {
+     "title": "Starfighter",
+     "date": "May 28",
+     "p_release": 0.92,
+     "bo_mid": 380,
+     "rt_mid": 72
+    },
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Josh Gad",
+   "detail": "Frozen 3 (Nov 24); Untitled Ocean's Eleven prequel (Jun 25); Spaceballs: The New One (Apr 23)",
+   "odds": null,
+   "mu": 311.2,
+   "sd": 155.6,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Spaceballs: The New One",
+     "date": "Apr 23",
+     "p_release": 0.9,
+     "bo_mid": 35,
+     "rt_mid": 45
+    },
+    {
+     "title": "Untitled Ocean's Eleven prequel",
+     "date": "Jun 25",
+     "p_release": 0.8,
+     "bo_mid": 110,
+     "rt_mid": 72
+    },
+    {
+     "title": "Frozen 3",
+     "date": "Nov 24",
+     "p_release": 0.93,
+     "bo_mid": 335,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Brian Tyree Henry",
+   "detail": "Spider-Man: Beyond the Spider-Verse (Jun 18); Panic Carefully (Apr 9)",
+   "odds": null,
+   "mu": 303.4,
+   "sd": 151.7,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Panic Carefully",
+     "date": "Apr 9",
+     "p_release": 0.9,
+     "bo_mid": 40,
+     "rt_mid": 70
+    },
+    {
+     "title": "Spider-Man: Beyond the Spider-Verse",
+     "date": "Jun 18",
+     "p_release": 0.8,
+     "bo_mid": 370,
+     "rt_mid": 94
+    }
+   ]
+  },
+  {
+   "name": "Matt Berry",
+   "detail": "Sonic the Hedgehog 4 (Mar 19); A Minecraft Movie Squared (Jul 23)",
+   "odds": null,
+   "mu": 297.2,
+   "sd": 148.6,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Sonic the Hedgehog 4",
+     "date": "Mar 19",
+     "p_release": 0.95,
+     "bo_mid": 200,
+     "rt_mid": 85
+    },
+    {
+     "title": "A Minecraft Movie Squared",
+     "date": "Jul 23",
+     "p_release": 0.9,
+     "bo_mid": 290,
+     "rt_mid": 52
+    }
+   ]
+  },
+  {
+   "name": "Shameik Moore",
+   "detail": "Spider-Man: Beyond the Spider-Verse (Jun 18)",
+   "odds": null,
+   "mu": 278.2,
+   "sd": 139.1,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Spider-Man: Beyond the Spider-Verse",
+     "date": "Jun 18",
+     "p_release": 0.8,
+     "bo_mid": 370,
+     "rt_mid": 94
+    }
+   ]
+  },
+  {
+   "name": "Jake Johnson",
+   "detail": "Spider-Man: Beyond the Spider-Verse (Jun 18)",
+   "odds": null,
+   "mu": 278.2,
+   "sd": 139.1,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Spider-Man: Beyond the Spider-Verse",
+     "date": "Jun 18",
+     "p_release": 0.8,
+     "bo_mid": 370,
+     "rt_mid": 94
+    }
+   ]
+  },
+  {
+   "name": "Jason Schwartzman",
+   "detail": "Spider-Man: Beyond the Spider-Verse (Jun 18)",
+   "odds": null,
+   "mu": 278.2,
+   "sd": 139.1,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Spider-Man: Beyond the Spider-Verse",
+     "date": "Jun 18",
+     "p_release": 0.8,
+     "bo_mid": 370,
+     "rt_mid": 94
+    }
+   ]
+  },
+  {
+   "name": "Karan Soni",
+   "detail": "Spider-Man: Beyond the Spider-Verse (Jun 18)",
+   "odds": null,
+   "mu": 278.2,
+   "sd": 139.1,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Spider-Man: Beyond the Spider-Verse",
+     "date": "Jun 18",
+     "p_release": 0.8,
+     "bo_mid": 370,
+     "rt_mid": 94
+    }
+   ]
+  },
+  {
+   "name": "John Mulaney",
+   "detail": "Spider-Man: Beyond the Spider-Verse (Jun 18)",
+   "odds": null,
+   "mu": 278.2,
+   "sd": 139.1,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Spider-Man: Beyond the Spider-Verse",
+     "date": "Jun 18",
+     "p_release": 0.8,
+     "bo_mid": 370,
+     "rt_mid": 94
+    }
+   ]
+  },
+  {
+   "name": "Daniel Kaluuya",
+   "detail": "Spider-Man: Beyond the Spider-Verse (Jun 18)",
+   "odds": null,
+   "mu": 278.2,
+   "sd": 139.1,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Spider-Man: Beyond the Spider-Verse",
+     "date": "Jun 18",
+     "p_release": 0.8,
+     "bo_mid": 370,
+     "rt_mid": 94
+    }
+   ]
+  },
+  {
+   "name": "Mahershala Ali",
+   "detail": "Spider-Man: Beyond the Spider-Verse (Jun 18)",
+   "odds": null,
+   "mu": 278.2,
+   "sd": 139.1,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Spider-Man: Beyond the Spider-Verse",
+     "date": "Jun 18",
+     "p_release": 0.8,
+     "bo_mid": 370,
+     "rt_mid": 94
+    }
+   ]
+  },
+  {
+   "name": "Nicolas Cage",
+   "detail": "Spider-Man: Beyond the Spider-Verse (Jun 18)",
+   "odds": null,
+   "mu": 278.2,
+   "sd": 139.1,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Spider-Man: Beyond the Spider-Verse",
+     "date": "Jun 18",
+     "p_release": 0.8,
+     "bo_mid": 370,
+     "rt_mid": 94
+    }
+   ]
+  },
+  {
+   "name": "Oscar Isaac",
+   "detail": "Spider-Man: Beyond the Spider-Verse (Jun 18)",
+   "odds": null,
+   "mu": 278.2,
+   "sd": 139.1,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Spider-Man: Beyond the Spider-Verse",
+     "date": "Jun 18",
+     "p_release": 0.8,
+     "bo_mid": 370,
+     "rt_mid": 94
+    }
+   ]
+  },
+  {
+   "name": "Daniel Ings",
+   "detail": "Starfighter (May 28); Jason Statham Stole My Bike (Aug 6)",
+   "odds": null,
+   "mu": 265.7,
+   "sd": 132.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Starfighter",
+     "date": "May 28",
+     "p_release": 0.92,
+     "bo_mid": 380,
+     "rt_mid": 72
+    },
+    {
+     "title": "Jason Statham Stole My Bike",
+     "date": "Aug 6",
+     "p_release": 0.85,
+     "bo_mid": 30,
+     "rt_mid": 55
+    }
+   ]
+  },
+  {
+   "name": "Nicholas Hoult",
+   "detail": "Man of Tomorrow (Jul 9); CoComelon: The Movie (Feb 19)",
+   "odds": null,
+   "mu": 251.7,
+   "sd": 125.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "CoComelon: The Movie",
+     "date": "Feb 19",
+     "p_release": 0.9,
+     "bo_mid": 40,
+     "rt_mid": 45
+    },
+    {
+     "title": "Man of Tomorrow",
+     "date": "Jul 9",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 80
+    }
+   ]
+  },
+  {
+   "name": "Flynn Gray",
+   "detail": "Starfighter (May 28)",
+   "odds": null,
+   "mu": 251.7,
+   "sd": 125.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Starfighter",
+     "date": "May 28",
+     "p_release": 0.92,
+     "bo_mid": 380,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Matt Smith",
+   "detail": "Starfighter (May 28)",
+   "odds": null,
+   "mu": 251.7,
+   "sd": 125.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Starfighter",
+     "date": "May 28",
+     "p_release": 0.92,
+     "bo_mid": 380,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Simon Bird",
+   "detail": "Starfighter (May 28)",
+   "odds": null,
+   "mu": 251.7,
+   "sd": 125.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Starfighter",
+     "date": "May 28",
+     "p_release": 0.92,
+     "bo_mid": 380,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Jamael Westman",
+   "detail": "Starfighter (May 28)",
+   "odds": null,
+   "mu": 251.7,
+   "sd": 125.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Starfighter",
+     "date": "May 28",
+     "p_release": 0.92,
+     "bo_mid": 380,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Sam Neill",
+   "detail": "The Legend of Zelda (Apr 30); Godzilla x Kong: Supernova (Mar 26)",
+   "odds": null,
+   "mu": 250.0,
+   "sd": 125.0,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Godzilla x Kong: Supernova",
+     "date": "Mar 26",
+     "p_release": 0.9,
+     "bo_mid": 150,
+     "rt_mid": 50
+    },
+    {
+     "title": "The Legend of Zelda",
+     "date": "Apr 30",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 62
+    }
+   ]
+  },
+  {
+   "name": "David Corenswet",
+   "detail": "Man of Tomorrow (Jul 9)",
+   "odds": null,
+   "mu": 235.5,
+   "sd": 117.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Man of Tomorrow",
+     "date": "Jul 9",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 80
+    }
+   ]
+  },
+  {
+   "name": "Edi Gathegi",
+   "detail": "Man of Tomorrow (Jul 9)",
+   "odds": null,
+   "mu": 235.5,
+   "sd": 117.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Man of Tomorrow",
+     "date": "Jul 9",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 80
+    }
+   ]
+  },
+  {
+   "name": "Nathan Fillion",
+   "detail": "Man of Tomorrow (Jul 9)",
+   "odds": null,
+   "mu": 235.5,
+   "sd": 117.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Man of Tomorrow",
+     "date": "Jul 9",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 80
+    }
+   ]
+  },
+  {
+   "name": "Frank Grillo",
+   "detail": "Man of Tomorrow (Jul 9)",
+   "odds": null,
+   "mu": 235.5,
+   "sd": 117.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Man of Tomorrow",
+     "date": "Jul 9",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 80
+    }
+   ]
+  },
+  {
+   "name": "Lars Eidinger",
+   "detail": "Man of Tomorrow (Jul 9)",
+   "odds": null,
+   "mu": 235.5,
+   "sd": 117.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Man of Tomorrow",
+     "date": "Jul 9",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 80
+    }
+   ]
+  },
+  {
+   "name": "Xolo Maridueña",
+   "detail": "Man of Tomorrow (Jul 9)",
+   "odds": null,
+   "mu": 235.5,
+   "sd": 117.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Man of Tomorrow",
+     "date": "Jul 9",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 80
+    }
+   ]
+  },
+  {
+   "name": "Jonathan Groff",
+   "detail": "Frozen 3 (Nov 24)",
+   "odds": null,
+   "mu": 233.7,
+   "sd": 116.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Frozen 3",
+     "date": "Nov 24",
+     "p_release": 0.93,
+     "bo_mid": 335,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Mike Myers",
+   "detail": "Shrek 5 (Jun 30)",
+   "odds": null,
+   "mu": 195.8,
+   "sd": 97.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Shrek 5",
+     "date": "Jun 30",
+     "p_release": 0.9,
+     "bo_mid": 320,
+     "rt_mid": 68
+    }
+   ]
+  },
+  {
+   "name": "Eddie Murphy",
+   "detail": "Shrek 5 (Jun 30)",
+   "odds": null,
+   "mu": 195.8,
+   "sd": 97.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Shrek 5",
+     "date": "Jun 30",
+     "p_release": 0.9,
+     "bo_mid": 320,
+     "rt_mid": 68
+    }
+   ]
+  },
+  {
+   "name": "Marcello Hernández",
+   "detail": "Shrek 5 (Jun 30)",
+   "odds": null,
+   "mu": 195.8,
+   "sd": 97.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Shrek 5",
+     "date": "Jun 30",
+     "p_release": 0.9,
+     "bo_mid": 320,
+     "rt_mid": 68
+    }
+   ]
+  },
+  {
+   "name": "Noah Jupe",
+   "detail": "Avengers: Secret Wars (Dec 17); A Quiet Place Part III (Jul 30)",
+   "odds": null,
+   "mu": 186.0,
+   "sd": 93.0,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "A Quiet Place Part III",
+     "date": "Jul 30",
+     "p_release": 0.9,
+     "bo_mid": 110,
+     "rt_mid": 75
+    },
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Mason Thames",
+   "detail": "How to Train Your Dragon 2 (Jun 11); Narcs (Aug 20)",
+   "odds": null,
+   "mu": 182.6,
+   "sd": 91.3,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "How to Train Your Dragon 2",
+     "date": "Jun 11",
+     "p_release": 0.92,
+     "bo_mid": 250,
+     "rt_mid": 78
+    },
+    {
+     "title": "Narcs",
+     "date": "Aug 20",
+     "p_release": 0.8,
+     "bo_mid": 8,
+     "rt_mid": 50
+    }
+   ]
+  },
+  {
+   "name": "Benjamin Evan Ainsworth",
+   "detail": "The Legend of Zelda (Apr 30)",
+   "odds": null,
+   "mu": 182.5,
+   "sd": 91.2,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "The Legend of Zelda",
+     "date": "Apr 30",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 62
+    }
+   ]
+  },
+  {
+   "name": "Uli Latukefu",
+   "detail": "The Legend of Zelda (Apr 30)",
+   "odds": null,
+   "mu": 182.5,
+   "sd": 91.2,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "The Legend of Zelda",
+     "date": "Apr 30",
+     "p_release": 0.92,
+     "bo_mid": 320,
+     "rt_mid": 62
+    }
+   ]
+  },
+  {
+   "name": "Nick Frost",
+   "detail": "How to Train Your Dragon 2 (Jun 11)",
+   "odds": null,
+   "mu": 179.4,
+   "sd": 89.7,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "How to Train Your Dragon 2",
+     "date": "Jun 11",
+     "p_release": 0.92,
+     "bo_mid": 250,
+     "rt_mid": 78
+    }
+   ]
+  },
+  {
+   "name": "Ólafur Darri Ólafsson",
+   "detail": "How to Train Your Dragon 2 (Jun 11)",
+   "odds": null,
+   "mu": 179.4,
+   "sd": 89.7,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "How to Train Your Dragon 2",
+     "date": "Jun 11",
+     "p_release": 0.92,
+     "bo_mid": 250,
+     "rt_mid": 78
+    }
+   ]
+  },
+  {
+   "name": "Phil Dunster",
+   "detail": "How to Train Your Dragon 2 (Jun 11)",
+   "odds": null,
+   "mu": 179.4,
+   "sd": 89.7,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "How to Train Your Dragon 2",
+     "date": "Jun 11",
+     "p_release": 0.92,
+     "bo_mid": 250,
+     "rt_mid": 78
+    }
+   ]
+  },
+  {
+   "name": "Gerard Butler",
+   "detail": "How to Train Your Dragon 2 (Jun 11)",
+   "odds": null,
+   "mu": 179.4,
+   "sd": 89.7,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "How to Train Your Dragon 2",
+     "date": "Jun 11",
+     "p_release": 0.92,
+     "bo_mid": 250,
+     "rt_mid": 78
+    }
+   ]
+  },
+  {
+   "name": "Idris Elba",
+   "detail": "Sonic the Hedgehog 4 (Mar 19); Children of Blood and Bone (Jan 15)",
+   "odds": null,
+   "mu": 175.5,
+   "sd": 87.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Children of Blood and Bone",
+     "date": "Jan 15",
+     "p_release": 0.85,
+     "bo_mid": 30,
+     "rt_mid": 55
+    },
+    {
+     "title": "Sonic the Hedgehog 4",
+     "date": "Mar 19",
+     "p_release": 0.95,
+     "bo_mid": 200,
+     "rt_mid": 85
+    }
+   ]
+  },
+  {
+   "name": "Keanu Reeves",
+   "detail": "Sonic the Hedgehog 4 (Mar 19); Shiver (Aug 13)",
+   "odds": null,
+   "mu": 172.1,
+   "sd": 86.0,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Sonic the Hedgehog 4",
+     "date": "Mar 19",
+     "p_release": 0.95,
+     "bo_mid": 200,
+     "rt_mid": 85
+    },
+    {
+     "title": "Shiver",
+     "date": "Aug 13",
+     "p_release": 0.85,
+     "bo_mid": 25,
+     "rt_mid": 50
+    }
+   ]
+  },
+  {
+   "name": "Jim Carrey",
+   "detail": "Sonic the Hedgehog 4 (Mar 19)",
+   "odds": null,
+   "mu": 161.5,
+   "sd": 80.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Sonic the Hedgehog 4",
+     "date": "Mar 19",
+     "p_release": 0.95,
+     "bo_mid": 200,
+     "rt_mid": 85
+    }
+   ]
+  },
+  {
+   "name": "Ben Schwartz",
+   "detail": "Sonic the Hedgehog 4 (Mar 19)",
+   "odds": null,
+   "mu": 161.5,
+   "sd": 80.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Sonic the Hedgehog 4",
+     "date": "Mar 19",
+     "p_release": 0.95,
+     "bo_mid": 200,
+     "rt_mid": 85
+    }
+   ]
+  },
+  {
+   "name": "James Marsden",
+   "detail": "Sonic the Hedgehog 4 (Mar 19)",
+   "odds": null,
+   "mu": 161.5,
+   "sd": 80.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Sonic the Hedgehog 4",
+     "date": "Mar 19",
+     "p_release": 0.95,
+     "bo_mid": 200,
+     "rt_mid": 85
+    }
+   ]
+  },
+  {
+   "name": "Lee Majdoub",
+   "detail": "Sonic the Hedgehog 4 (Mar 19)",
+   "odds": null,
+   "mu": 161.5,
+   "sd": 80.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Sonic the Hedgehog 4",
+     "date": "Mar 19",
+     "p_release": 0.95,
+     "bo_mid": 200,
+     "rt_mid": 85
+    }
+   ]
+  },
+  {
+   "name": "Ben Kingsley",
+   "detail": "Sonic the Hedgehog 4 (Mar 19)",
+   "odds": null,
+   "mu": 161.5,
+   "sd": 80.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Sonic the Hedgehog 4",
+     "date": "Mar 19",
+     "p_release": 0.95,
+     "bo_mid": 200,
+     "rt_mid": 85
+    }
+   ]
+  },
+  {
+   "name": "Nick Offerman",
+   "detail": "Sonic the Hedgehog 4 (Mar 19)",
+   "odds": null,
+   "mu": 161.5,
+   "sd": 80.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Sonic the Hedgehog 4",
+     "date": "Mar 19",
+     "p_release": 0.95,
+     "bo_mid": 200,
+     "rt_mid": 85
+    }
+   ]
+  },
+  {
+   "name": "Richard Ayoade",
+   "detail": "Sonic the Hedgehog 4 (Mar 19)",
+   "odds": null,
+   "mu": 161.5,
+   "sd": 80.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Sonic the Hedgehog 4",
+     "date": "Mar 19",
+     "p_release": 0.95,
+     "bo_mid": 200,
+     "rt_mid": 85
+    }
+   ]
+  },
+  {
+   "name": "Jason Momoa",
+   "detail": "A Minecraft Movie Squared (Jul 23); Animal Friends (Jan 22)",
+   "odds": null,
+   "mu": 152.9,
+   "sd": 76.5,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Animal Friends",
+     "date": "Jan 22",
+     "p_release": 0.85,
+     "bo_mid": 45,
+     "rt_mid": 45
+    },
+    {
+     "title": "A Minecraft Movie Squared",
+     "date": "Jul 23",
+     "p_release": 0.9,
+     "bo_mid": 290,
+     "rt_mid": 52
+    }
+   ]
+  },
+  {
+   "name": "Jack O'Connell",
+   "detail": "A Quiet Place Part III (Jul 30); Godzilla x Kong: Supernova (Mar 26)",
+   "odds": null,
+   "mu": 141.8,
+   "sd": 70.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Godzilla x Kong: Supernova",
+     "date": "Mar 26",
+     "p_release": 0.9,
+     "bo_mid": 150,
+     "rt_mid": 50
+    },
+    {
+     "title": "A Quiet Place Part III",
+     "date": "Jul 30",
+     "p_release": 0.9,
+     "bo_mid": 110,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Jack Black",
+   "detail": "A Minecraft Movie Squared (Jul 23)",
+   "odds": null,
+   "mu": 135.7,
+   "sd": 67.8,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "A Minecraft Movie Squared",
+     "date": "Jul 23",
+     "p_release": 0.9,
+     "bo_mid": 290,
+     "rt_mid": 52
+    }
+   ]
+  },
+  {
+   "name": "Laurence Fishburne",
+   "detail": "Gatto (Mar 5); The Exorcist: Martyrs (Mar 12)",
+   "odds": null,
+   "mu": 129.0,
+   "sd": 64.5,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Gatto",
+     "date": "Mar 5",
+     "p_release": 0.92,
+     "bo_mid": 120,
+     "rt_mid": 85
+    },
+    {
+     "title": "The Exorcist: Martyrs",
+     "date": "Mar 12",
+     "p_release": 0.8,
+     "bo_mid": 80,
+     "rt_mid": 55
+    }
+   ]
+  },
+  {
+   "name": "Benedict Cumberbatch",
+   "detail": "Avengers: Secret Wars (Dec 17); Wife & Dog (Feb 19)",
+   "odds": null,
+   "mu": 125.2,
+   "sd": 62.6,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Wife & Dog",
+     "date": "Feb 19",
+     "p_release": 0.9,
+     "bo_mid": 25,
+     "rt_mid": 60
+    },
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Andy Serkis",
+   "detail": "The Lord of the Rings: The Hunt for Gollum (Dec 17)",
+   "odds": null,
+   "mu": 114.0,
+   "sd": 57.0,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "The Lord of the Rings: The Hunt for Gollum",
+     "date": "Dec 17",
+     "p_release": 0.8,
+     "bo_mid": 198,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Ian McKellen",
+   "detail": "The Lord of the Rings: The Hunt for Gollum (Dec 17)",
+   "odds": null,
+   "mu": 114.0,
+   "sd": 57.0,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "The Lord of the Rings: The Hunt for Gollum",
+     "date": "Dec 17",
+     "p_release": 0.8,
+     "bo_mid": 198,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Jamie Dornan",
+   "detail": "The Lord of the Rings: The Hunt for Gollum (Dec 17)",
+   "odds": null,
+   "mu": 114.0,
+   "sd": 57.0,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "The Lord of the Rings: The Hunt for Gollum",
+     "date": "Dec 17",
+     "p_release": 0.8,
+     "bo_mid": 198,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Leo Woodall",
+   "detail": "The Lord of the Rings: The Hunt for Gollum (Dec 17)",
+   "odds": null,
+   "mu": 114.0,
+   "sd": 57.0,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "The Lord of the Rings: The Hunt for Gollum",
+     "date": "Dec 17",
+     "p_release": 0.8,
+     "bo_mid": 198,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Lee Pace",
+   "detail": "The Lord of the Rings: The Hunt for Gollum (Dec 17)",
+   "odds": null,
+   "mu": 114.0,
+   "sd": 57.0,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "The Lord of the Rings: The Hunt for Gollum",
+     "date": "Dec 17",
+     "p_release": 0.8,
+     "bo_mid": 198,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Elijah Wood",
+   "detail": "The Lord of the Rings: The Hunt for Gollum (Dec 17)",
+   "odds": null,
+   "mu": 114.0,
+   "sd": 57.0,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "The Lord of the Rings: The Hunt for Gollum",
+     "date": "Dec 17",
+     "p_release": 0.8,
+     "bo_mid": 198,
+     "rt_mid": 72
+    }
+   ]
+  },
+  {
+   "name": "Robert Downey Jr.",
+   "detail": "Avengers: Secret Wars (Dec 17)",
+   "odds": null,
+   "mu": 111.8,
+   "sd": 55.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Chris Evans",
+   "detail": "Avengers: Secret Wars (Dec 17)",
+   "odds": null,
+   "mu": 111.8,
+   "sd": 55.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Anthony Mackie",
+   "detail": "Avengers: Secret Wars (Dec 17)",
+   "odds": null,
+   "mu": 111.8,
+   "sd": 55.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Paul Bettany",
+   "detail": "Avengers: Secret Wars (Dec 17)",
+   "odds": null,
+   "mu": 111.8,
+   "sd": 55.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Simu Liu",
+   "detail": "Avengers: Secret Wars (Dec 17)",
+   "odds": null,
+   "mu": 111.8,
+   "sd": 55.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Pedro Pascal",
+   "detail": "Avengers: Secret Wars (Dec 17)",
+   "odds": null,
+   "mu": 111.8,
+   "sd": 55.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "Secret Wars (Dec 17) only ~62% of its run falls inside 2027 and slip risk is high",
+   "films": [
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Joseph Quinn",
+   "detail": "Avengers: Secret Wars (Dec 17)",
+   "odds": null,
+   "mu": 111.8,
+   "sd": 55.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Ebon Moss-Bachrach",
+   "detail": "Avengers: Secret Wars (Dec 17)",
+   "odds": null,
+   "mu": 111.8,
+   "sd": 55.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.5,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "John Leguizamo",
+   "detail": "Untitled Daniels film (Nov 19); The Exorcist: Martyrs (Mar 12); Ice Age: Boiling Point (Feb 5)",
+   "odds": null,
+   "mu": 110.2,
+   "sd": 55.1,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Ice Age: Boiling Point",
+     "date": "Feb 5",
+     "p_release": 0.9,
+     "bo_mid": 90,
+     "rt_mid": 30
+    },
+    {
+     "title": "The Exorcist: Martyrs",
+     "date": "Mar 12",
+     "p_release": 0.8,
+     "bo_mid": 80,
+     "rt_mid": 55
+    },
+    {
+     "title": "Untitled Daniels film",
+     "date": "Nov 19",
+     "p_release": 0.65,
+     "bo_mid": 100,
+     "rt_mid": 78
+    }
+   ]
+  },
+  {
+   "name": "Mark Ruffalo",
+   "detail": "Gatto (Mar 5)",
+   "odds": null,
+   "mu": 93.8,
+   "sd": 46.9,
+   "confidence": "C",
+   "source": "Wikipedia 'List of American films of 2027' casts (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates; cast lists are billed leads only (cameos not captured)",
+   "as_of": "2026-10-08",
+   "notes": "",
+   "films": [
+    {
+     "title": "Gatto",
+     "date": "Mar 5",
+     "p_release": 0.92,
+     "bo_mid": 120,
+     "rt_mid": 85
+    }
+   ]
+  }
+ ]
+}

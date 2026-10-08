@@ -130,5 +130,5 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   nearest 10,000 above 15,000 and under 100,000; nearest 100,000 from 100,000 up. 0% shows as +∞.
   (Implemented in `toAmericanOdds()` in `docs/projections.html`.)
 
-- Skills: `/fl-audit` (biweekly audit), `/fl-merge` (ship to prod), `/fl-repair` (broken Actions run), `/fl-bonus`
+- Skills: `/fl-draft-prep` (pre-draft research workbook, `draft_guide/`), `/fl-audit` (biweekly audit), `/fl-merge` (ship to prod), `/fl-repair` (broken Actions run), `/fl-bonus`
   (award bonus points), `/fl-category-fix` (bad category data), `/fl-headline` (manual headline).

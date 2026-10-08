@@ -1,0 +1,204 @@
+{
+ "as_of": "2026-10-08",
+ "source": "Kalshi public market data pulled from a GitHub Actions runner (exchange mid = avg of yes bid/ask, else last price)",
+ "title": {
+  "NFL": {
+   "series": "KXSB-27",
+   "prices": {
+    "Rams": 0.115,
+    "Bills": 0.105,
+    "49ers": 0.095,
+    "Chiefs": 0.095,
+    "Seahawks": 0.085,
+    "Ravens": 0.075,
+    "Jaguars": 0.065,
+    "Bears": 0.045,
+    "Vikings": 0.035,
+    "Broncos": 0.035,
+    "Cowboys": 0.035,
+    "Bengals": 0.035,
+    "Eagles": 0.025,
+    "Patriots": 0.025
+   }
+  },
+  "NBA": {
+   "series": "KXNBA-27",
+   "prices": {
+    "San Antonio": 0.215,
+    "Oklahoma City": 0.215,
+    "Philadelphia": 0.125,
+    "New York": 0.085,
+    "Minnesota": 0.065,
+    "Miami": 0.065,
+    "Boston": 0.045,
+    "Lakers": 0.035,
+    "Toronto": 0.025,
+    "Denver": 0.025,
+    "Cleveland": 0.025,
+    "Orlando": 0.015,
+    "Indiana": 0.015,
+    "Houston": 0.015
+   }
+  },
+  "NHL": {
+   "series": "KXNHL-27",
+   "prices": {
+    "Colorado": 0.125,
+    "Florida": 0.105,
+    "Carolina": 0.095,
+    "Edmonton": 0.085,
+    "Vegas": 0.075,
+    "Minnesota": 0.065,
+    "Washington": 0.055,
+    "Tampa": 0.055,
+    "Dallas": 0.055,
+    "San Jose": 0.045,
+    "Montreal": 0.045,
+    "New Jersey": 0.035,
+    "Anaheim": 0.035,
+    "Utah": 0.03
+   }
+  },
+  "NCAAF": {
+   "series": "KXNCAAF-27",
+   "field_mass": 0.04,
+   "prices": {
+    "Ohio State": 0.165,
+    "Georgia": 0.155,
+    "Texas": 0.135,
+    "Notre Dame": 0.115,
+    "Miami": 0.105,
+    "Alabama": 0.095,
+    "Indiana": 0.075,
+    "Oregon": 0.045,
+    "LSU": 0.045,
+    "Ole Miss": 0.025,
+    "Texas Tech": 0.015,
+    "Florida": 0.015,
+    "Mississippi State": 0.005
+   }
+  }
+ },
+ "final": {
+  "NFL": {
+   "series": "KXNFLAFCCHAMP/KXNFLNFCCHAMP-27",
+   "prices": {
+    "Bills": 0.195,
+    "Chiefs": 0.175,
+    "Ravens": 0.155,
+    "Jaguars": 0.125,
+    "Bengals": 0.075,
+    "Patriots": 0.065,
+    "Broncos": 0.065,
+    "Texans": 0.035,
+    "Browns": 0.025,
+    "Rams": 0.195,
+    "49ers": 0.175,
+    "Seahawks": 0.145,
+    "Bears": 0.095,
+    "Vikings": 0.085,
+    "Cowboys": 0.085,
+    "Lions": 0.055,
+    "Eagles": 0.045,
+    "Falcons": 0.035
+   }
+  },
+  "NBA": {
+   "series": "KXNBAEAST/KXNBAWEST-27",
+   "prices": {
+    "Philadelphia": 0.235,
+    "New York": 0.205,
+    "Boston": 0.125,
+    "Miami": 0.105,
+    "Toronto": 0.075,
+    "Cleveland": 0.07,
+    "Detroit": 0.06,
+    "Indiana": 0.05,
+    "Orlando": 0.025,
+    "Oklahoma City": 0.345,
+    "San Antonio": 0.325,
+    "Minnesota": 0.09,
+    "Lakers": 0.065,
+    "Denver": 0.055,
+    "Houston": 0.035,
+    "Golden State": 0.025,
+    "Utah": 0.015,
+    "Portland": 0.015
+   }
+  },
+  "NHL": {
+   "series": "KXNHLEAST/KXNHLWEST-27",
+   "prices": {
+    "Florida": 0.18,
+    "Carolina": 0.165,
+    "Washington": 0.135,
+    "Tampa": 0.125,
+    "New Jersey": 0.065,
+    "Montreal": 0.055,
+    "Buffalo": 0.055,
+    "Rangers": 0.045,
+    "Toronto": 0.035,
+    "Colorado": 0.195,
+    "Edmonton": 0.165,
+    "Vegas": 0.125,
+    "Dallas": 0.115,
+    "San Jose": 0.11,
+    "Minnesota": 0.1,
+    "Utah": 0.085,
+    "Anaheim": 0.045,
+    "Kings": 0.035
+   }
+  }
+ },
+ "other": {
+  "MLS_cup_2026": {
+   "series": "KXMLSCUP-26",
+   "prices": {
+    "Vancouver": 0.235,
+    "Nashville": 0.18,
+    "Inter Miami": 0.165,
+    "St. Louis": 0.055,
+    "Los Angeles FC": 0.055,
+    "Dallas": 0.045,
+    "Chicago": 0.045,
+    "Philadelphia": 0.035,
+    "New England": 0.035,
+    "Houston": 0.035,
+    "San Jose": 0.025,
+    "Charlotte": 0.025,
+    "Seattle": 0.015,
+    "LA Galaxy": 0.015
+   }
+  },
+  "NASCAR_title_2026": {
+   "series": "KXNASCARCUPSERIES-NCS26",
+   "prices": {
+    "Kyle Larson": 0.42,
+    "Denny Hamlin": 0.28,
+    "Christopher Bell": 0.105,
+    "Ryan Blaney": 0.055,
+    "Joey Logano": 0.055,
+    "Chase Briscoe": 0.035
+   }
+  },
+  "Grammy_AOTY_win_69": {
+   "series": "KXGRAMAOTY-69",
+   "prices": {
+    "Olivia Rodrigo": 0.475,
+    "Rosalía": 0.21,
+    "Olivia Dean": 0.155,
+    "Phoebe Bridgers": 0.095,
+    "Ella Langley": 0.045,
+    "Taylor Swift": 0.025
+   }
+  },
+  "Grammy_BNA_win_69": {
+   "series": "KXGRAMBNA-69",
+   "prices": {
+    "Ella Langley": 0.655,
+    "Sienna Spiro": 0.26,
+    "Geese": 0.035
+   }
+  }
+ }
+}

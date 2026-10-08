@@ -1,0 +1,700 @@
+===== MLS keys: ['_source', 'standings'] rows: 31
+    {'team': 'Nashville SC (T)', 'points': 60}
+    {'team': 'New England Revolution', 'points': 46}
+    {'team': 'Inter Miami CF', 'points': 46}
+    {'team': 'Charlotte FC', 'points': 43}
+    {'team': 'Chicago Fire FC', 'points': 42}
+    {'team': 'Philadelphia Union', 'points': 39}
+    {'team': 'Orlando City SC', 'points': 34}
+    {'team': 'New York Red Bulls', 'points': 33}
+    {'team': 'New York City FC', 'points': 33}
+    {'team': 'FC Cincinnati', 'points': 33}
+    {'team': 'D.C. United', 'points': 30}
+    {'team': 'Columbus Crew', 'points': 29}
+    {'team': 'Toronto FC', 'points': 29}
+    {'team': 'Atlanta United FC', 'points': 27}
+    {'team': 'CF Montréal', 'points': 24}
+    {'team': 'Vancouver Whitecaps FC', 'points': 50}
+    {'team': 'St. Louis City SC', 'points': 47}
+    {'team': 'FC Dallas', 'points': 47}
+    {'team': 'San Jose Earthquakes', 'points': 45}
+    {'team': 'Houston Dynamo FC', 'points': 44}
+    {'team': 'Los Angeles FC', 'points': 41}
+    {'team': 'Seattle Sounders FC', 'points': 38}
+    {'team': 'Colorado Rapids', 'points': 36}
+    {'team': 'LA Galaxy', 'points': 36}
+    {'team': 'Portland Timbers', 'points': 32}
+    {'team': 'Real Salt Lake', 'points': 32}
+    {'team': 'San Diego FC', 'points': 32}
+    {'team': 'Austin FC', 'points': 31}
+    {'team': 'Minnesota United FC', 'points': 29}
+    {'team': 'Sporting Kansas City', 'points': 21}
+    {'team': 'Nashville SC', 'points': 60}
+===== MLB keys: ['standings'] rows: 30
+    {'team': 'Brewers', 'win_pct': 0.6358}
+    {'team': 'Dodgers', 'win_pct': 0.6173}
+    {'team': 'Rays', 'win_pct': 0.6049}
+    {'team': 'Braves', 'win_pct': 0.5802}
+    {'team': 'Yankees', 'win_pct': 0.5776}
+    {'team': 'Padres', 'win_pct': 0.5617}
+    {'team': 'Cubs', 'win_pct': 0.5494}
+    {'team': 'Phillies', 'win_pct': 0.5432}
+    {'team': 'Red Sox', 'win_pct': 0.537}
+    {'team': 'D-backs', 'win_pct': 0.5309}
+    {'team': 'Guardians', 'win_pct': 0.5247}
+    {'team': 'White Sox', 'win_pct': 0.5185}
+    {'team': 'Pirates', 'win_pct': 0.5062}
+    {'team': 'Astros', 'win_pct': 0.5}
+    {'team': 'Rangers', 'win_pct': 0.4938}
+    {'team': 'Marlins', 'win_pct': 0.4938}
+    {'team': 'Orioles', 'win_pct': 0.4907}
+    {'team': 'Blue Jays', 'win_pct': 0.4877}
+    {'team': 'Twins', 'win_pct': 0.4753}
+    {'team': 'Nationals', 'win_pct': 0.4753}
+    {'team': 'Cardinals', 'win_pct': 0.4753}
+    {'team': 'Tigers', 'win_pct': 0.4691}
+    {'team': 'Mariners', 'win_pct': 0.4691}
+    {'team': 'Reds', 'win_pct': 0.463}
+    {'team': 'Mets', 'win_pct': 0.4568}
+    {'team': 'Royals', 'win_pct': 0.4259}
+    {'team': 'Giants', 'win_pct': 0.4012}
+    {'team': 'Athletics', 'win_pct': 0.3951}
+    {'team': 'Angels', 'win_pct': 0.3827}
+    {'team': 'Rockies', 'win_pct': 0.358}
+===== NASCAR keys: ['standings'] rows: 13
+    {'driver': 'Denny Hamlin', 'points': 2100}
+    {'driver': 'Ryan Blaney', 'points': 2075}
+    {'driver': 'Tyler Reddick', 'points': 2065}
+    {'driver': 'Chase Briscoe', 'points': 2055}
+    {'driver': 'Christopher Bell', 'points': 2050}
+    {'driver': 'Kyle Larson', 'points': 2045}
+    {'driver': 'Chase Elliott', 'points': 2040}
+    {'driver': 'Joey Logano', 'points': 2035}
+    {'driver': 'Daniel Suarez', 'points': 2025}
+    {'driver': 'William Byron', 'points': 2015}
+    {'driver': 'Bubba Wallace', 'points': 2010}
+    {'driver': 'Shane van Gisbergen', 'points': 1990}
+    {'driver': 'Ross Chastain', 'points': 1950}
+===== Tennis keys: ['rankings'] rows: 300
+    {'rank': 1, 'tour': 'ATP', 'player': 'Jannik Sinner'}
+    {'rank': 2, 'tour': 'ATP', 'player': 'Alexander Zverev'}
+    {'rank': 3, 'tour': 'ATP', 'player': 'Carlos Alcaraz'}
+    {'rank': 4, 'tour': 'ATP', 'player': 'Ben Shelton'}
+    {'rank': 5, 'tour': 'ATP', 'player': 'Felix Auger-Aliassime'}
+    {'rank': 6, 'tour': 'ATP', 'player': 'Daniil Medvedev'}
+    {'rank': 7, 'tour': 'ATP', 'player': 'Flavio Cobolli'}
+    {'rank': 8, 'tour': 'ATP', 'player': 'Novak Djokovic'}
+    {'rank': 9, 'tour': 'ATP', 'player': 'Alex de Minaur'}
+    {'rank': 10, 'tour': 'ATP', 'player': 'Frances Tiafoe'}
+    {'rank': 11, 'tour': 'ATP', 'player': 'Arthur Fils'}
+    {'rank': 12, 'tour': 'ATP', 'player': 'Taylor Fritz'}
+    {'rank': 13, 'tour': 'ATP', 'player': 'Rafael Jodar'}
+    {'rank': 14, 'tour': 'ATP', 'player': 'Valentin Vacherot'}
+    {'rank': 15, 'tour': 'ATP', 'player': 'Jakub Mensik'}
+    {'rank': 16, 'tour': 'ATP', 'player': 'Jiri Lehecka'}
+    {'rank': 17, 'tour': 'ATP', 'player': 'Learner Tien'}
+    {'rank': 18, 'tour': 'ATP', 'player': 'Tommy Paul'}
+    {'rank': 19, 'tour': 'ATP', 'player': 'Brandon Nakashima'}
+    {'rank': 20, 'tour': 'ATP', 'player': 'Francisco Cerundolo'}
+    {'rank': 21, 'tour': 'ATP', 'player': 'Luciano Darderi'}
+    {'rank': 22, 'tour': 'ATP', 'player': 'Alexander Bublik'}
+    {'rank': 23, 'tour': 'ATP', 'player': 'Andrey Rublev'}
+    {'rank': 24, 'tour': 'ATP', 'player': 'Casper Ruud'}
+    {'rank': 25, 'tour': 'ATP', 'player': 'Lorenzo Musetti'}
+    {'rank': 26, 'tour': 'ATP', 'player': 'Alejandro Davidovich Fokina'}
+    {'rank': 27, 'tour': 'ATP', 'player': 'Karen Khachanov'}
+    {'rank': 28, 'tour': 'ATP', 'player': 'Alexander Blockx'}
+    {'rank': 29, 'tour': 'ATP', 'player': 'Joao Fonseca'}
+    {'rank': 30, 'tour': 'ATP', 'player': 'Alejandro Tabilo'}
+    {'rank': 31, 'tour': 'ATP', 'player': 'Tomas Martin Etcheverry'}
+    {'rank': 32, 'tour': 'ATP', 'player': 'Ugo Humbert'}
+    {'rank': 33, 'tour': 'ATP', 'player': 'Arthur Rinderknech'}
+    {'rank': 34, 'tour': 'ATP', 'player': 'Hubert Hurkacz'}
+    {'rank': 35, 'tour': 'ATP', 'player': 'Alex Michelsen'}
+    {'rank': 36, 'tour': 'ATP', 'player': 'Ignacio Buse'}
+    {'rank': 37, 'tour': 'ATP', 'player': 'Arthur Fery'}
+    {'rank': 38, 'tour': 'ATP', 'player': 'Matteo Arnaldi'}
+    {'rank': 39, 'tour': 'ATP', 'player': 'Zizou Bergs'}
+    {'rank': 40, 'tour': 'ATP', 'player': 'Cameron Norrie'}
+    {'rank': 41, 'tour': 'ATP', 'player': 'Botic Van De Zandschulp'}
+    {'rank': 42, 'tour': 'ATP', 'player': 'Denis Shapovalov'}
+    {'rank': 43, 'tour': 'ATP', 'player': 'Stefanos Tsitsipas'}
+    {'rank': 44, 'tour': 'ATP', 'player': 'Daniel Merida'}
+    {'rank': 45, 'tour': 'ATP', 'player': 'Luca Van Assche'}
+===== Golf keys: ['_source', 'rankings'] rows: 998
+    {'rank': 1, 'player': 'Scottie Scheffler'}
+    {'rank': 2, 'player': 'Rory McIlroy'}
+    {'rank': 3, 'player': 'Matt Fitzpatrick'}
+    {'rank': 4, 'player': 'Cameron Young'}
+    {'rank': 5, 'player': 'Wyndham Clark'}
+    {'rank': 6, 'player': 'Russell Henley'}
+    {'rank': 7, 'player': 'Tommy Fleetwood'}
+    {'rank': 8, 'player': 'Chris Gotterup'}
+    {'rank': 9, 'player': 'Sam Burns'}
+    {'rank': 10, 'player': 'Xander Schauffele'}
+    {'rank': 11, 'player': 'Collin Morikawa'}
+    {'rank': 12, 'player': 'J.J. Spaun'}
+    {'rank': 13, 'player': 'Viktor Hovland'}
+    {'rank': 14, 'player': 'Si Woo Kim'}
+    {'rank': 15, 'player': 'Jon Rahm'}
+    {'rank': 16, 'player': 'Aaron Rai'}
+    {'rank': 17, 'player': 'Justin Rose'}
+    {'rank': 18, 'player': 'Ludvig Åberg'}
+    {'rank': 19, 'player': 'Robert MacIntyre'}
+    {'rank': 20, 'player': 'Jacob Bridgeman'}
+    {'rank': 21, 'player': 'Alex Noren'}
+    {'rank': 22, 'player': 'Ryan Fox'}
+    {'rank': 23, 'player': 'Ryan Gerard'}
+    {'rank': 24, 'player': 'Tyrrell Hatton'}
+    {'rank': 25, 'player': 'Ben Griffin'}
+    {'rank': 26, 'player': 'Hideki Matsuyama'}
+    {'rank': 27, 'player': 'Justin Thomas'}
+    {'rank': 28, 'player': 'Patrick Cantlay'}
+    {'rank': 29, 'player': 'Patrick Reed'}
+    {'rank': 30, 'player': 'Kristoffer Reitan'}
+    {'rank': 31, 'player': 'Min Woo Lee'}
+    {'rank': 32, 'player': 'Tom Kim'}
+    {'rank': 33, 'player': 'Michael Brennan'}
+    {'rank': 34, 'player': 'Akshay Bhatia'}
+    {'rank': 35, 'player': 'Joaquin Niemann'}
+    {'rank': 36, 'player': 'Sepp Straka'}
+    {'rank': 37, 'player': 'Bryson DeChambeau'}
+    {'rank': 38, 'player': 'J.T. Poston'}
+    {'rank': 39, 'player': 'Shane Lowry'}
+    {'rank': 40, 'player': 'Michael Thorbjornsen'}
+    {'rank': 41, 'player': 'Kurt Kitayama'}
+    {'rank': 42, 'player': 'Gary Woodland'}
+    {'rank': 43, 'player': 'Nicolai Højgaard'}
+    {'rank': 44, 'player': 'Harris English'}
+    {'rank': 45, 'player': 'Adam Scott'}
+series total: 14739
+matching: 2190
+   KXNBAFINALSMENTION | NBA Finals | Mentions
+   KXATPGRANDSLAMFIELD | ATP Grand Slam Field Winner | Sports
+   KXLEADERWNBAREB | WNBA RPG Leader | Sports
+   KXNBADRAFTOU | Pro Basketball Players Draft Position | Sports
+   KXWTATOURNWIN | Will player win tournament | Sports
+   KXNBAPLAYTOGETHER | Pro Basketball Players to Play Together | Sports
+   KXNCAAFB12QUAL | College Football Big 12 Championship Qualifiers | Sports
+   KXNASCARCUPSERIES | NASCAR Cup Series Champion | Sports
+   KXNFL1HFT | 1st Half Fulltime Result | Sports
+   KXNBASTOCK | NBA Player Steals + Blocks | Sports
+   KXNBAROY | NBA Rookie of the Year | Sports
+   KXMVECBCHAMPIONSHIP | MVE College Basketball Championship | Exotics
+   KXMLBSERIESSPREAD | Pro Baseball Series Game Spread | Sports
+   KXNCAAFAWARDFIN | College Football Award Finalists | Sports
+   KXNCAAF2QTOTAL | College Football 2nd Quarter Total | Sports
+   KXWNBALAWSUIT | Women's Pro Basketball Lawsuit | Sports
+   KXNFLTKL | Pro Football Tackles | Sports
+   KXMLBDRAFTTOP | Pro Baseball Top Pick | Sports
+   KXNCAAFCOTW | College Football Coach of the Week | Sports
+   KXWTABLETENNISMATCH | Women's Table Tennis Match | Sports
+   KXGRAMPOTY | Grammy for Producer of the Year, Non-Classical | Entertainment
+   KXNCAAF | NCAAF Championship | Sports
+   KXATPS3GWINNER | ATP set 3 game winner | Sports
+   KXNBATOP5ROTY | Top 5 NBA draft ROTY | Sports
+   KXNCAABBGS | College Baseball Golden Spikes Award | Sports
+   KXMLBAWARDFIN | Pro Baseball Award Finalists | Sports
+   KXNFLDIVISIONWINS | Pro Football Division Total Wins | Sports
+   KXWNBA1HSPREAD | Women's Pro Basketball 1st Half Spread | Sports
+   KXMWIAINTCOMINBACK | I Ain’t Comin’ Back total streams | Entertainment
+   KXNFLWEEKMOSTPASSYDS | Weekly Most Passing Yards | Sports
+   KXMLBWINS-PHI | Pro baseball wins Philadelphia | Sports
+   KXWPL | WPL Champion | Sports
+   KXWNBAPTS | WNBA Player Points | Sports
+   KXNCAAF1QSPREAD | College Football 1st Quarter Spread | Sports
+   KXESGDPYOYF | Spain GDP Growth Rate YoY | Economics
+   KXNFLWINS-KC | Pro football wins Kansas City | Sports
+   KXPGAGOLFERSCORE | Golf Round Strokes | Sports
+   KXNCAAPLAYOFF | College Football Playoff Qualifiers | Sports
+   KXWNBADELAY | WNBA Season Delay | Sports
+   KXWNBA3QWINNER | Women's Pro Basketball 3rd Quarter Winner | Sports
+   OSCARANIMATED | Oscar for Best Animated Feature | Entertainment
+   KXNCAAFTEAMRSHTD | College Football Team Rushing Touchdowns | Sports
+   KXWNBAGAMESPLAYED | WNBA Games Played in a Season | Sports
+   KXNCAAMLAXGAME | Men's College Lacrosse Game | Sports
+   KXWNBA1QSPREAD | Women's Pro Basketball 1st Quarter Spread | Sports
+   KXTHEOPEN | The Open Championship | Sports
+   KXNBAAPOLOGY | Pro Basketball Apology | Sports
+   KXCHCPIYOY | China Inflation Rate YoY | Economics
+   KXNBA2HSPREAD | NBA 2nd Half Spread | Sports
+   KXNBA1HSPREAD | NBA 1st Half Spread | Sports
+   KXNBAOVERTIME | NBA Overtime | Sports
+   KXWINSTREAKHOUMLB10 | Houston winning 10 games | Sports
+   KXMLC | Major League Cricket Champion | Sports
+   KXKXTOP10BILLBOARDDC | How many top 10 spots will doja cat have on the billboad chart | Entertainment
+   KXNCAAFAPANY | College Football AP Rank Anytime in Season | Sports
+   KXATPGAME | ATP Tennis Winner | Sports
+   KXNCAALAXFINAL | College Lacrosse National Championship | Sports
+   KXNHL1PSPREAD | 1st Period Spread | Sports
+   KXNCAAWBAPRANK | Women's College Basketball AP Poll | Sports
+   KXNBACLUTCH | NBA Clutch Player of the Year | Sports
+   KXNFLWINNINGSTREAK | NFL Team Winning Streak | Sports
+   KXMLBWSMVP | Pro Baseball Championship MVP | Sports
+   KXNHL30COMEBACK | NHL 3-0 Series Comeback | Sports
+   KXPGARYDERMATCH | PGA Ryder Cup Matchups | Sports
+   KXPGAPLAYERCAT | PGA Player Category | Sports
+   KXRECAPGAINS | Will Housing Capital Gains be Eliminated? | Politics
+   ACPICORE- | US annual core inflation | Economics
+   KXTOP10BILLBOARDSPOTSAW | HOW MANY SPOTS ON THE BILLBOARD HOT 10OS TOP 10 WILL ALEX WARREN HAVE  | Entertainment
+   KXNBADRAFTCAT | Pro Basketball Draft Category | Sports
+   KXNCAAMBFIRST50 | College Basketball Race to 50 Points | Sports
+   KXWNBANEXTTEAM | Women's Pro Basketball Next Team | Sports
+   KXNBA4QTEAMTOTAL | NBA 4th Quarter Team Total | Sports
+   KXVCCHAMPIONSPARIS | VALORANT Champions 2025 PARIS | Sports
+   KXNBAFTM | NBA Player Free Throws Made | Sports
+   KXWNBA3QTOTAL | Women's Pro Basketball 3rd Quarter Total | Sports
+   KXUCL16 | Champions League round of 16 | Sports
+   KXNCAAFJOINCONF | College Football Join Conference | Sports
+   KXNCAAMBCBC | Men's College Basketball Crown Winner | Sports
+   KXNCAAFFIRSTTDTEAM | College Football First Team to Score a Touchdown | Sports
+   KXNCAAMBIG12 | Big 12 MEN'S BASKETBALL TOURNAMENT | Sports
+   KXNCAAMBBIGTENREG | Men's College Basketball Big Ten Regular Season Champion | Sports
+   KXNFLPASSTDS | Pro Football player Passing Touchdowns | Sports
+   KXNFLWINS-HOU | Pro football wins Houston | Sports
+   KXMLBEOTY | Pro Baseball Executive of the Year | Sports
+   KXNFLAFCSOUTH | American Football Conference South Winner | Sports
+   KXNBAEAST | Pro Basketball Eastern Conference Champion | Sports
+   KXNFLPASSATT | Pro Football Passing Attempts | Sports
+   KXLEADERNFLPTDS | NFL leader passing TDs | Sports
+   KXNFLWINS | Pro Football Wins | Sports
+   KXNASCARTOPMANU | NASCAR Top Manufacturer | Sports
+   KXNBA3RDTEAM | All-NBA 3rd Team | Sports
+   KXNBAATLANTIC | Pro Basketball Atlantic Division Winner | Sports
+   KXOSCARNOMACTO | Oscar nominations for Best Actor | Entertainment
+   KXWNBA | WNBA Championship | Sports
+   KXNCAAMBSOCON | Southern Conference Tournament | Sports
+   OSCARNOMACTR | Oscar nominations for Best ActRESS | Entertainment
+   KXNBA3PTALLGAMES | Pro Basketball 3-Pointers in Every Game | Sports
+   KXWNBA1H | Women's Pro Basketball 1st Half Winner | Sports
+   KXNBA2KCOVER | Who will be on the cover of NBA 2k? | Entertainment
+   KXNBAMVP | NBA MVP | Sports
+   KXMEDIACOVERNBA2K | WHO WILL BE ON THE COVER OF NBA 2K | Entertainment
+   KXNBAWCFQUAL | NBA Western Conference Finals Qualifiers | Sports
+   KXNCAAFMOSTOT | College Football Most Amount of Overtimes | Sports
+   KXMLSTOTAL | MLS Total | Sports
+   KXNBADRAFTTOP | Pro Basketball Top Draft | Sports
+   KXEARNINGSMENTIONBAC | Bank of America Earnings Mention | Mentions
+   KXNCAAMWRESTLING157 | College Wrestling National Champion: 157-Pound Weight Class | Sports
+   KXNBAGAME | NBA Game | Sports
+   KXOSCARWINNERS | Oscar Winners | Entertainment
+   KXNFLGAMEFG | Pro Football Field Goals | Sports
+   KXNFLPROBOWLWIN | Pro Football Pro Bowl Game | Sports
+   KXGRAMMYWINNERS | Grammy Winners | Entertainment
+   KXNFLRECYDS | Pro Football Receiving Yards | Sports
+   KXMLBNEXTHR | Pro Baseball Next Homerun | Sports
+   KXNFLGAMESPECIALS | Pro Football Game Specials | Sports
+   KXLEADERMLBHR | MLB Home Runs Leader | Sports
+   KXNHLSERIESTOTALGOAL | NHL Series Total Goals | Sports
+   KXKXNCAAFTOPCFPPOLL | College Football CFP Poll | Sports
+   KXNCAAMPAC12 | PAC-12 MEN'S BASKETBALL TOURNAMENT | Sports
+   KXCFBUNRANKEDUPSET | College Football Unranked Upsets | Sports
+   KXNBAHALLOFFAME | Pro Basketball Hall of Fame | Sports
+   KXMLSFIRSTGOAL | First Goal | Sports
+   KXPGAR2LEAD | PGA Round 2 Leader | Sports
+   KXNBATOTAL | NBA Total | Sports
+   KXNFL3Q | Pro Football 3rd Quarter Winner | Sports
+   KXPGAMAJOR | PGA Major Wins | Sports
+   KXMLBSISTREAK | Pro Baseball Scoreless Innings Streak | Sports
+   KXGRAMBCS | Grammy for Best Country Song | Entertainment
+   KXLEADERNFLINT | NFL leader interceptions | Sports
+   KXKXECULPGAME | delete | Sports
+   KXNCAAATTEND | NCAA attend | Entertainment
+   KXTOPSONG | Billboard Hot 100 #1 | Entertainment
+   KXNFL53MAN | Pro Football 53 Man Roster | Sports
+   KXTEAMSINNBAEF | Teams in NBA Eastern Conference Finals | Sports
+   KXWTAGTOTAL | WTA Total Games | Sports
+   KXNFL2QBTTS | Pro Football Both Teams to Score in 2nd Quarter | Sports
+   KXMLS2HSPREAD | 2nd Half Spread | Sports
+   KXNCAAMBIGEAST | Big East Men's basketball tournament | Sports
+   KXNJGOLFVISITCOUNT | NJ golf visits | Politics
+   KXMLBALWEST | American League West Winner | Sports
+   KXNCAAMBCAA | Coastal Athletic Association Conference Tournament | Sports
+   KXNBA3PTCONTEST | NBA 3-Point Contest Winner | Sports
+   KXNFLOROY | NFL Offensive Rookie of the Y ear | Sports
+   KXESGDPQOQF | Spain GDP Growth Rate QoQ Flash (quarterly) | Economics
+   KXPCECORE | US Core PCE inflation | Economics
+   KXNFLWINS-CHI | Pro football wins Chicago | Sports
+   KXNBAALLSTARS | NBA All-Stars | Sports
+   KXOSCARANIMATED | Oscar for Best Animated Feature | Entertainment
+   KXNFLLADDERRECYDS | Receiving Yards Ladder | Sports
+   KXOSCARCOUNTEMILIAPEREZ | Emilia Perez Oscar wins | Entertainment
+   KXMLSJOIN | MLS Transfers | Sports
+   KXMLBCBA | CBA | Entertainment
+   KXWNBAMENTION | WNBA Mentions | Mentions
+   KXATPFINALS | ATP Finals Winner | Sports
+   KXNCAAF1QBTTS | College Football Both Teams to Score in 1st Quarter | Sports
+   KXISRSCUPGAME | State Cup Game | Sports
+   KXNBA3QTEAMTOTAL | NBA 3rd Quarter Team Total | Sports
+   KXWCCREG | West Coast Conference Regular Season Champions | Sports
+   BILLBOARDPEAKTGIF | TGIF BILLBOARD PEAK | Entertainment
+   KXNCAAMBOV | Ohio Valley Conference Tournament | Sports
+   KXMLBNLHAARON | Pro Baseball American League Hank Aaron | Sports
+   KXWNBAFIRSTTEAM | Women's Pro Basketball First Team | Sports
+   KXNFLOTWIN | Pro Football Overtime Winner | Sports
+   KXNFLWINS-PIT | Pro football wins Pittsburgh | Sports
+   KXOSCARNOMSUPACTO | Oscar nominations for Best Supporting Actor | Entertainment
+   KXMLSCUP | MLS Cup champion | Sports
+   KXNCAAFTEAMFG | College Football Team Total Field Goals | Sports
+   KXNBAFINBLOWOUT | Pro Basketball Finals Blowout | Sports
+   KXGRAMMYCOUNTSABRINA | Sabrina Carpenter Grammy wins | Entertainment
+   KXNBASTOCKS | NBA Player Steals and Blocks | Sports
+   KXWNBAMIMP | WNBA Most Improved Player of the Year | Sports
+   KXNCAAFUNDEFEATEDHOME | College Football Teams to go Undefeated at Home | Sports
+   KXNFLPASSINT | Pro Football Passing Interceptions | Sports
+   KXMCMMEN | ATP Monte-Carlo Masters Winner | Sports
+   KXTTMATCH | Men's Table Tennis Match | Sports
+   KXCOACHOUTMLB | Baseball Managers Out | Sports
+   KXNBASERIES | NBA Series Winner | Sports
+   KXESPYNBA | BEST NBA PLAYER‬ | Entertainment
+   KXNBADRAFT10 | NBA Draft Tenth Pick | Sports
+   KXCHESSCANDIDATES | Chess Candidates Champion | Sports
+   KXNFLDRAFTRB | Pro Football Running Back Drafted | Sports
+   KXNFLEXACTWINSDET | Pro football exact wins Detroit | Sports
+   KXWTAGRANDSLAM | WTA Grand Slam | Sports
+   KXNCAAMBPAC12 | Pac-12 Conference Tournament | Sports
+   OSCARCOUNTBARBIE | Barbie Oscar wins | Entertainment
+   KXATPGAMETOTAL | ATP Total Games | Sports
+   KXUSOPENCUPGAME | US Open Cup Game | Sports
+   KXNFL2PTCONV | Pro Football 2-Point Conversions | Sports
+   KXNFLSEASONPASSYDS | Passing Yards | Sports
+   KXNCAABGAME | College Basketball Game | Sports
+   KXNBADRAFT5 | NBA Draft Fifth Pick | Sports
+   KXNCAAMB2ML | College Basketball 2-Moneyline Combo | Sports
+   KXNBASUMMER1HTOTAL | Pro Basketball Summer League 1st Half Total | Sports
+   KXSERIECSCUPGAME | Supercoppa di Lega Pro Game | Sports
+   KXNBAMVPDPOY | Pro Basketball Player to Win MVP and DPOY | Sports
+   KXWNBASECONDTEAM | Women's Pro Basketball Second Team | Sports
+   KXNWSL | NWSL Champion | Sports
+   KXEARNINGSMENTIONCOINBASE | coinbase earnings mention | Mentions
+   KXOSCARCINE | Oscar for Best Cinematography | Entertainment
+   KXNHLFINALSEXACT | NHL Championship Series Score | Sports
+   KXNASCARTOP5 | NASCAR Top 5 Finishers | Sports
+   KXNFLEXACTWINSKC | Pro football exact wins Kansas City | Sports
+   KXBILLBOARDPEAKPPP | Please please please Billboard Peak | Entertainment
+   KXPGABIRDIES | PGA Golf Birdies | Sports
+   KXRANKLISTSONGFORGOOD | Will ‘For Good’ hit the Top 20 of the Billboard Hot 100 for the week of December __? | Entertainment
+   KXNBARETIRE | NBA Retirement | Sports
+   KXNCAAMBKENPOMTOP | Men's College Basketball KenPom Top Ratings | Sports
+   KXPGARYDERTOP | Ryder Cup Top Points Scorer | Sports
+   KXNCAAMBNAISMITH | Men's College Basketball Naismith | Sports
+   KXNBAFINALSMVP | Finals MVP | Sports
+   KXDAVISCUP | Davis Cup Champions | Sports
+   KXNCAAF1H | College Football 1st Half Winner | Sports
+   KXUFA | Ultimate Frisbee Association Champion | Sports
+   KXFIBACHAMPGAME | FIBA Champions League Game | Sports
+   KXNBANORTHWEST | Pro Basketball Northwest Division Winner | Sports
+   KXAMAFMRNBA | Favorite Male R\u0026B Artist | Entertainment
+   KXNCAAMBIVY | Ivy League Conference Tournament | Sports
+   KXSUPERBOWLHEADLINE | Who will headline super bowl  | Entertainment
+   KXJPSGINFL | Will Japan’s inflation rate be above Singapore’s | Economics
+   KXLEADERMLBSTEALS | MLB Steals Leader | Sports
+   GRAMBNA | Grammy for Best New Artist | Entertainment
+   KXNCAABBGAME | College Baseball Game | Sports
+   KXNBAPLAYIN | Which Team Will Make the Play-In Tournament | Sports
+   KXBBL | Germany BBL Champion | Sports
+   CBVOLUME | Coinbase volume | Companies
+   KXOSCARCOUNTBARBIE | Barbie Oscar wins | Entertainment
+   KXNCAAMIVYLEAGUE | Ivy League MEN'S BASKETBALL TOURNAMENT | Sports
+   KXTOPSHOWNFLX | What will be the top show by hours watched on platform this week? | Entertainment
+   KXNFLCELEBRITYGAME | Pro Football Celebrity Flag Football Game | Sports
+   KXUEFACL | UEFA Champions League | Sports
+   KXLOWTATL | Low Temperature Atlanta | Climate and Weather
+   GRAMMYCOUNTSWIFT | Taylor Swift Grammy wins | Entertainment
+   KXCNGDP | China quarterly GDP change in 2021 Q2 | Economics
+   KXDUNKMAN | Dunkman World Championships Winner | Sports
+   KXNCAAFTOPAPRANK | College Football AP Poll Top Rank | Sports
+   KXPGAAWARDS | PRODUCERS GUILD AWARDS | Entertainment
+   KXTOP10BILLBOARDSPOTSTEDDYS | How many Spots on the Billboard hot 100 will Teddy swims have for the wekk of  | Entertainment
+   KXNCAAMENTION | NCAA Mention | Mentions
+   KXNBASUMMERSPREAD | Pro Basketball Summer League Spread | Sports
+   KXUSLGAME | USL Championship Game | Sports
+   KXMLBWORLD | World Baseball Classic | Sports
+   KXOSCARSUPACTR | Oscar for Best Supporting Actress | Entertainment
+   KXNFLNEXTTD | Pro Football Next TD scorer | Sports
+   KXNBAWINMARGIN | NBA Win Margin | Sports
+   KXNCAAFTEAMRSHYDS | College Football Team Rushing Yards | Sports
+   KXNFLWINS-ATL | Pro football wins Atlanta | Sports
+   KXGRAMMYCOUNTPOSTMALONE | POST MALONE Grammy Wins | Entertainment
+   KXMLBGAME | Professional Baseball Game | Sports
+   KXNBADRAFT2 | NBA Draft Second Pick | Sports
+   KXBIGEASTREG | Big East Regular Season Champions | Sports
+   KXNFLOPOY | NFL Offensive Player of the Year | Sports
+   KXCOACHOUTNFL | NFL Coach Out | Sports
+   KXNBA2QTOTAL | NBA 1st Quarter Total | Sports
+   KXNASCARH2H | NASCAR Head-to-Head | Sports
+   KXNFLDROTY | AP Pro Football Defensive Rookie of the Year | Sports
+   KXWTA1RANK | WTA #1 Ranked | Sports
+   KXNCAAFSECAWARD | College Football SEC Award Winner | Sports
+   KXNCAABBSPREAD | College Baseball Spread | Sports
+   KXNCAABBIG10 | Big Ten Men's Basketball Tournament | Sports
+   KXDCGOLFVISITCOUNT | Trump National Golf Club visits | Politics
+===== KXNBA markets: 30
+   0.215 | KXNBA-27 | San Antonio | close 2029-07-30
+   0.215 | KXNBA-27 | Oklahoma City | close 2029-07-30
+   0.125 | KXNBA-27 | Philadelphia | close 2029-07-30
+   0.085 | KXNBA-27 | New York | close 2029-07-30
+   0.065 | KXNBA-27 | Minnesota | close 2029-07-30
+   0.065 | KXNBA-27 | Miami | close 2029-07-30
+   0.045 | KXNBA-27 | Boston | close 2029-07-30
+   0.035 | KXNBA-27 | Los Angeles L | close 2029-07-30
+   0.025 | KXNBA-27 | Toronto | close 2029-07-30
+   0.025 | KXNBA-27 | Denver | close 2029-07-30
+   0.025 | KXNBA-27 | Cleveland | close 2029-07-30
+   0.015 | KXNBA-27 | Orlando | close 2029-07-30
+   0.015 | KXNBA-27 | Indiana | close 2029-07-30
+   0.015 | KXNBA-27 | Houston | close 2029-07-30
+===== KXNHL markets: 32
+   0.125 | KXNHL-27 | Colorado Avalanche | close 2029-06-30
+   0.105 | KXNHL-27 | Florida Panthers | close 2029-06-30
+   0.095 | KXNHL-27 | Carolina Hurricanes | close 2029-06-30
+   0.085 | KXNHL-27 | Edmonton Oilers | close 2029-06-30
+   0.075 | KXNHL-27 | Vegas Golden Knights | close 2029-06-30
+   0.065 | KXNHL-27 | Minnesota Wild | close 2029-06-30
+   0.055 | KXNHL-27 | Washington Capitals | close 2029-06-30
+   0.055 | KXNHL-27 | Tampa Bay Lightning | close 2029-06-30
+   0.055 | KXNHL-27 | Dallas Stars | close 2029-06-30
+   0.045 | KXNHL-27 | San Jose Sharks | close 2029-06-30
+   0.045 | KXNHL-27 | Montréal Canadiens | close 2029-06-30
+   0.035 | KXNHL-27 | New Jersey Devils | close 2029-06-30
+   0.035 | KXNHL-27 | Anaheim Ducks | close 2029-06-30
+   0.030 | KXNHL-27 | Utah Mammoth | close 2029-06-30
+===== KXMLB markets: 30
+   0.500 | KXMLB-26 | Washington | close 2026-09-18
+   0.500 | KXMLB-26 | Toronto | close 2026-09-23
+   0.500 | KXMLB-26 | Texas | close 2026-09-28
+   0.500 | KXMLB-26 | St. Louis | close 2026-09-21
+   0.500 | KXMLB-26 | San Francisco | close 2026-09-18
+   0.500 | KXMLB-26 | Seattle | close 2026-09-24
+   0.500 | KXMLB-26 | San Diego | close 2026-10-08
+   0.500 | KXMLB-26 | Pittsburgh | close 2026-09-21
+   0.500 | KXMLB-26 | Philadelphia | close 2026-10-02
+   0.500 | KXMLB-26 | New York Y | close 2026-10-08
+   0.500 | KXMLB-26 | New York M | close 2026-09-18
+   0.500 | KXMLB-26 | Minnesota | close 2026-09-21
+   0.500 | KXMLB-26 | Miami | close 2026-09-21
+   0.500 | KXMLB-26 | Los Angeles A | close 2026-09-18
+===== KXMLSCUP markets: 30
+   0.235 | KXMLSCUP-26 | Vancouver | close 2027-01-08
+   0.180 | KXMLSCUP-26 | Nashville | close 2027-01-08
+   0.165 | KXMLSCUP-26 | Miami | close 2027-01-08
+   0.055 | KXMLSCUP-26 | Saint Louis | close 2027-01-08
+   0.055 | KXMLSCUP-26 | Los Angeles F | close 2027-01-08
+   0.045 | KXMLSCUP-26 | Dallas | close 2027-01-08
+   0.045 | KXMLSCUP-26 | Chicago | close 2027-01-08
+   0.035 | KXMLSCUP-26 | Philadelphia | close 2027-01-08
+   0.035 | KXMLSCUP-26 | New England | close 2027-01-08
+   0.035 | KXMLSCUP-26 | Houston | close 2027-01-08
+   0.025 | KXMLSCUP-26 | San Jose | close 2027-01-08
+   0.025 | KXMLSCUP-26 | Charlotte | close 2027-01-08
+   0.015 | KXMLSCUP-26 | Seattle | close 2027-01-08
+   0.015 | KXMLSCUP-26 | Los Angeles G | close 2027-01-08
+===== KXNASCARCUPSERIES markets: 35
+   0.420 | KXNASCARCUPSERIES-NCS26 | Kyle Larson | close 2026-11-15
+   0.280 | KXNASCARCUPSERIES-NCS26 | Denny Hamlin | close 2026-11-15
+   0.105 | KXNASCARCUPSERIES-NCS26 | Christopher Bell | close 2026-11-15
+   0.055 | KXNASCARCUPSERIES-NCS26 | Ryan Blaney | close 2026-11-15
+   0.055 | KXNASCARCUPSERIES-NCS26 | Joey Logano | close 2026-11-15
+   0.035 | KXNASCARCUPSERIES-NCS26 | Chase Briscoe | close 2026-11-15
+   0.005 | KXNASCARCUPSERIES-NCS26 | Shane Van Gisbergen | close 2026-11-15
+   0.005 | KXNASCARCUPSERIES-NCS26 | Riley Herbst | close 2026-11-15
+   0.005 | KXNASCARCUPSERIES-NCS26 | Noah Gragson | close 2026-11-15
+   0.005 | KXNASCARCUPSERIES-NCS26 | Michael McDowell | close 2026-11-15
+   0.005 | KXNASCARCUPSERIES-NCS26 | AJ Allmendinger | close 2026-11-15
+   0.005 | KXNASCARCUPSERIES-NCS26 | Todd Gilliland | close 2026-11-15
+   0.005 | KXNASCARCUPSERIES-NCS26 | Zane Smith | close 2026-11-15
+   0.005 | KXNASCARCUPSERIES-NCS26 | William Byron | close 2026-11-15
+===== KXSB markets: 32
+   0.115 | KXSB-27 | Los Angeles R | close 2029-02-13
+   0.105 | KXSB-27 | Buffalo | close 2029-02-13
+   0.095 | KXSB-27 | San Francisco | close 2029-02-13
+   0.095 | KXSB-27 | Kansas City | close 2029-02-13
+   0.085 | KXSB-27 | Seattle | close 2029-02-13
+   0.075 | KXSB-27 | Baltimore | close 2029-02-13
+   0.065 | KXSB-27 | Jacksonville | close 2029-02-13
+   0.045 | KXSB-27 | Chicago | close 2029-02-13
+   0.035 | KXSB-27 | Minnesota | close 2029-02-13
+   0.035 | KXSB-27 | Denver | close 2029-02-13
+   0.035 | KXSB-27 | Dallas | close 2029-02-13
+   0.035 | KXSB-27 | Cincinnati | close 2029-02-13
+   0.025 | KXSB-27 | Philadelphia | close 2029-02-13
+   0.025 | KXSB-27 | New England | close 2029-02-13
+  ✗ Kalshi RSA /events/KXNFL/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+  ✗ Kalshi: unauthenticated request returned HTTP 404 — using static fallback
+KXNFL -\u003e none
+  ✗ Kalshi RSA /events/KXNCAAFB/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXNCAAFB -\u003e none
+===== KXNCAAF markets: 51
+   0.165 | KXNCAAF-27 | Ohio St. | close 2027-02-23
+   0.155 | KXNCAAF-27 | Georgia | close 2027-02-23
+   0.135 | KXNCAAF-27 | Texas | close 2027-02-23
+   0.115 | KXNCAAF-27 | Notre Dame | close 2027-02-23
+   0.105 | KXNCAAF-27 | Miami (FL) | close 2027-02-23
+   0.095 | KXNCAAF-27 | Alabama | close 2027-02-23
+   0.075 | KXNCAAF-27 | Indiana | close 2027-02-23
+   0.045 | KXNCAAF-27 | Oregon | close 2027-02-23
+   0.045 | KXNCAAF-27 | LSU | close 2027-02-23
+   0.025 | KXNCAAF-27 | Ole Miss | close 2027-02-23
+   0.015 | KXNCAAF-27 | Texas Tech | close 2027-02-23
+   0.015 | KXNCAAF-27 | Florida | close 2027-02-23
+   0.005 | KXNCAAF-27 | Mississippi St. | close 2027-02-23
+   0.005 | KXNCAAF-27 | Washington | close 2027-02-23
+  ✗ Kalshi RSA /events/KXNCAAMBCHAMP/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXNCAAMBCHAMP -\u003e none
+  ✗ Kalshi RSA /events/KXNCAAB/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXNCAAB -\u003e none
+  ✗ Kalshi RSA /events/KXPGAWIN/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXPGAWIN -\u003e none
+  ✗ Kalshi RSA /events/KXMASTERS/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXMASTERS -\u003e none
+===== KXATP markets: 200
+   0.500 | KXATP-26BEIJIN | Tomas Machac | close 2026-10-01
+   0.500 | KXATP-26TOKYO | Jaime Faria | close 2026-10-02
+   0.500 | KXATP-26TOKYO | Luca Van Assche | close 2026-09-30
+   0.500 | KXATP-26TOKYO | Adolfo Daniel Vallejo | close 2026-10-04
+   0.500 | KXATP-26TOKYO | Valentin Vacherot | close 2026-10-05
+   0.500 | KXATP-26TOKYO | Stefanos Tsitsipas | close 2026-10-02
+   0.500 | KXATP-26TOKYO | Frances Tiafoe | close 2026-10-02
+   0.500 | KXATP-26TOKYO | Alejandro Tabilo | close 2026-10-03
+   0.500 | KXATP-26TOKYO | Sho Shimabukuro | close 2026-10-01
+   0.500 | KXATP-26TOKYO | Denis Shapovalov | close 2026-10-06
+   0.500 | KXATP-26TOKYO | Rei Sakamoto | close 2026-09-30
+   0.500 | KXATP-26TOKYO | Casper Ruud | close 2026-10-06
+   0.500 | KXATP-26TOKYO | Holger Rune | close 2026-10-01
+   0.500 | KXATP-26TOKYO | Tommy Paul | close 2026-09-30
+===== KXWTA markets: 200
+   0.500 | KXWTA-26BEIJIN | Dayana Yastremska | close 2026-10-04
+   0.500 | KXWTA-26BEIJIN | Donna Vekic | close 2026-10-07
+   0.500 | KXWTA-26BEIJIN | Xinran Sun | close 2026-10-07
+   0.500 | KXWTA-26BEIJIN | Daria Snigur | close 2026-10-07
+   0.500 | KXWTA-26BEIJIN | Diana Shnaider | close 2026-10-04
+   0.500 | KXWTA-26BEIJIN | Liudmila Samsonova | close 2026-10-04
+   0.500 | KXWTA-26BEIJIN | Maria Sakkari | close 2026-10-07
+   0.500 | KXWTA-26BEIJIN | Aryna Sabalenka | close 2026-10-04
+   0.500 | KXWTA-26BEIJIN | Kamilla Rakhimova | close 2026-10-07
+   0.500 | KXWTA-26BEIJIN | Taylah Preston | close 2026-10-04
+   0.500 | KXWTA-26BEIJIN | Jelena Ostapenko | close 2026-10-07
+   0.500 | KXWTA-26BEIJIN | Naomi Osaka | close 2026-10-07
+   0.500 | KXWTA-26BEIJIN | Linda Noskova | close 2026-10-07
+   0.500 | KXWTA-26BEIJIN | Karolina Muchova | close 2026-10-08
+===== KXOSCARACTO markets: 25
+   0.395 | KXOSCARACTO-27 | John Malkovich | close 2027-12-31
+   0.225 | KXOSCARACTO-27 | Matt Damon | close 2027-12-31
+   0.195 | KXOSCARACTO-27 | Andrew Scott | close 2027-12-31
+   0.135 | KXOSCARACTO-27 | Tom Cruise | close 2027-12-31
+   0.045 | KXOSCARACTO-27 | Robert Pattinson | close 2027-12-31
+   0.035 | KXOSCARACTO-27 | Timothée Chalamet | close 2027-12-31
+   0.020 | KXOSCARACTO-27 | Anthony Ippolito | close 2027-12-31
+   0.015 | KXOSCARACTO-27 | Ryan Gosling | close 2027-12-31
+   0.005 | KXOSCARACTO-27 | Yura Borisov | close 2027-12-31
+   0.005 | KXOSCARACTO-27 | Tom Holland | close 2027-12-31
+   0.005 | KXOSCARACTO-27 | Pedro Pascal | close 2027-12-31
+   0.005 | KXOSCARACTO-27 | Ethan Hawke | close 2027-12-31
+   0.005 | KXOSCARACTO-27 | Jacob Tremblay | close 2027-12-31
+   0.005 | KXOSCARACTO-27 | Sacha Baron Cohen | close 2027-12-31
+===== KXOSCARACTR markets: 18
+   0.675 | KXOSCARACTR-27 | Julianne Moore | close 2027-12-31
+   0.190 | KXOSCARACTR-27 | Inde Navarrette | close 2027-12-31
+   0.035 | KXOSCARACTR-27 | Sandra Hüller | close 2027-12-31
+   0.025 | KXOSCARACTR-27 | Olivia Wilde | close 2027-12-31
+   0.025 | KXOSCARACTR-27 | Renate Reinsve | close 2027-12-31
+   0.015 | KXOSCARACTR-27 | Mikey Madison | close 2027-12-31
+   0.015 | KXOSCARACTR-27 | Anne hathaway | close 2027-12-31
+   0.005 | KXOSCARACTR-27 | Marion Bailey | close 2027-12-31
+   0.005 | KXOSCARACTR-27 | Kate O'Flynn | close 2027-12-31
+   0.005 | KXOSCARACTR-27 | Shailene Woodley | close 2027-12-31
+   0.005 | KXOSCARACTR-27 | Tie | close 2027-12-31
+   0.005 | KXOSCARACTR-27 | Scarlett Johansson | close 2027-12-31
+   0.005 | KXOSCARACTR-27 | Penélope Cruz | close 2027-12-31
+   0.005 | KXOSCARACTR-27 | Natalie Portman | close 2027-12-31
+===== KXOSCARSUPACTO markets: 27
+   0.280 | KXOSCARSUPACTO-27 | Paul Giamatti | close 2027-12-31
+   0.270 | KXOSCARSUPACTO-27 | Andrew Garfield | close 2027-12-31
+   0.165 | KXOSCARSUPACTO-27 | John Leguizamo | close 2027-12-31
+   0.105 | KXOSCARSUPACTO-27 | Robert Pattinson | close 2027-12-31
+   0.085 | KXOSCARSUPACTO-27 | Sam Rockwell | close 2027-12-31
+   0.045 | KXOSCARSUPACTO-27 | Guitarricadelafuente | close 2027-12-31
+   0.035 | KXOSCARSUPACTO-27 | Edward Norton | close 2027-12-31
+   0.025 | KXOSCARSUPACTO-27 | Skyler Gisondo | close 2027-12-31
+   0.015 | KXOSCARSUPACTO-27 | Riz Ahmed | close 2027-12-31
+   0.005 | KXOSCARSUPACTO-27 | Guy Pearce | close 2027-12-31
+   0.005 | KXOSCARSUPACTO-27 | James Ortiz | close 2027-12-31
+   0.005 | KXOSCARSUPACTO-27 | Himesh Patel | close 2027-12-31
+   0.005 | KXOSCARSUPACTO-27 | Tom Holland | close 2027-12-31
+   0.005 | KXOSCARSUPACTO-27 | Tie | close 2027-12-31
+===== KXOSCARSUPACTR markets: 16
+   0.525 | KXOSCARSUPACTR-27 | Anne Hathaway | close 2027-12-31
+   0.185 | KXOSCARSUPACTR-27 | Penélope Cruz | close 2027-12-31
+   0.125 | KXOSCARSUPACTR-27 | Amanda Seyfried | close 2027-12-31
+   0.105 | KXOSCARSUPACTR-27 | Kate O'Flynn | close 2027-12-31
+   0.055 | KXOSCARSUPACTR-27 | Sandra Hüller | close 2027-12-31
+   0.045 | KXOSCARSUPACTR-27 | Inde Navarrette | close 2027-12-31
+   0.025 | KXOSCARSUPACTR-27 | Gemma Chan | close 2027-12-31
+   0.010 | KXOSCARSUPACTR-27 | Zendaya | close 2027-12-31
+   0.010 | KXOSCARSUPACTR-27 | Tao Okamoto | close 2027-12-31
+   0.005 | KXOSCARSUPACTR-27 | Tie | close 2027-12-31
+   0.005 | KXOSCARSUPACTR-27 | Parker Posey | close 2027-12-31
+   0.005 | KXOSCARSUPACTR-27 | Mariana di Girolamo | close 2027-12-31
+   0.005 | KXOSCARSUPACTR-27 | Margaret Qualley | close 2027-12-31
+   0.005 | KXOSCARSUPACTR-27 | Isabella Rossellini | close 2027-12-31
+  ✗ Kalshi RSA /events/KXGRAMMYAOTY/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXGRAMMYAOTY -\u003e none
+  ✗ Kalshi RSA /events/KXGRAMMYROTY/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXGRAMMYROTY -\u003e none
+  ✗ Kalshi RSA /events/KXGRAMMYSOTY/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXGRAMMYSOTY -\u003e none
+  ✗ Kalshi RSA /events/KXGRAMMYNEWARTIST/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXGRAMMYNEWARTIST -\u003e none
+  ✗ Kalshi RSA /events/KXWORLDSERIES/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXWORLDSERIES -\u003e none
+  ✗ Kalshi RSA /events/KXSUPERBOWL/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXSUPERBOWL -\u003e none
+  ✗ Kalshi RSA /events/KXNBAFINALS/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXNBAFINALS -\u003e none
+  ✗ Kalshi RSA /events/KXSTANLEYCUP/markets: HTTP 404 — 404 page not found
+  ✗ Kalshi *** HTTP 404
+KXSTANLEYCUP -\u003e none
+countries 403 417
+IMF error JSONDecodeError('Expecting value: line 1 column 1 (char 0)')
+===== https://en.wikipedia.org/wiki/List_of_American_films_of_2027 200 472247
+   The Beekeeper 2 | Metro-Goldwyn-Mayer / Miramax / Punch Palace Productions | Timo Tjahjanto (director); Umair Aleem (screenplay); Jason Statham , E | [ 3 ]
+   Karoshi | Lionsgate / 87Eleven Entertainment | Takashi Doscher (director/screenplay); Teo Yoo , Isabel May , Cynthia  | [ 7 ]
+   Wishful Thinking | Sony Pictures Classics / Pinky Promise | Graham Parkes (director/screenplay); Maya Hawke , Lewis Pullman , Rand | [ 13 ]
+   The Thomas Crown Affair | Metro-Goldwyn-Mayer / Outlier Society / Atlas Entertainment | Michael B. Jordan (director); Drew Pearce (screenplay); Michael B. Jor | [ 20 ]
+   23 | Spaceballs: The New One | Metro-Goldwyn-Mayer / Imagine Entertainment / Brooksfilms | Josh Greenbaum (director); Josh Gad , Mel Brooks , Benji Samit , Dan H | [ 31 ]
+   21 | Paranormal Activity 8 | Paramount Pictures / Blumhouse Productions / Atomic Monster | Ian Tuason (director/screenplay); Chase Yi, Sonia Mena, Maya Da Costa | [ 39 ]
+   13 | Untitled Teenage Mutant Ninja Turtles: Mutant Mayhem sequel | Paramount Pictures / Paramount Animation / Nickelodeon Movies / Point  | Jeff Rowe (director); Micah Abbey , Shamon Brown Jr. , Ni
+   8 | The Haunting of Hotel Transylvania | Columbia Pictures / Metro-Goldwyn-Mayer / Sony Pictures Animation | Jennifer Kluska , Alan Hawkins (directors) | [ 64 ]
+===== https://en.wikipedia.org/wiki/2027_in_film 404 51585
+Post job cleanup.
+(node:2352) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Post job cleanup.
+[command]/usr/bin/git version
+git version 2.55.0
+Temporarily overriding HOME='/home/runner/work/_temp/8e479a82-e47e-46fc-8521-1dcb79b59b86' before making global git config changes
+Adding repository directory to the temporary git global config as a safe directory
+[command]/usr/bin/git config --global --add safe.directory /home/runner/work/fantasy_life/fantasy_life
+[command]/usr/bin/git config --local --name-only --get-regexp core\\.sshCommand
+[command]/usr/bin/git submodule foreach --recursive sh -c \"git config --local --name-only --get-regexp 'core\\.sshCommand' \u0026\u0026 git config --local --unset-all 'core.sshCommand' || :\"
+[command]/usr/bin/git config --local --name-only --get-regexp http\\.https\\:\\/\\/github\\.com\\/\\.extraheader
+http.https://github.com/.extraheader
+[command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+[command]/usr/bin/git submodule foreach --recursive sh -c \"git config --local --name-only --get-regexp 'http\\.https\\:\\/\\/github\\.com\\/\\.extraheader' \u0026\u0026 git config --local --unset-all
+[command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\\.gitdir:
+[command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Cleaning up orphan processes
+##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://
