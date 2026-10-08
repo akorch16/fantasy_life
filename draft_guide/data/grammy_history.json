@@ -1,0 +1,546 @@
+{
+ "as_of": "2026-10-08",
+ "source": "user-supplied top-10 nominees by year, 63rd-68th Grammys; Silk Sonic/H.E.R./Billie big-3 flags from winners lists",
+ "rows": [
+  {
+   "year": 2026,
+   "artist": "Kendrick Lamar",
+   "noms": 9,
+   "wins": 5,
+   "big3_wins": 1,
+   "bonus_raw": 23,
+   "bonus": 13
+  },
+  {
+   "year": 2026,
+   "artist": "Lady Gaga",
+   "noms": 7,
+   "wins": 2,
+   "big3_wins": 0,
+   "bonus_raw": 11,
+   "bonus": 11
+  },
+  {
+   "year": 2026,
+   "artist": "Bad Bunny",
+   "noms": 6,
+   "wins": 1,
+   "big3_wins": 1,
+   "bonus_raw": 12,
+   "bonus": 12
+  },
+  {
+   "year": 2026,
+   "artist": "Sabrina Carpenter",
+   "noms": 6,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 6,
+   "bonus": 6
+  },
+  {
+   "year": 2026,
+   "artist": "Billie Eilish",
+   "noms": 5,
+   "wins": 2,
+   "big3_wins": 1,
+   "bonus_raw": 13,
+   "bonus": 13
+  },
+  {
+   "year": 2026,
+   "artist": "SZA",
+   "noms": 4,
+   "wins": 1,
+   "big3_wins": 1,
+   "bonus_raw": 10,
+   "bonus": 10
+  },
+  {
+   "year": 2026,
+   "artist": "Olivia Dean",
+   "noms": 3,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 5,
+   "bonus": 5
+  },
+  {
+   "year": 2026,
+   "artist": "Bruno Mars",
+   "noms": 3,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 3,
+   "bonus": 3
+  },
+  {
+   "year": 2026,
+   "artist": "Chappell Roan",
+   "noms": 3,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 3,
+   "bonus": 3
+  },
+  {
+   "year": 2026,
+   "artist": "Rosé",
+   "noms": 2,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 2,
+   "bonus": 2
+  },
+  {
+   "year": 2025,
+   "artist": "Beyoncé",
+   "noms": 11,
+   "wins": 3,
+   "big3_wins": 1,
+   "bonus_raw": 21,
+   "bonus": 13
+  },
+  {
+   "year": 2025,
+   "artist": "Kendrick Lamar",
+   "noms": 7,
+   "wins": 5,
+   "big3_wins": 2,
+   "bonus_raw": 25,
+   "bonus": 13
+  },
+  {
+   "year": 2025,
+   "artist": "Billie Eilish",
+   "noms": 7,
+   "wins": 2,
+   "big3_wins": 0,
+   "bonus_raw": 11,
+   "bonus": 11
+  },
+  {
+   "year": 2025,
+   "artist": "Charli XCX",
+   "noms": 7,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 9,
+   "bonus": 9
+  },
+  {
+   "year": 2025,
+   "artist": "Chappell Roan",
+   "noms": 6,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 8,
+   "bonus": 8
+  },
+  {
+   "year": 2025,
+   "artist": "Sabrina Carpenter",
+   "noms": 6,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 8,
+   "bonus": 8
+  },
+  {
+   "year": 2025,
+   "artist": "Taylor Swift",
+   "noms": 6,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 6,
+   "bonus": 6
+  },
+  {
+   "year": 2025,
+   "artist": "Post Malone",
+   "noms": 7,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 7,
+   "bonus": 7
+  },
+  {
+   "year": 2025,
+   "artist": "Shaboozey",
+   "noms": 5,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 7,
+   "bonus": 7
+  },
+  {
+   "year": 2025,
+   "artist": "Jacob Collier",
+   "noms": 4,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 4,
+   "bonus": 4
+  },
+  {
+   "year": 2024,
+   "artist": "SZA",
+   "noms": 9,
+   "wins": 3,
+   "big3_wins": 0,
+   "bonus_raw": 15,
+   "bonus": 13
+  },
+  {
+   "year": 2024,
+   "artist": "Phoebe Bridgers",
+   "noms": 7,
+   "wins": 4,
+   "big3_wins": 0,
+   "bonus_raw": 15,
+   "bonus": 13
+  },
+  {
+   "year": 2024,
+   "artist": "Victoria Monét",
+   "noms": 7,
+   "wins": 3,
+   "big3_wins": 0,
+   "bonus_raw": 13,
+   "bonus": 13
+  },
+  {
+   "year": 2024,
+   "artist": "Billie Eilish",
+   "noms": 6,
+   "wins": 2,
+   "big3_wins": 1,
+   "bonus_raw": 14,
+   "bonus": 13
+  },
+  {
+   "year": 2024,
+   "artist": "Olivia Rodrigo",
+   "noms": 6,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 6,
+   "bonus": 6
+  },
+  {
+   "year": 2024,
+   "artist": "Taylor Swift",
+   "noms": 6,
+   "wins": 2,
+   "big3_wins": 1,
+   "bonus_raw": 14,
+   "bonus": 13
+  },
+  {
+   "year": 2024,
+   "artist": "boygenius",
+   "noms": 6,
+   "wins": 3,
+   "big3_wins": 0,
+   "bonus_raw": 12,
+   "bonus": 12
+  },
+  {
+   "year": 2024,
+   "artist": "Miley Cyrus",
+   "noms": 6,
+   "wins": 2,
+   "big3_wins": 1,
+   "bonus_raw": 14,
+   "bonus": 13
+  },
+  {
+   "year": 2024,
+   "artist": "Jon Batiste",
+   "noms": 6,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 6,
+   "bonus": 6
+  },
+  {
+   "year": 2024,
+   "artist": "Brandi Carlile",
+   "noms": 5,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 7,
+   "bonus": 7
+  },
+  {
+   "year": 2023,
+   "artist": "Beyoncé",
+   "noms": 9,
+   "wins": 4,
+   "big3_wins": 0,
+   "bonus_raw": 17,
+   "bonus": 13
+  },
+  {
+   "year": 2023,
+   "artist": "Kendrick Lamar",
+   "noms": 8,
+   "wins": 3,
+   "big3_wins": 0,
+   "bonus_raw": 14,
+   "bonus": 13
+  },
+  {
+   "year": 2023,
+   "artist": "Adele",
+   "noms": 7,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 9,
+   "bonus": 9
+  },
+  {
+   "year": 2023,
+   "artist": "Brandi Carlile",
+   "noms": 7,
+   "wins": 3,
+   "big3_wins": 0,
+   "bonus_raw": 13,
+   "bonus": 13
+  },
+  {
+   "year": 2023,
+   "artist": "Harry Styles",
+   "noms": 6,
+   "wins": 3,
+   "big3_wins": 1,
+   "bonus_raw": 16,
+   "bonus": 13
+  },
+  {
+   "year": 2023,
+   "artist": "Lizzo",
+   "noms": 5,
+   "wins": 1,
+   "big3_wins": 1,
+   "bonus_raw": 11,
+   "bonus": 11
+  },
+  {
+   "year": 2023,
+   "artist": "Maverick City Music",
+   "noms": 5,
+   "wins": 4,
+   "big3_wins": 0,
+   "bonus_raw": 13,
+   "bonus": 13
+  },
+  {
+   "year": 2023,
+   "artist": "Mary J. Blige",
+   "noms": 6,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 6,
+   "bonus": 6
+  },
+  {
+   "year": 2023,
+   "artist": "Future",
+   "noms": 6,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 8,
+   "bonus": 8
+  },
+  {
+   "year": 2023,
+   "artist": "DJ Khaled",
+   "noms": 6,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 6,
+   "bonus": 6
+  },
+  {
+   "year": 2022,
+   "artist": "Jon Batiste",
+   "noms": 11,
+   "wins": 5,
+   "big3_wins": 1,
+   "bonus_raw": 25,
+   "bonus": 13
+  },
+  {
+   "year": 2022,
+   "artist": "Justin Bieber",
+   "noms": 8,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 8,
+   "bonus": 8
+  },
+  {
+   "year": 2022,
+   "artist": "Doja Cat",
+   "noms": 8,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 10,
+   "bonus": 10
+  },
+  {
+   "year": 2022,
+   "artist": "H.E.R.",
+   "noms": 8,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 10,
+   "bonus": 10
+  },
+  {
+   "year": 2022,
+   "artist": "Olivia Rodrigo",
+   "noms": 7,
+   "wins": 3,
+   "big3_wins": 0,
+   "bonus_raw": 13,
+   "bonus": 13
+  },
+  {
+   "year": 2022,
+   "artist": "Billie Eilish",
+   "noms": 7,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 7,
+   "bonus": 7
+  },
+  {
+   "year": 2022,
+   "artist": "Silk Sonic",
+   "noms": 4,
+   "wins": 4,
+   "big3_wins": 2,
+   "bonus_raw": 20,
+   "bonus": 13
+  },
+  {
+   "year": 2022,
+   "artist": "Lil Nas X",
+   "noms": 5,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 5,
+   "bonus": 5
+  },
+  {
+   "year": 2022,
+   "artist": "Kanye West",
+   "noms": 5,
+   "wins": 2,
+   "big3_wins": 0,
+   "bonus_raw": 9,
+   "bonus": 9
+  },
+  {
+   "year": 2022,
+   "artist": "Tony Bennett & Lady Gaga",
+   "noms": 5,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 7,
+   "bonus": 7
+  },
+  {
+   "year": 2021,
+   "artist": "Beyoncé",
+   "noms": 9,
+   "wins": 4,
+   "big3_wins": 0,
+   "bonus_raw": 17,
+   "bonus": 13
+  },
+  {
+   "year": 2021,
+   "artist": "Dua Lipa",
+   "noms": 6,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 8,
+   "bonus": 8
+  },
+  {
+   "year": 2021,
+   "artist": "Taylor Swift",
+   "noms": 6,
+   "wins": 1,
+   "big3_wins": 1,
+   "bonus_raw": 12,
+   "bonus": 12
+  },
+  {
+   "year": 2021,
+   "artist": "Roddy Ricch",
+   "noms": 6,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 6,
+   "bonus": 6
+  },
+  {
+   "year": 2021,
+   "artist": "Brittany Howard",
+   "noms": 5,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 7,
+   "bonus": 7
+  },
+  {
+   "year": 2021,
+   "artist": "Megan Thee Stallion",
+   "noms": 4,
+   "wins": 3,
+   "big3_wins": 0,
+   "bonus_raw": 10,
+   "bonus": 10
+  },
+  {
+   "year": 2021,
+   "artist": "Billie Eilish",
+   "noms": 4,
+   "wins": 2,
+   "big3_wins": 1,
+   "bonus_raw": 12,
+   "bonus": 12
+  },
+  {
+   "year": 2021,
+   "artist": "DaBaby",
+   "noms": 4,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 4,
+   "bonus": 4
+  },
+  {
+   "year": 2021,
+   "artist": "Phoebe Bridgers",
+   "noms": 4,
+   "wins": 0,
+   "big3_wins": 0,
+   "bonus_raw": 4,
+   "bonus": 4
+  },
+  {
+   "year": 2021,
+   "artist": "Justin Bieber",
+   "noms": 4,
+   "wins": 1,
+   "big3_wins": 0,
+   "bonus_raw": 6,
+   "bonus": 6
+  }
+ ]
+}

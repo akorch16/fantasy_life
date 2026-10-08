@@ -43,6 +43,8 @@ Rules decisions are in `CLAUDE.md` **Rulings** (cameos count, streaming scores 0
 
 - NASCAR: `draft_guide/data/nascar_history.json` (final Cup top-5 by year) -> `nascar_model.py` (recency decay `DECAY`=0.65/yr) sets `p_top5`/`p_champ`; re-run after the 2026 Chase ends and add 2026 as actual.
 
+- Grammys: `grammy_model.py` simulates each artist's bonus (big-3 win 7 / other win 3 / nom 1) from Kalshi probabilities in `data/grammy_specs.json` and caps the OUTCOME at 13 (E[min(X,13)], not min(E[X],13)); other-nomination win rate (0.23) is calibrated on `data/grammy_history.json` (top-10 nominees, 2021-26). Run `python3 draft_guide/grammy_model.py` after editing specs, then rebuild.
+
 ## Step 1 — Pull fresh data (the sandbox can't reach most sites)
 
 WebSearch is snippet-only; subagent reports are leads. Real prices come from an **Actions runner**:
