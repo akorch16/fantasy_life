@@ -45,6 +45,8 @@ Rules decisions are in `CLAUDE.md` **Rulings** (cameos count, streaming scores 0
 
 - Grammys: `grammy_model.py` simulates each artist's bonus (big-3 win 7 / other win 3 / nom 1) from Kalshi probabilities in `data/grammy_specs.json` and caps the OUTCOME at 13 (E[min(X,13)], not min(E[X],13)); other-nomination win rate (0.23) is calibrated on `data/grammy_history.json` (top-10 nominees, 2021-26). Run `python3 draft_guide/grammy_model.py` after editing specs, then rebuild.
 
+- Musician baseline: `music_model.py` (needs `raw/hot100_2026_<date>.json` = every 2026 Hot 100 issue top 30, pulled by a runner probe). Carry-over ONLY for songs charting in the latest issue (age-split Markov chain fitted on 2026 moves), plus a compound-Poisson new-hit term (lambda 1.1 if the artist had a 2026 top-10 debut, else 0.15; value drawn from 2026 debuts). Writes mu/sd and 101 quantiles `q` into Musician.json; `rank_points_mc` samples `q` directly. Re-pull the chart file and re-run weekly.
+
 ## Step 1 — Pull fresh data (the sandbox can't reach most sites)
 
 WebSearch is snippet-only; subagent reports are leads. Real prices come from an **Actions runner**:
