@@ -350,6 +350,18 @@
    "source": "estimate",
    "as_of": "2026-10-08",
    "notes": ""
+  },
+  {
+   "name": "UCLA",
+   "detail": "owned (Todd)",
+   "p_champ": 0.006,
+   "mu": 0.62,
+   "sd": 0.09,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
   }
  ]
 }

@@ -374,6 +374,18 @@
    "source": "2027 Hot 100 baseline = my estimate; Grammy: estimate (C)",
    "as_of": "2026-10-08",
    "notes": ""
+  },
+  {
+   "name": "FKA Twigs",
+   "detail": "owned (Wu); no 2027 info",
+   "mu": 2,
+   "sd": 3,
+   "grammy_ev": 0.3,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
   }
  ]
 }

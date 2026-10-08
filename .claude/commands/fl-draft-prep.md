@@ -39,6 +39,8 @@ Rules decisions are in `CLAUDE.md` **Rulings** (cameos count, streaming scores 0
 - Country mu = IMF-published 2027 growth. DBnomics (`api.db.nomics.world`, IMF/WEO) is reachable from the runner but only carries the April 2025 vintage; imf.org itself is 403 even via cloudscraper. Replace with the Oct 13 2026 WEO upload.
 - Box Office Mojo 2027 calendar: `boxofficemojo.com/calendar/2027-MM-DD/`, rows under `tr.mojo-group-label` carry real dates (saved in `raw/bom_calendar_*.json`).
 
+- Keeper round: `draft_guide/data/rosters.json` holds current picks (seeded from `draft_picks_2026.py`); `build_workbook.match_owners()` maps them to board names via `data/aliases.json` (accent/case-folded), QA flags any pick not on the board — add the player to the category JSON. Refresh it after the keeper round.
+
 ## Step 1 — Pull fresh data (the sandbox can't reach most sites)
 
 WebSearch is snippet-only; subagent reports are leads. Real prices come from an **Actions runner**:
