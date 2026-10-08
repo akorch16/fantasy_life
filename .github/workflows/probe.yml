@@ -17,6 +17,9 @@ jobs:
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      KALSHI_API_KEY: ${{ secrets.KALSHI_API_KEY }}
+      KALSHI_API_KEY_ID: ${{ secrets.KALSHI_API_KEY_ID }}
+      KALSHI_PRIVATE_KEY: ${{ secrets.KALSHI_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,25 +30,111 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Dump live NBA standings from Supabase
+      - name: "1. Live 2026 standings from Supabase"
         run: |
           python - <<'PY'
           import db
-          from scoring import team_matches
-          for cat in ['NBA', 'NHL', 'MLB', 'MLS', 'NCAAB', 'NFL', 'NCAAF']:
-              d = db.get_standing(cat)
-              rows = (d or {}).get('standings') or (d or {}).get('scores') or []
-              print('=====', cat, 'rows:', len(rows), 'frozen:', db.is_frozen(cat), 'updated_at:', db.get_standing_updated_at(cat) if hasattr(db, 'get_standing_updated_at') else None)
-              if cat == 'NBA':
-                  for r in rows:
-                      print('   ', r)
-              else:
-                  names = [r.get('team') or r.get('name') for r in rows]
-                  print('   teams:', names)
-          from draft_picks_2026 import DRAFT_PICKS_2026
-          d = db.get_standing('NBA') or {}
-          rows = d.get('standings') or []
-          for player, pick in DRAFT_PICKS_2026['NBA'].items():
-              hit = [r.get('team') for r in rows if team_matches(pick, r.get('team'))]
-              print('NBA pick', player, pick, '->', hit)
+          for cat in ['MLS', 'MLB', 'NASCAR', 'Tennis', 'Golf']:
+              d = db.get_standing(cat) or {}
+              rows = d.get('standings') or d.get('scores') or d.get('rankings') or d.get('players') or []
+              print('=====', cat, 'keys:', list(d.keys())[:6], 'rows:', len(rows))
+              for r in rows[:45]:
+                  print('   ', {k: v for k, v in r.items() if k in ('team','name','player','driver','points','wins','win_pct','rank','ranking','gender','tour','losses','pts','top5','age')} if isinstance(r, dict) else r)
+          PY
+
+      - name: "2. Kalshi series catalog (2027 futures)"
+        run: |
+          python - <<'PY'
+          import re, projections as P
+          kws = re.compile(r'nba|nhl|mlb|mls|nascar|super bowl|nfl|college football|ncaa|masters|pga|golf|oscar|academy|grammy|atp|wta|tennis|australian open|billboard|gdp|world series|stanley|champion', re.I)
+          cursor, series = None, []
+          for _ in range(30):
+              params = {'limit': 1000}
+              if cursor: params['cursor'] = cursor
+              data = P._kalshi_get('/series', params) or {}
+              series += data.get('series', [])
+              cursor = data.get('cursor')
+              if not cursor: break
+          print('series total:', len(series))
+          hit = [s for s in series if kws.search((s.get('title') or '') + ' ' + (s.get('ticker') or ''))]
+          print('matching:', len(hit))
+          for s in hit[:260]:
+              print('  ', s.get('ticker'), '|', (s.get('title') or '')[:90], '|', s.get('category'))
+          PY
+
+      - name: "3. Kalshi 2027 futures prices"
+        run: |
+          python - <<'PY'
+          import projections as P
+          cands = ['KXNBA', 'KXNHL', 'KXMLB', 'KXMLSCUP', 'KXNASCARCUPSERIES', 'KXSB', 'KXNFL', 'KXNCAAFB', 'KXNCAAF', 'KXNCAAMBCHAMP', 'KXNCAAB',
+                   'KXPGAWIN', 'KXMASTERS', 'KXATP', 'KXWTA', 'KXOSCARACTO', 'KXOSCARACTR', 'KXOSCARSUPACTO', 'KXOSCARSUPACTR',
+                   'KXGRAMMYAOTY', 'KXGRAMMYROTY', 'KXGRAMMYSOTY', 'KXGRAMMYNEWARTIST', 'KXWORLDSERIES', 'KXSUPERBOWL', 'KXNBAFINALS', 'KXSTANLEYCUP']
+          for t in cands:
+              ms = P._fetch_markets_for_series(t)
+              if not ms: 
+                  print(t, '-> none'); continue
+              def px(m):
+                  a, b = m.get('yes_ask_dollars'), m.get('yes_bid_dollars')
+                  try:
+                      if a is not None and b is not None and float(a) > 0: return (float(a) + float(b)) / 2
+                      return float(m.get('last_price_dollars') or 0)
+                  except Exception: return 0
+              ms = sorted(ms, key=lambda m: -px(m))
+              print('=====', t, 'markets:', len(ms))
+              for m in ms[:14]:
+                  print('   %.3f' % px(m), '|', m.get('event_ticker'), '|', (m.get('yes_sub_title') or m.get('subtitle') or m.get('title') or '')[:70], '| close', (m.get('close_time') or '')[:10])
+          PY
+
+      - name: "4. IMF DataMapper real GDP growth (latest vintage)"
+        run: |
+          python - <<'PY'
+          import requests, json
+          H = {'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'}
+          try:
+              c = requests.get('https://www.imf.org/external/datamapper/api/v1/countries', headers=H, timeout=40)
+              print('countries', c.status_code, len(c.text))
+              names = {k: v.get('label') for k, v in c.json().get('countries', {}).items()}
+              r = requests.get('https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH', headers=H, timeout=60)
+              print('NGDP_RPCH', r.status_code, len(r.text))
+              vals = r.json()['values']['NGDP_RPCH']
+              rows = []
+              for iso, ser in vals.items():
+                  if iso in names and ser.get('2027') is not None:
+                      rows.append((ser['2027'], names[iso], ser.get('2025'), ser.get('2026'), ser.get('2028')))
+              rows.sort(reverse=True)
+              print('countries with 2027:', len(rows))
+              for v, n, a, b, c2 in rows[:60]:
+                  print('   2027 %6.2f | %-28s | 2025 %s | 2026 %s | 2028 %s' % (v, n, a, b, c2))
+              want = ['South Sudan', 'Guyana', 'Sudan', 'Libya', 'Syria', 'Lebanon', 'Niger', 'Ethiopia', 'Venezuela', 'Spain', 'Norway', 'United States', 'Argentina', 'India', 'Ukraine', 'Armenia', 'Mongolia']
+              for v, n, a, b, c2 in rows:
+                  if n in want: print('  *', n, '2027', v, '2026', b, '2025', a)
+              missing = [w for w in want if w not in [r2[1] for r2 in rows]]
+              print('no 2027 value:', missing)
+          except Exception as e:
+              print('IMF error', repr(e))
+          PY
+
+      - name: "5. Wikipedia 2027 films"
+        run: |
+          python - <<'PY'
+          import requests, re
+          from bs4 import BeautifulSoup
+          H = {'User-Agent': 'Mozilla/5.0'}
+          for url in ['https://en.wikipedia.org/wiki/List_of_American_films_of_2027', 'https://en.wikipedia.org/wiki/2027_in_film']:
+              try:
+                  r = requests.get(url, headers=H, timeout=40)
+                  print('=====', url, r.status_code, len(r.text))
+                  soup = BeautifulSoup(r.text, 'html.parser')
+                  n = 0
+                  for t in soup.select('table.wikitable'):
+                      for tr in t.select('tr'):
+                          cells = [c.get_text(' ', strip=True) for c in tr.find_all(['td', 'th'])]
+                          if len(cells) >= 3 and any(len(c) > 2 for c in cells):
+                              line = ' | '.join(c[:70] for c in cells[:6])
+                              if re.search(r'2027|January|February|March|April|May|June|July|August|September|October|November|December', line):
+                                  print('  ', line); n += 1
+                              if n > 230: break
+                      if n > 230: break
+              except Exception as e:
+                  print('wiki error', url, repr(e))
           PY
