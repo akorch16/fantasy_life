@@ -1,7 +1,7 @@
 {
  "category": "NASCAR",
  "as_of": "2026-10-08",
- "note": "2027 baseline = regular-season standing (frozen before the Chase); bonus = final Chase standing 1st-5th. p(champ) = 0.35*2026 Kalshi + 0.65*(1/16); p(top5) = 2.6*p + 0.15.",
+ "note": "p_top5/p_champ from nascar_model.py (data/nascar_history.json, decay 0.65/yr; Σp_top5=5, Σp_champ=1 incl. unlisted cars). mu = 50/50 old 2026-standing strength and recency-weighted score. CERT shrinks it further in build_workbook.",
  "entries": [
   {
    "name": "Kyle Larson",
@@ -10,63 +10,63 @@
    "mu": 0.95,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
-   "notes": "No 2027 title market yet",
-   "p_champ": 0.1393,
-   "p_top5": 0.638
+   "notes": "Top-5 finishes: 2021 (1st) • 2023 (2nd) • 2025 (1st) • 2026 (1st) | recency-weighted score 9.6",
+   "p_champ": 0.3539,
+   "p_top5": 0.6773
   },
   {
    "name": "Denny Hamlin",
    "detail": "2,278 pts (2nd)",
    "odds": "2026 title: Kalshi 28.0%",
-   "mu": 0.95,
+   "mu": 0.853,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
-   "notes": "No 2027 title market yet",
-   "p_champ": 0.1029,
-   "p_top5": 0.51
+   "notes": "Top-5 finishes: 2021 (3rd) • 2022 (5th) • 2023 (5th) • 2025 (2nd) • 2026 (2nd) | recency-weighted score 6.3",
+   "p_champ": 0.076,
+   "p_top5": 0.7345
   },
   {
    "name": "Christopher Bell",
    "detail": "2,263 pts (3rd)",
    "odds": "2026 title: Kalshi 10.5%",
-   "mu": 0.589,
+   "mu": 0.613,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
-   "notes": "No 2027 title market yet",
-   "p_champ": 0.0575,
-   "p_top5": 0.351
+   "notes": "Top-5 finishes: 2022 (3rd) • 2023 (4th) • 2024 (5th) • 2025 (5th) • 2026 (3rd) | recency-weighted score 4.3",
+   "p_champ": 0.0858,
+   "p_top5": 0.8327
   },
   {
    "name": "Ryan Blaney",
    "detail": "2,238 pts (5th)",
    "odds": "2026 title: Kalshi 5.5%",
-   "mu": 0.484,
+   "mu": 0.543,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
-   "notes": "No 2027 title market yet",
-   "p_champ": 0.0445,
-   "p_top5": 0.306
+   "notes": "Top-5 finishes: 2023 (1st) • 2024 (2nd) • 2026 (5th) | recency-weighted score 3.7",
+   "p_champ": 0.1033,
+   "p_top5": 0.5672
   },
   {
    "name": "Joey Logano",
    "detail": "2,247 pts (4th)",
    "odds": "2026 title: Kalshi 5.5%",
-   "mu": 0.484,
+   "mu": 0.564,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
-   "notes": "No 2027 title market yet",
-   "p_champ": 0.0445,
-   "p_top5": 0.306
+   "notes": "Top-5 finishes: 2022 (1st) • 2024 (1st) • 2026 (4th) | recency-weighted score 4.5",
+   "p_champ": 0.1527,
+   "p_top5": 0.5364
   },
   {
    "name": "Chase Briscoe",
@@ -75,11 +75,11 @@
    "mu": 0.442,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0393,
-   "p_top5": 0.287
+   "p_champ": 0.008,
+   "p_top5": 0.0536
   },
   {
    "name": "Shane van Gisbergen",
@@ -88,24 +88,24 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "William Byron",
    "detail": "2026 Cup Series",
    "odds": "2026 title: Kalshi 0.5%",
-   "mu": 0.379,
+   "mu": 0.459,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
-   "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "notes": "Top-5 finishes: 2023 (3rd) • 2024 (3rd) • 2025 (4th) | recency-weighted score 2.7",
+   "p_champ": 0.048,
+   "p_top5": 0.4551
   },
   {
    "name": "Tyler Reddick",
@@ -114,24 +114,24 @@
    "mu": 0.411,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0354,
-   "p_top5": 0.274
+   "p_champ": 0.0074,
+   "p_top5": 0.0516
   },
   {
    "name": "Chase Elliott",
    "detail": "2026 Cup Series",
    "odds": "2026 title: Kalshi 1.0%",
-   "mu": 0.39,
+   "mu": 0.398,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
-   "notes": "No 2027 title market yet",
-   "p_champ": 0.0328,
-   "p_top5": 0.265
+   "notes": "Top-5 finishes: 2021 (4th) • 2022 (4th) | recency-weighted score 0.4",
+   "p_champ": 0.0142,
+   "p_top5": 0.1179
   },
   {
    "name": "Ty Gibbs",
@@ -140,11 +140,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Alex Bowman",
@@ -153,11 +153,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Daniel Suarez",
@@ -166,11 +166,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Bubba Wallace",
@@ -179,11 +179,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Ross Chastain",
@@ -192,11 +192,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Austin Cindric",
@@ -205,11 +205,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Carson Hocevar",
@@ -218,11 +218,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Michael McDowell",
@@ -231,11 +231,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Ryan Preece",
@@ -244,11 +244,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Riley Herbst",
@@ -257,11 +257,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Noah Gragson",
@@ -270,11 +270,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "AJ Allmendinger",
@@ -283,11 +283,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Zane Smith",
@@ -296,11 +296,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   },
   {
    "name": "Todd Gilliland",
@@ -309,11 +309,11 @@
    "mu": 0.379,
    "sd": 0.15,
    "confidence": "C",
-   "source": "Kalshi KXNASCARCUPSERIES-NCS26 (2026 champion) shrunk to a 2027 prior; Chase standings via search",
+   "source": "User-supplied final Cup standings 2021-2026(proj.), recency-weighted (decay 0.65/yr, nascar_model.py) for drivers in the table; others = field prior blended with 2026 Kalshi title price (shrunk). No 2027 market exists.",
    "as_of": "2026-10-08",
    "notes": "No 2027 title market yet",
-   "p_champ": 0.0315,
-   "p_top5": 0.26
+   "p_champ": 0.0068,
+   "p_top5": 0.0494
   }
  ]
 }

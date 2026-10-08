@@ -62,7 +62,7 @@ CERT = {
     "NCAAB": dict(sd_mult=1.6, mu_shrink=0.30, p_shrink=0.25),
     "MLB": dict(sd_mult=2.0, mu_shrink=0.50, p_shrink=0.50),
     "MLS": dict(sd_mult=2.0, mu_shrink=0.50, p_shrink=0.50),
-    "NASCAR": dict(sd_mult=2.0, mu_shrink=0.40, p_shrink=0.50),
+    "NASCAR": dict(sd_mult=2.0, mu_shrink=0.40, p_shrink=0.30),
     "Stock": dict(flat=True),
 }
 # Draft-market bias (user, 2026-10-08): the league over-drafts Grammy/Oscar names, so for these categories the
@@ -328,7 +328,7 @@ def build(today):
     why = {"NFL": "season in progress, Kalshi-priced", "NBA": "opens Oct 20, Kalshi-priced", "NHL": "season started, Kalshi-priced",
            "NCAAF": "season in progress, Kalshi-priced", "Golf": "OWGR is sticky; majors are stable at the top", "Tennis": "rankings sticky; slams stable at the top",
            "NCAAB": "season not started; tournament chaos", "MLB": "calendar 2027, no 2027 market; year-to-year win% persistence is weak",
-           "MLS": "calendar 2027, no 2027 market; playoff-driven", "NASCAR": "calendar 2027, no 2027 market; Chase is a lottery",
+           "MLS": "calendar 2027, no 2027 market; playoff-driven", "NASCAR": "calendar 2027, no 2027 market; probabilities now recency-weighted from 2021-26 final standings (lighter p shrink)",
            "Stock": "pure luck: mu and sd forced equal for all picks", "Actor": "see Market overweight", "Actress": "see Market overweight",
            "Musician": "see Market overweight", "Country": "IMF-published growth, small sd"}
     for k, cat in enumerate(CATS, cb + 2):

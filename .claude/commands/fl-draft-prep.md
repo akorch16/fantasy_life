@@ -41,6 +41,8 @@ Rules decisions are in `CLAUDE.md` **Rulings** (cameos count, streaming scores 0
 
 - Keeper round: `draft_guide/data/rosters.json` holds current picks (seeded from `draft_picks_2026.py`); `build_workbook.match_owners()` maps them to board names via `data/aliases.json` (accent/case-folded), QA flags any pick not on the board — add the player to the category JSON. Refresh it after the keeper round.
 
+- NASCAR: `draft_guide/data/nascar_history.json` (final Cup top-5 by year) -> `nascar_model.py` (recency decay `DECAY`=0.65/yr) sets `p_top5`/`p_champ`; re-run after the 2026 Chase ends and add 2026 as actual.
+
 ## Step 1 — Pull fresh data (the sandbox can't reach most sites)
 
 WebSearch is snippet-only; subagent reports are leads. Real prices come from an **Actions runner**:
