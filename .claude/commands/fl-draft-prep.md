@@ -47,6 +47,9 @@ Rules decisions are in `CLAUDE.md` **Rulings** (cameos count, streaming scores 0
 
 - Musician baseline: `music_model.py` (needs `raw/hot100_2026_<date>.json` = every 2026 Hot 100 issue top 30, pulled by a runner probe). Carry-over ONLY for songs charting in the latest issue (age-split Markov chain fitted on 2026 moves), plus a compound-Poisson new-hit term (lambda 1.1 if the artist had a 2026 top-10 debut, else 0.15; value drawn from 2026 debuts). Writes mu/sd and 101 quantiles `q` into Musician.json; `rank_points_mc` samples `q` directly. Re-pull the chart file and re-run weekly.
 
+- NFL/NBA/NHL: `league_sim.py` + `league_apply.py` simulate the remaining regular-season schedule and the real playoff bracket (NFL 7 seeds + bye, NBA play-in + 16-team bracket, NHL divisional bracket), with team ratings fitted to Kalshi champion / conference-champion / make-playoffs prices (`raw/kalshi_structure_<date>.json`) and ESPN schedules (`raw/<lg>_games_<date>.json`, per-day scoreboard pull). Output = true round probabilities (Σ bonus 66 / 71 / 71) and the win% distribution (`q`). Refresh: re-pull both raw files with a probe, then `PYTHONPATH=draft_guide python3 draft_guide/league_apply.py NFL NBA NHL`, rebuild.
+- Confidence grades (`CONF` in build_workbook.py): A untouched; B/C widen sd, pull probabilities toward the field; board ranks by Conf-adj VOR (haircut 0.3 B / 0.8 C on Assumptions).
+
 ## Step 1 — Pull fresh data (the sandbox can't reach most sites)
 
 WebSearch is snippet-only; subagent reports are leads. Real prices come from an **Actions runner**:

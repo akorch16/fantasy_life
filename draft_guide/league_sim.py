@@ -218,34 +218,46 @@ class Season:
         """-> dict(ladder (T,5) P(playoffs, r2, conf final, final, champion), score (n,T), gp)"""
         rng = np.random.default_rng(seed)
         score, gp = self.simulate_regular(r, n, rng)
-        jitter = rng.random(score.shape) * 0.9
+        # seed on rate (schedules differ by a game or two in the ESPN pull) with a sub-win random tiebreak
+        denom = gp * (2.0 if self.lg == "NHL" else 1.0)
+        seedstat = score / denom + rng.random(score.shape) * (0.9 / denom)
         out = np.zeros((len(self.teams), 5))
         play = {"NFL": self._nfl_playoffs, "NBA": self._nba_playoffs, "NHL": self._nhl_playoffs}[self.lg]
         for k in range(n):
-            play(r, score[k] + jitter[k], rng, out)
+            play(r, seedstat[k], rng, out)
         return dict(ladder=out / n, score=score, gp=gp, wins=score.mean(axis=0))
 
-    def fit(self, r0, targets, iters=22, n=2500, seed=5, verbose=False):
-        """targets: {team: dict(champ=, final=, playoffs=)} (any subset). Adjust ratings to match."""
+    def fit(self, r0, targets, iters=40, n=1500, seed=5, verbose=False):
+        """targets: {team: dict(champ=, final=, playoffs=, wins=)} (any subset). Damped log-ratio updates on common
+        random numbers (same seed every pass), so the loop is deterministic and the noise does not chase itself."""
         r = r0.copy()
+        w = {"champ": 0.35, "final": 0.30, "playoffs": 0.35}
+        sens = {"champ": 4.0, "final": 3.0, "playoffs": 1.5}        # d ln(prob) / d rating, roughly
+        eps = {"champ": 2e-3, "final": 4e-3, "playoffs": 2e-2}
+        col = {"champ": 4, "final": 3, "playoffs": 0}
         for it in range(iters):
             full = self.run(r, n=n, seed=seed)
             res, mean_w = full["ladder"], full["wins"]
-            step = 0.6 if it < 10 else 0.35
+            step = 1.0 if it < 10 else 0.6 if it < 25 else 0.35
+            err = []
             for t, tg in targets.items():
                 i = self.idx[t]
-                if tg.get("champ") is not None:
-                    r[i] += step * 0.5 * (math.log(tg["champ"] + 2e-3) - math.log(res[i, 4] + 2e-3))
-                if tg.get("final") is not None:
-                    r[i] += step * 0.5 * (math.log(tg["final"] + 4e-3) - math.log(res[i, 3] + 4e-3))
-                if tg.get("wins") is not None:           # expected regular-season wins (NHL: points) from win-total markets
+                num = den = 0.0
+                for k in ("champ", "final", "playoffs"):
+                    if tg.get(k) is None:
+                        continue
+                    num += w[k] * (math.log(tg[k] + eps[k]) - math.log(res[i, col[k]] + eps[k])) / sens[k]
+                    den += w[k]
+                    if k == "champ":
+                        err.append(abs(res[i, 4] - tg[k]))
+                if tg.get("wins") is not None:
                     scale = 8.0 if self.lg == "NFL" else 20.0 if self.lg == "NBA" else 40.0
-                    r[i] += step * (tg["wins"] - mean_w[i]) / scale
-                if tg.get("playoffs") is not None:
-                    r[i] += step * 0.5 * (math.log(tg["playoffs"] + 2e-2) - math.log(res[i, 0] + 2e-2))
+                    num += 0.3 * (tg["wins"] - mean_w[i]) / scale
+                    den += 0.3
+                if den:
+                    r[i] += step * float(np.clip(num / den, -0.3, 0.3))
             r -= r.mean()
             if verbose:
-                err = [abs(res[self.idx[t], 4] - tg["champ"]) for t, tg in targets.items() if tg.get("champ") is not None]
                 print(f"  iter {it:2d} mean|champ err| {np.mean(err):.4f}")
         return r
 

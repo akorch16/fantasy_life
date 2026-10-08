@@ -60,6 +60,8 @@ def apply(lg, teams, games, alias, targets_fn, mu_scale=3.0, n_fit=2000, n_final
         if not e:
             continue
         i = S.idx[t]
+        if tg.get(t, {}).get("champ") is not None:
+            e["confidence"] = "A"                      # priced on Kalshi (title, conference and playoff markets)
         e["p_r1"], e["p_quarter"], e["p_semi"], e["p_final"], e["p_champ"] = [round(float(x), 4) for x in lad[i]]
         col = stat[:, i]
         e["mu"], e["sd"] = round(float(col.mean()), 4), round(float(col.std()), 4)
@@ -71,18 +73,75 @@ def apply(lg, teams, games, alias, targets_fn, mu_scale=3.0, n_fit=2000, n_final
     return S, r, lad
 
 
-def targets_nfl(ents):
-    px = structure_prices()
-    tg = {}
-    for t, e in ents.items():
-        tg[t] = dict(champ=e.get("p_champ"), final=e.get("p_final"))
-    return tg
+def _mid(row):
+    try:
+        b, a, l = float(row[2] or 0), float(row[3] or 0), float(row[4] or 0)
+    except (TypeError, ValueError):
+        return 0.0
+    return (b + a) / 2 if b > 0 and a > 0 else l
 
+
+def _team(short, teams):
+    """Kalshi short name ('New York J', 'Los Angeles C', 'Tampa Bay') -> full team name."""
+    sp = {"new york j": "New York Jets", "new york g": "New York Giants", "los angeles c": None, "los angeles r": "Los Angeles Rams",
+          "los angeles l": "Los Angeles Lakers", "new york": "New York Knicks"}
+    k = short.lower().strip()
+    if k == "los angeles c":
+        return "Los Angeles Clippers" if "Los Angeles Clippers" in teams else "Los Angeles Chargers"
+    if k in sp and sp[k] in teams:
+        return sp[k]
+    for t in teams:
+        if t.lower() == k or t.lower().startswith(k + " "):
+            return t
+    return None
+
+
+def kalshi_targets(teams, series, scale_to):
+    """{team: price} from a structure series, renormalised so the field sums to scale_to (strips vig / stale rows)."""
+    paths = sorted(glob.glob(os.path.join(HERE, "raw", "kalshi_structure_*.json")))
+    data = {t: rows for t, n, rows in json.load(open(paths[-1]))}
+    px = {}
+    for row in data.get(series, []):
+        t = _team(row[1], teams)
+        if t:
+            px[t] = _mid(row)
+    tot = sum(px.values())
+    return {t: v * scale_to / tot for t, v in px.items()} if tot else {}
+
+
+SERIES = {
+    "NFL": dict(champ="KXSB", final=("KXNFLAFCCHAMP", "KXNFLNFCCHAMP"), playoffs="KXNFLPLAYOFF", n_playoffs=14),
+    "NBA": dict(champ="KXNBA", final=("KXNBAEAST", "KXNBAWEST"), playoffs="KXNBAPLAYOFF", n_playoffs=16),
+    "NHL": dict(champ="KXNHL", final=("KXNHLEAST", "KXNHLWEST"), playoffs="KXNHLPLAYOFF", n_playoffs=16),
+}
+
+
+def make_targets(lg, teams):
+    cfg = SERIES[lg]
+    champ = kalshi_targets(teams, cfg["champ"], 1.0)
+    final = {}
+    for s in cfg["final"]:
+        final.update(kalshi_targets(teams, s, 1.0))
+    # each conference's champion prices sum to 1 -> two finalists in total; keep them as-is (sum 2)
+    play = kalshi_targets(teams, cfg["playoffs"], float(cfg["n_playoffs"]))
+    return {t: dict(champ=champ.get(t), final=final.get(t), playoffs=play.get(t)) for t in teams}
+
+
+LEAGUES = {
+    "NFL": (lambda: sum(ls.NFL_DIV.values(), [])),
+    "NBA": (lambda: sum(ls.NBA_CONF.values(), [])),
+    "NHL": (lambda: [t for d in ls.NHL_DIV.values() for t in d]),
+}
 
 if __name__ == "__main__":
-    which = sys.argv[1:] or ["NFL"]
-    if "NFL" in which:
-        games = json.load(open(os.path.join(HERE, "raw", f"nfl_games_{DATE}.json")))
-        teams = sum(ls.NFL_DIV.values(), [])
-        S, r, lad = apply("NFL", teams, games, {}, targets_nfl)
-        print("NFL done; Σ ladder", lad.sum(axis=0).round(2))
+    which = sys.argv[1:] or ["NFL", "NBA", "NHL"]
+    for lg in which:
+        games = json.load(open(os.path.join(HERE, "raw", f"{lg.lower()}_games_{DATE}.json")))
+        teams = LEAGUES[lg]()
+        tg = make_targets(lg, teams)
+        alias = {"LA Clippers": "Los Angeles Clippers"}
+        S, r, lad = apply(lg, teams, games, alias, lambda ents, tg=tg: tg)
+        print(lg, "done; sum ladder", lad.sum(axis=0).round(2))
+        for t in sorted(teams, key=lambda t: -(tg[t]["champ"] or 0))[:8]:
+            i = S.idx[t]
+            print(f"   {t:24} champ sim {lad[i,4]:.3f} tgt {tg[t]['champ'] or 0:.3f} | final sim {lad[i,3]:.3f} tgt {tg[t]['final'] or 0:.3f} | po sim {lad[i,0]:.2f} tgt {tg[t]['playoffs'] or 0:.2f}")
