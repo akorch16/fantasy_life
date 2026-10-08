@@ -50,6 +50,8 @@ Rules decisions are in `CLAUDE.md` **Rulings** (cameos count, streaming scores 0
 - NFL/NBA/NHL: `league_sim.py` + `league_apply.py` simulate the remaining regular-season schedule and the real playoff bracket (NFL 7 seeds + bye, NBA play-in + 16-team bracket, NHL divisional bracket), with team ratings fitted to Kalshi champion / conference-champion / make-playoffs prices (`raw/kalshi_structure_<date>.json`) and ESPN schedules (`raw/<lg>_games_<date>.json`, per-day scoreboard pull). Output = true round probabilities (Σ bonus 66 / 71 / 71) and the win% distribution (`q`). Refresh: re-pull both raw files with a probe, then `PYTHONPATH=draft_guide python3 draft_guide/league_apply.py NFL NBA NHL`, rebuild.
 - Confidence grades (`CONF` in build_workbook.py): A untouched; B/C widen sd, pull probabilities toward the field; board ranks by Conf-adj VOR (haircut 0.3 B / 0.8 C on Assumptions).
 
+- Draft history: `data/draft_log_2026.json` is the pick-by-pick record of the 2025 draft (round 0 = keeper round, 1-14 snake, slots Tim..Buckley); `python3 draft_guide/draft_history.py --player Korch` grades it against `docs/scores.json` and prints when each category was taken. Add the 2026 draft the same way after Oct 25.
+
 ## Step 1 — Pull fresh data (the sandbox can't reach most sites)
 
 WebSearch is snippet-only; subagent reports are leads. Real prices come from an **Actions runner**:
