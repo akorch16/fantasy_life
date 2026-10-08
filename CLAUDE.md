@@ -126,8 +126,9 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   guaranteed floor. NCAAB: nothing before the Sweet 16 (S16 2.5, E8 4.0, F4 6.5, runner-up 9.0, champ 13.0).
 - **NASCAR:** baseline frozen at the Aug 29 regular-season finish; bonus = final Chase standings 1st–5th
   (13 / 9 / 6.5 / 4 / 2.5). The 2026 Chase has no eliminations (title = most points over 10 races).
-- **Odds in recaps:** round American odds to the nearest 100 (hundreds), nearest 1,000 (thousands to tens
-  of thousands), nearest 100,000 (hundred-thousands); 0% shows as +∞.
+- **Odds (page and recaps):** round American odds to the nearest 100 under 1,000; nearest 1,000 up to 15,000;
+  nearest 10,000 above 15,000 and under 100,000; nearest 100,000 from 100,000 up. 0% shows as +∞.
+  (Implemented in `toAmericanOdds()` in `docs/projections.html`.)
 
 - Skills: `/fl-audit` (biweekly audit), `/fl-merge` (ship to prod), `/fl-repair` (broken Actions run), `/fl-bonus`
   (award bonus points), `/fl-category-fix` (bad category data), `/fl-headline` (manual headline).

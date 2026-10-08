@@ -135,8 +135,8 @@ of `FILM_PIPELINE` the same day.
 - `CLAUDE.md` and `.claude/commands/*.md` — source-of-truth table still true? (`fl-category-fix.md`
   once said Actors came from TMDB.)
 - Recap/newsletter fact-check (when asked): check every number against live `scores.json` and
-  `projections.json`; re-pull the odds on send day and apply the rounding rule (hundreds → nearest
-  100, thousands/tens of thousands → nearest 1,000, ≥100,000 → nearest 100,000). Win odds below
+  `projections.json`; re-pull the odds on send day and apply the rounding rule (nearest 100 under 1,000; nearest 1,000 up to
+  15,000; nearest 10,000 above 15,000 and under 100,000; nearest 100,000 from 100,000 up). Win odds below
   ~0.1% are Monte Carlo noise (10,000 sims) — don't present the tail as signal.
 
 ---
