@@ -14,10 +14,6 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    env:
-      KALSHI_API_KEY: ${{ secrets.KALSHI_API_KEY }}
-      KALSHI_API_KEY_ID: ${{ secrets.KALSHI_API_KEY_ID }}
-      KALSHI_PRIVATE_KEY: ${{ secrets.KALSHI_PRIVATE_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -28,49 +24,39 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: "A. Wikipedia 2027 films with FULL cast (JSON lines)"
+      - name: "Box Office Mojo 2027 calendar (weekly pages)"
         run: |
           python - <<'PY'
-          import requests, re, json
+          import requests, re, json, datetime, time
           from bs4 import BeautifulSoup
-          H = {'User-Agent': 'Mozilla/5.0'}
-          r = requests.get('https://en.wikipedia.org/wiki/List_of_American_films_of_2027', headers=H, timeout=40)
-          soup = BeautifulSoup(r.text, 'html.parser')
-          month, day, n = '', '', 0
-          for t in soup.select('table.wikitable'):
-              for tr in t.select('tr'):
-                  cells = tr.find_all(['td', 'th'])
-                  txt = [re.sub(r'\[ ?\w+ ?\]', '', c.get_text(' ', strip=True)).strip() for c in cells]
-                  if not txt or txt[0] == 'Opening': continue
-                  i = 0
-                  if re.fullmatch(r'(?:[A-Z] )+[A-Z]', txt[0]):
-                      month = txt[0].replace(' ', ''); i = 1
-                  if i < len(txt) and re.fullmatch(r'\d{1,2}', txt[i]) and len(txt) - i >= 3:
-                      day = txt[i]; i += 1
-                  rest = txt[i:]
-                  if len(rest) < 2: continue
-                  title, studio = rest[0], rest[1]
-                  cast = rest[2] if len(rest) > 2 else ''
-                  casts = [s.strip() for s in cast.split(';')]
-                  people = casts[-1] if casts else ''
-                  print('FILM ' + json.dumps({'m': month, 'd': day, 'title': title, 'studio': studio[:60], 'cast': people[:700], 'all': cast[:900]}, ensure_ascii=False))
-                  n += 1
-          print('films', n)
-          PY
-
-      - name: "B. Kalshi: actor nominations + hot 100 #1 markets + other"
-        run: |
-          python - <<'PY'
-          import projections as P
-          def px(m):
-              a, b = m.get('yes_ask_dollars'), m.get('yes_bid_dollars')
+          H = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36', 'Accept-Language': 'en-US,en;q=0.9'}
+          # 1) does the year page list upcoming films?
+          for u in ['https://www.boxofficemojo.com/year/2027/', 'https://www.boxofficemojo.com/calendar/2027-01-01/']:
               try:
-                  if a is not None and b is not None and float(a) > 0: return (float(a) + float(b)) / 2
-                  return float(m.get('last_price_dollars') or 0)
-              except Exception: return 0
-          for t in ['KXOSCARNOMACTO', 'OSCARNOMACTR', 'KX1SONG', 'KXGRAMMYWINNERS']:
-              ms = sorted(P._fetch_markets_for_series(t), key=lambda m: -px(m))
-              print('=====', t, len(ms))
-              for m in ms[:40 if t == 'KX1SONG' else 22]:
-                  print('   %.3f' % px(m), '|', m.get('event_ticker'), '|', (m.get('yes_sub_title') or m.get('subtitle') or m.get('title') or '')[:80])
+                  r = requests.get(u, headers=H, timeout=40)
+                  print('PAGE', u, r.status_code, len(r.text))
+              except Exception as e:
+                  print('PAGE', u, 'ERR', e)
+          d = datetime.date(2027, 1, 1)
+          while d.weekday() != 4: d += datetime.timedelta(days=1)   # first Friday
+          n = 0
+          while d.year == 2027:
+              url = f'https://www.boxofficemojo.com/calendar/{d.isoformat()}/'
+              try:
+                  r = requests.get(url, headers=H, timeout=40)
+                  soup = BeautifulSoup(r.text, 'html.parser')
+                  rows = []
+                  for tr in soup.select('table tr'):
+                      a = tr.select_one('a[href*="/release/"]')
+                      if not a: continue
+                      txt = tr.get_text(' | ', strip=True)
+                      rows.append({'date': d.isoformat(), 'title': a.get_text(strip=True), 'href': a.get('href', '')[:40], 'row': txt[:330]})
+                  print('WEEK', d.isoformat(), r.status_code, len(rows))
+                  for x in rows:
+                      print('REL ' + json.dumps(x, ensure_ascii=False)); n += 1
+              except Exception as e:
+                  print('WEEK', d.isoformat(), 'ERR', e)
+              d += datetime.timedelta(days=7)
+              time.sleep(0.4)
+          print('releases', n)
           PY
