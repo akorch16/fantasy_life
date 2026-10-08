@@ -1604,6 +1604,26 @@
    ]
   },
   {
+   "name": "Brendan Fraser",
+   "detail": "Untitled Mummy sequel (Oct 15)",
+   "odds": null,
+   "mu": 33.6,
+   "sd": 16.8,
+   "confidence": "C",
+   "source": "Box Office Mojo 2027 release calendar (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates",
+   "as_of": "2026-10-08",
+   "notes": "BOM lists Fraser + Weisz for the Oct 15 Mummy project",
+   "films": [
+    {
+     "title": "Untitled Mummy sequel",
+     "date": "Oct 15",
+     "p_release": 0.8,
+     "bo_mid": 70,
+     "rt_mid": 60
+    }
+   ]
+  },
+  {
    "name": "Andrew Scott",
    "detail": "Margie Claus (Nov 12); A Place in Hell (Apr 23)",
    "odds": null,

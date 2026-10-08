@@ -47,6 +47,28 @@ SIMS = 6000
 
 PROB_KEYS = ["p_champ", "p_final", "p_semi", "p_quarter", "p_r1"]
 
+# Certainty layer (v2, user feedback 2026-10-08). Every category's raw mu/sd/p in data/*.json is "what the
+# price/rating says today"; this layer widens it for how far away the scored event is:
+#   sd_mult   multiplies sd (more variance -> flatter rank-point EV)
+#   mu_shrink pulls mu toward the category's top-13 mean (year-to-year persistence is weak)
+#   p_shrink  pulls title/top-5 probabilities toward the uniform field (prices that don't exist yet)
+#   flat      stock: pure luck -> mu and sd forced equal for everyone (no variance premium, no favourites)
+# NFL/NBA/NHL/NCAAF are in progress or opening now (and priced by Kalshi): untouched. NCAAB hasn't started.
+# MLB/MLS/NASCAR score calendar 2027 with no 2027 market: heavy shrink. Golf/Tennis: predictable, untouched.
+CERT = {
+    "NFL": dict(), "NBA": dict(), "NHL": dict(), "NCAAF": dict(),
+    "Golf": dict(), "Tennis": dict(),
+    "NCAAB": dict(sd_mult=1.6, mu_shrink=0.30, p_shrink=0.25),
+    "MLB": dict(sd_mult=2.0, mu_shrink=0.50, p_shrink=0.50),
+    "MLS": dict(sd_mult=2.0, mu_shrink=0.50, p_shrink=0.50),
+    "NASCAR": dict(sd_mult=2.0, mu_shrink=0.40, p_shrink=0.50),
+    "Stock": dict(flat=True),
+}
+# Draft-market bias (user, 2026-10-08): the league over-drafts Grammy/Oscar names, so for these categories the
+# field's pick order is modelled as baseline + w x award-EV, and the replacement level you can expect LATE is
+# the best candidate outside the field's first M picks.
+MARKET = {"Musician": dict(w=2.0, m=8), "Actor": dict(w=2.0, m=8), "Actress": dict(w=2.0, m=8)}
+
 GOLD = PatternFill("solid", fgColor="FFE699")
 GREEN = PatternFill("solid", fgColor="C6E0B4")
 BLUE = PatternFill("solid", fgColor="DDEBF7")
@@ -65,12 +87,49 @@ def load_json(name, default=None):
         return json.load(f)
 
 
+def _adjust(cat, ents):
+    cfg = CERT.get(cat) or {}
+    if not ents or not cfg:
+        return ents
+    top = sorted((e.get("mu") for e in ents if e.get("mu") is not None), reverse=True)[:13]
+    m = sum(top) / len(top) if top else 0.0
+    n = len(ents)
+    sds = sorted(e.get("sd") or 0 for e in ents)
+    for e in ents:
+        e["_raw"] = {"mu": e.get("mu"), "sd": e.get("sd"), "p_champ": e.get("p_champ"), "p_top5": e.get("p_top5")}
+        if cfg.get("flat"):
+            e["mu"], e["sd"] = round(m, 2), round(sds[len(sds) // 2], 2)
+            e["confidence"] = "C"
+            continue
+        if e.get("mu") is not None:
+            e["mu"] = round(m + (1 - cfg.get("mu_shrink", 0)) * (e["mu"] - m), 4)
+        if e.get("sd") is not None:
+            e["sd"] = round(e["sd"] * cfg.get("sd_mult", 1.0), 4)
+        ps = cfg.get("p_shrink", 0)
+        if ps and e.get("p_champ") is not None:
+            e["p_champ"] = round((1 - ps) * e["p_champ"] + ps / n, 4)
+            for k in PROB_KEYS[1:]:              # re-infer the ladder from the shrunk title price
+                e[k] = None
+        if ps and e.get("p_top5") is not None:
+            e["p_top5"] = round((1 - ps) * e["p_top5"] + ps * 5 / n, 4)
+    return ents
+
+
+def adj_tag(cat):
+    cfg = CERT.get(cat) or {}
+    if cfg.get("flat"):
+        return "[v2: flattened — pure luck, everyone equal]"
+    if not cfg:
+        return ""
+    return f"[v2 certainty adj: sd x{cfg.get('sd_mult',1)}, mu shrink {int(cfg.get('mu_shrink',0)*100)}%, p shrink {int(cfg.get('p_shrink',0)*100)}%]"
+
+
 def entries_for(cat):
     d = load_json(f"{cat}.json", {}) or {}
     ents = d.get("entries", [])
     for e in ents:
         e["_as_of_cat"] = d.get("as_of")
-    return ents
+    return _adjust(cat, ents)
 
 
 # ── value model ──────────────────────────────────────────────────────────────
@@ -188,6 +247,12 @@ def build(today):
         for i, r in enumerate(rows, 1):
             r["rank"] = i
             r["tier"] = 1 if i <= 3 else 2 if i <= 7 else 3 if i <= 13 else 4
+        mk = MARKET.get(cat)
+        if mk:
+            for r in rows:
+                r["mscore"] = r["erank"] + mk["w"] * min(r["bonus"], BONUS_CAP)
+            for i, r in enumerate(sorted(rows, key=lambda r: -r["mscore"]), 1):
+                r["mrank"] = i
         table[cat] = rows
 
     wb = Workbook()
@@ -199,7 +264,8 @@ def build(today):
 
     # Assumptions sheet (live inputs)
     ws_as.append(["Category", "Champion", "Lost final", "Lost semi", "Lost quarter", "Lost round 1",
-                  "Replacement rank N", "Bonus cap", "Replacement EV (Nth best)"])
+                  "Replacement rank N", "Bonus cap", "Replacement EV (Nth best / best left after the field's picks)",
+                  "Field award overweight w", "Field takes first M"])
     for c in ws_as[1]:
         c.fill, c.font = HEAD, WHITE
     as_row = {}
@@ -211,6 +277,9 @@ def build(today):
             ws_as.cell(i, 2 + j, v)
         ws_as.cell(i, 7, assum["repl_rank"][cat])
         ws_as.cell(i, 8, BONUS_CAP)
+        if cat in MARKET:
+            ws_as.cell(i, 10, MARKET[cat]["w"])
+            ws_as.cell(i, 11, MARKET[cat]["m"])
     base = len(CATS) + 4
     ws_as.cell(base, 1, "Other inputs").font = BOLD
     others = [("Tennis slam win pts", assum["slam_win"]), ("Tennis slam runner-up pts", assum["slam_ru"]),
@@ -225,13 +294,32 @@ def build(today):
     SLAM_WIN, SLAM_RU = f"Assumptions!$B${base+1}", f"Assumptions!$B${base+2}"
     MAJ_WIN, MAJ_RU = f"Assumptions!$B${base+3}", f"Assumptions!$B${base+4}"
     NAS_OTH, LAMBDA = f"Assumptions!$B${base+5}", f"Assumptions!$B${base+6}"
+    cb = base + len(others) + 3
+    ws_as.cell(cb, 1, "Certainty adjustments applied to data/*.json before the model (v2)").font = BOLD
+    ws_as.cell(cb + 1, 1, "Category")
+    for j, h in enumerate(["sd multiplier", "mu shrink to field", "title-prob shrink to uniform", "Why"], 2):
+        ws_as.cell(cb + 1, j, h)
+    why = {"NFL": "season in progress, Kalshi-priced", "NBA": "opens Oct 20, Kalshi-priced", "NHL": "season started, Kalshi-priced",
+           "NCAAF": "season in progress, Kalshi-priced", "Golf": "OWGR is sticky; majors are stable at the top", "Tennis": "rankings sticky; slams stable at the top",
+           "NCAAB": "season not started; tournament chaos", "MLB": "calendar 2027, no 2027 market; year-to-year win% persistence is weak",
+           "MLS": "calendar 2027, no 2027 market; playoff-driven", "NASCAR": "calendar 2027, no 2027 market; Chase is a lottery",
+           "Stock": "pure luck: mu and sd forced equal for all picks", "Actor": "see Market overweight", "Actress": "see Market overweight",
+           "Musician": "see Market overweight", "Country": "IMF-published growth, small sd"}
+    for k, cat in enumerate(CATS, cb + 2):
+        cfg = CERT.get(cat) or {}
+        ws_as.cell(k, 1, cat)
+        ws_as.cell(k, 2, "flat" if cfg.get("flat") else cfg.get("sd_mult", 1.0))
+        ws_as.cell(k, 3, "flat" if cfg.get("flat") else cfg.get("mu_shrink", 0.0))
+        ws_as.cell(k, 4, "-" if cfg.get("flat") else cfg.get("p_shrink", 0.0))
+        ws_as.cell(k, 5, why.get(cat, ""))
+    ws_as.cell(cb + len(CATS) + 3, 1, "These are applied in Python (edit CERT in build_workbook.py and rebuild); the Excel cells above are the live ones.")
     ws_as.column_dimensions["A"].width = 58
-    for col in "BCDEFGHI":
+    for col in "BCDEFGHIJK":
         ws_as.column_dimensions[col].width = 16
 
     # raw tabs
     headers_common_tail = ["E[rank pts] (MC)", "E[bonus]", "E[total]", "VOR", "Risk-adj VOR", "Tier",
-                           "SD rank pts", "Source", "As of", "Conf", "Notes"]
+                           "SD rank pts", "Source", "As of", "Conf", "Notes", "Field draft score", "Field rank"]
     extra_headers = {
         "team": ["p(champ)", "p(final)", "p(semi)", "p(quarter)", "p(rd 1)"],
         "Tennis": ["p(≥1 slam win)", "p(≥1 slam RU)", "Gender", "", ""],
@@ -310,7 +398,10 @@ def build(today):
             ws.cell(n, 18, e.get("source"))
             ws.cell(n, 19, e.get("as_of") or e.get("_as_of_cat"))
             ws.cell(n, 20, e.get("confidence"))
-            ws.cell(n, 21, e.get("notes"))
+            ws.cell(n, 21, ((e.get("notes") or "") + " " + adj_tag(cat)).strip())
+            if cat in MARKET:
+                ws.cell(n, 22, f"=K{n}+Assumptions!$J${ar}*MIN(L{n},Assumptions!$H${ar})")
+                ws.cell(n, 23, f"=RANK(V{n},$V$5:$V${last})")
             fill = GOLD if r["tier"] == 1 else GREEN if r["tier"] == 2 else BLUE if r["tier"] == 3 else None
             if fill:
                 ws.cell(n, 1).fill = fill
@@ -318,9 +409,14 @@ def build(today):
                 ws.cell(n, 20).fill = GOLD
             refs[cat]["rows"][e.get("name")] = n
         ws.cell(last + 2, 1, "Replacement-level EV (Nth best)").font = BOLD
-        ws_as.cell(ar, 9, f"=LARGE('{cat}'!$M$5:$M${last},MIN(G{ar},COUNT('{cat}'!$M$5:$M${last})))")
+        nth = f"LARGE('{cat}'!$M$5:$M${last},MIN(G{ar},COUNT('{cat}'!$M$5:$M${last})))"
+        if cat in MARKET:       # best candidate the field leaves after its first M award-driven picks
+            left = f"SUMPRODUCT(MAX(('{cat}'!$W$5:$W${last}>K{ar})*'{cat}'!$M$5:$M${last}))"
+            ws_as.cell(ar, 9, f"=MAX({nth},{left})")
+        else:
+            ws_as.cell(ar, 9, f"={nth}")
         ws.freeze_panes = "B5"
-        for col, w in zip("ABCDEFGHIJKLMNOPQRSTU", [30, 36, 22, 11, 11, 11, 11, 11, 9, 9, 11, 10, 10, 9, 11, 6, 9, 38, 11, 6, 40]):
+        for col, w in zip("ABCDEFGHIJKLMNOPQRSTUVW", [30, 36, 22, 11, 11, 11, 11, 11, 9, 9, 11, 10, 10, 9, 11, 6, 9, 38, 11, 6, 60, 12, 9]):
             ws.column_dimensions[col].width = w
 
     # Draft Board: every candidate, sorted by default-N VOR
@@ -329,12 +425,31 @@ def build(today):
         tots = sorted([r["total"] for r in table[cat]], reverse=True)
         n = min(assum["repl_rank"][cat], len(tots)) if tots else 0
         repl_ev[cat] = tots[n - 1] if n else 0.0
+        if cat in MARKET:
+            left = [r["total"] for r in table[cat] if r["mrank"] > MARKET[cat]["m"]]
+            repl_ev[cat] = max(repl_ev[cat], max(left, default=0.0))
     board = []
     for cat in CATS:
         for r in table[cat]:
             board.append((r["total"] - repl_ev[cat], cat, r))
     board.sort(key=lambda t: -t[0])
-    ws_board.append(["Rank", "Category", "Candidate", "E[total]", "VOR", "Risk-adj VOR", "Tier in category", "Odds / price", "Detail", "Conf", "Source", "As of"])
+
+    def plan(cat, r):
+        if cat in MARKET:
+            hot = r["mrank"] <= MARKET[cat]["m"]
+            if hot and r["rank"] <= 7:
+                return "Good but the field reaches for it: let it come to you"
+            if hot:
+                return "Overpriced by the field on award buzz: skip"
+            if r["rank"] <= 7:
+                return "TARGET LATE: value the field undervalues"
+            return "late filler"
+        if cat == "Stock":
+            return "coin flip: take last, no edge"
+        if cat in ("MLB", "MLS", "NASCAR", "NCAAB"):
+            return "low confidence: far-out event"
+        return ""
+    ws_board.append(["Rank", "Category", "Candidate", "E[total]", "VOR", "Risk-adj VOR", "Tier in category", "Odds / price", "Detail", "Conf", "Source", "As of", "Plan"])
     for c in ws_board[1]:
         c.fill, c.font = HEAD, WHITE
     for i, (vor, cat, r) in enumerate(board, 1):
@@ -342,12 +457,12 @@ def build(today):
         q = f"'{cat}'"
         ws_board.append([i, cat, r["e"].get("name"), f"={q}!M{n}", f"={q}!N{n}", f"={q}!O{n}", r["tier"],
                          r["e"].get("odds"), r["e"].get("detail"), r["e"].get("confidence"), r["e"].get("source"),
-                         r["e"].get("as_of") or r["e"].get("_as_of_cat")])
+                         r["e"].get("as_of") or r["e"].get("_as_of_cat"), plan(cat, r)])
         if i <= 15:
             ws_board.cell(i + 1, 3).fill = GOLD
     ws_board.freeze_panes = "D2"
-    ws_board.auto_filter.ref = f"A1:L{len(board)+1}"
-    for col, w in zip("ABCDEFGHIJKL", [6, 11, 30, 10, 9, 12, 9, 22, 40, 6, 40, 11]):
+    ws_board.auto_filter.ref = f"A1:M{len(board)+1}"
+    for col, w in zip("ABCDEFGHIJKLM", [6, 11, 30, 10, 9, 12, 9, 22, 40, 6, 40, 11, 44]):
         ws_board.column_dimensions[col].width = w
 
     # Master (same shape as the 2025 workbook: one column per category, tier-ordered)
@@ -442,11 +557,18 @@ def build(today):
         ("Country 2027 = GDP growth only (no Olympics/World Cup in 2027). Slot-agnostic board (replacement rank is a single tunable N per category). Each player picks one per category.", False),
         ("Known limits: no 2027 futures are posted yet for MLB/MLS/NASCAR/Golf/Tennis; those rows are model estimates (conf C). Rank-point EV assumes the field drafts the best candidates by mu.", False),
         ("", False),
-        ("How much to trust each tab (v1, Oct 8 2026)", True),
-        ("SOLID (exchange prices, conf A): NFL, NBA, NHL, NCAAF title + conference-champion odds (Kalshi); Oscar win/nomination prices; Grammy AOTY/ROTY/SOTY/Best New Artist prices; 2026 MLB/MLS/OWGR/ATP results (league standings).", False),
-        ("MIXED: NCAAB (Aug 4 prices, 10 teams); Tennis/Golf (real current rankings, estimated slam/major probabilities); NASCAR/MLS (2026 prices shrunk to a 2027 prior).", False),
-        ("SOFT: Actor/Actress (Wikipedia billed casts x my box-office/RT comps — cameos not captured; Secret Wars may slip to 2028); Musician baseline (no 2027 album dates found; Grammy part is solid); Country (priors until the Oct 13 IMF WEO); Stock (no price data pulled).", False),
-        ("Reading the Draft Board: Musician Grammy picks and the NBA co-favorites carry the biggest edge; Actor/Actress/Country/Stock boards are flat (little separates #1 from #7), so draft them late unless you hold a specific view.", False),
+        ("How much to trust each tab (v2, Oct 8 2026)", True),
+        ("SOLID (exchange prices, conf A): NFL, NBA, NHL, NCAAF title + conference-champion odds (Kalshi); Oscar win/nomination prices; Grammy AOTY/ROTY/SOTY/Best New Artist prices. These events are in progress or start within weeks, so they keep full weight.", False),
+        ("PREDICTABLE: Golf (OWGR) and Tennis (ATP/WTA rankings) — the top is sticky year to year; probabilities are still my model, not posted odds.", False),
+        ("DISCOUNTED FOR DISTANCE (v2): MLB, MLS, NASCAR score calendar 2027 with no 2027 market, so sd x2, mu pulled 40-50% toward the field, title probabilities pulled 50% toward uniform. NCAAB (not started) sd x1.6, mu 30%, probs 25%. See Assumptions → 'Certainty adjustments'.", False),
+        ("STOCK = COIN FLIP: mu and sd forced equal for every pick (no favourites, no variance premium). The tab is a list, not a ranking; take it last.", False),
+        ("COUNTRY: IMF-published growth is the mu (see the Country tab for the vintage used); small sd for stable economies, wide only for commodity/fragile states.", False),
+        ("SOFT: Actor/Actress baseline (Wikipedia + Box Office Mojo billed casts x my box-office/RT comps — cameos not captured; Secret Wars may slip to 2028); Musician baseline (no 2027 album dates found).", False),
+        ("", False),
+        ("Draft-market bias (the edge)", True),
+        ("The league over-drafts Grammy/Oscar names. For Musician, Actor and Actress the 'Field draft score' column (V) = baseline + w x award-EV (w on Assumptions) predicts the order your leaguemates pick in; the replacement level used for VOR is the best candidate OUTSIDE the field's first M picks.", False),
+        ("Draft Board 'Plan' column: TARGET LATE = high EV but the field ignores it (box-office draws); overpriced = the field takes it on award buzz; let it come to you = good but the field reaches. For Actor/Actress the unexploited edge is real box-office draws.", False),
+        ("Reading the board: NBA co-favourites and the Kalshi-priced NFL/NHL/NCAAF favourites carry the safest edge; Musician/Actor/Actress show big raw EV but are meant to be taken LATE.", False),
         ("Refresh: see .claude/commands/fl-draft-prep.md — new prices go in draft_guide/raw/*.json, run kalshi_overlay.py, edit data/*.json, rebuild.", False),
     ]
     for t, b in lines:
