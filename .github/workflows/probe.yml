@@ -24,36 +24,38 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: "DBnomics IMF WEO vintages"
+      - name: "IMF WEO"
         run: |
           python - <<'PY'
-          import requests, json
+          import requests, json, cloudscraper
           H = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/125 Safari/537.36'}
-          r = requests.get('https://api.db.nomics.world/v22/datasets/IMF?q=WEO&limit=100', headers=H, timeout=60)
-          print('DATASETS', r.status_code)
-          codes = []
+          # 1. DBnomics dataset list
+          r = requests.get('https://api.db.nomics.world/v22/datasets/IMF?limit=100&offset=0', headers=H, timeout=60)
+          print('DBN-LIST', r.status_code, r.text[:200].replace('\n', ' '))
           try:
-              for d in r.json()['datasets']['docs']:
-                  codes.append(d['code'])
-              print('CODES', [c for c in codes if c.startswith('WEO')])
+              docs = r.json()['datasets']['docs']
+              print('DBN-WEO', [d['code'] for d in docs if 'WEO' in d['code']])
           except Exception as e:
-              print('ERR', repr(e), r.text[:300])
-          for ds in ['WEO:2026-04', 'WEO:2025-10']:
-              u = f'https://api.db.nomics.world/v22/series/IMF/{ds}?dimensions=%7B%22weo-subject%22%3A%5B%22NGDP_RPCH%22%5D%7D&limit=500&observations=1&format=json'
-              out = {}
+              print('ERR', repr(e))
+          # 2. latest vintage values
+          u = 'https://api.db.nomics.world/v22/series/IMF/WEO:2025-04?dimensions=%7B%22weo-subject%22%3A%5B%22NGDP_RPCH%22%5D%7D&limit=500&observations=1&format=json'
+          rr = requests.get(u, headers=H, timeout=90)
+          print('DBN-SERIES', rr.status_code, len(rr.text))
+          if rr.status_code == 200:
+              j = rr.json(); out = {}
+              for s in j['series']['docs']:
+                  m = dict(zip(s.get('period') or [], s.get('value') or []))
+                  out[s.get('series_code')] = [s.get('series_name'), m.get('2025'), m.get('2026'), m.get('2027')]
+              print('IMF2504>>' + json.dumps(out) + '<<IMF2504')
+          # 3. direct IMF files through cloudscraper
+          sc = cloudscraper.create_scraper()
+          for url in ['https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH',
+                      'https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2026/April/WEOApr2026all.xls',
+                      'https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2026/WEOApr2026all.xls',
+                      'https://www.imf.org/en/Publications/WEO/weo-database/2026/April/download-entire-database']:
               try:
-                  rr = requests.get(u, headers=H, timeout=90)
-                  print('SERIES', ds, rr.status_code, len(rr.text))
-                  if rr.status_code == 200:
-                      j = rr.json()
-                      print('NUMFOUND', j['series']['num_found'])
-                      for s in j['series']['docs']:
-                          per = s.get('period') or []
-                          val = s.get('value') or []
-                          m = dict(zip(per, val))
-                          lab = s.get('series_name') or s.get('series_code')
-                          out[s.get('series_code')] = {'name': lab, '2025': m.get('2025'), '2026': m.get('2026'), '2027': m.get('2027')}
-                      print('IMFJSON-' + ds + '>>' + json.dumps(out) + '<<IMFJSON')
+                  x = sc.get(url, timeout=60)
+                  print('IMF-DIRECT', x.status_code, len(x.content), url, x.text[:150].replace('\n', ' '))
               except Exception as e:
-                  print('ERR', ds, repr(e)[:200])
+                  print('IMF-DIRECT ERR', url, repr(e)[:150])
           PY
