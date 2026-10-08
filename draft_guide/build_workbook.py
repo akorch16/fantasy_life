@@ -20,6 +20,7 @@ VOR = EV - EV of the replacement-level pick (Nth best option in that category; N
 import json
 import os
 import sys
+import unicodedata
 from datetime import date
 
 import numpy as np
@@ -122,6 +123,27 @@ def adj_tag(cat):
     if not cfg:
         return ""
     return f"[v2 certainty adj: sd x{cfg.get('sd_mult',1)}, mu shrink {int(cfg.get('mu_shrink',0)*100)}%, p shrink {int(cfg.get('p_shrink',0)*100)}%]"
+
+
+def _norm(s):
+    return unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode().lower().strip()
+
+
+def match_owners(table):
+    """data/rosters.json (current picks) -> ({cat: {entry name: player}}, [unmatched (cat, player, pick)])."""
+    picks = (load_json("rosters.json", {}) or {}).get("picks", {})
+    alias = {_norm(k): _norm(v) for k, v in (load_json("aliases.json", {}) or {}).items()}
+    owners, bad = {c: {} for c in CATS}, []
+    for cat, by_player in picks.items():
+        by_key = {_norm(r["e"].get("name")): r["e"].get("name") for r in table.get(cat, [])}
+        for pl, pick in by_player.items():
+            k = _norm(pick)
+            name = by_key.get(alias.get(k, k))
+            if name is None:
+                bad.append((cat, pl, pick))
+            else:
+                owners[cat][name] = pl
+    return owners, bad
 
 
 def entries_for(cat):
@@ -255,10 +277,14 @@ def build(today):
                 r["mrank"] = i
         table[cat] = rows
 
+    owners, unmatched = match_owners(table)
+    PLAYERS = list((load_json("rosters.json", {}) or {}).get("picks", {}).get("NFL", {}).keys())
+
     wb = Workbook()
     ws_readme = wb.active
     ws_readme.title = "README"
     ws_master = wb.create_sheet("Master")
+    ws_rost = wb.create_sheet("Rosters")
     ws_board = wb.create_sheet("Draft Board")
     ws_as = wb.create_sheet("Assumptions")
 
@@ -319,7 +345,7 @@ def build(today):
 
     # raw tabs
     headers_common_tail = ["E[rank pts] (MC)", "E[bonus]", "E[total]", "VOR", "Risk-adj VOR", "Tier",
-                           "SD rank pts", "Source", "As of", "Conf", "Notes", "Field draft score", "Field rank"]
+                           "SD rank pts", "Source", "As of", "Conf", "Notes", "Field draft score", "Field rank", "Owner"]
     extra_headers = {
         "team": ["p(champ)", "p(final)", "p(semi)", "p(quarter)", "p(rd 1)"],
         "Tennis": ["p(≥1 slam win)", "p(≥1 slam RU)", "Gender", "", ""],
@@ -398,6 +424,9 @@ def build(today):
             ws.cell(n, 18, e.get("source"))
             ws.cell(n, 19, e.get("as_of") or e.get("_as_of_cat"))
             ws.cell(n, 20, e.get("confidence"))
+            ws.cell(n, 24, owners[cat].get(e.get("name")))
+            if owners[cat].get(e.get("name")):
+                ws.cell(n, 24).fill = RED
             ws.cell(n, 21, ((e.get("notes") or "") + " " + adj_tag(cat)).strip())
             if cat in MARKET:
                 ws.cell(n, 22, f"=K{n}+Assumptions!$J${ar}*MIN(L{n},Assumptions!$H${ar})")
@@ -416,7 +445,7 @@ def build(today):
         else:
             ws_as.cell(ar, 9, f"={nth}")
         ws.freeze_panes = "B5"
-        for col, w in zip("ABCDEFGHIJKLMNOPQRSTUVW", [30, 36, 22, 11, 11, 11, 11, 11, 9, 9, 11, 10, 10, 9, 11, 6, 9, 38, 11, 6, 60, 12, 9]):
+        for col, w in zip("ABCDEFGHIJKLMNOPQRSTUVWX", [30, 36, 22, 11, 11, 11, 11, 11, 9, 9, 11, 10, 10, 9, 11, 6, 9, 38, 11, 6, 60, 12, 9, 11]):
             ws.column_dimensions[col].width = w
 
     # Draft Board: every candidate, sorted by default-N VOR
@@ -449,20 +478,22 @@ def build(today):
         if cat in ("MLB", "MLS", "NASCAR", "NCAAB"):
             return "low confidence: far-out event"
         return ""
-    ws_board.append(["Rank", "Category", "Candidate", "E[total]", "VOR", "Risk-adj VOR", "Tier in category", "Odds / price", "Detail", "Conf", "Source", "As of", "Plan"])
+    ws_board.append(["Rank", "Category", "Candidate", "Owned by", "E[total]", "VOR", "Risk-adj VOR", "Tier in category", "Odds / price", "Detail", "Conf", "Source", "As of", "Plan"])
     for c in ws_board[1]:
         c.fill, c.font = HEAD, WHITE
     for i, (vor, cat, r) in enumerate(board, 1):
         n = refs[cat]["rows"][r["e"].get("name")]
         q = f"'{cat}'"
-        ws_board.append([i, cat, r["e"].get("name"), f"={q}!M{n}", f"={q}!N{n}", f"={q}!O{n}", r["tier"],
+        ws_board.append([i, cat, r["e"].get("name"), owners[cat].get(r["e"].get("name")) or "— free", f"={q}!M{n}", f"={q}!N{n}", f"={q}!O{n}", r["tier"],
                          r["e"].get("odds"), r["e"].get("detail"), r["e"].get("confidence"), r["e"].get("source"),
                          r["e"].get("as_of") or r["e"].get("_as_of_cat"), plan(cat, r)])
-        if i <= 15:
-            ws_board.cell(i + 1, 3).fill = GOLD
-    ws_board.freeze_panes = "D2"
-    ws_board.auto_filter.ref = f"A1:M{len(board)+1}"
-    for col, w in zip("ABCDEFGHIJKLM", [6, 11, 30, 10, 9, 12, 9, 22, 40, 6, 40, 11, 44]):
+        if i <= 50:
+            ws_board.cell(i + 1, 1).fill = GOLD if i <= 15 else GREEN
+        if owners[cat].get(r["e"].get("name")):
+            ws_board.cell(i + 1, 4).fill = RED
+    ws_board.freeze_panes = "E2"
+    ws_board.auto_filter.ref = f"A1:N{len(board)+1}"
+    for col, w in zip("ABCDEFGHIJKLMN", [6, 11, 30, 11, 10, 9, 12, 9, 22, 40, 6, 40, 11, 44]):
         ws_board.column_dimensions[col].width = w
 
     # Master (same shape as the 2025 workbook: one column per category, tier-ordered)
@@ -476,7 +507,8 @@ def build(today):
             if i < len(rows):
                 r = rows[i]
                 odds = f" {r['e'].get('odds')}" if r["e"].get("odds") else ""
-                row.append(f"{r['e'].get('name')}{odds} · EV {r['total']:.1f}")
+                own = owners[cat].get(r["e"].get("name"))
+                row.append(f"{r['e'].get('name')}{odds} · EV {r['total']:.1f}" + (f" · [{own}]" if own else ""))
             else:
                 row.append("")
         ws_master.append(row)
@@ -527,6 +559,49 @@ def build(today):
     for col, w in zip("ABCD", [10, 12, 32, 80]):
         ws_qa.column_dimensions[col].width = w
 
+    for cat, pl, pick in unmatched:
+        ws_qa.append(["ERROR", cat, str(pick), f"{pl}'s current pick is not on the board"])
+
+    # Rosters: current picks (the keeper pool) and each pick's value over replacement
+    ws_rost.append(["Player"] + CATS + ["Best keeper (by VOR)"])
+    for c in ws_rost[1]:
+        c.fill, c.font = HEAD, WHITE
+        c.alignment = Alignment(wrap_text=True, vertical="top")
+    rost_vor = {}
+    for i, pl in enumerate(PLAYERS, 2):
+        ws_rost.cell(i, 1, pl).font = BOLD
+        best = (None, -99.0)
+        for j, cat in enumerate(CATS, 2):
+            name = next((nm for nm, o in owners[cat].items() if o == pl), None)
+            ws_rost.cell(i, j, name)
+            if name:
+                r = next(x for x in table[cat] if x["e"].get("name") == name)
+                v = r["total"] - repl_ev[cat]
+                rost_vor[(pl, cat)] = v
+                if v > best[1]:
+                    best = (cat, v)
+        if best[0]:
+            ws_rost.cell(i, len(CATS) + 2, f"{owners[best[0]] and next(nm for nm, o in owners[best[0]].items() if o == pl)} ({best[0]}, VOR {best[1]:.1f})")
+            col = CATS.index(best[0]) + 2
+            ws_rost.cell(i, col).fill = GOLD
+    top = len(PLAYERS) + 4
+    ws_rost.cell(top - 1, 1, "Value over replacement (VOR) of each current pick — live link to the category tabs").font = BOLD
+    ws_rost.append([])
+    for i, pl in enumerate(PLAYERS):
+        rr = top + i
+        ws_rost.cell(rr, 1, pl).font = BOLD
+        for j, cat in enumerate(CATS, 2):
+            name = next((nm for nm, o in owners[cat].items() if o == pl), None)
+            if name:
+                ws_rost.cell(rr, j, f"='{cat}'!N{refs[cat]['rows'][name]}")
+                ws_rost.cell(rr, j).number_format = "0.0"
+    ws_rost.column_dimensions["A"].width = 12
+    for j in range(len(CATS) + 1):
+        ws_rost.column_dimensions[get_column_letter(j + 2)].width = 22
+    ws_rost.column_dimensions[get_column_letter(len(CATS) + 2)].width = 36
+    ws_rost.freeze_panes = "B2"
+    ws_rost.cell(len(PLAYERS) + 2, 1, "Source: data/rosters.json (2026-league draft). Gold = that player's highest-VOR pick (keeper candidate). Keeper rules not modelled: owned players stay ranked on the board.")
+
     # Aliases
     ws_al = wb.create_sheet("Aliases")
     ws_al.append(["Alias (what you might type / sources use)", "Canonical (what the board uses)"])
@@ -564,6 +639,9 @@ def build(today):
         ("STOCK = COIN FLIP: mu and sd forced equal for every pick (no favourites, no variance premium). The tab is a list, not a ranking; take it last.", False),
         ("COUNTRY: IMF-published growth is the mu (see the Country tab for the vintage used); small sd for stable economies, wide only for commodity/fragile states.", False),
         ("SOFT: Actor/Actress baseline (Wikipedia + Box Office Mojo billed casts x my box-office/RT comps — cameos not captured; Secret Wars may slip to 2028); Musician baseline (no 2027 album dates found).", False),
+        ("", False),
+        ("Keeper round", True),
+        ("The draft room runs a keeper round first (one pick per player). 'Rosters' = everyone's current picks (data/rosters.json, from the 2026-league draft) with each pick's VOR and a gold best-keeper cell. 'Owned by' on the Draft Board and 'Owner' (red) on every category tab show who holds a player; '— free' = unowned. Keeper rules are not modelled: owned players stay ranked until you mark them kept.", False),
         ("", False),
         ("Draft-market bias (the edge)", True),
         ("The league over-drafts Grammy/Oscar names. For Musician, Actor and Actress the 'Field draft score' column (V) = baseline + w x award-EV (w on Assumptions) predicts the order your leaguemates pick in; the replacement level used for VOR is the best candidate OUTSIDE the field's first M picks.", False),

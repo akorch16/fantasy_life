@@ -704,6 +704,32 @@
    "source": "IMF WEO April 2025 vintage via DBnomics (api.db.nomics.world, pulled by Actions runner 2026-10-08), series NGDP_RPCH 2027. STALE vintage: Oct 13 2026 WEO replaces it; the 2025-10 and 2026-04 vintages are not mirrored.",
    "as_of": "2026-10-08",
    "notes": "sd = my forecast-error class (stable 1.0, commodity/fragile 2-12)"
+  },
+  {
+   "name": "Netherlands",
+   "detail": "owned (Tim)",
+   "mu": 1.398,
+   "sd": 1.0,
+   "p_top3": 0.0,
+   "forecast_2027": 1.398,
+   "odds": "IMF WEO Apr-2025: 1.4%",
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "notes": ""
+  },
+  {
+   "name": "Switzerland",
+   "detail": "owned (Theo)",
+   "mu": 1.2,
+   "sd": 1.0,
+   "p_top3": 0.0,
+   "forecast_2027": 1.2,
+   "odds": "IMF WEO Apr-2025: 1.2%",
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "notes": ""
   }
  ]
 }

@@ -302,6 +302,42 @@
    "source": "estimate",
    "as_of": "2026-10-08",
    "notes": ""
+  },
+  {
+   "name": "Georgia Tech",
+   "detail": "owned (Jens); AP rank not pulled",
+   "p_champ": 0.0004,
+   "mu": 0.35,
+   "sd": 0.16,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
+  },
+  {
+   "name": "Michigan",
+   "detail": "owned (Shep); AP rank not pulled",
+   "p_champ": 0.0004,
+   "mu": 0.35,
+   "sd": 0.16,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
+  },
+  {
+   "name": "Texas A&M",
+   "detail": "owned (Fryar); AP rank not pulled",
+   "p_champ": 0.0004,
+   "mu": 0.35,
+   "sd": 0.16,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
   }
  ]
 }

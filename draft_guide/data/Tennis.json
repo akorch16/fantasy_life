@@ -324,6 +324,34 @@
    "p_slam_win": 0.06,
    "p_slam_ru": 0.06,
    "gender": "W"
+  },
+  {
+   "name": "Madison Keys",
+   "detail": "owned (Tim); WTA rank not pulled",
+   "mu": 0.75,
+   "sd": 0.08,
+   "p_slam_win": 0.03,
+   "p_slam_ru": 0.03,
+   "gender": "W",
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
+  },
+  {
+   "name": "Jasmine Paolini",
+   "detail": "owned (Jens); WTA rank not pulled",
+   "mu": 0.75,
+   "sd": 0.08,
+   "p_slam_win": 0.02,
+   "p_slam_ru": 0.03,
+   "gender": "W",
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
   }
  ]
 }

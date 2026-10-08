@@ -222,6 +222,72 @@
    "source": "my estimate: sector view + typical vol; no price data pulled (verify quotes before drafting)",
    "as_of": "2026-10-08",
    "notes": ""
+  },
+  {
+   "name": "LULU (Long)",
+   "detail": "owned; no price data pulled",
+   "mu": 0,
+   "sd": 60,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
+  },
+  {
+   "name": "SOFI (Long)",
+   "detail": "owned; no price data pulled",
+   "mu": 0,
+   "sd": 60,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
+  },
+  {
+   "name": "CVNA (Short)",
+   "detail": "owned; no price data pulled",
+   "mu": 0,
+   "sd": 60,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
+  },
+  {
+   "name": "CMG (Long)",
+   "detail": "owned; no price data pulled",
+   "mu": 0,
+   "sd": 60,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
+  },
+  {
+   "name": "TTWO (Long)",
+   "detail": "owned; no price data pulled",
+   "mu": 0,
+   "sd": 60,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
+  },
+  {
+   "name": "NEE (Long)",
+   "detail": "owned; no price data pulled",
+   "mu": 0,
+   "sd": 60,
+   "confidence": "C",
+   "source": "added because a league member currently owns this pick (draft_picks_2026.py); not in the first-pass pool, so figures are placeholders (conf C)",
+   "as_of": "2026-10-08",
+   "odds": null,
+   "notes": ""
   }
  ]
 }
