@@ -68,6 +68,14 @@ CERT = {
 # Draft-market bias (user, 2026-10-08): the league over-drafts Grammy/Oscar names, so for these categories the
 # field's pick order is modelled as baseline + w x award-EV, and the replacement level you can expect LATE is
 # the best candidate outside the field's first M picks.
+# Confidence layer (v7): the A/B/C label now moves numbers. A = exchange price seen -> untouched. B/C rows get wider
+# spreads, probabilities pulled toward the field, and C strengths pulled toward the field mean. Categories that already
+# carry their own distance discount in CERT (NCAAB, MLB, MLS, NASCAR, Stock) are skipped so nothing is counted twice,
+# and entries with simulated quantiles (Musician) keep their own spread.
+CONF = {"A": dict(), "B": dict(sd_mult=1.10, p_shrink=0.10, mu_shrink=0.0),
+        "C": dict(sd_mult=1.25, p_shrink=0.20, mu_shrink=0.10)}
+# Points subtracted from VOR per grade for the "Conf-adj VOR" column (live on the Assumptions tab).
+CONF_HAIRCUT = {"B": 0.3, "C": 0.8}
 MARKET = {"Musician": dict(w=2.0, m=8), "Actor": dict(w=2.0, m=8), "Actress": dict(w=2.0, m=8)}
 
 GOLD = PatternFill("solid", fgColor="FFE699")
@@ -88,10 +96,46 @@ def load_json(name, default=None):
         return json.load(f)
 
 
+def _conf_adjust(cat, ents):
+    """Shrink B/C rows (see CONF). Categories with their own CERT parameters are already discounted."""
+    if not ents or any((CERT.get(cat) or {}).values()):
+        return ents
+    n = len(ents)
+    top = sorted((e.get("mu") for e in ents if e.get("mu") is not None), reverse=True)[:13]
+    m = sum(top) / len(top) if top else 0.0
+    means = {}
+    for k in ("p_slam_win", "p_slam_ru", "p_major_win", "p_major_ru"):
+        vals = [e[k] for e in ents if e.get(k) is not None]
+        means[k] = sum(vals) / len(vals) if vals else 0.0
+    for e in ents:
+        cfg = CONF.get(e.get("confidence"), {})
+        if not cfg:
+            continue
+        ps = cfg.get("p_shrink", 0)
+        e["_conf_adj"] = e.get("confidence")
+        if e.get("q") is None:                      # quantile-simulated entries keep their own spread
+            if e.get("sd") is not None:
+                e["sd"] = round(e["sd"] * cfg.get("sd_mult", 1.0), 4)
+            if e.get("mu") is not None and cfg.get("mu_shrink"):
+                e["mu"] = round(m + (1 - cfg["mu_shrink"]) * (e["mu"] - m), 4)
+        if ps:
+            if e.get("p_champ") is not None:
+                e["p_champ"] = round((1 - ps) * e["p_champ"] + ps / n, 4)
+                if e.get("p_final") is not None:
+                    e["p_final"] = round((1 - ps) * e["p_final"] + ps * 2 / n, 4)
+                for k in PROB_KEYS[2:]:
+                    if e.get(k) is not None:
+                        e[k] = round((1 - ps) * e[k] + ps * (4 if k == "p_semi" else 8 if k == "p_quarter" else 14) / n, 4)
+            for k, mean in means.items():
+                if e.get(k) is not None:
+                    e[k] = round((1 - ps) * e[k] + ps * mean, 4)
+    return ents
+
+
 def _adjust(cat, ents):
     cfg = CERT.get(cat) or {}
     if not ents or not cfg:
-        return ents
+        return _conf_adjust(cat, ents)
     top = sorted((e.get("mu") for e in ents if e.get("mu") is not None), reverse=True)[:13]
     m = sum(top) / len(top) if top else 0.0
     n = len(ents)
@@ -114,6 +158,12 @@ def _adjust(cat, ents):
         if ps and e.get("p_top5") is not None:
             e["p_top5"] = round((1 - ps) * e["p_top5"] + ps * 5 / n, 4)
     return ents
+
+
+def conf_tag(e):
+    c = e.get("_conf_adj")
+    cfg = CONF.get(c) or {}
+    return f"[conf {c}: sd x{cfg.get('sd_mult',1)}, p shrink {int(cfg.get('p_shrink',0)*100)}%]" if cfg else ""
 
 
 def adj_tag(cat):
@@ -320,7 +370,9 @@ def build(today):
     others = [("Tennis slam win pts", assum["slam_win"]), ("Tennis slam runner-up pts", assum["slam_ru"]),
               ("Golf major win pts", assum["major_win"]), ("Golf major runner-up pts", assum["major_ru"]),
               ("NASCAR avg pts for finishing 2nd-5th", assum["nascar_other_avg"]),
-              ("Risk aversion λ (Risk-adj VOR = VOR − λ·SD of rank pts)", assum["risk_lambda"])]
+              ("Risk aversion λ (Risk-adj VOR = VOR − λ·SD of rank pts)", assum["risk_lambda"]),
+              ("Confidence haircut, grade B (pts off VOR)", CONF_HAIRCUT["B"]),
+              ("Confidence haircut, grade C (pts off VOR)", CONF_HAIRCUT["C"])]
     oc = {}
     for k, (label, v) in enumerate(others, base + 1):
         ws_as.cell(k, 1, label)
@@ -329,6 +381,7 @@ def build(today):
     SLAM_WIN, SLAM_RU = f"Assumptions!$B${base+1}", f"Assumptions!$B${base+2}"
     MAJ_WIN, MAJ_RU = f"Assumptions!$B${base+3}", f"Assumptions!$B${base+4}"
     NAS_OTH, LAMBDA = f"Assumptions!$B${base+5}", f"Assumptions!$B${base+6}"
+    HC_B, HC_C = f"Assumptions!$B${base+7}", f"Assumptions!$B${base+8}"
     cb = base + len(others) + 3
     ws_as.cell(cb, 1, "Certainty adjustments applied to data/*.json before the model (v2)").font = BOLD
     ws_as.cell(cb + 1, 1, "Category")
@@ -354,7 +407,7 @@ def build(today):
 
     # raw tabs
     headers_common_tail = ["E[rank pts] (MC)", "E[bonus]", "E[total]", "VOR", "Risk-adj VOR", "Tier",
-                           "SD rank pts", "Source", "As of", "Conf", "Notes", "Field draft score", "Field rank", "Owner"]
+                           "SD rank pts", "Source", "As of", "Conf", "Notes", "Field draft score", "Field rank", "Owner", "Conf-adj VOR"]
     extra_headers = {
         "team": ["p(champ)", "p(final)", "p(semi)", "p(quarter)", "p(rd 1)"],
         "Tennis": ["p(≥1 slam win)", "p(≥1 slam RU)", "Gender", "", ""],
@@ -433,10 +486,11 @@ def build(today):
             ws.cell(n, 18, e.get("source"))
             ws.cell(n, 19, e.get("as_of") or e.get("_as_of_cat"))
             ws.cell(n, 20, e.get("confidence"))
+            ws.cell(n, 25, f'=N{n}-IF(T{n}="C",{HC_C},IF(T{n}="B",{HC_B},0))')
             ws.cell(n, 24, owners[cat].get(e.get("name")))
             if owners[cat].get(e.get("name")):
                 ws.cell(n, 24).fill = RED
-            ws.cell(n, 21, ((e.get("notes") or "") + " " + adj_tag(cat)).strip())
+            ws.cell(n, 21, ((e.get("notes") or "") + " " + adj_tag(cat) + " " + conf_tag(e)).strip())
             if cat in MARKET:
                 ws.cell(n, 22, f"=K{n}+Assumptions!$J${ar}*MIN(L{n},Assumptions!$H${ar})")
                 ws.cell(n, 23, f"=RANK(V{n},$V$5:$V${last})")
@@ -454,7 +508,7 @@ def build(today):
         else:
             ws_as.cell(ar, 9, f"={nth}")
         ws.freeze_panes = "B5"
-        for col, w in zip("ABCDEFGHIJKLMNOPQRSTUVWX", [30, 36, 22, 11, 11, 11, 11, 11, 9, 9, 11, 10, 10, 9, 11, 6, 9, 38, 11, 6, 60, 12, 9, 11]):
+        for col, w in zip("ABCDEFGHIJKLMNOPQRSTUVWXY", [30, 36, 22, 11, 11, 11, 11, 11, 9, 9, 11, 10, 10, 9, 11, 6, 9, 38, 11, 6, 60, 12, 9, 11, 11]):
             ws.column_dimensions[col].width = w
 
     # Draft Board: every candidate, sorted by default-N VOR
@@ -470,7 +524,8 @@ def build(today):
     for cat in CATS:
         for r in table[cat]:
             board.append((r["total"] - repl_ev[cat], cat, r))
-    board.sort(key=lambda t: -t[0])
+    hc = lambda r: CONF_HAIRCUT.get(r["e"].get("confidence"), 0.0)
+    board.sort(key=lambda t: -(t[0] - hc(t[2])))        # ranked by confidence-adjusted VOR
 
     def plan(cat, r):
         if cat in MARKET:
@@ -487,7 +542,7 @@ def build(today):
         if cat in ("MLB", "MLS", "NASCAR", "NCAAB"):
             return "low confidence: far-out event"
         return ""
-    ws_board.append(["Rank", "Category", "Candidate", "Owned by", "E[total]", "VOR", "Risk-adj VOR", "Tier in category", "Odds / price", "Detail", "Conf", "Source", "As of", "Plan"])
+    ws_board.append(["Rank", "Category", "Candidate", "Owned by", "E[total]", "VOR", "Risk-adj VOR", "Tier in category", "Odds / price", "Detail", "Conf", "Source", "As of", "Plan", "Conf-adj VOR"])
     for c in ws_board[1]:
         c.fill, c.font = HEAD, WHITE
     for i, (vor, cat, r) in enumerate(board, 1):
@@ -495,14 +550,14 @@ def build(today):
         q = f"'{cat}'"
         ws_board.append([i, cat, r["e"].get("name"), owners[cat].get(r["e"].get("name")) or "— free", f"={q}!M{n}", f"={q}!N{n}", f"={q}!O{n}", r["tier"],
                          r["e"].get("odds"), r["e"].get("detail"), r["e"].get("confidence"), r["e"].get("source"),
-                         r["e"].get("as_of") or r["e"].get("_as_of_cat"), plan(cat, r)])
+                         r["e"].get("as_of") or r["e"].get("_as_of_cat"), plan(cat, r), f"={q}!Y{n}"])
         if i <= 50:
             ws_board.cell(i + 1, 1).fill = GOLD if i <= 15 else GREEN
         if owners[cat].get(r["e"].get("name")):
             ws_board.cell(i + 1, 4).fill = RED
     ws_board.freeze_panes = "E2"
-    ws_board.auto_filter.ref = f"A1:N{len(board)+1}"
-    for col, w in zip("ABCDEFGHIJKLMN", [6, 11, 30, 11, 10, 9, 12, 9, 22, 40, 6, 40, 11, 44]):
+    ws_board.auto_filter.ref = f"A1:O{len(board)+1}"
+    for col, w in zip("ABCDEFGHIJKLMNO", [6, 11, 30, 11, 10, 9, 12, 9, 22, 40, 6, 40, 11, 44, 11]):
         ws_board.column_dimensions[col].width = w
 
     # Master (same shape as the 2025 workbook: one column per category, tier-ordered)
@@ -651,6 +706,12 @@ def build(today):
         ("", False),
         ("Keeper round", True),
         ("The draft room runs a keeper round first (one pick per player). 'Rosters' = everyone's current picks (data/rosters.json, from the 2026-league draft) with each pick's VOR and a gold best-keeper cell. 'Owned by' on the Draft Board and 'Owner' (red) on every category tab show who holds a player; '— free' = unowned. Keeper rules are not modelled: owned players stay ranked until you mark them kept.", False),
+        ("", False),
+        ("Confidence grades now move numbers (v7)", True),
+        ("A = exchange price seen: untouched. B/C rows get sd x1.1/x1.25 and probabilities pulled 10%/20% toward the field (C strengths 10% toward the field mean); categories with their own distance discount (NCAAB, MLB, MLS, NASCAR, Stock) are not double-counted. The board is ranked by Conf-adj VOR = VOR minus 0.3 (B) / 0.8 (C) pts (editable on Assumptions).", False),
+        ("", False),
+        ("NFL / NBA / NHL ladders (v7)", True),
+        ("Round probabilities come from league_sim.py: the remaining schedule and the real playoff bracket are simulated, ratings fitted to Kalshi title, conference-champion and make-playoffs prices. Total bonus points across each league now equal the league ladder (NFL 66, NBA/NHL 71) and the win% baseline is a simulated distribution.", False),
         ("", False),
         ("Draft-market bias (the edge)", True),
         ("The league over-drafts Grammy/Oscar names. For Musician, Actor and Actress the 'Field draft score' column (V) = baseline + w x award-EV (w on Assumptions) predicts the order your leaguemates pick in; the replacement level used for VOR is the best candidate OUTSIDE the field's first M picks.", False),
