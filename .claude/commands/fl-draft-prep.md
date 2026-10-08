@@ -33,6 +33,12 @@ Rules decisions are in `CLAUDE.md` **Rulings** (cameos count, streaming scores 0
 
 ---
 
+**v2 adjustments (user feedback, Oct 8 2026) — keep these when refreshing:**
+- `CERT` in `build_workbook.py` widens uncertainty by distance to the scored event: NFL/NBA/NHL/NCAAF and Golf/Tennis untouched; NCAAB, MLB, MLS, NASCAR get sd multipliers + mu/title-prob shrink; Stock is forced flat (pure luck).
+- `MARKET` models the league over-drafting Grammy/Oscar names (Musician/Actor/Actress): field draft score = baseline + w x award-EV; replacement level = best candidate outside the field's first M picks. Board `Plan` column says TARGET LATE / let it come to you / skip.
+- Country mu = IMF-published 2027 growth. DBnomics (`api.db.nomics.world`, IMF/WEO) is reachable from the runner but only carries the April 2025 vintage; imf.org itself is 403 even via cloudscraper. Replace with the Oct 13 2026 WEO upload.
+- Box Office Mojo 2027 calendar: `boxofficemojo.com/calendar/2027-MM-DD/`, rows under `tr.mojo-group-label` carry real dates (saved in `raw/bom_calendar_*.json`).
+
 ## Step 1 — Pull fresh data (the sandbox can't reach most sites)
 
 WebSearch is snippet-only; subagent reports are leads. Real prices come from an **Actions runner**:

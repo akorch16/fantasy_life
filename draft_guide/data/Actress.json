@@ -545,6 +545,26 @@
    ]
   },
   {
+   "name": "Daisy Ridley",
+   "detail": "Star Wars: New Jedi Order (Dec 17)",
+   "odds": null,
+   "mu": 126.0,
+   "sd": 63.0,
+   "confidence": "C",
+   "source": "Box Office Mojo 2027 release calendar (Actions-runner pull 2026-10-08) x comp-based box office/RT estimates",
+   "as_of": "2026-10-08",
+   "notes": "Dec 17 opener: only ~2 weeks of run fall inside 2027; slip to 2028 is plausible",
+   "films": [
+    {
+     "title": "Star Wars: New Jedi Order",
+     "date": "Dec 17",
+     "p_release": 0.6,
+     "bo_mid": 280,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
    "name": "Kate Winslet",
    "detail": "The Lord of the Rings: The Hunt for Gollum (Dec 17); Charlie vs. the Chocolate Factory (Nov 5)",
    "odds": null,
