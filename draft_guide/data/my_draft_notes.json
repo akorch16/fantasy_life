@@ -1,0 +1,61 @@
+{
+ "as_of": "2026-10-09",
+ "slot": "Korch picks 13th (last) in every odd round and 1st in every even round; the keeper round also runs in draft order, so with no keeper the first three picks are back-to-back (keeper-round #13, R1 #13, R2 #14). Later pairs: 39/40, 65/66, 91/92, 117/118, 143/144, 169/170.",
+ "keeper_reasoning": [
+  "No keeper wins in the simulation (+2.5 pts vs keeping the Avalanche or Guyana, +4.7 vs Indiana). Keeping uses the keeper-round pick on a player you could replace later; not keeping turns it into a free pick at #13, right before your R1/R2 turn.",
+  "NHL is flat: Hurricanes, Panthers, Golden Knights, Wild and Stars all sit at 11.1-11.2 EV and last to about R5, so the Avalanche (13.8) is worth only ~2.6 over what you get later.",
+  "Guyana is the #1 Country (12.4) but Country is drafted late (median R10), so you can usually get Guyana or Sudan by R2-R4 anyway.",
+  "What usually falls to #13 in the keeper round: Texas (NCAAF #2, 16.2, unowned) if Georgia/Ohio State/Notre Dame are kept; otherwise a top Musician (Langley/Dean/Mars)."
+ ],
+ "value_picks": [
+  ["NASCAR", "Kyle Larson / Denny Hamlin", "#1/#2 NASCAR (14.5 / 12.5). Nobody drafted NASCAR before pick 63 last year; in the sim Larson is still there at your R1/R3 turn most of the time."],
+  ["NCAAF", "Texas", "16.2 EV, unowned, AP #1. The keeper-round target."],
+  ["NCAAB", "Florida", "#1 NCAAB (14.9). Wu owns it but should keep the Spurs instead."],
+  ["NBA", "Philadelphia 76ers", "#3 NBA (13.4), unowned. NBA gets stripped fast; this is the realistic upside after OKC/SAS are kept."],
+  ["NFL", "Jaguars / Vikings / Bears", "Unowned 10.3-12.4 EV teams that last to R5."],
+  ["NHL", "Minnesota Wild / Hurricanes / Panthers", "11.1-11.2 EV, last to about R5."],
+  ["Tennis", "Elena Rybakina", "#2 Tennis (10.9), unowned. Tennis is overpriced early, so wait and take what is left."],
+  ["Golf", "Matt Fitzpatrick / Cameron Young", "Unowned 9.8-10.4 EV. Golf is overpriced early."],
+  ["MLS", "Nashville / St. Louis / Vancouver", "The field barely drafts MLS until R7+; the best club is free to about R6."],
+  ["Country", "Guyana / Sudan", "IMF-published growth; Country goes late (median R10)."]
+ ],
+ "sleepers": [
+  ["Country", "Sudan", "IMF forecasts 15.5% 2027 growth (war-rebound path); huge variance, cheap."],
+  ["Actor", "Aaron Pierre / Skyler Gisondo", "Starfighter + Man of Tomorrow (Superman) cast lists; real box-office draws the field ignores."],
+  ["Actor / Actress", "Josh Gad / Kristen Bell", "Frozen 3 (Nov 24, 2027). Bell also has Sonic 4."],
+  ["Actress", "Hailee Steinfeld", "Top-5 box-office actress on the 2027 slate with no Oscar buzz to inflate her price."],
+  ["NCAAB", "Illinois / Michigan State", "Top-6 NCAAB EV, never drafted early."],
+  ["MLB", "Tampa Bay Rays", "Unowned, #5 MLB EV, just won a playoff series."],
+  ["Musician", "Olivia Dean / Bruno Mars", "Big Grammy EV without Ella Langley's price; Dean has no chart carry-over, so the field may let her slide."]
+ ],
+ "avoid_early": [
+  "Tennis: 7 gone by R1 last year and returned 2.8 pts less than the round average. Take what is left around R6-R11.",
+  "Golf: returned 1.7 pts under the round average.",
+  "Stock: pure luck; take it in R13.",
+  "Oscar-driven actors/actresses (Julianne Moore, John Malkovich): the field overpays for Oscar buzz; their 2027 box office is small.",
+  "Country for bonus reasons: 2027 has no Olympics/World Cup, so the 13-pt Country bonuses from 2026 will not repeat."
+ ],
+ "opponents": [
+  ["Shep", "Kept the Chiefs (1.0 pts). Tennis R1, Music R2. Worst early returns in the league (7.4/pick R0-4). Likely keeps the Chiefs again."],
+  ["Jens", "Kept the Bills. Team sports early, Country too early (Germany, 5 pts), weak late (4.5/pick R8+). Likely keeps Duke."],
+  ["Feder", "Kept OKC. Tennis R1 (Swiatek bust), Music R2 (Gaga). Leaves NASCAR to the end. Will keep OKC."],
+  ["Todd", "Kept Alcaraz. NHL R1 (Panthers bust), team sports early, late Music hit (Rodrigo). Likely keeps Rodrigo."],
+  ["Tim", "No keeper. Stars early (Kendrick first, Nuggets, NHL, Golf); weakest late picks (4.6/pick R8+). Coin flip to keep the Seahawks."],
+  ["Theo", "Kept Houston. Tennis R1 (Zverev hit), NCAAF/NFL early, NASCAR R6 (Hamlin hit). Will keep Georgia."],
+  ["Mitchell", "Kept Ohio State. Music R1 (Bad Bunny 23 pts), MLS early (R3), Country last (South Sudan hit). Will keep Ohio State."],
+  ["Molmen", "Kept Taylor Swift. Individual-sports specialist: Tennis, Golf, Actress, Country, NASCAR, MLS all by R6; punts team sports (Bucks/Rangers 1 pt). Likely keeps Swift, which leaves Larson in the pool."],
+  ["Jamzee", "No keeper. NFL/NHL/NCAAF early, Actor R3 (Chalamet bust), great late hits (Michigan R7, Spain R9). Coin flip on Alabama."],
+  ["Buckley", "Kept Sinner. Team sports early, Music R6 (Beyonce bust). Coin flip between the Oilers/Knicks/Sinner."],
+  ["Fryar", "Kept Sabalenka. NFL/NCAAF early, Country R3 (Norway hit). Coin flip on UConn."],
+  ["Wu", "No keeper. MLB/Golf first, best late drafter after you (Spurs R14, USA R7). Should keep the Spurs; picks right before you."]
+ ],
+ "why_2026": [
+  "+31.7 pts over the category averages.",
+  "No keeper = an extra premium pick: Indiana at the keeper-round slot scored 26 (+14.9 vs the NCAAF average).",
+  "Scarce team categories early: Avalanche R2 (+9.5), Purdue R4 (+4.1).",
+  "Individual/award categories late, after the field had moved on: Hathaway R6 (+2.5), Fleetwood R7 (+2.2), Bernthal R9 (+3.9).",
+  "Some luck at the end: SZA R14 (Grammy 13-pt bonus, +4.9), SMCI R13 (+5.0).",
+  "Leaks to fix: Blue Jays R5 (-6.4), Byron R8 (-3.0), FC Cincinnati R10 (-2.5), Rockets R3 (-2.1).",
+  "Best late-round returns in the league: 10.1 pts/pick from R8 on (everyone else 4.5-9.1)."
+ ]
+}
