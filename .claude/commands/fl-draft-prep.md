@@ -54,6 +54,8 @@ Rules decisions are in `CLAUDE.md` **Rulings** (cameos count, streaming scores 0
 
 - Draft Plan tab: `draft_guide/draft_moneyball.py` (projected final per 2025-draft pick = current + `docs/projections.json` category_expected) and `build_workbook.draft_plan()` combine the draft log with the 2027 board: cost of waiting per category at the 2026 pace. Re-run after refreshing scores/projections; add the 2026 draft log after Oct 25.
 
+- My Draft tab: `python3 draft_guide/draft_sim.py` simulates the draft from Korch's slot (keeper vs no keeper, dropoff vs best-available) and writes `data/my_draft_2027.json`; the narrative (value picks, sleepers, opponents) lives in `data/my_draft_notes.json`. Re-run the sim after any data refresh, then rebuild.
+
 ## Step 1 — Pull fresh data (the sandbox can't reach most sites)
 
 WebSearch is snippet-only; subagent reports are leads. Real prices come from an **Actions runner**:

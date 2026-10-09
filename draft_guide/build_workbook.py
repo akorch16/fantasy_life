@@ -345,8 +345,78 @@ def draft_plan(table):
     return rows
 
 
+def my_draft_tab(ws):
+    """Korch's slot-13 plan from data/my_draft_2027.json (draft_sim.py) + data/my_draft_notes.json."""
+    sim, notes = load_json("my_draft_2027.json"), load_json("my_draft_notes.json")
+    if not sim or not notes:
+        ws.append(["Run python3 draft_guide/draft_sim.py to generate this tab."])
+        return
+    def head(t):
+        ws.append([])
+        ws.append([t])
+        ws.cell(ws.max_row, 1).font = Font(bold=True, size=12)
+    ws.append(["Korch — 2027 draft plan from the last slot"])
+    ws["A1"].font = Font(bold=True, size=14)
+    ws.append([notes["slot"]])
+    ws.append([f"Simulated {sim['n_sims']} drafts per option (draft_sim.py, as of {sim['as_of']}). Assumed order: " + ", ".join(sim["order"])])
+    head(f"1. Keep or draft?  Recommendation: {sim['recommendation'].upper()}")
+    ws.append(["Option", "Expected 2027 EV (dropoff drafting)", "SD", "Expected EV (best-available drafting)"])
+    for c in ws[ws.max_row]:
+        c.fill, c.font = HEAD, WHITE
+    for o in sim["options"]:
+        ws.append([o["label"], o["dropoff"]["mean"], o["dropoff"]["sd"], o["bpa"]["mean"]])
+        if o["label"] == sim["recommendation"]:
+            ws.cell(ws.max_row, 1).fill = GREEN
+    for t_ in notes["keeper_reasoning"]:
+        ws.append([t_])
+    head("2. Round by round (no keeper, dropoff drafting): how often each category is the right pick, and who it usually is")
+    rec = next(o for o in sim["options"] if o["label"] == sim["recommendation"])["dropoff"]
+    ws.append(["Round", "Overall pick", "Most common pick", "Also", "Also"])
+    for c in ws[ws.max_row]:
+        c.fill, c.font = HEAD, WHITE
+    n = len(sim["order"])
+    slot = sim["order"].index("Korch") + 1
+    def overall(rd):
+        if rd == 0:
+            return f"keeper rd #{slot}"
+        return 13 * (rd - 1) + (slot if rd % 2 == 1 else n + 1 - slot)
+    players = rec["players"]
+    def fmt(c, share):
+        who = ", ".join(p for p, _ in players.get(c, [])[:2])
+        return f"{c} {int(share * 100)}% ({who})"
+    for rd in sorted(rec["rounds"], key=int):
+        opts = rec["rounds"][rd]
+        ws.append([f"R{rd}" if int(rd) else "Keeper", overall(int(rd))] + [fmt(c, s_) for c, s_ in opts])
+    ws.append(["Names in brackets are the players you most often end up with in that category across all rounds (for the keeper-round Musician case that means the best one left: Langley/Dean/Mars if they are still there)."])
+    ws.append(["Rule of thumb: take the scarce team categories (NCAAF, NCAAB, NBA, NFL) at your early turns; let NASCAR, MLS, Actor, Actress and Stock come to you — the field ignores them until the middle or the end."])
+    head("3. Value picks")
+    for cat, who, why in notes["value_picks"]:
+        ws.append([cat, who, why])
+    head("4. Sleepers")
+    for cat, who, why in notes["sleepers"]:
+        ws.append([cat, who, why])
+    head("5. Don't pay for these early")
+    for t_ in notes["avoid_early"]:
+        ws.append([t_])
+    head("6. How the other 12 draft (2025 draft) and what they will likely keep")
+    keep = {p: (n_, pr) for p, n_, pr in rec["others_keep"]}
+    for p, txt in notes["opponents"]:
+        k = keep.get(p)
+        ws.append([p, txt, f"keeps {k[0]} ~{int(k[1] * 100)}%" if k else "likely no keeper"])
+    head("7. Why you won 2026")
+    for t_ in notes["why_2026"]:
+        ws.append([t_])
+    ws.column_dimensions["A"].width = 14
+    ws.column_dimensions["B"].width = 34
+    for col in "CDE":
+        ws.column_dimensions[col].width = 44
+    for row in ws.iter_rows():
+        for c in row:
+            c.alignment = Alignment(wrap_text=False, vertical="top")
+
+
 # ── workbook ─────────────────────────────────────────────────────────────────
-def build(today):
+def load_assumptions():
     assum_file = load_json("assumptions.json", {}) or {}
     assum = {
         "ladders": {c: assum_file.get("ladders", {}).get(c, LADDER[c]) for c in TEAM},
@@ -356,10 +426,12 @@ def build(today):
         "repl_rank": {c: assum_file.get("replacement_rank", {}).get(c, DEFAULT_REPL_RANK) for c in CATS},
         "risk_lambda": assum_file.get("risk_lambda", 0.0),
     }
-    awards = (load_json("Awards.json", {}) or {}).get("entries", [])
-    assum["_awards"] = awards
+    assum["_awards"] = (load_json("Awards.json", {}) or {}).get("entries", [])
+    return assum
 
-    # compute everything in Python first (sorting, tiers, QA); Excel formulas recompute the live columns
+
+def compute_table(assum):
+    """{cat: [row]} sorted by E[total]; each row has e, erank, sdp, bonus, total, rank, tier (+ mscore/mrank for MARKET cats)."""
     table = {}
     for cat in CATS:
         ents = entries_for(cat)
@@ -379,6 +451,14 @@ def build(today):
             for i, r in enumerate(sorted(rows, key=lambda r: -r["mscore"]), 1):
                 r["mrank"] = i
         table[cat] = rows
+    return table
+
+
+def build(today):
+    assum = load_assumptions()
+    awards = assum["_awards"]
+    # compute everything in Python first (sorting, tiers, QA); Excel formulas recompute the live columns
+    table = compute_table(assum)
 
     owners, unmatched = match_owners(table)
     PLAYERS = list((load_json("rosters.json", {}) or {}).get("picks", {}).get("NFL", {}).keys())
@@ -388,6 +468,7 @@ def build(today):
     ws_readme.title = "README"
     ws_master = wb.create_sheet("Master")
     ws_rost = wb.create_sheet("Rosters")
+    ws_me = wb.create_sheet("My Draft (slot 13)")
     ws_plan = wb.create_sheet("Draft Plan")
     ws_board = wb.create_sheet("Draft Board")
     ws_as = wb.create_sheet("Assumptions")
@@ -658,6 +739,8 @@ def build(today):
         ws_plan.column_dimensions[col].width = w
     ws_plan.freeze_panes = "B2"
 
+    my_draft_tab(ws_me)
+
     # QA
     ws_qa = wb.create_sheet("QA")
     ws_qa.append(["Severity", "Category", "Candidate", "Issue"])
@@ -785,6 +868,9 @@ def build(today):
         ("", False),
         ("NFL / NBA / NHL ladders (v7)", True),
         ("Round probabilities come from league_sim.py: the remaining schedule and the real playoff bracket are simulated, ratings fitted to Kalshi title, conference-champion and make-playoffs prices. Total bonus points across each league now equal the league ladder (NFL 66, NBA/NHL 71) and the win% baseline is a simulated distribution.", False),
+        ("", False),
+        ("My Draft (slot 13) tab (v10)", True),
+        ("Korch's plan from the last slot: keep-or-draft verdict from draft_sim.py (simulated drafts with the other 12 modelled from the 2025 draft), a round-by-round plan, value picks, sleepers, things not to pay for, opponent profiles and why 2026 worked.", False),
         ("", False),
         ("Draft Plan tab (v8)", True),
         ("Combines the 2025 draft log (when each category went) with the 2027 EV board: how much a category's best player is worth, what is left after the field has stripped it at the 2026 pace, and the last round it is still 'free'. Use it to decide which categories to take early and which to let come to you.", False),
