@@ -13,7 +13,7 @@ scoring.py  ←───────┘     reads Supabase + data/*.json + stati
     │
     └──→ docs/scores.json ──→ projections.py (Kalshi odds + Monte Carlo)
                                    │
-                                   └──→ docs/projections.json
+                                   └──→ docs/projections.json (+ docs/projection_history.json daily snapshot)
 docs/*.html read both JSONs client-side (GitHub Pages, no server).
 Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly from the browser.
 ```
@@ -61,6 +61,7 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 |---|---|---|
 | `docs/scores.json` | scoring.py via Actions | always take **origin/main** |
 | `docs/projections.json` | projections.py via Actions | always take **origin/main** |
+| `docs/projection_history.json` | projections.py via Actions (one snapshot per UTC day, full runs only; backfilled from git history to 2026-05-20) — feeds the Odds Over Time chart on projections.html | always take **origin/main** |
 | `data/bonuses.json` | hand-edited | **manually merge** — combine entries from both sides |
 | `data/*.json` (others) | hand-edited overrides | take feature branch (HEAD) |
 | `*.py`, `docs/*.html`, `.github/**` | hand-edited | take feature branch (HEAD) |

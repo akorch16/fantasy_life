@@ -1331,6 +1331,7 @@ def run():
 
     with open(PROJECTIONS_PATH, "w") as f:
         json.dump(output, f, separators=(",", ":"))
+    append_projection_history(output)
 
     # Sync odds into Buckley Bucks markets (no-op if Supabase not configured)
     try:
@@ -1354,6 +1355,30 @@ def run():
         print(f"Live Kalshi markets: {', '.join(markets_used)}")
     else:
         print("Note: all odds from static fallback (no Kalshi credentials or no markets matched)")
+
+
+HISTORY_PATH = os.path.join(os.path.dirname(__file__), "docs", "projection_history.json")
+
+
+def append_projection_history(output):
+    """Keep one snapshot per UTC day of every player's win% / top-4% / projected / current total
+    (the last full run of the day wins). Read by the trend chart on docs/projections.html.
+    --odds-only runs never call this: they don't re-run the Monte Carlo."""
+    try:
+        with open(HISTORY_PATH) as f:
+            hist = json.load(f)
+    except (OSError, ValueError):
+        hist = {"days": []}
+    gen = output["generated_at"]
+    snap = {"date": gen[:10], "generated_at": gen,
+            "players": {p["name"]: {"win": round(p["win_pct"], 2), "top4": round(p["top4_pct"], 2),
+                                    "proj": round(p["projected_total"], 1), "cur": round(p["current_total"], 1)}
+                        for p in output["players"]}}
+    days = [d for d in hist.get("days", []) if d.get("date") != snap["date"]]
+    days.append(snap)
+    hist["days"] = sorted(days, key=lambda d: d["date"])
+    with open(HISTORY_PATH, "w") as f:
+        json.dump(hist, f, separators=(",", ":"))
 
 
 def run_odds_only():
