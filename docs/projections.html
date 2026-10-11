@@ -223,6 +223,21 @@
     }
     .odds-pill.live { background: #14532d; color: var(--green); }
     .odds-pill.static { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+    /* ─── TREND CHART ─── */
+    .trend-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 14px 10px; }
+    .trend-controls { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .trend-btn { font-family: 'DM Mono', monospace; font-size: 0.72rem; background: var(--surface2); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+    .trend-btn.active { color: var(--text); border-color: var(--blue); background: var(--blue-dim); }
+    #trend-svg { width: 100%; height: 300px; display: block; }
+    #trend-svg text { fill: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; }
+    .trend-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 8px; font-size: 0.78rem; }
+    .trend-chip { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; color: var(--muted); user-select: none; }
+    .trend-chip i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+    .trend-chip.on { color: var(--text); }
+    .trend-tip { position: absolute; pointer-events: none; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 8px; font-size: 0.72rem; font-family: 'DM Mono', monospace; display: none; z-index: 5; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -269,6 +284,21 @@
         <tr><td colspan="9" class="loading-msg">Loading projections…</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- ─── TREND CHART ─── -->
+  <div class="section-header">Odds Over Time</div>
+  <div class="section-note">One snapshot per day from the simulation (last full run of the day). Click names to show or hide them.</div>
+  <div class="trend-wrap" style="position:relative;">
+    <div class="trend-controls">
+      <button class="trend-btn active" data-metric="win">Win %</button>
+      <button class="trend-btn" data-metric="top4">Top-4 %</button>
+      <button class="trend-btn" data-metric="proj">Projected total</button>
+      <button class="trend-btn" data-metric="cur">Current total</button>
+    </div>
+    <svg id="trend-svg" preserveAspectRatio="none"></svg>
+    <div class="trend-tip" id="trend-tip"></div>
+    <div class="trend-legend" id="trend-legend"></div>
   </div>
 
   <!-- ─── CATEGORY BREAKDOWN ─── -->
@@ -387,6 +417,73 @@ fetch('./projections.json')
     document.getElementById('proj-body').innerHTML =
       '<tr><td colspan="9" class="loading-msg">Could not load projections.</td></tr>';
   });
+// ─── Odds-over-time chart (docs/projection_history.json, written by projections.py) ───
+(function () {
+  const COLORS = ['#2d7dd2','#f59e0b','#22c55e','#ef4444','#a855f7','#14b8a6','#ec4899','#eab308',
+                  '#60a5fa','#f97316','#84cc16','#e879f9','#94a3b8'];
+  const LABEL = { win: 'Win %', top4: 'Top-4 %', proj: 'Projected total', cur: 'Current total' };
+  let hist = null, metric = 'win', shown = null, color = {};
+  const svg = document.getElementById('trend-svg'), tip = document.getElementById('trend-tip');
+
+  function draw() {
+    const days = hist.days;
+    const names = Object.keys(days[days.length - 1].players)
+      .sort((a, b) => days[days.length - 1].players[b].win - days[days.length - 1].players[a].win);
+    if (!shown) shown = new Set(names.slice(0, 5));
+    names.forEach((n, i) => { if (!color[n]) color[n] = COLORS[i % COLORS.length]; });
+    const W = svg.clientWidth || 800, H = 300, L = 40, R = 10, T = 10, B = 24;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const vals = [];
+    days.forEach(d => names.forEach(n => { if (shown.has(n) && d.players[n]) vals.push(d.players[n][metric]); }));
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    if (metric === 'win' || metric === 'top4') { lo = 0; hi = Math.min(100, Math.ceil(hi / 10) * 10 || 10); }
+    else { const pad = (hi - lo) * 0.08 || 5; lo = Math.floor(lo - pad); hi = Math.ceil(hi + pad); }
+    const x = i => L + (W - L - R) * (days.length === 1 ? 0.5 : i / (days.length - 1));
+    const y = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo || 1));
+    let out = '';
+    for (let k = 0; k <= 4; k++) {
+      const v = lo + (hi - lo) * k / 4, yy = y(v);
+      out += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="#232733"/><text x="${L - 6}" y="${yy + 3}" text-anchor="end">${Math.round(v)}${metric === 'win' || metric === 'top4' ? '%' : ''}</text>`;
+    }
+    const step = Math.max(1, Math.round(days.length / 6));
+    days.forEach((d, i) => { if (i % step === 0 || i === days.length - 1)
+      out += `<text x="${x(i)}" y="${H - 6}" text-anchor="${i === days.length - 1 ? 'end' : i === 0 ? 'start' : 'middle'}">${d.date.slice(5)}</text>`; });
+    names.slice().reverse().forEach(n => {
+      if (!shown.has(n)) return;
+      const pts = days.map((d, i) => d.players[n] ? `${x(i).toFixed(1)},${y(d.players[n][metric]).toFixed(1)}` : null).filter(Boolean);
+      out += `<polyline fill="none" stroke="${color[n]}" stroke-width="${n === names[0] ? 2.5 : 1.6}" points="${pts.join(' ')}"/>`;
+    });
+    out += `<line id="trend-cross" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="#6b7280" stroke-dasharray="3,3" style="display:none"/>`;
+    svg.innerHTML = out;
+    document.getElementById('trend-legend').innerHTML = names.map(n =>
+      `<span class="trend-chip ${shown.has(n) ? 'on' : ''}" data-n="${n}"><i style="background:${shown.has(n) ? color[n] : '#3a3f50'}"></i>${n}</span>`).join('');
+    document.querySelectorAll('.trend-chip').forEach(c => c.onclick = () => {
+      const n = c.dataset.n; shown.has(n) ? shown.delete(n) : shown.add(n); if (!shown.size) shown.add(n); draw(); });
+    svg.onmousemove = e => {
+      const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width;
+      const i = Math.max(0, Math.min(days.length - 1, Math.round((px - L) / ((W - L - R) / Math.max(1, days.length - 1)))));
+      const cross = document.getElementById('trend-cross');
+      cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.style.display = '';
+      const d = days[i];
+      const rows = names.filter(n => shown.has(n) && d.players[n]).sort((a, b) => d.players[b][metric] - d.players[a][metric])
+        .map(n => `<span style="color:${color[n]}">■</span> ${n} ${d.players[n][metric].toFixed(1)}${metric === 'win' || metric === 'top4' ? '%' : ''}`);
+      tip.innerHTML = `<div style="color:var(--muted)">${d.date} · ${LABEL[metric]}</div>` + rows.join('<br>');
+      tip.style.display = 'block';
+      const left = (x(i) / W) * r.width + 24;
+      tip.style.left = Math.min(left, r.width - tip.offsetWidth) + 'px';
+      tip.style.top = '50px';
+    };
+    svg.onmouseleave = () => { tip.style.display = 'none'; const c = document.getElementById('trend-cross'); if (c) c.style.display = 'none'; };
+  }
+  document.querySelectorAll('.trend-btn').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.trend-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); metric = b.dataset.metric; if (hist) draw(); });
+  window.addEventListener('resize', () => { if (hist) draw(); });
+  fetch('./projection_history.json?v=' + Date.now())
+    .then(r => r.json())
+    .then(h => { if (h.days && h.days.length) { hist = h; draw(); } })
+    .catch(() => { document.querySelector('.trend-wrap').innerHTML = '<div class="loading-msg">No projection history yet.</div>'; });
+})();
 </script>
 
 </body>
