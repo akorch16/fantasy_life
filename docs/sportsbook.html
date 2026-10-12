@@ -1785,6 +1785,14 @@ function renderBets(propOdds) {
 // ─── WAGER MODAL ───────────────────────────────────────────────
 let _wagerCtx = null;
 
+function newRequestId() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+  const h = [...b].map(x => x.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
+}
+
 function openWagerModal(betId, side, yesPct) {
   const def = BETS.find(b => b.id === betId);
   if (!def) return;
@@ -1898,14 +1906,30 @@ async function confirmBet() {
     btn.disabled = true;
     btn.textContent = 'Placing…';
     const player = getPlayer();
-    const { data, error } = await sbClient.rpc('place_bet', {
+    // One request id per distinct bet attempt, reused on retry so a lost response
+    // can't place the bet twice. A changed wager is a different request.
+    if (!_wagerCtx.requestId || _wagerCtx.requestWager !== wager) {
+      _wagerCtx.requestId    = newRequestId();
+      _wagerCtx.requestWager = wager;
+    }
+    const rpcParams = {
       p_player:           player,
       p_bet_id:           def.id,
       p_side:             _wagerCtx.side,
       p_wager:            wager,
       p_potential_return: ret,
       p_sport:            def.sport || '',
-    }).catch(e => ({ data: null, error: e }));
+      p_request_id:       _wagerCtx.requestId,
+    };
+    let { data, error } = await sbClient.rpc('place_bet', rpcParams)
+      .catch(e => ({ data: null, error: e }));
+    // Rollout safety: before docs/sb-place-bet-hardening.sql is applied the 7-arg
+    // function doesn't exist (PGRST202); retry once on the old signature.
+    if (error && error.code === 'PGRST202') {
+      delete rpcParams.p_request_id;
+      ({ data, error } = await sbClient.rpc('place_bet', rpcParams)
+        .catch(e => ({ data: null, error: e })));
+    }
     btn.disabled = false;
     btn.textContent = 'Place Bet';
 

@@ -731,6 +731,44 @@ def test_place_bet_phase3() -> bool:
         timeout=_TIMEOUT,
     )
     print(f'  sb_ledger rows for {player} (should be unchanged from above): {r4.json()}')
+
+    # Hardening checks (docs/sb-place-bet-hardening.sql). Synthetic player only.
+    import uuid as _uuid
+
+    def _rpc(**kw):
+        body = {'p_player': player, 'p_bet_id': 'phase3-harden', 'p_side': 'yes',
+                'p_wager': 10, 'p_potential_return': 18, 'p_sport': 'test'}
+        body.update(kw)
+        return requests.post(f'{SUPABASE_URL}/rest/v1/rpc/place_bet',
+                             headers=_headers(), json=body, timeout=_TIMEOUT).json()
+
+    def _ledger_count():
+        rows = requests.get(f'{SUPABASE_URL}/rest/v1/sb_ledger', headers=_headers(),
+                            params={'player': f'eq.{player}', 'select': 'id'},
+                            timeout=_TIMEOUT).json()
+        return len(rows) if isinstance(rows, list) else -1
+
+    print('\n--- hardening checks (need docs/sb-place-bet-hardening.sql applied) ---')
+    before = _ledger_count()
+    neg = _rpc(p_wager=-50, p_potential_return=-40)
+    print(f'  negative wager -> {neg}')
+    rid = str(_uuid.uuid4())
+    first = _rpc(p_request_id=rid)
+    again = _rpc(p_request_id=rid)
+    print(f'  request_id first -> {first}')
+    print(f'  request_id retry -> {again}')
+    mismatch = _rpc(p_request_id=rid, p_wager=20, p_potential_return=36)
+    print(f'  same request_id, different wager -> {mismatch}')
+    after = _ledger_count()
+    checks = {
+        'negative wager rejected':        neg.get('ok') is False,
+        'first request accepted':         first.get('ok') is True and not first.get('duplicate'),
+        'retry deduplicated':             again.get('ok') is True and again.get('duplicate') is True,
+        'payload mismatch rejected':      mismatch.get('ok') is False,
+        'exactly one new ledger row':     after - before == 1,
+    }
+    for name, passed in checks.items():
+        print(f'  {"PASS" if passed else "FAIL"}  {name}')
     return True
 
 
