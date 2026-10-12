@@ -743,6 +743,20 @@ _AUTO_SETTLE_RULES = {
     "wc-molmen-arg-wins-wc":      ("wins", "wc_winner", "Argentina"),
     # KXMLB titles use the city ("Will Tampa Bay win the 2026 Pro Baseball Championship?")
     "mlb-ws-buckley-wins":        ("wins", "mlb", "Milwaukee"),
+    # Series winners with no Kalshi market: Tavily news + Claude extraction
+    # (settle_rules.tavily_series). Eligible from the earliest possible clincher.
+    "mlb-nlcs-wu-v-buckley":      ("tavily_series", "NLCS", "Los Angeles Dodgers",
+                                   "Milwaukee Brewers", "2026-10-16T00:00:00Z"),
+    "mlb-alcs-fryar-wins":        ("tavily_series", "ALCS", "Cleveland Guardians",
+                                   "Tampa Bay Rays", "2026-10-17T00:00:00Z"),
+    # Oct 31 snapshots settle off the leaderboard generated on the Nov 1 (UTC) run
+    # (settle_rules.score_cmp): A > B -> yes, A < B -> no, tie -> push.
+    "mls-oct31-feder-v-theo":     ("score_cmp", "mls",   "Feder",   "Theo",
+                                   "2026-11-01T00:00:00Z", "2026-11-02T00:00:00Z"),
+    "mls-oct31-korch-v-molmen":   ("score_cmp", "mls",   "Korch",   "Molmen",
+                                   "2026-11-01T00:00:00Z", "2026-11-02T00:00:00Z"),
+    "pts-oct31-buckley-v-jamzee": ("score_cmp", "total", "Buckley", "Jamzee",
+                                   "2026-11-01T00:00:00Z", "2026-11-02T00:00:00Z"),
 }
 
 _PROP_DEFS = [
@@ -863,17 +877,23 @@ def _resolved_result(series_key, pick_name):
     return None
 
 
-def auto_settle_from_kalshi():
-    """Evaluate _AUTO_SETTLE_RULES against resolved Kalshi markets.
+def auto_settle():
+    """Evaluate _AUTO_SETTLE_RULES: resolved Kalshi markets, leaderboard
+    snapshots, and Tavily-sourced series results (see settle_rules.py).
     Appends any newly decided props to data/sb_settled.json.
     Returns the list of new ledger entries."""
+    import settle_rules
     settled = _load_settled_ledger()
     new_entries = []
     for prop_id, rule in _AUTO_SETTLE_RULES.items():
         if prop_id in settled:
             continue
         outcome = None
-        if rule[0] == "wins":
+        if rule[0] == "score_cmp":
+            outcome = settle_rules.score_cmp(rule)
+        elif rule[0] == "tavily_series":
+            outcome = settle_rules.tavily_series(rule)
+        elif rule[0] == "wins":
             outcome = _resolved_result(rule[1], rule[2])
         elif rule[0] == "either_wins":
             if _resolved_result(rule[1], rule[2]) == "yes":
@@ -881,7 +901,7 @@ def auto_settle_from_kalshi():
             elif _resolved_result(rule[1], rule[3]) == "yes":
                 outcome = "no"
         if outcome:
-            print(f"  🏁 AUTO-SETTLE {prop_id} → {outcome} (Kalshi market resolved)")
+            print(f"  🏁 AUTO-SETTLE {prop_id} → {outcome} ({rule[0]})")
             new_entries.append({"id": prop_id, "outcome": outcome})
     if new_entries:
         try:
@@ -1374,7 +1394,7 @@ def run():
     }
 
     # Auto-settle props whose Kalshi markets have resolved, pay out, flag overdue
-    newly_settled = auto_settle_from_kalshi()
+    newly_settled = auto_settle()
     if newly_settled:
         settle_ledger_in_supabase()
     flag_needs_settlement()
@@ -1475,7 +1495,7 @@ def run_odds_only():
         for p in current_scores
     }
 
-    newly_settled = auto_settle_from_kalshi()
+    newly_settled = auto_settle()
     prop_odds = compute_prop_odds(odds, markets_used, prev_props=prev.get("prop_odds"))
     flag_needs_settlement()
 

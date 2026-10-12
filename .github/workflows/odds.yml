@@ -26,13 +26,15 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies (odds-only needs just these)
-        run: pip install requests cryptography
+        run: pip install requests cryptography anthropic
 
       - name: Refresh Kalshi odds + auto-settle resolved props
         env:
           KALSHI_API_KEY: ${{ secrets.KALSHI_API_KEY }}
           KALSHI_API_KEY_ID: ${{ secrets.KALSHI_API_KEY_ID }}
           KALSHI_PRIVATE_KEY: ${{ secrets.KALSHI_PRIVATE_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}        # series-result auto-settlement
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # (settle_rules.tavily_series)
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         shell: bash   # explicit bash → pipefail, so a python failure fails the step

@@ -92,6 +92,10 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   winners, pins the prop in projections.json (`settled`+`outcome`), and the frontend derives
   closed/PUSH state from that JSON. No HTML/`_PROP_DEFS_SETTLED` edits — that list is gone.
   Wagering auto-locks client-side at `closes_at`; Kalshi-resolvable props settle themselves.
+  `_AUTO_SETTLE_RULES` kinds: `wins`/`either_wins` (resolved Kalshi markets), `score_cmp` (compare two owners
+  on the leaderboard generated inside a UTC window — `settle_rules.py`; tie → push; stale category data → stays open),
+  `tavily_series` (series winner from Tavily news + two Claude reads that must agree on a verbatim-quoted result;
+  runs in the hourly job, needs `TAVILY_API_KEY`/`ANTHROPIC_API_KEY`, no-ops without them).
 - **Sportsbook balance authority:** `sb_ledger` (Supabase, append-only — see `docs/sb-ledger-schema.sql`)
   is the sole source of truth for balance history: every bet placement, settlement, and manual
   adjustment is a row (`event_type`, `delta`), RLS-locked so only `service_role` can write, with
