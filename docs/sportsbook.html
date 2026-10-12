@@ -835,10 +835,6 @@
   <div class="section-header">All Bets</div>
   <div id="all-bets-panel"></div>
 
-  <!-- ─── WORLD CUP BETS ─── -->
-  <div class="section-header">🔥 FIFA World Cup 2026 Bets 🔥</div>
-  <div class="bets-grid" id="bets-grid-open"><!-- rendered by JS --></div>
-
   <!-- ─── CATEGORY BETS ─── -->
   <div class="section-header">Category Bets</div>
   <div class="bets-grid" id="bets-grid-category"><!-- rendered by JS --></div>
@@ -1590,7 +1586,7 @@ function renderAllBets() {
   if (!panel) return;
 
   // Merge Supabase data with local bets so the current player always shows up
-  const combined = [...(_sbAllBets || [])];
+  const combined = (_sbAllBets || []).filter(b => ALL_PLAYERS.includes(b.player));
   const localPlayer = getPlayer();
   const localState  = loadState();
   if (localPlayer && localState && localState.bets.length) {
@@ -1761,16 +1757,15 @@ function renderBets(propOdds) {
   const state   = loadState();
   const hasPick = !!getPlayer();
 
-  const openBets   = BETS.filter(b => !betState(b, propOdds).settled);
-  const closedBets = BETS.filter(b =>  betState(b, propOdds).settled);
+  // World Cup props are all settled and no longer shown as cards; their BETS
+  // entries stay so bet history still resolves to readable titles.
+  const shown      = BETS.filter(b => !b.id.startsWith('wc-'));
+  const openBets   = shown.filter(b => !betState(b, propOdds).settled);
+  const closedBets = shown.filter(b =>  betState(b, propOdds).settled);
 
-  const wcBets       = openBets.filter(b => b.id.startsWith('wc-'));
   const h2hBets      = openBets.filter(b => b.id.startsWith('pts-'));
-  const categoryBets = openBets.filter(b => !b.id.startsWith('wc-') && !b.id.startsWith('pts-'));
+  const categoryBets = openBets.filter(b => !b.id.startsWith('pts-'));
   [categoryBets, h2hBets].forEach(arr => arr.sort((a, b) => parseCloseDate(a.closes) - parseCloseDate(b.closes)));
-
-  document.getElementById('bets-grid-open').innerHTML =
-    wcBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
 
   document.getElementById('bets-grid-category').innerHTML =
     categoryBets.map(b => renderBetCard(b, propOdds, state, hasPick)).join('');
