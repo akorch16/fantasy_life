@@ -624,6 +624,40 @@ def _pts_h2h(player_a, player_b):
     return fn
 
 
+def _mlb_champ_pct(owner):
+    """Kalshi World Series win probability (1-99) for an owner's team. A present
+    but ~0 probability (eliminated) clamps to 1 rather than falling back to the
+    static price, which would let bettors take stale odds on a dead outcome."""
+    def fn(o):
+        p = o.get("mlb_champ", {}).get(owner)
+        return None if p is None else min(99, max(1, round(p * 100)))
+    return fn
+
+
+def _mlb_nlcs_wu_v_buckley(o):
+    """P(Dodgers beat Brewers) ≈ Wu's share of the two teams' World Series odds,
+    clamped to 1-99 so a decided series can't revert to the static price."""
+    c = o.get("mlb_champ", {})
+    a, b = c.get("Wu"), c.get("Buckley")
+    if a is None or b is None or a + b <= 0:
+        return None
+    return min(99, max(1, round(a / (a + b) * 100)))
+
+
+def _pts_oct31_buckley_v_jamzee(o):
+    """P(Buckley > Jamzee on Oct 31). They're tied at 146.5 and Jamzee has no
+    postseason team, so it's driven by Milwaukee winning the NLCS (+2.5 bonus):
+    q ≈ Brewers' share of the Dodgers+Brewers World Series odds. If Milwaukee
+    wins, Buckley stays ahead ~95% (other categories can still flip it); if it
+    loses, it's a ~42% coin flip decided by MLS/stock/tennis/chart drift."""
+    c = o.get("mlb_champ", {})
+    q = _h2h(c.get("Buckley", 0), c.get("Wu", 0))
+    if q is None:
+        return None
+    q /= 100
+    return round((q * 0.95 + (1 - q) * 0.42) * 100)
+
+
 # Prop definitions: (id, static_yes_pct, fn(odds)->int|None, source_category_label)
 # fn returns a computed YES% from odds dict, or None to use static.
 # source_category_label must match a string in markets_used to be marked "kalshi".
@@ -675,6 +709,15 @@ _PROP_SCHEDULE = {
     "pts-jamzee-v-fryar":    ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
     "pts-mitchell-v-todd":   ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
     "pts-buckley-v-theo":    ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
+    # MLB postseason — close at first pitch of the next game that moves the odds
+    "mlb-nlcs-wu-v-buckley":     ("2026-10-15T00:00:00Z", "2026-10-21T00:00:00Z"),  # NLCS G3
+    "mlb-alcs-fryar-wins":       ("2026-10-13T00:00:00Z", "2026-10-22T12:00:00Z"),  # ALCS G1
+    "mlb-ws-buckley-wins":       ("2026-10-24T00:00:00Z", "2026-11-03T00:00:00Z"),  # WS G1
+    # Static-odds snapshot props close before the first match/race that moves the price
+    "mls-oct31-feder-v-theo":    ("2026-10-14T23:30:00Z", "2026-11-02T12:00:00Z"),
+    "mls-oct31-korch-v-molmen":  ("2026-10-14T23:30:00Z", "2026-11-02T12:00:00Z"),
+    "nascar-talladega-theo-v-wu": ("2026-10-18T19:00:00Z", "2026-10-26T12:00:00Z"),  # Phoenix green flag
+    "pts-oct31-buckley-v-jamzee": ("2026-10-15T00:00:00Z", "2026-11-02T12:00:00Z"),  # NLCS G3
     # Genuinely season-long
     "todd-wins-fl-2026":     ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
 }
@@ -698,6 +741,8 @@ _AUTO_SETTLE_RULES = {
     "wc-wu-usa-r32":              ("wins", "wc_ro16", "USA"),
     "wc-jens-ger-r32":            ("wins", "wc_ro16", "Germany"),
     "wc-molmen-arg-wins-wc":      ("wins", "wc_winner", "Argentina"),
+    # KXMLB titles use the city ("Will Tampa Bay win the 2026 Pro Baseball Championship?")
+    "mlb-ws-buckley-wins":        ("wins", "mlb", "Milwaukee"),
 }
 
 _PROP_DEFS = [
@@ -730,6 +775,22 @@ _PROP_DEFS = [
     ("wc-wu-usa-r32",               70, None, None),  # USA beats Bosnia R32
     ("wc-jens-ger-r32",             65, None, None),  # Germany beats Paraguay R32
     ("wc-molmen-arg-wins-wc",       20, None, None),  # Argentina wins the World Cup
+
+    # ── MLB postseason (Oct 2026) ────────────────────────────────────────────────
+    # NLCS/pts odds are Kalshi-derived (share of WS odds); ALCS has no Kalshi series.
+    ("mlb-nlcs-wu-v-buckley",   40, _mlb_nlcs_wu_v_buckley, "MLB-WorldSeries"),
+    ("mlb-alcs-fryar-wins",     38, None, None),  # Guardians vs Rays, pre-series estimate
+    ("mlb-ws-buckley-wins",     30, _mlb_champ_pct("Buckley"), "MLB-WorldSeries"),
+
+    # ── MLS through Oct 31 (static: fixture-based W/D/L model, priced 2026-10-12) ──
+    ("mls-oct31-feder-v-theo",   73, None, None),  # VAN 51 v MIA 49, 4 matches each
+    ("mls-oct31-korch-v-molmen", 78, None, None),  # CIN 36 (6 matches) v LAG 36 (4 matches)
+
+    # ── NASCAR playoff points after Talladega (static, priced 2026-10-12) ──────────
+    ("nascar-talladega-theo-v-wu", 49, None, None),  # Hamlin 2318 v Bell 2316
+
+    # ── Total Points by Oct 31 ────────────────────────────────────────────────────
+    ("pts-oct31-buckley-v-jamzee", 74, _pts_oct31_buckley_v_jamzee, "MLB-WorldSeries"),
 
     # ── Total Points (simulation-backed — updates every run from Monte Carlo) ──────
     ("pts-wu-v-korch",      47, _pts_h2h("Wu",      "Korch"),   "pts-model"),
