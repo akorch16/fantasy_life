@@ -24,42 +24,51 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: "api.imf.org WEO"
+      - name: "api.imf.org WEO (SDMX-JSON)"
         run: |
           python - <<'PY'
-          import requests, json, re
-          import xml.etree.ElementTree as ET
-          H = {'User-Agent': 'Mozilla/5.0'}
+          import requests, json
+          H = {'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'}
           B = 'https://api.imf.org/external/sdmx/3.0'
-          # 1. dataflow versions + annotations (lastUpdatedAt, publication)
-          for u in [B + '/structure/dataflow/IMF.RES/WEO/*', B + '/structure/dataflow/IMF.RES/WEO/+']:
-              r = requests.get(u, headers={**H, 'Accept': 'application/json'}, timeout=60)
-              print('FLOW', r.status_code, u, len(r.text))
-              try:
-                  j = r.json()
-                  for f in j['data']['dataflows']:
-                      ann = {a.get('id'): (a.get('title') or a.get('text') or a.get('value')) for a in f.get('annotations', [])}
-                      print('  version', f.get('version'), '| name', f.get('name'), '| ann', json.dumps(ann)[:600])
-              except Exception as e:
-                  print('  parse', repr(e)[:100], r.text[:400])
-          # 2. all countries, real GDP growth, annual
-          r = requests.get(B + '/data/dataflow/IMF.RES/WEO/%2B/*.NGDP_RPCH.A', headers=H, timeout=120)
-          print('DATA', r.status_code, len(r.content), r.headers.get('content-type'))
-          root = ET.fromstring(r.content)
-          out = {}
-          meta = {}
-          for el in root.iter():
-              tag = el.tag.split('}')[-1]
-              if tag == 'Series':
-                  cur = dict(el.attrib); key = cur.get('COUNTRY') or cur.get('REF_AREA') or json.dumps(cur)[:60]
-                  out.setdefault(key, {}); meta[key] = cur
-              elif tag == 'Obs':
-                  tp = el.attrib.get('TIME_PERIOD'); v = el.attrib.get('OBS_VALUE')
-                  if tp and tp[:4] in ('2024', '2025', '2026', '2027', '2028'):
-                      out[key][tp[:4]] = v
-          print('SERIES', len(out), 'example attrs', json.dumps(list(meta.values())[:1])[:600])
-          hdr = [el for el in root.iter() if el.tag.split('}')[-1] in ('Prepared', 'ID', 'DataSetID', 'Structure')]
-          for h in hdr[:6]:
-              print('HDR', h.tag.split('}')[-1], (h.text or '')[:80], json.dumps(h.attrib)[:200])
-          print('WEOJSON>>' + json.dumps(out) + '<<WEOJSON')
+          for ver in ['+', '9.0.0']:
+              r = requests.get(f'{B}/data/dataflow/IMF.RES/WEO/{ver}/*.NGDP_RPCH.A', params={'attributes': 'all'}, headers=H, timeout=120)
+              print('DATA', ver, r.status_code, len(r.content))
+              j = r.json()
+              d = j.get('data', j)
+              st = d['structures'][0]
+              sdims = st['dimensions']['series']
+              odims = st['dimensions']['observation']
+              print('series dims', [x['id'] for x in sdims], 'obs dims', [x['id'] for x in odims])
+              times = [v.get('value') or v.get('id') for v in odims[0]['values']]
+              sattr = st.get('attributes', {}).get('series', [])
+              dsattr = st.get('attributes', {}).get('dataSet', [])
+              print('series attrs', [a['id'] for a in sattr], 'dataset attrs', [a['id'] for a in dsattr])
+              ds = d['dataSets'][0]
+              print('dataset-level attribute values', json.dumps(ds.get('attributes'))[:300])
+              ci = [x['id'] for x in sdims].index('COUNTRY')
+              out = {}
+              pubs = {}
+              for key, s in ds['series'].items():
+                  idx = [int(k) for k in key.split(':')]
+                  cv = sdims[ci]['values'][idx[ci]]
+                  vals = {}
+                  for t, o in s.get('observations', {}).items():
+                      yr = times[int(t)][:4]
+                      if yr in ('2024', '2025', '2026', '2027', '2028'):
+                          vals[yr] = o[0]
+                  # attributes
+                  att = {}
+                  for i, a in enumerate(s.get('attributes') or []):
+                      if a is None or i >= len(sattr): continue
+                      vv = sattr[i]['values']
+                      try:
+                          att[sattr[i]['id']] = (vv[a].get('value') or vv[a].get('id') or vv[a].get('name')) if isinstance(a, int) and a < len(vv) else a
+                      except Exception:
+                          att[sattr[i]['id']] = a
+                  out[cv['id']] = {'name': cv.get('name'), 'v': vals, 'pub': att.get('PUBLICATION_DATE'), 'upd': att.get('UPDATE_DATE') or att.get('COUNTRY_UPDATE_DATE')}
+                  pubs[att.get('PUBLICATION_DATE')] = pubs.get(att.get('PUBLICATION_DATE'), 0) + 1
+              print('countries', len(out), 'publication dates', pubs)
+              for c in ['GUY', 'SSD', 'GIN', 'ARG', 'ESP', 'USA', 'BRA', 'NOR', 'CAN', 'CHE', 'NLD', 'FRA', 'DEU', 'SDN']:
+                  print(' ', c, out.get(c))
+              print('WEOJSON-' + ver.replace('+', 'latest') + '>>' + json.dumps(out) + '<<WEOJSON')
           PY
