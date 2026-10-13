@@ -1,19 +1,58 @@
 {
-  "gdp": [
-    {"country": "South Sudan",   "gdp_growth_pct": 22.4},
-    {"country": "Guyana",        "gdp_growth_pct": 16.2},
-    {"country": "Guinea",        "gdp_growth_pct":  8.7},
-    {"country": "Argentina",     "gdp_growth_pct":  3.5},
-    {"country": "Spain",         "gdp_growth_pct":  2.1},
-    {"country": "United States", "gdp_growth_pct":  2.3},
-    {"country": "Brazil",        "gdp_growth_pct":  1.9},
-    {"country": "Norway",        "gdp_growth_pct":  1.5},
-    {"country": "Canada",        "gdp_growth_pct":  1.5},
-    {"country": "Switzerland",   "gdp_growth_pct":  1.3},
-    {"country": "Netherlands",   "gdp_growth_pct":  1.2},
-    {"country": "France",        "gdp_growth_pct":  0.9},
-    {"country": "Germany",       "gdp_growth_pct":  0.8}
-  ],
-  "_source": "IMF World Economic Outlook, April 2026",
-  "_updated": "2026-05-19"
+ "gdp": [
+  {
+   "country": "Guyana",
+   "gdp_growth_pct": 22.32
+  },
+  {
+   "country": "South Sudan",
+   "gdp_growth_pct": 10.49
+  },
+  {
+   "country": "Guinea",
+   "gdp_growth_pct": 7.18
+  },
+  {
+   "country": "Spain",
+   "gdp_growth_pct": 2.51
+  },
+  {
+   "country": "United States",
+   "gdp_growth_pct": 2.33
+  },
+  {
+   "country": "Brazil",
+   "gdp_growth_pct": 2.18
+  },
+  {
+   "country": "Argentina",
+   "gdp_growth_pct": 2.06
+  },
+  {
+   "country": "Switzerland",
+   "gdp_growth_pct": 1.85
+  },
+  {
+   "country": "Norway",
+   "gdp_growth_pct": 1.54
+  },
+  {
+   "country": "Netherlands",
+   "gdp_growth_pct": 1.53
+  },
+  {
+   "country": "Germany",
+   "gdp_growth_pct": 1.32
+  },
+  {
+   "country": "Canada",
+   "gdp_growth_pct": 1.12
+  },
+  {
+   "country": "France",
+   "gdp_growth_pct": 0.41
+  }
+ ],
+ "_source": "IMF World Economic Outlook, October 2026 (published 2026-10-13; api.imf.org dataflow IMF.RES/WEO, NGDP_RPCH 2026)",
+ "_updated": "2026-10-13"
 }

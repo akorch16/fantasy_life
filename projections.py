@@ -126,21 +126,10 @@ STOCK_SIM = {
 # ─── Country simulation parameters ───────────────────────────────────────────
 # (expected_revision_pct, std_dev_pct): models uncertainty in the October 2026
 # IMF WEO GDP growth forecast revision relative to the current April 2026 forecast.
-COUNTRY_SIM = {
-    "Korch":    ( 0.0,  5.0),  # Guyana: oil-driven boom, can miss projections
-    "Todd":     ( 0.0,  3.0),  # Guinea: small economy, moderate forecast risk
-    "Jamzee":   ( 0.0,  0.8),  # Spain: stable EU, tight revision band
-    "Feder":    ( 0.0,  1.5),  # Brazil: emerging market, moderate uncertainty
-    "Wu":       ( 0.0,  0.4),  # United States: large stable, IMF rarely revises much
-    "Fryar":    ( 0.0,  0.8),  # Norway: small stable open economy
-    "Buckley":  ( 0.0,  0.5),  # Canada: closely correlated to US
-    "Theo":     ( 0.0,  0.4),  # Switzerland: very stable, tight revision band
-    "Shep":     ( 0.0,  0.4),  # France: stable EU economy
-    "Tim":      ( 0.0,  0.4),  # Netherlands: stable EU economy
-    "Jens":     ( 0.5,  0.8),  # Germany: in recession, slight upside bias
-    "Molmen":   ( 0.5,  5.0),  # Argentina: Milei reforms → high uncertainty
-    "Mitchell": ( 0.0,  8.0),  # South Sudan: conflict economy, extreme uncertainty
-}
+# The October 2026 WEO (published 2026-10-13, now in data/country.json) is the last IMF edition before the
+# Dec 31 season end, so there is no further revision to simulate: noise is zero (kept per player for the shape).
+COUNTRY_SIM = {pl: (0.0, 0.0) for pl in ["Korch", "Todd", "Jamzee", "Feder", "Wu", "Fryar", "Buckley",
+                                         "Theo", "Shep", "Tim", "Jens", "Molmen", "Mitchell"]}
 
 # ─── Bonus milestone values ─────────────────────────────────────────────────
 MILESTONES = {
@@ -1308,7 +1297,7 @@ def simulate(current_scores, odds, n=N_SIMS):
         stock_sim = {pl: current_stock_raw.get(pl, 0.0) + random.gauss(*STOCK_SIM[pl]) for pl in STOCK_SIM}
         add_reranked("stock", _rank_composites(players_list, stock_sim))
 
-        # ── Country: sample Oct IMF revision, re-rank ──────────────────────
+        # ── Country: re-rank (Oct 2026 WEO is final for the season → zero noise) ─
         country_sim = {pl: current_country_raw.get(pl, 0.0) + random.gauss(*COUNTRY_SIM[pl]) for pl in COUNTRY_SIM}
         add_reranked("country", _rank_composites(players_list, country_sim))
 
