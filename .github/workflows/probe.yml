@@ -21,52 +21,42 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt pdfplumber
-
-      - name: "IMF October 2026 WEO sources"
+      - name: "api.imf.org WEO"
         run: |
           python - <<'PY'
-          import requests, json, io, re
-          H = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36',
-               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf,application/json,*/*;q=0.8',
-               'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.imf.org/en/Publications/WEO'}
-          urls = [
-            'https://www.imf.org/en/publications/weo/issues/2026/10/13/world-economic-outlook-october-2026',
-            'https://www.imf.org/-/media/files/publications/weo/2026/october/english/statsappendix.pdf',
-            'https://www.imf.org/-/media/files/publications/weo/2026/october/english/tablea.pdf',
-            'https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH/GUY/SSD/GIN',
-            'https://www.imf.org/en/Publications/WEO/weo-database/2026/October',
-            'https://api.imf.org/external/sdmx/2.1/dataflow/IMF.RES',
-            'https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.RES/WEO/%2B/GUY.NGDP_RPCH.A',
-            'https://api.db.nomics.world/v22/series/IMF/WEO:2026-10?dimensions=%7B%22weo-subject%22%3A%5B%22NGDP_RPCH%22%5D%7D&limit=5&observations=1',
-            'https://api.db.nomics.world/v22/series/IMF/WEO:2026-04?dimensions=%7B%22weo-subject%22%3A%5B%22NGDP_RPCH%22%5D%7D&limit=5&observations=1',
-            'https://api.db.nomics.world/v22/datasets/IMF?limit=100',
-          ]
-          for u in urls:
+          import requests, json, re
+          import xml.etree.ElementTree as ET
+          H = {'User-Agent': 'Mozilla/5.0'}
+          B = 'https://api.imf.org/external/sdmx/3.0'
+          # 1. dataflow versions + annotations (lastUpdatedAt, publication)
+          for u in [B + '/structure/dataflow/IMF.RES/WEO/*', B + '/structure/dataflow/IMF.RES/WEO/+']:
+              r = requests.get(u, headers={**H, 'Accept': 'application/json'}, timeout=60)
+              print('FLOW', r.status_code, u, len(r.text))
               try:
-                  r = requests.get(u, headers=H, timeout=60)
-                  ct = r.headers.get('content-type', '')
-                  print('=====', r.status_code, len(r.content), ct[:40], u)
-                  if 'pdf' in ct and r.status_code == 200:
-                      import pdfplumber
-                      with pdfplumber.open(io.BytesIO(r.content)) as pdf:
-                          print('PDF pages', len(pdf.pages))
-                          hits = 0
-                          for i, pg in enumerate(pdf.pages):
-                              t = pg.extract_text() or ''
-                              for line in t.split('\n'):
-                                  if re.search(r'Guyana|South Sudan|Guinea|Argentina|Spain|United States|Brazil|Norway|Canada|Switzerland|Netherlands|France|Germany|Sudan|Rwanda|Uganda|Ethiopia|Qatar|Niger', line):
-                                      print(f'PDFLINE p{i}: {line[:160]}'); hits += 1
-                          print('hits', hits)
-                  else:
-                      txt = r.text[:600].replace('\n', ' ')
-                      print(txt)
-                      if 'datasets' in r.text[:200] and 'docs' in r.text:
-                          try:
-                              print('WEO datasets:', [d['code'] for d in r.json()['datasets']['docs'] if 'WEO' in d['code']])
-                          except Exception as e:
-                              print('parse err', e)
+                  j = r.json()
+                  for f in j['data']['dataflows']:
+                      ann = {a.get('id'): (a.get('title') or a.get('text') or a.get('value')) for a in f.get('annotations', [])}
+                      print('  version', f.get('version'), '| name', f.get('name'), '| ann', json.dumps(ann)[:600])
               except Exception as e:
-                  print('=====ERR', u, repr(e)[:150])
+                  print('  parse', repr(e)[:100], r.text[:400])
+          # 2. all countries, real GDP growth, annual
+          r = requests.get(B + '/data/dataflow/IMF.RES/WEO/%2B/*.NGDP_RPCH.A', headers=H, timeout=120)
+          print('DATA', r.status_code, len(r.content), r.headers.get('content-type'))
+          root = ET.fromstring(r.content)
+          out = {}
+          meta = {}
+          for el in root.iter():
+              tag = el.tag.split('}')[-1]
+              if tag == 'Series':
+                  cur = dict(el.attrib); key = cur.get('COUNTRY') or cur.get('REF_AREA') or json.dumps(cur)[:60]
+                  out.setdefault(key, {}); meta[key] = cur
+              elif tag == 'Obs':
+                  tp = el.attrib.get('TIME_PERIOD'); v = el.attrib.get('OBS_VALUE')
+                  if tp and tp[:4] in ('2024', '2025', '2026', '2027', '2028'):
+                      out[key][tp[:4]] = v
+          print('SERIES', len(out), 'example attrs', json.dumps(list(meta.values())[:1])[:600])
+          hdr = [el for el in root.iter() if el.tag.split('}')[-1] in ('Prepared', 'ID', 'DataSetID', 'Structure')]
+          for h in hdr[:6]:
+              print('HDR', h.tag.split('}')[-1], (h.text or '')[:80], json.dumps(h.attrib)[:200])
+          print('WEOJSON>>' + json.dumps(out) + '<<WEOJSON')
           PY
