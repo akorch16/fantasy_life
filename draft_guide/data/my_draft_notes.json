@@ -1,11 +1,11 @@
 {
- "as_of": "2026-10-13",
+ "as_of": "2026-10-14",
  "slot": "Korch picks 13th (last) in every odd round and 1st in every even round; the keeper round also runs in draft order, so with no keeper the first three picks are back-to-back (keeper-round #13, R1 #13, R2 #14). Later pairs: 39/40, 65/66, 91/92, 117/118, 143/144, 169/170.",
  "keeper_reasoning": [
-  "No keeper wins in the simulation (+2.5 pts vs keeping the Avalanche or Guyana, +4.7 vs Indiana). Keeping uses the keeper-round pick on a player you could replace later; not keeping turns it into a free pick at #13, right before your R1/R2 turn.",
-  "NHL is flat: Hurricanes, Panthers, Golden Knights, Wild and Stars all sit at 11.1-11.2 EV and last to about R5, so the Avalanche (13.8) is worth only ~2.6 over what you get later.",
+  "No keeper wins in the simulation (158.0 vs 155.8 keeping the Avalanche, 153.4 Guyana, 153.2 Indiana; sd ~3). Keeping uses the keeper-round pick on a player you could replace later; not keeping turns it into a free pick at #13, right before your R1/R2 turn.",
+  "NHL is still fairly flat: after the Avalanche (14.0) come Oilers 13.3 and Hurricanes 12.8 (both likely kept), then Golden Knights 11.6, Wild 10.9 and Panthers 10.7, which last to about R5-R6. The Avalanche is worth ~3 over what you get later, less than a free premium pick.",
   "Guyana is no longer the clear #1 Country: the IMF October 2026 WEO puts Iraq (19.0%), Qatar (18.8%) and Kuwait (17.1%) ahead of it for 2027 (16.8%), with Sudan 15.0% and Bahrain 13.9% close behind. Six live options, and Country goes late (median R10).",
-  "What usually falls to #13 in the keeper round: Texas (NCAAF #2, 16.2, unowned) if Georgia/Ohio State/Notre Dame are kept; otherwise a top Musician (Langley/Dean/Mars)."
+  "What usually falls to #13 in the keeper round (Oct 14 refresh): the San Francisco 49ers (NFL #1, 16.2 after their Kalshi title price rose to 13%). Todd owns them but keeps Rodrigo. Otherwise a top Musician (Langley 19.8 / Dean 16.0, both unowned). Texas fell to 14.8 (Kalshi title 13.5% -> 8.5%), so NCAAF is now an R1/R2 pick (Miami / Alabama / Notre Dame / Texas, whichever is left)."
  ],
  "value_picks": [
   [
@@ -15,8 +15,8 @@
   ],
   [
    "NCAAF",
-   "Texas",
-   "16.2 EV, unowned, AP #1. The keeper-round target."
+   "Texas / Miami (FL)",
+   "Texas 14.8 (unowned) and Miami 15.0 (Wu, who keeps the Spurs). After the 49ers in the keeper round, take NCAAF at R1/R2."
   ],
   [
    "NCAAB",
@@ -26,22 +26,22 @@
   [
    "NBA",
    "Philadelphia 76ers",
-   "#3 NBA (13.4), unowned. NBA gets stripped fast; this is the realistic upside after OKC/SAS are kept."
+   "#3 NBA (12.7), unowned. NBA gets stripped fast; this is the realistic upside after OKC/SAS are kept."
   ],
   [
    "NFL",
-   "Jaguars / Vikings / Bears",
-   "Unowned 10.3-12.4 EV teams that last to R5."
+   "San Francisco 49ers, then Vikings / Jaguars",
+   "49ers 16.2 (NFL #1; Todd keeps Rodrigo, so the 49ers are in the pool) = keeper-round target. Fallback: Vikings / Jaguars 12.4, unowned, last to about R5."
   ],
   [
    "NHL",
-   "Minnesota Wild / Hurricanes / Panthers",
-   "11.1-11.2 EV, last to about R5."
+   "Minnesota Wild / Golden Knights / Panthers",
+   "10.7-11.6 EV, last to about R5-R6."
   ],
   [
    "Tennis",
    "Elena Rybakina",
-   "#2 Tennis (10.9), unowned. Tennis is overpriced early, so wait and take what is left."
+   "#2 Tennis (10.8), unowned. Tennis is overpriced early, so wait and take what is left."
   ],
   [
    "Golf",

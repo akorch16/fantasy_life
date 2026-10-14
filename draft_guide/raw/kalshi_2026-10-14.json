@@ -1,0 +1,25 @@
+{
+ "as_of": "2026-10-14",
+ "source": "Kalshi KXNCAAF-27 exchange mid (Actions-runner pull); contenders >=1.5c, field keeps 4%",
+ "title": {
+  "NCAAF": {
+   "series": "KXNCAAF-27",
+   "field_mass": 0.04,
+   "prices": {
+    "Utah": 0.015,
+    "Georgia": 0.185,
+    "Texas Tech": 0.015,
+    "Texas": 0.085,
+    "Ohio State": 0.165,
+    "Oregon": 0.015,
+    "Notre Dame": 0.145,
+    "Ole Miss": 0.035,
+    "Miami (FL)": 0.125,
+    "LSU": 0.015,
+    "Indiana": 0.075,
+    "Alabama": 0.085
+   }
+  }
+ },
+ "final": {}
+}
