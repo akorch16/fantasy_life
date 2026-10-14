@@ -18,12 +18,13 @@ import json
 import os
 import re
 import unicodedata
+from datetime import date
 
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 STATES = ["1", "2-5", "6-10", "11-30", "off"]
-STEPS_TO_2027 = 12          # latest 2026 issue (Oct 10) -> Jan 2 2027 issue
+STEPS_TO_2027 = 12          # weeks from the latest 2026 issue to the Jan 2 2027 issue; reset from the data in main()
 WEEKS_2027 = 52
 LAMBDA_BASE, LAMBDA_HIT = 0.15, 1.1   # hit-having artists: 2026 H1 hitters (n=19) got 0.53 new top-10 debuts in the next 21 wks = 1.3/yr, shrunk
 IN_YEAR = 0.9
@@ -154,7 +155,9 @@ def project(name, idx, P, vals, rng, aliases=None):
 
 
 def main():
+    global STEPS_TO_2027
     weeks, path = load_weeks()
+    STEPS_TO_2027 = (date(2027, 1, 2) - date.fromisoformat(weeks[-1][0])).days // 7
     songs = song_tables(weeks)
     P = transition_matrix(songs)
     vals = debut_values(songs, weeks)
@@ -163,7 +166,7 @@ def main():
     mpath = os.path.join(HERE, "data", "Musician.json")
     d = json.load(open(mpath))
     aliases = {"Beyoncé": "Beyonce"}
-    print(f"weeks {len(weeks)} ({weeks[0][0]}..{weeks[-1][0]}), songs {len(songs)}, debut hits {len(vals)} (mean {vals.mean():.1f}, p90 {np.quantile(vals, .9):.0f})")
+    print(f"weeks {len(weeks)} ({weeks[0][0]}..{weeks[-1][0]}, {STEPS_TO_2027} steps to 2027), songs {len(songs)}, debut hits {len(vals)} (mean {vals.mean():.1f}, p90 {np.quantile(vals, .9):.0f})")
     print("young matrix rows:\n", np.round(P[0][:4], 2), "\nold matrix rows:\n", np.round(P[1][:4], 2))
     for e in d["entries"]:
         r = project(e["name"], idx, P, vals, rng, aliases)
