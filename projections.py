@@ -613,6 +613,17 @@ def _pts_h2h(player_a, player_b):
     return fn
 
 
+def _scores_updated():
+    """UTC datetime scores.json was generated (the snapshot MLS points reflect)."""
+    try:
+        with open(SCORES_PATH) as f:
+            ts = json.load(f)["last_updated"]
+        return datetime.datetime.strptime(ts, "%Y-%m-%d %H:%M UTC").replace(
+            tzinfo=datetime.timezone.utc)
+    except Exception:
+        return None
+
+
 def _mlb_champ_pct(owner):
     """Kalshi World Series win probability (1-99) for an owner's team. A present
     but ~0 probability (eliminated) clamps to 1 rather than falling back to the
@@ -631,6 +642,77 @@ def _mlb_nlcs_wu_v_buckley(o):
     if a is None or b is None or a + b <= 0:
         return None
     return min(99, max(1, round(a / (a + b) * 100)))
+
+
+def _mlb_alcs_fryar(o):
+    """P(Guardians win the ALCS) from Kalshi's Guardians World Series price.
+    Rays aren't an owner pick, so there is no direct series market. Winning the
+    ALCS is necessary to win the title, and the pennant winner is roughly a coin
+    flip against the NL champion, so P(ALCS) ≈ P(title) / 0.5, clamped to 1-99.
+    Collapses toward 1 as Cleveland falls behind and toward 99 once it advances."""
+    p = o.get("mlb_champ", {}).get("Fryar")
+    return None if p is None else min(99, max(1, round(p / 0.5 * 100)))
+
+
+# MLS regular-season kickoffs (UTC) through Oct 31 for the Oct 31 snapshot bets,
+# from ESPN's scoreboard on 2026-10-15, plus matches played (for points-per-game).
+# Remaining matches = kickoffs after scores.json was generated, so price and
+# standings always describe the same moment.
+_MLS_OCT31 = {
+    "Feder":  {"gp": 29, "kickoffs": ["2026-10-18T00:30Z", "2026-10-25T00:30Z", "2026-10-29T02:30Z"]},
+    "Theo":   {"gp": 29, "kickoffs": ["2026-10-17T23:30Z", "2026-10-24T21:30Z", "2026-10-28T23:30Z"]},
+    "Korch":  {"gp": 28, "kickoffs": ["2026-10-18T21:00Z", "2026-10-21T23:00Z", "2026-10-24T23:30Z",
+                                     "2026-10-28T23:30Z", "2026-10-31T18:00Z"]},
+    "Molmen": {"gp": 30, "kickoffs": ["2026-10-18T02:30Z", "2026-10-26T01:00Z", "2026-10-31T21:00Z"]},
+}
+
+
+def _mls_points_dist(pts, gp, n_games):
+    """Distribution of points gained over n_games: win 3 / draw 1 / loss 0 with a
+    league-typical 25% draw rate and a points-per-game estimate shrunk 40% toward
+    the league mean (1.35) so a short sample doesn't dominate."""
+    ppg = 0.6 * (pts / max(gp, 1)) + 0.4 * 1.35
+    draw = 0.25
+    win = max(0.02, min(0.7, (ppg - draw) / 3))
+    step = {0: 1 - win - draw, 1: draw, 3: win}
+    dist = {0: 1.0}
+    for _ in range(n_games):
+        nxt = {}
+        for have, p in dist.items():
+            for gain, q in step.items():
+                nxt[have + gain] = nxt.get(have + gain, 0) + p * q
+        dist = nxt
+    return dist
+
+
+def _mls_oct31_h2h(owner_a, owner_b):
+    """P(A's team has strictly more MLS points than B's after the Oct 31 matches),
+    conditional on no tie (a tie is a push). Uses live leaderboard points and only
+    the matches not yet reflected in them. Staleness: scores.json refreshes daily,
+    so a match played since the last scoring run still counts as 'remaining'."""
+    def fn(o):
+        pts = o.get("mls_points", {})
+        pa, pb = pts.get(owner_a), pts.get(owner_b)
+        if pa is None or pb is None:
+            return None
+        since = o.get("scores_updated") or datetime.datetime.now(datetime.timezone.utc)
+
+        def remaining(owner):
+            return sum(1 for k in _MLS_OCT31[owner]["kickoffs"]
+                       if datetime.datetime.strptime(k, "%Y-%m-%dT%H:%MZ").replace(
+                           tzinfo=datetime.timezone.utc) > since)
+        da = _mls_points_dist(pa, _MLS_OCT31[owner_a]["gp"], remaining(owner_a))
+        db = _mls_points_dist(pb, _MLS_OCT31[owner_b]["gp"], remaining(owner_b))
+        win = tie = 0.0
+        for x, px in da.items():
+            for y, py in db.items():
+                if pa + x > pb + y:
+                    win += px * py
+                elif pa + x == pb + y:
+                    tie += px * py
+        p = 0.5 if tie >= 0.999999 else win / (1 - tie)
+        return min(99, max(1, round(p * 100)))
+    return fn
 
 
 def _pts_oct31_buckley_v_jamzee(o):
@@ -698,15 +780,16 @@ _PROP_SCHEDULE = {
     "pts-jamzee-v-fryar":    ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
     "pts-mitchell-v-todd":   ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
     "pts-buckley-v-theo":    ("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z"),
-    # MLB postseason — close at first pitch of the next game that moves the odds
-    "mlb-nlcs-wu-v-buckley":     ("2026-10-15T00:00:00Z", "2026-10-21T00:00:00Z"),  # NLCS G3
-    "mlb-alcs-fryar-wins":       ("2026-10-13T00:00:00Z", "2026-10-22T12:00:00Z"),  # ALCS G1
+    # MLB postseason — stay open until the series can no longer be undecided (G7 first
+    # pitch); settlement locks them earlier. Prices track Kalshi so they move with the games.
+    "mlb-nlcs-wu-v-buckley":     ("2026-10-20T00:00:00Z", "2026-10-21T00:00:00Z"),  # NLCS G7 first pitch
+    "mlb-alcs-fryar-wins":       ("2026-10-21T00:00:00Z", "2026-10-22T12:00:00Z"),  # ALCS G7 first pitch
     "mlb-ws-buckley-wins":       ("2026-10-24T00:00:00Z", "2026-11-03T00:00:00Z"),  # WS G1
-    # Static-odds snapshot props close before the first match/race that moves the price
-    "mls-oct31-feder-v-theo":    ("2026-10-14T23:30:00Z", "2026-11-02T12:00:00Z"),
-    "mls-oct31-korch-v-molmen":  ("2026-10-14T23:30:00Z", "2026-11-02T12:00:00Z"),
+    # Snapshot props stay open until the last relevant match/race; live-priced where possible
+    "mls-oct31-feder-v-theo":    ("2026-10-28T23:30:00Z", "2026-11-02T12:00:00Z"),  # first kickoff of their last matches
+    "mls-oct31-korch-v-molmen":  ("2026-10-31T18:00:00Z", "2026-11-02T12:00:00Z"),  # first kickoff of their last matches
     "nascar-talladega-theo-v-wu": ("2026-10-18T19:00:00Z", "2026-10-26T12:00:00Z"),  # Phoenix green flag
-    "pts-oct31-buckley-v-jamzee": ("2026-10-15T00:00:00Z", "2026-11-02T12:00:00Z"),  # NLCS G3
+    "pts-oct31-buckley-v-jamzee": ("2026-10-20T00:00:00Z", "2026-11-02T12:00:00Z"),  # closes with the NLCS
     # Genuinely season-long
     "todd-wins-fl-2026":     ("2026-12-31T00:00:00Z", "2027-01-01T00:00:00Z"),
 }
@@ -782,12 +865,12 @@ _PROP_DEFS = [
     # ── MLB postseason (Oct 2026) ────────────────────────────────────────────────
     # NLCS/pts odds are Kalshi-derived (share of WS odds); ALCS has no Kalshi series.
     ("mlb-nlcs-wu-v-buckley",   40, _mlb_nlcs_wu_v_buckley, "MLB-WorldSeries"),
-    ("mlb-alcs-fryar-wins",     38, None, None),  # Guardians vs Rays, pre-series estimate
+    ("mlb-alcs-fryar-wins",     38, _mlb_alcs_fryar, "MLB-WorldSeries"),  # Kalshi title price / 0.5
     ("mlb-ws-buckley-wins",     30, _mlb_champ_pct("Buckley"), "MLB-WorldSeries"),
 
-    # ── MLS through Oct 31 (static: fixture-based W/D/L model, priced 2026-10-12) ──
-    ("mls-oct31-feder-v-theo",   73, None, None),  # VAN 51 v MIA 49, 4 matches each
-    ("mls-oct31-korch-v-molmen", 78, None, None),  # CIN 36 (6 matches) v LAG 36 (4 matches)
+    # ── MLS through Oct 31 (live: leaderboard points + remaining fixtures) ─────────
+    ("mls-oct31-feder-v-theo",   73, _mls_oct31_h2h("Feder", "Theo"),    "mls-standings"),
+    ("mls-oct31-korch-v-molmen", 78, _mls_oct31_h2h("Korch", "Molmen"),  "mls-standings"),
 
     # ── NASCAR playoff points after Talladega (static, priced 2026-10-12) ──────────
     ("nascar-talladega-theo-v-wu", 49, None, None),  # Hamlin 2318 v Bell 2316
@@ -1381,6 +1464,7 @@ def run():
         p["name"]: (p.get("categories", {}).get("mls", {}).get("raw_value") or None)
         for p in current_scores
     }
+    odds["scores_updated"] = _scores_updated()
 
     # Auto-settle props whose Kalshi markets have resolved, pay out, flag overdue
     newly_settled = auto_settle()
@@ -1483,6 +1567,7 @@ def run_odds_only():
         p["name"]: (p.get("categories", {}).get("mls", {}).get("raw_value") or None)
         for p in current_scores
     }
+    odds["scores_updated"] = _scores_updated()
 
     newly_settled = auto_settle()
     prop_odds = compute_prop_odds(odds, markets_used, prev_props=prev.get("prop_odds"))
