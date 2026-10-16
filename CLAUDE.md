@@ -112,6 +112,12 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   over what is already banked — so league-wide Σ(projected − current) ≥ 0 and `PROJ = NOW + EXP` per row
   (`projected_additional` is derived from the sim, not a separate heuristic). Finished events (all four golf
   majors, all four slams) are skipped via `EVENT_END`; add new dates there. `audit.py` enforces the invariant.
+- **MLS playoff bonuses in projections:** `mls_playoffs.py` simulates the rest of the regular season from the stored
+  30-team table + `data/mls_schedule.json` (fixture snapshot, regenerate locally with
+  `python3 mls_playoffs.py --refresh-schedule` — ESPN is blocked from Actions), seeds 9 per conference, plays the 8-v-9
+  play-in (loser 0) and the bracket (lost R1 2.5 / semi 4.0 / conf final 6.5 / Cup 9.0 / champion 13.0), calibrated to
+  Kalshi MLS Cup prices ≥2%. It falls back to the champion-only sampler when the table is missing/behind, or once any MLS
+  bonus is banked (real bracket results exist).
 - projections.py odds sources, in priority order: Kalshi live markets → Monte Carlo
   pairwise sim → standings-based normal approximation (`_mlb_h2h`/`_mls_h2h`/`_pts_h2h`) → static `FALLBACK`.
 - Headlines must only state facts present in Tavily snippets — the prompt forbids
