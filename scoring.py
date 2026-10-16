@@ -182,6 +182,20 @@ def load_bonuses():
                 print(f'  🌍 Country WC: {player} Olympics={country_olympics.get(player, 0)} + WC={wc_pts} → {total} (cap={_COUNTRY_CAP})')
         bonuses['Country'] = merged
 
+
+    # Merge NCAAB_Bracket (best March Madness bracket, 2.5 each to Wu and Korch in 2026) into NCAAB,
+    # capped at 13 combined with the tournament bonus. Dropped in the May 2026 scoring refactor; restored.
+    ncaab_tourney = bonuses.get('NCAAB', {})
+    ncaab_bracket = bonuses.pop('NCAAB_Bracket', {})
+    bonuses['_ncaab_tourney'] = dict(ncaab_tourney)
+    bonuses['_ncaab_bracket'] = dict(ncaab_bracket)
+    if ncaab_bracket:
+        merged = dict(ncaab_tourney)
+        for player, pts in ncaab_bracket.items():
+            merged[player] = min(_COUNTRY_CAP, (ncaab_tourney.get(player) or 0) + (pts or 0))
+            print(f'  🏀 NCAAB bracket: {player} tourney={ncaab_tourney.get(player, 0)} + bracket={pts} → {merged[player]}')
+        bonuses['NCAAB'] = merged
+
     return bonuses
 
 
@@ -812,6 +826,9 @@ def compute_all_scores():
                 # these two are the uncapped per-source values for display.
                 entry['olympics_bonus_pts'] = round(bonuses.get('_country_olympics', {}).get(player, 0) or 0, 2)
                 entry['world_cup_bonus_pts'] = round(bonuses.get('_country_worldcup', {}).get(player, 0) or 0, 2)
+            elif cat == 'NCAAB':
+                entry['tourney_bonus_pts'] = round(bonuses.get('_ncaab_tourney', {}).get(player, 0) or 0, 2)
+                entry['bracket_bonus_pts'] = round(bonuses.get('_ncaab_bracket', {}).get(player, 0) or 0, 2)
             cat_breakdown[cat] = entry
         player_totals[player] = {
             'name':       player,
