@@ -1124,14 +1124,6 @@ const CAT_LABELS = {
 // ============================================================
 // WEEKS ELAPSED since Jan 1, 2026
 // ============================================================
-function initDisplay() {
-  const start = new Date('2026-01-01');
-  const now = new Date();
-  const weeks = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
-  document.getElementById('weeks-elapsed').textContent = Math.max(0, weeks);
-
-}
-
 // Per-category stat label and value formatter
 const CAT_STAT = {
   nfl:     { label: 'Win%',      fmt: c => c.raw_value != null ? (c.raw_value * 100).toFixed(1) + '%' : '–' },
@@ -1287,11 +1279,10 @@ function buildFilmographyBreakdown(pickName, catType, movies) {
 // ============================================================
 let currentFilter = 'all';
 
-// Todd's premium paywall is currently OFF (his real score/breakdown render
-// normally everywhere). Flip this back to true to re-lock his row behind
-// the "premium required" teaser + Stripe checkout (STRIPE_LINKS below) --
-// all of that markup/CSS/logic is still intact, just gated on this flag.
-const TODD_PAYWALL_ENABLED = false;
+// Todd's premium paywall: when true his row is locked behind the "premium required"
+// teaser and the 3-tier checkout modal (payment links in PAYMENT_LINKS below).
+// Flip to false to render his real score/breakdown like everyone else's.
+const TODD_PAYWALL_ENABLED = true;
 
 function updateHeader() {
   const header = document.getElementById('table-header');
@@ -1529,9 +1520,11 @@ function setFilter(cat, btn) {
 }
 
 // ============================================================
-// STRIPE PAYMENT LINKS
+// PAYMENT LINKS (hosted checkout, one per tier)
+// Each link must redirect back to https://fantasylife.app/?todd_unlocked=1 after a
+// successful payment; that query param is what unlocks the roast reveal.
 // ============================================================
-const STRIPE_LINKS = {
+const PAYMENT_LINKS = {
   1: 'https://buy.stripe.com/eVqfZg5bT4s16BO1OEg7e00',
   2: 'https://buy.stripe.com/aFa4gy6fX2jT9O01OEg7e01',
   3: 'https://buy.stripe.com/6oU9AS5bTaQp6BO3WMg7e02',
@@ -1583,7 +1576,7 @@ function startPayment(tier) {
     i++;
     if (i >= processingMessages.length) {
       clearInterval(interval);
-      window.location.href = STRIPE_LINKS[tier] || STRIPE_LINKS[1];
+      window.location.href = PAYMENT_LINKS[tier] || PAYMENT_LINKS[1];
     }
   }, 500);
 }
@@ -1603,18 +1596,20 @@ const disputeResponses = [
   'Error 404: Valid argument not found.',
   'Our records confirm: this is correct.',
   'Dispute denied. Please try therapy.',
-  'Commissioner reviewed. Still 47.5.',
+  'Commissioner reviewed. Still {total}.',
 ];
 let disputeCount = 0;
 
 function disputeScore() {
   const el = document.getElementById('dispute-result');
-  el.textContent = disputeResponses[disputeCount % disputeResponses.length];
+  const todd = (window.SCORES_DATA || []).find(p => p.name === 'Todd');
+  const total = todd ? (todd.total || 0).toFixed(1) : 'what it is';
+  el.textContent = disputeResponses[disputeCount % disputeResponses.length].replace('{total}', total);
   disputeCount++;
 }
 
-// Check if user is returning from a completed Stripe Payment Link
-function checkStripeReturn() {
+// Check if user is returning from a completed payment link
+function checkPaymentReturn() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('todd_unlocked') !== '1') return;
 
@@ -1677,12 +1672,12 @@ fetch('./scores.json')
         if (nbEl) nbEl.innerHTML = `<em style="color:#fff">${weekday}, ${month} ${day}${ord}</em>`;
       } catch(e) {}
     }
-    initDisplay();
     renderTable();
-    checkStripeReturn();
+    checkPaymentReturn();
   })
-  .catch(() => {
-    renderTable(); // render empty state
+  .catch(err => {
+    console.error('scores load/render failed:', err);
+    renderTable(); // render whatever we have
   });
 
 </script>
