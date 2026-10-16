@@ -1244,6 +1244,48 @@ RERANKED = ("actor", "actress", "stock", "country")
 SIM_CATS = ("nba", "nhl", "mlb", "mls", "nascar", "golf", "tennis") + RERANKED
 
 
+def _build_mls_playoff_model(odds, markets_used):
+    """Full-table MLS playoff model for simulate(), or None to fall back to the
+    champion-only sampler. Needs the stored 30-team MLS table, fresh enough that
+    no scheduled match since it was saved is missing from it."""
+    try:
+        import db as _db
+        import mls_playoffs as _mp
+        rows = (_db.get_standing("MLS") or {}).get("standings") or []
+        updated = _db.get_standing_updated_at("MLS")
+        if not rows or not updated:
+            print("  ℹ MLS playoff model: no stored MLS table — using champion-only sampler")
+            return None
+        since = datetime.datetime.fromisoformat(updated.replace("Z", "+00:00"))
+        if since.tzinfo is None:
+            since = since.replace(tzinfo=datetime.timezone.utc)
+        sched = _mp.load_schedule()
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if sched:
+            missed = [f for f in sched["fixtures"]
+                      if since < _mp._parse_ts(f["t"]) < now - datetime.timedelta(hours=36)]
+            if missed:
+                print(f"  ℹ MLS playoff model: table is {len(missed)} match(es) behind — using champion-only sampler")
+                return None
+        targets = None
+        if "MLS-Cup" in markets_used:
+            targets = {}
+            for owner, q in odds.get("mls_champ", {}).items():
+                k = _mp.team_key(MLS_PICKS.get(owner))
+                if k and q:
+                    targets[k] = q
+        model = _mp.build_model({r["team"]: r["points"] for r in rows}, since, targets, sched)
+        if model is None:
+            print("  ℹ MLS playoff model: table incomplete — using champion-only sampler")
+        else:
+            print(f"  ✓ MLS playoff model: {len(model.fixtures)} fixtures left"
+                  f"{', calibrated to Kalshi' if model.calibration else ''}")
+        return model
+    except Exception as e:
+        print(f"  ⚠ MLS playoff model failed ({e}) — using champion-only sampler")
+        return None
+
+
 def simulate(current_scores, odds, n=N_SIMS):
     """
     Run n Monte Carlo simulations.
@@ -1284,6 +1326,17 @@ def simulate(current_scores, odds, n=N_SIMS):
     # bonus can change further — nothing to sample.
     nba_decided = any(v >= 13.0 for v in current_nba.values())
     nhl_decided = any(v >= 13.0 for v in current_nhl.values())
+
+    # Full-table model (qualification, play-in, every round) while no MLS bonus is banked.
+    # Once real playoff bonuses exist the sampler below must not re-roll a bracket that
+    # already has results, so fall back to it (its Kalshi odds zero out eliminated teams).
+    mls_model = odds.get("mls_playoff_model")
+    if mls_model and any(v > 0 for v in current_mls.values()):
+        mls_model = None
+    mls_owner_keys = {}
+    if mls_model:
+        import mls_playoffs as _mp
+        mls_owner_keys = {o: _mp.team_key(t) for o, t in MLS_PICKS.items()}
 
     nba_norm    = _normalize(odds["nba_champ"])
     nhl_norm    = _normalize(odds["nhl_champ"])
@@ -1347,7 +1400,9 @@ def simulate(current_scores, odds, n=N_SIMS):
         # the sampled outcome beats it.
         for player, pts in _sample_playoff_sport(mlb_norm).items():
             add_bonus("mlb", player, pts, current_mlb[player])
-        for player, pts in _sample_playoff_sport(mls_norm).items():
+        mls_sample = (mls_model.sample_owner_bonuses(mls_owner_keys) if mls_model
+                      else _sample_playoff_sport(mls_norm))
+        for player, pts in mls_sample.items():
             add_bonus("mls", player, pts, current_mls[player])
         for player, pts in _sample_nascar_finish(nascar_norm).items():
             add_bonus("nascar", player, pts, current_nascar[player])
@@ -1430,6 +1485,7 @@ def run():
     if KALSHI_KEY_ID:
         print(f"  Kalshi key ID: {KALSHI_KEY_ID[:8]}... PEM set: {bool(KALSHI_PEM)}")
     odds = build_odds(markets_used)
+    odds["mls_playoff_model"] = _build_mls_playoff_model(odds, markets_used)
 
     print("\n── Running Monte Carlo simulation ─────────────────────────────")
     sim_results, pairwise = simulate(current_scores, odds)
