@@ -111,6 +111,7 @@ def build_calendar_note(today) -> str:
 
 
 MAX_SNIPPET_AGE_DAYS = 3
+WEEKLY_CHART_MAX_AGE_DAYS = 7
 
 
 def search_news(debug: bool = False) -> str:
@@ -127,18 +128,21 @@ def search_news(debug: bool = False) -> str:
         return ''
     today = date.today()
     queries = build_queries(today)
-    cutoff = today - timedelta(days=MAX_SNIPPET_AGE_DAYS)
     try:
         import requests
         seen, all_snippets, dropped = set(), [], 0
         for query in queries:
+            # Billboard posts each weekly chart ~5 days before its issue date, so a
+            # chart story is still "this week's" for up to a week.
+            max_age = WEEKLY_CHART_MAX_AGE_DAYS if 'Billboard' in query else MAX_SNIPPET_AGE_DAYS
+            cutoff = today - timedelta(days=max_age)
             resp = requests.post(
                 'https://api.tavily.com/search',
                 json={
                     'api_key': api_key,
                     'query': query,
                     'topic': 'news',
-                    'days': MAX_SNIPPET_AGE_DAYS,
+                    'days': max_age,
                     'search_depth': 'basic',
                     'max_results': 3,
                     'include_answer': False,
@@ -181,7 +185,7 @@ def search_news(debug: bool = False) -> str:
                     print(f'    → [{pub_label}] {title}')
                     print(f'       {content[:200]}')
         if dropped:
-            print(f'  ℹ dropped {dropped} snippet(s) older than {MAX_SNIPPET_AGE_DAYS} days')
+            print(f'  ℹ dropped {dropped} snippet(s) older than their age limit')
         return '\n'.join(all_snippets)
     except Exception as e:
         print(f'  ⚠ Tavily search failed: {e}')
@@ -319,7 +323,7 @@ CRITICAL rules:
 - Never cross categories: an NBA team cannot win a Stanley Cup; a stock ticker is not a song chart.
 - The EVENT itself must have occurred within the last {MAX_SNIPPET_AGE_DAYS} days (today is {today}). A recent article referencing an older event (e.g. "biggest opening of the year" for a film that opened weeks ago) does NOT qualify — skip it.
 - Each snippet starts with its publication date in brackets. Prefer the most recently published snippets. A snippet marked [date unknown] may be an evergreen page — treat any result on it as suspect unless the snippet text itself dates the event within the last {MAX_SNIPPET_AGE_DAYS} days.
-- For Actor/Actress/Musician: only report if the film opened or the song charted within the last {MAX_SNIPPET_AGE_DAYS} days. Do NOT report on releases from weeks or months ago even if a recent article mentions them.
+- For Actor/Actress/Musician: only report if the film opened or the song charted within the last {MAX_SNIPPET_AGE_DAYS} days. EXCEPTION: a Billboard Hot 100 story about the current weekly chart (issue date within the coming/current week) counts for up to {WEEKLY_CHART_MAX_AGE_DAYS} days after publication, since the chart is weekly. Do NOT report on releases from weeks or months ago even if a recent article mentions them.
 - 3–5 sentences, max 60 words total
 - Never mention FL standings, point totals, or league positions
 - Event status (derived from the league calendar — trust this over any snippet):
