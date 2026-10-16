@@ -894,11 +894,9 @@
       .season-stats { gap: 20px; }
       .news-bar { flex-direction: column; gap: 4px; }
       .news-bar-left { flex-direction: row; align-items: center; gap: 8px; border-right: none; padding-right: 0; border-bottom: none; }
-      /* Single scrollable row instead of a 3-line wrap — reclaims ~50px so
-         all 13 leaderboard rows fit on one screen without scrolling. */
-      .filter-row { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-      .filter-row::-webkit-scrollbar { display: none; }
-      .filter-btn { flex-shrink: 0; }
+      /* Wrap every category into view (no sideways scrolling); tight padding keeps it to two lines on an iPhone. */
+      .filter-row { flex-wrap: wrap; gap: 2px; justify-content: center; margin-bottom: 16px; }
+      .filter-btn { flex-shrink: 0; padding: 5px 7px; font-size: 0.7rem; }
       .page-title { font-size: 1.6rem; margin-bottom: 4px; }
     }
     .score-cell.todd-score { color: var(--muted); }
