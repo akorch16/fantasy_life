@@ -1287,8 +1287,10 @@ const TODD_PAYWALL_ENABLED = true;
 // Category tabs whose Bonus Pts is the capped sum of two sources: show each source as its own column.
 const EXTRA_BONUS_COLS = {
   country: [['Olympics Bonus', 'olympics_bonus_pts'], ['World Cup Bonus', 'world_cup_bonus_pts']],
-  ncaab:   [['Tourney Bonus', 'tourney_bonus_pts'], ['Bracket Bonus', 'bracket_bonus_pts']],
+  ncaab:   [['Bonus', 'tourney_bonus_pts'], ['Best Bracket', 'bracket_bonus_pts']],
 };
+// Tabs where the split columns replace the combined Bonus Pts column instead of sitting beside it.
+const SPLIT_ONLY = new Set(['ncaab']);
 
 function updateHeader() {
   const header = document.getElementById('table-header');
@@ -1302,7 +1304,7 @@ function updateHeader() {
       <th>Player / Pick</th>
       <th class="pts" style="font-size:0.6rem">${statLabel}</th>
       <th class="pts" style="font-size:0.6rem">Regular</th>
-      <th class="pts" style="font-size:0.6rem">Bonus Pts</th>
+      ${SPLIT_ONLY.has(currentFilter) ? '' : '<th class="pts" style="font-size:0.6rem">Bonus Pts</th>'}
       ${extraTh}
       <th class="pts" style="font-size:0.6rem">Total</th>
       <th></th>
@@ -1402,7 +1404,7 @@ function renderTable() {
         </td>
         <td class="stat-col primary todd-score">??</td>
         <td class="stat-col todd-score">??</td>
-        <td class="stat-col bonus-col todd-score">??</td>
+        ${SPLIT_ONLY.has(currentFilter) ? '' : '<td class="stat-col bonus-col todd-score">??</td>'}
         ${extraCountryColsTodd}
         <td class="stat-col total-col todd-score">??</td>
         <td class="expand-cell">$</td>
@@ -1429,7 +1431,7 @@ function renderTable() {
         </td>
         <td class="stat-col primary">${statVal}</td>
         <td class="stat-col">${regular}</td>
-        <td class="stat-col bonus-col">${bonus}</td>
+        ${SPLIT_ONLY.has(currentFilter) ? '' : `<td class="stat-col bonus-col">${bonus}</td>`}
         ${extraCountryCols}
         <td class="stat-col total-col">${total}</td>
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
@@ -1446,7 +1448,7 @@ function renderTable() {
 
       const td = document.createElement('td');
       td.className = 'breakdown-cell';
-      td.colSpan = currentFilter === 'all' ? 5 : 7 + (EXTRA_BONUS_COLS[currentFilter] || []).length;
+      td.colSpan = currentFilter === 'all' ? 5 : 7 + (EXTRA_BONUS_COLS[currentFilter] || []).length - (SPLIT_ONLY.has(currentFilter) ? 1 : 0);
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {
