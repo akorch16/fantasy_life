@@ -333,6 +333,7 @@ CRITICAL rules:
 - Examples: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals." / "NVDA (<em>Todd</em>) surges 9% on earnings." / "USA (<em>Wu</em>) blank Morocco 2-0 in World Cup opener." / "Taylor Swift (<em>Molmen</em>) hits #1 with new single."
 - Use <em> tags ONLY around FL player names — never around pick names
 - Be specific: include series scores or % moves only if the snippet gives them
+- NO unsupported characterizations: do not call a result an "upset", "stunner", "shock", "collapse", "dominant" etc. unless a snippet uses that framing. Stick to what happened.
 - Actor/Actress: ONLY write a sentence about a film if a snippet explicitly names the film title AND at least one FL pick actor/actress in the same sentence or tight clause. Once a film is confirmed by a snippet, you MAY use your knowledge of the film's cast to also credit other FL picks who are in that film — but only if you are highly confident they appear in it. Do not invent casting. If unsure, stick to only the actors named in the snippet.
 - Output format — TWO sections, exactly like this, and NOTHING else. Do not
   write any preamble, reasoning, or "let me check the snippets" narration —
