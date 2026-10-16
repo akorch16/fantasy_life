@@ -188,6 +188,102 @@ def search_news(debug: bool = False) -> str:
         return ''
 
 
+def mlb_official_snippets(today=None) -> str:
+    """Snippet-style lines for MLB postseason series, from MLB's own StatsAPI.
+
+    News search can't be trusted for series state: bracket/tracker pages are
+    re-dated daily but list every round since the Wild Card, and the newest
+    recap may not be indexed yet. StatsAPI is exact. Only series with a game
+    played within MAX_SNIPPET_AGE_DAYS (or still in progress) are reported.
+    Returns '' on any failure so headline generation degrades to news-only.
+    """
+    try:
+        import requests
+        from datetime import date, timedelta
+        today = today or date.today()
+        resp = requests.get(
+            'https://statsapi.mlb.com/api/v1/schedule',
+            params={'sportId': 1, 'gameType': 'D,L,W',
+                    'startDate': (today - timedelta(days=14)).isoformat(),
+                    'endDate': (today + timedelta(days=1)).isoformat(),
+                    'hydrate': 'team'},
+            timeout=20)
+        resp.raise_for_status()
+        series = {}
+        for day in resp.json().get('dates', []):
+            for g in day.get('games', []):
+                a, h = g['teams']['away'], g['teams']['home']
+                names = tuple(sorted([a['team']['name'], h['team']['name']]))
+                s = series.setdefault((g.get('seriesDescription', ''), names),
+                                      {'wins': dict.fromkeys(names, 0), 'last': None,
+                                       'upcoming': False, 'total': g.get('gamesInSeries')})
+                if g['status']['detailedState'] == 'Final' and a.get('score') is not None:
+                    winner = a if a['score'] > h['score'] else h
+                    s['wins'][winner['team']['name']] += 1
+                    s['last'] = (day['date'], g.get('seriesGameNumber'), a, h)
+                elif g['status']['detailedState'] != 'Final':
+                    s['upcoming'] = True
+        cutoff = today - timedelta(days=MAX_SNIPPET_AGE_DAYS)
+        lines = []
+        for (desc, names), s in sorted(series.items(), key=lambda kv: kv[1]['last'][0] if kv[1]['last'] else ''):
+            if not s['last']:
+                continue
+            last_day, game_no, a, h = s['last']
+            if date.fromisoformat(last_day) < cutoff:
+                continue
+            (t1, w1), (t2, w2) = sorted(s['wins'].items(), key=lambda kv: -kv[1])
+            need = ((s['total'] or 7) // 2) + 1
+            score = f"Game {game_no}: {a['team']['name']} {a['score']}, {h['team']['name']} {h['score']}"
+            if w1 >= need:
+                lines.append(f"- [official MLB data, {last_day}] {desc} FINAL: {t1} beat {t2} {w1}-{w2} "
+                             f"and advance ({score}, {last_day}).")
+            elif w1 == w2:
+                lines.append(f"- [official MLB data, {last_day}] {desc} in progress: {t1} and {t2} tied {w1}-{w2} "
+                             f"({score}, {last_day}).")
+            else:
+                lines.append(f"- [official MLB data, {last_day}] {desc} in progress: {t1} lead {t2} {w1}-{w2} "
+                             f"({score}, {last_day}).")
+        return "\n".join(lines)
+    except Exception as e:
+        print(f'  ⚠ MLB StatsAPI facts unavailable: {e}')
+        return ''
+
+
+_OWNERS = ('Tim', 'Wu', 'Jens', 'Todd', 'Mitchell', 'Shep', 'Theo', 'Feder',
+           'Fryar', 'Korch', 'Molmen', 'Jamzee', 'Buckley')
+
+
+def _owner_pick_words() -> dict:
+    """{owner: set of lowercase words (>=3 chars) from all of their picks}."""
+    import re
+    words = {o: set() for o in _OWNERS}
+    for cat, picks in DRAFT_PICKS_2026.items():
+        for owner, pick in picks.items():
+            if owner not in words:
+                continue
+            text = pick.get('ticker', '') if isinstance(pick, dict) else str(pick)
+            words[owner].update(w for w in re.findall(r"[a-z0-9.]+", text.lower()) if len(w) >= 3)
+    return words
+
+
+def check_headline(headline: str) -> list:
+    """Problems that mean the headline mis-attributes a pick to an owner."""
+    import re
+    problems = []
+    words = _owner_pick_words()
+    for m in re.finditer(r"\b(" + "|".join(_OWNERS) + r")'s\b", headline):
+        problems.append(f"possessive '{m.group(0)}' — write 'Pick (<em>Owner</em>)' and only for picks that owner holds")
+    for m in re.finditer(r"([A-Za-z0-9.&' -]{2,40}?)\s*\(<em>(\w+)</em>\)", headline):
+        phrase, owner = m.group(1), m.group(2)
+        if owner not in words:
+            problems.append(f"'{owner}' is not an FL player")
+            continue
+        tokens = [w for w in re.findall(r"[a-z0-9.]+", phrase.lower()) if len(w) >= 3][-3:]
+        if not any(t in words[owner] for t in tokens):
+            problems.append(f"'{phrase.strip()}' is not one of {owner}'s picks")
+    return problems
+
+
 def generate_headline(scores_data: dict, news_snippets: str) -> Optional[str]:
     """Generate a fresh FL News ticker headline via Claude Sonnet."""
     if not news_snippets:
@@ -215,6 +311,9 @@ CRITICAL rules:
 - CITATION CHECK: Before writing each sentence, confirm the exact fact (score, number, outcome, opponent name) appears verbatim in one of the snippets above. If you cannot point to where it appears word-for-word, omit it.
 - PREVIEW PAGES ARE NOT RESULTS: snippets with "predictions", "preview", "odds", "how to watch", "schedule", or phrasing like "X faces Y" / "X and Y meet" / "looking to" describe an UPCOMING match. Never turn one into a result — a win/advance/elimination claim requires the snippet to explicitly state it happened ("beats", "defeated", "advances", "eliminated", a final scoreline). If no snippet states the outcome of a match, do not mention that match at all.
 - ONLY report facts explicitly stated in the snippets above. Do NOT add any result, score, or outcome not written in a snippet.
+- OFFICIAL MLB DATA: lines tagged "[official MLB data, ...]" come straight from MLB and are authoritative for MLB postseason series state. If a news snippet disagrees with them (e.g. an older series score), the official line wins. Never report an MLB series result that is older than the newest official line for that series.
+- BRACKET / TRACKER / STANDINGS PAGES list results from EVERY earlier round, so their publication date says nothing about when a result happened. Never take a game result from such a page (e.g. "Rays 4, Yankees 3 (Tampa Bay wins 3-0)" or a Wild Card score) unless an official MLB data line or a dated article confirms it happened within the last {MAX_SNIPPET_AGE_DAYS} days. A series that has already ended and is not on an official line is OLD — skip it.
+- OWNERSHIP: only the picks listed above have an FL owner. A team, player or ticker that is not in the list has NO owner — never attach an FL player to it, and never write possessives like "Fryar's Rays". Write only "Pick (<em>Owner</em>)" using the exact pick/owner pairs listed above, and mention opponents without an owner as plain names.
 - If a snippet mentions a pick but doesn't clearly state the result or move, skip it.
 - For ongoing series (NBA Finals, NHL Finals, etc.), always report the MOST RECENT game — if snippets mention multiple games, use the highest game number.
 - Never cross categories: an NBA team cannot win a Stanley Cup; a stock ticker is not a song chart.
@@ -245,42 +344,53 @@ HEADLINE:
 
 Every headline sentence MUST be backed by a numbered FACTS entry whose quote is copied character-for-character from a snippet above. If you cannot produce the verbatim quote for a fact, it does not go in the headline. The HEADLINE section must contain only the headline text."""
 
-        msg = client.messages.create(
-            model='claude-sonnet-4-6',
-            max_tokens=1200,
-            # anthropic-python 1.x dropped temperature as a typed create() param
-            # (requirements.txt pins anthropic>=0.25 with no upper bound, so CI
-            # picked up the new major version) — extra_body still passes it
-            # through to the underlying Messages API, which is unchanged.
-            extra_body={'temperature': 0},
-            messages=[{'role': 'user', 'content': prompt}],
-        )
-        raw = msg.content[0].text.strip()
-        # Truncation safety: if the model ran out of tokens before finishing,
-        # never publish whatever partial/reasoning text it had written so far
-        # (this shipped a raw chain-of-thought fragment to prod on 2026-07-17
-        # when 'HEADLINE:' hadn't been reached yet and the old code fell back
-        # to treating the entire raw response as the headline).
-        if msg.stop_reason == 'max_tokens':
-            print(f'  ✗ generate_headline: response truncated at max_tokens — skipping. '
-                  f'Raw tail: {raw[-300:]!r}')
-            return None
-        if 'HEADLINE:' not in raw:
-            print(f'  ✗ generate_headline: no HEADLINE: section in response — skipping. '
-                  f'Raw: {raw[:300]!r}')
-            return None
-        facts, headline = raw.split('HEADLINE:', 1)
-        print('  Grounding facts:\n' + '\n'.join(
-            f'    {l}' for l in facts.replace('FACTS:', '').strip().splitlines() if l.strip()))
-        headline = headline.strip()
-        if not headline:
-            print('  ✗ generate_headline: empty headline after HEADLINE: — skipping')
-            return None
-        # Normalize markdown emphasis the model occasionally emits (*Wu*) back
-        # to the <em> tags the ticker expects.
         import re
-        headline = re.sub(r'\*([A-Za-z]+)\*', r'<em>\1</em>', headline)
-        return headline
+        feedback = ''
+        for attempt in (1, 2):
+            msg = client.messages.create(
+                model='claude-sonnet-4-6',
+                max_tokens=1200,
+                # anthropic-python 1.x dropped temperature as a typed create() param
+                # (requirements.txt pins anthropic>=0.25 with no upper bound, so CI
+                # picked up the new major version) — extra_body still passes it
+                # through to the underlying Messages API, which is unchanged.
+                extra_body={'temperature': 0},
+                messages=[{'role': 'user', 'content': prompt + feedback}],
+            )
+            raw = msg.content[0].text.strip()
+            # Truncation safety: if the model ran out of tokens before finishing,
+            # never publish whatever partial/reasoning text it had written so far
+            # (this shipped a raw chain-of-thought fragment to prod on 2026-07-17
+            # when 'HEADLINE:' hadn't been reached yet and the old code fell back
+            # to treating the entire raw response as the headline).
+            if msg.stop_reason == 'max_tokens':
+                print(f'  ✗ generate_headline: response truncated at max_tokens — skipping. '
+                      f'Raw tail: {raw[-300:]!r}')
+                return None
+            if 'HEADLINE:' not in raw:
+                print(f'  ✗ generate_headline: no HEADLINE: section in response — skipping. '
+                      f'Raw: {raw[:300]!r}')
+                return None
+            facts, headline = raw.split('HEADLINE:', 1)
+            print('  Grounding facts:\n' + '\n'.join(
+                f'    {l}' for l in facts.replace('FACTS:', '').strip().splitlines() if l.strip()))
+            headline = headline.strip()
+            if not headline:
+                print('  ✗ generate_headline: empty headline after HEADLINE: — skipping')
+                return None
+            # Normalize markdown emphasis the model occasionally emits (*Wu*) back
+            # to the <em> tags the ticker expects.
+            headline = re.sub(r'\*([A-Za-z]+)\*', r'<em>\1</em>', headline)
+            problems = check_headline(headline)
+            if not problems:
+                return headline
+            print(f'  ⚠ attempt {attempt}: owner/pick check failed: ' + '; '.join(problems))
+            feedback = ('\n\nYour previous headline was rejected for mis-attributing picks:\n- '
+                        + '\n- '.join(problems)
+                        + '\nWrite the FACTS and HEADLINE sections again, fixing every problem. '
+                          'Mention unowned teams as plain names.')
+        print('  ✗ generate_headline: owner/pick check failed twice — skipping')
+        return None
     except Exception as e:
         print(f'  ✗ generate_headline: {e}')
         return None
@@ -325,6 +435,10 @@ def main():
 
     print('Searching for today\'s sports news...')
     news = search_news(debug=debug)
+    mlb = mlb_official_snippets()
+    if mlb:
+        print('\n  ✓ Official MLB postseason data:\n' + '\n'.join(f'    {l[:160]}' for l in mlb.splitlines()))
+        news = mlb + ('\n' + news if news else '')
     if news:
         print(f'\n  ✓ Got {len(news.splitlines())} snippets from Tavily')
         if not debug:
