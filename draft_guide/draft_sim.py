@@ -53,6 +53,8 @@ def order_from_standings():
         for p in sc["players"]:
             for cat in ("NFL", "NBA", "MLB", "NHL", "NCAAF", "NCAAB", "MLS"):
                 v = bon.get(cat, {}).get(p["name"])
+                if v is not None and cat == "NCAAB":                 # scoring.py adds the bracket bonus, capped at 13
+                    v = min(13.0, v + bon.get("NCAAB_Bracket", {}).get(p["name"], 0))
                 cur = p["categories"][cat.lower()]["bonus_pts"]
                 if v is not None and v != cur:
                     tot[p["name"]] += v - cur

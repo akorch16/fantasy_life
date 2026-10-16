@@ -1284,20 +1284,26 @@ let currentFilter = 'all';
 // Flip to false to render his real score/breakdown like everyone else's.
 const TODD_PAYWALL_ENABLED = true;
 
+// Category tabs whose Bonus Pts is the capped sum of two sources: show each source as its own column.
+const EXTRA_BONUS_COLS = {
+  country: [['Olympics Bonus', 'olympics_bonus_pts'], ['World Cup Bonus', 'world_cup_bonus_pts']],
+  ncaab:   [['Tourney Bonus', 'tourney_bonus_pts'], ['Bracket Bonus', 'bracket_bonus_pts']],
+};
+
 function updateHeader() {
   const header = document.getElementById('table-header');
   if (currentFilter === 'all') {
     header.innerHTML = `<th>#</th><th>Player / Pick</th><th class="pts">Points</th><th class="pts">Wk +/-</th><th></th>`;
-  } else if (currentFilter === 'country') {
+  } else if (EXTRA_BONUS_COLS[currentFilter]) {
     const statLabel = (CAT_STAT[currentFilter] || {}).label || 'Stat';
+    const extraTh = EXTRA_BONUS_COLS[currentFilter].map(([label]) => `<th class="pts" style="font-size:0.6rem">${label}</th>`).join('');
     header.innerHTML = `
       <th>#</th>
       <th>Player / Pick</th>
       <th class="pts" style="font-size:0.6rem">${statLabel}</th>
       <th class="pts" style="font-size:0.6rem">Regular</th>
       <th class="pts" style="font-size:0.6rem">Bonus Pts</th>
-      <th class="pts" style="font-size:0.6rem">Olympics Bonus</th>
-      <th class="pts" style="font-size:0.6rem">World Cup Bonus</th>
+      ${extraTh}
       <th class="pts" style="font-size:0.6rem">Total</th>
       <th></th>
     `;
@@ -1387,10 +1393,7 @@ function renderTable() {
         <td class="expand-cell"><span class="expand-icon">▾</span></td>
       `;
     } else if (isTodd) {
-      const extraCountryColsTodd = currentFilter === 'country' ? `
-        <td class="stat-col bonus-col todd-score">??</td>
-        <td class="stat-col bonus-col todd-score">??</td>
-      ` : '';
+      const extraCountryColsTodd = (EXTRA_BONUS_COLS[currentFilter] || []).map(() => `<td class="stat-col bonus-col todd-score">??</td>`).join('');
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
         <td>
@@ -1415,10 +1418,8 @@ function renderTable() {
         ? (catData.baseline_pts + (catData.bonus_pts || 0)).toFixed(1)
         : '–';
 
-      const extraCountryCols = currentFilter === 'country' ? `
-        <td class="stat-col bonus-col">${catData.olympics_bonus_pts ? '+' + catData.olympics_bonus_pts.toFixed(1) : '–'}</td>
-        <td class="stat-col bonus-col">${catData.world_cup_bonus_pts ? '+' + catData.world_cup_bonus_pts.toFixed(1) : '–'}</td>
-      ` : '';
+      const extraCountryCols = (EXTRA_BONUS_COLS[currentFilter] || []).map(([, key]) =>
+        `<td class="stat-col bonus-col">${catData[key] ? '+' + catData[key].toFixed(1) : '–'}</td>`).join('');
 
       tr.innerHTML = `
         <td class="rank-cell ${rankClass}">${rank}${placeChangeHtml(player.place_change)}</td>
@@ -1445,7 +1446,7 @@ function renderTable() {
 
       const td = document.createElement('td');
       td.className = 'breakdown-cell';
-      td.colSpan = currentFilter === 'all' ? 5 : (currentFilter === 'country' ? 9 : 7);
+      td.colSpan = currentFilter === 'all' ? 5 : 7 + (EXTRA_BONUS_COLS[currentFilter] || []).length;
 
       const cats = player.categories || {};
       const sortedCats = [...window.CATEGORIES].sort((a, b) => {

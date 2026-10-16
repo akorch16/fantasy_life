@@ -159,7 +159,7 @@ def check_freshness(scores, today, frozen):
 
 # ── 3. bonuses.json bookkeeping ──────────────────────────────────────────────
 def check_bonuses(scores, bonuses):
-    valid_cats = {c.lower() for c in CATEGORIES} | {'country_worldcup'}
+    valid_cats = {c.lower() for c in CATEGORIES} | {'country_worldcup', 'ncaab_bracket'}
     players = {p['name']: p for p in scores.get('players', [])}
     for cat, entries in (bonuses or {}).items():
         if cat.startswith('_'):
@@ -171,12 +171,12 @@ def check_bonuses(scores, bonuses):
             if player not in PLAYERS:
                 add('ERROR', 'bonus', f'bonuses.json: {cat}: unknown player "{player}"')
                 continue
-            if cat.lower() == 'country_worldcup':
+            if cat.lower() in ('country_worldcup', 'ncaab_bracket'):
                 continue
             applied = ((players.get(player) or {}).get('categories', {}).get(cat.lower()) or {}).get('bonus_pts')
             if applied is not None:
-                expect = min(BONUS_CAP, val + (bonuses.get('Country_WorldCup', {}).get(player, 0)
-                                               if cat.lower() == 'country' else 0))
+                extra = {'country': 'Country_WorldCup', 'ncaab': 'NCAAB_Bracket'}.get(cat.lower())
+                expect = min(BONUS_CAP, val + (bonuses.get(extra, {}).get(player, 0) if extra else 0))
                 if abs(applied - expect) > 0.01:
                     add('ERROR', 'bonus', f'{cat}/{player}: bonuses.json says {val} (expected {expect}) '
                         f'but scores.json shows {applied}')

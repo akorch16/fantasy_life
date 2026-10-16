@@ -70,6 +70,10 @@
     "Korch":   4.0,
     "Jamzee": 13.0
   },
+  "NCAAB_Bracket": {
+    "Wu":      2.5,
+    "Korch":   2.5
+  },
   "NCAAF": {
     "Buckley":  6.5,
     "Fryar":    2.5,
