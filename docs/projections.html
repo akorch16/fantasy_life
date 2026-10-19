@@ -154,6 +154,13 @@
     .proj-table tbody tr:hover { background: var(--surface2); }
     .proj-table .num { text-align: right; font-family: 'DM Mono', monospace; }
     .proj-table .rank-num { text-align: center; color: var(--muted); width: 32px; }
+    /* Phones: one line per row (the 💀 used to wrap under the name) and tight padding so all 13 rows fit on an iPhone screen. */
+    @media (max-width: 600px) {
+      .proj-table { font-size: 0.78rem; }
+      .proj-table thead th { padding: 6px 8px; }
+      .proj-table td { padding: 5px 8px; white-space: nowrap; line-height: 1.25; }
+      .proj-table .rank-num { width: 24px; }
+    }
 
     .win-high { color: var(--green); font-weight: 600; }
     .win-mid  { color: var(--gold); }
