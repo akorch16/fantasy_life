@@ -82,10 +82,6 @@ jobs:
           print("SCEN>>" + json.dumps(out) + "<<SCEN")
           PYEOF
 
-      - name: Scenarios on main (current model)
-        working-directory: main
-        run: python ../scenarios.py 200000 2>&1 | grep -E "SCEN>>|MLS playoff|Traceback|Error" | sed 's/^/MAIN /'
-
       - name: Scenarios on fix branch
         working-directory: fix
         run: python ../scenarios.py 200000 2>&1 | grep -E "SCEN>>|MLS playoff|Traceback|Error" | sed 's/^/FIX /'
