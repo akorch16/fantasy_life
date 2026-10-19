@@ -154,6 +154,7 @@
     .proj-table tbody tr:hover { background: var(--surface2); }
     .proj-table .num { text-align: right; font-family: 'DM Mono', monospace; }
     .proj-table .rank-num { text-align: center; color: var(--muted); width: 32px; }
+    .proj-table td.rank-num { color: var(--text); }
     /* Phones: one line per row (the 💀 used to wrap under the name) and tight padding so all 13 rows fit on an iPhone screen. */
     @media (max-width: 600px) {
       .proj-table { font-size: 0.78rem; }
@@ -165,6 +166,7 @@
     .win-high { color: var(--green); font-weight: 600; }
     .win-mid  { color: var(--gold); }
     .win-low  { color: var(--muted); }
+    .proj-table .win-low { color: var(--text); }   /* standings cells read white; green/gold still flag the leaders */
 
     .proj-footer td {
       font-size: 0.7rem;
@@ -386,12 +388,12 @@ fetch('./projections.json')
           <td class="rank-num num">${i + 1}</td>
           <td><strong>${p.name}</strong>${p.win_pct < 0.05 ? ' 💀' : ''}</td>
           <td class="num ${winColor(p.win_pct)}">${fmtWinPct(p.win_pct)}%</td>
-          <td class="num" style="color:var(--muted)">${oddsHtml(p.win_pct)}</td>
+          <td class="num">${oddsHtml(p.win_pct)}</td>
           <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
           <td class="num">${p.current_total.toFixed(1)}</td>
           <td class="num" style="color:${p.projected_additional >= 0 ? 'var(--blue)' : 'var(--red)'}">${p.projected_additional > 0 ? '+' : ''}${p.projected_additional.toFixed(1)}</td>
           <td class="num"><strong>${p.projected_total.toFixed(1)}</strong></td>
-          <td class="num" style="color:var(--muted)">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
+          <td class="num">${p.projected_p10.toFixed(0)}–${p.projected_p90.toFixed(0)}</td>
         </tr>
       `).join('') + `
         <tr class="proj-footer">
