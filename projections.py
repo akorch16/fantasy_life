@@ -28,7 +28,7 @@ KALSHI_PEM       = os.environ.get("KALSHI_PRIVATE_KEY", "").replace('\\n', '\n')
 KALSHI_API_KEY   = os.environ.get("KALSHI_API_KEY", "")
 _KALSHI_PRIVATE_KEY  = None   # loaded lazily on first use
 _KALSHI_KEY_WARNED   = False
-N_SIMS           = 10_000
+N_SIMS           = 200_000   # 0.01% = 20 sims, so the 2-decimal long-shot odds on projections.html are not single-sim noise
 
 # ─── Draft picks (canonical source: draft_picks_2026.py) ──────────────────
 from draft_picks_2026 import DRAFT_PICKS_2026, TENNIS_GENDER
@@ -44,7 +44,9 @@ TENNIS_MEN   = {p: n for p, n in DRAFT_PICKS_2026["Tennis"].items() if TENNIS_GE
 TENNIS_WOMEN = {p: n for p, n in DRAFT_PICKS_2026["Tennis"].items() if TENNIS_GENDER.get(n) == "F"}
 
 # ─── Upcoming 2026 film pipeline (Actor / Actress simulation) ─────────────────
-# box_office: (p10, p50, p90) domestic gross in $M  — lognormal distribution
+# box_office: (p10, p50, p90) FULL-RUN domestic gross in $M — lognormal distribution
+# release:    domestic opening date; only the share grossed by Dec 31 scores (BOM's 2026 year listing is calendar
+#             gross and the season ends Dec 31) — see _in_season_share(). A Dec 18 opener banks ~2/3 of its run.
 # rt:         (p10, p50, p90) Rotten Tomatoes score — normal distribution, capped 0–100
 # actor/actress: [player_key, ...]  — just need to be in the movie
 FILM_PIPELINE = [
@@ -60,6 +62,7 @@ FILM_PIPELINE = [
     # prune it the same day its composite gets filled in.
     {
         "title": "The Social Reckoning",
+        "release": "2026-10-09",
         "box_office": (60, 100, 160),  # Oct 9; Social Network comp ($97M); award-season prestige
         "rt": (76, 88, 96),            # Sorkin direction, Jeremy Allen White / Jeremy Strong
         "actor":   ["Shep"],
@@ -67,6 +70,7 @@ FILM_PIPELINE = [
     },
     {
         "title": "Avengers: Doomsday",
+        "release": "2026-12-18",
         "box_office": (350, 500, 700),
         "rt": (68, 80, 90),
         "actor":   ["Mitchell", "Fryar"],
@@ -74,6 +78,7 @@ FILM_PIPELINE = [
     },
     {
         "title": "Dune: Part Three",
+        "release": "2026-12-18",
         "box_office": (180, 280, 400),
         "rt": (82, 91, 97),
         "actor":   ["Jamzee", "Buckley"],
@@ -81,6 +86,7 @@ FILM_PIPELINE = [
     },
     {
         "title": "Behemoth!",
+        "release": "2026-12-04",
         "box_office": (25, 55, 100),   # Dec 4; mid-budget original — wide uncertainty
         "rt": (50, 66, 80),
         "actor":   ["Mitchell"],
@@ -88,6 +94,7 @@ FILM_PIPELINE = [
     },
     {
         "title": "Focker-in-Law",
+        "release": "2026-11-25",
         "box_office": (55, 95, 145),
         "rt": (40, 58, 72),
         "actor":   [],
@@ -95,6 +102,7 @@ FILM_PIPELINE = [
     },
     {
         "title": "Jumanji: Open World",
+        "release": "2026-12-25",
         "box_office": (120, 175, 240),
         "rt": (60, 72, 80),
         "actor":   ["Theo"],
@@ -102,26 +110,65 @@ FILM_PIPELINE = [
     },
 ]
 
+FILM_DECAY_DAYS = 12.0   # share grossed after d days of release ≈ 1 - exp(-d/12): 7d 44%, 14d 69%, 27d 89%, 36d 95%
+                          # (holiday comps: No Way Home ~70% of its run by Dec 31 after 15 days, Aquaman ~56% after 11)
+
+
+def _in_season_share(release, today=None):
+    """Fraction of a film's full domestic run earned by Dec 31 (days in release counted through Dec 31)."""
+    if not release:
+        return 1.0
+    d = (SEASON_END - datetime.date.fromisoformat(release)).days + 1
+    return 0.0 if d <= 0 else 1.0 - math.exp(-d / FILM_DECAY_DAYS)
+
+
 # ─── Stock simulation parameters ─────────────────────────────────────────────
-# (expected_additional_return_pct, std_dev_pct) for rest of 2026 (~7 months).
-# Values are from the PLAYER's perspective: positive = good for the pick.
-# For SHORT positions this is already sign-flipped (CVNA short: +5 means CVNA
-# expected to fall another 5%).
-STOCK_SIM = {
-    "Jamzee": (-10.0, 40.0),  # INTC Long: at +172%, mean-reversion risk
-    "Mitchell": ( 5.0, 50.0), # CVNA Short: volatile, expected continued decline
-    "Fryar":   ( 8.0, 25.0),  # AVGO Long: strong semiconductor fundamentals
-    "Todd":    (12.0, 30.0),  # NVDA Long: AI spending still accelerating
-    "Shep":    (-5.0, 40.0),  # TSLA Short: recovery risk for short position
-    "Buckley": ( 3.0, 15.0),  # NEE Long: stable regulated utility
-    "Korch":   ( 5.0, 45.0),  # SMCI Long: high volatility AI server play
-    "Molmen":  (15.0, 25.0),  # TTWO Long: GTA VI launch catalyst
-    "Theo":    ( 5.0, 18.0),  # CMG Long: steady restaurant recovery
-    "Feder":   (15.0, 35.0),  # PLTR Long: AI/government data momentum
-    "Tim":     ( 5.0, 45.0),  # COIN Long: crypto correlation, high vol
-    "Wu":      ( 8.0, 25.0),  # LULU Long: athleisure recovery from lows
-    "Jens":    (10.0, 35.0),  # SOFI Long: fintech recovery potential
+# ANNUALISED (drift_pct, volatility_pct) of the pick's price, from the PLAYER's perspective (positive =
+# good for the pick; shorts are already sign-flipped). simulate() scales them to the time left in the
+# season (drift × T, vol × √T, T = days to Dec 31 / 365) via _stock_params(), so the spread shrinks as
+# the year runs out. (Until Oct 2026 these were fixed "rest of 2026 (~7 months)" values that were never
+# shrunk, so by October the stock re-rank was ~1.7x too noisy.) Converted from those 7-month values:
+# drift / (7/12), vol / sqrt(7/12).
+STOCK_SIM_ANNUAL = {
+    "Jamzee":   (-17.0, 52.0),  # INTC Long: big YTD run, mean-reversion risk
+    "Mitchell": (  9.0, 65.0),  # CVNA Short: volatile, expected continued decline
+    "Fryar":    ( 14.0, 33.0),  # AVGO Long: strong semiconductor fundamentals
+    "Todd":     ( 21.0, 39.0),  # NVDA Long: AI spending still accelerating
+    "Shep":     ( -9.0, 52.0),  # TSLA Short: recovery risk for short position
+    "Buckley":  (  5.0, 20.0),  # NEE Long: stable regulated utility
+    "Korch":    (  9.0, 59.0),  # SMCI Long: high volatility AI server play
+    "Molmen":   ( 26.0, 33.0),  # TTWO Long: GTA VI launch catalyst
+    "Theo":     (  9.0, 24.0),  # CMG Long: steady restaurant recovery
+    "Feder":    ( 26.0, 46.0),  # PLTR Long: AI/government data momentum
+    "Tim":      (  9.0, 59.0),  # COIN Long: crypto correlation, high vol
+    "Wu":       ( 14.0, 33.0),  # LULU Long: athleisure recovery from lows
+    "Jens":     ( 17.0, 46.0),  # SOFI Long: fintech recovery potential
 }
+SEASON_END = datetime.date(2026, 12, 31)
+
+
+def _season_frac_left(today=None):
+    today = today or datetime.datetime.now(datetime.timezone.utc).date()
+    return max(0.0, (SEASON_END - today).days) / 365.0
+
+
+def _stock_params(today=None):
+    """{player: (mean_pct, sd_pct)} of the pick's remaining-season move (player's perspective)."""
+    t = _season_frac_left(today)
+    return {pl: (mu * t, sd * math.sqrt(t)) for pl, (mu, sd) in STOCK_SIM_ANNUAL.items()}
+
+
+def _compound_stock(raw_pct, move_pct, short):
+    """Apply a further move (player's perspective, %) to a YTD return (%). Returns compound on the
+    current price, so +10% on a stock already up 128% adds ~23 points of YTD, not 10. Shorts are scored
+    as -(price change), so the price ratio is 1 - raw for them."""
+    move = max(move_pct, -95.0) / 100.0
+    if short:
+        ratio = (1 - raw_pct / 100.0) * (1 - move)
+        return (1 - ratio) * 100.0
+    ratio = (1 + raw_pct / 100.0) * (1 + move)
+    return (ratio - 1) * 100.0
+
 
 # ─── Country simulation parameters ───────────────────────────────────────────
 # (expected_revision_pct, std_dev_pct): models uncertainty in the October 2026
@@ -1146,13 +1193,18 @@ def _sample_playoff_sport(champ_probs):
 # sampling off the Kalshi champion odds, over the 16-driver Chase field.
 NASCAR_FINISH_PTS = (13.0, 9.0, 6.5, 4.0, 2.5)
 NASCAR_CHASE_FIELD = 16
+# Picks who did not make the 16-car Chase (data/nascar.json: below the 2000-2100 reset scale) can't finish top 5.
+# Kalshi's champion market still quotes them at a stale ~1c, which used to hand Mitchell/Buckley a NASCAR
+# title in thousands of sims — so they are zeroed, and they don't use up Chase-field slots either.
+NASCAR_MISSED_CHASE = {"Shane van Gisbergen", "Ross Chastain"}
 
 
 def _sample_nascar_finish(champ_probs):
     """Sample the top-5 final standings. Returns {player: bonus_pts} for picks only.
     Probability mass not held by our picks is spread over dummy field drivers, so
     other drivers can take podium spots (and the pick's points) too."""
-    weights = {k: v for k, v in champ_probs.items() if v > 0}
+    weights = {k: v for k, v in champ_probs.items()
+               if v > 0 and NASCAR_PICKS.get(k) not in NASCAR_MISSED_CHASE}
     n_other = max(1, NASCAR_CHASE_FIELD - len(weights))
     other = _other_prob(champ_probs)
     for i in range(n_other):
@@ -1378,6 +1430,11 @@ def simulate(current_scores, odds, n=N_SIMS):
             totals[player] += pts
             cat_add[cat][player] += pts - cur_pts[cat][player]
 
+    stock_params = _stock_params()
+    stock_short = {pl: info.get("direction") == "S" for pl, info in DRAFT_PICKS_2026["Stock"].items()}
+    today = datetime.datetime.now(datetime.timezone.utc).date()
+    film_share = {f["title"]: _in_season_share(f.get("release"), today) for f in FILM_PIPELINE}
+
     for _ in range(n):
         totals = dict(base)
 
@@ -1421,7 +1478,7 @@ def simulate(current_scores, odds, n=N_SIMS):
         actor_comp   = dict(current_actor_comp)
         actress_comp = dict(current_actress_comp)
         for film in FILM_PIPELINE:
-            box    = _sample_lognormal(*film["box_office"])
+            box    = _sample_lognormal(*film["box_office"]) * film_share[film["title"]]
             rt     = _sample_normal_capped(*film["rt"])
             contrib = (rt / 100.0) * box
             for player in film["actor"]:
@@ -1432,7 +1489,8 @@ def simulate(current_scores, odds, n=N_SIMS):
         add_reranked("actress", _rank_composites(players_list, actress_comp))
 
         # ── Stock: sample additional return, re-rank ────────────────────────
-        stock_sim = {pl: current_stock_raw.get(pl, 0.0) + random.gauss(*STOCK_SIM[pl]) for pl in STOCK_SIM}
+        stock_sim = {pl: _compound_stock(current_stock_raw.get(pl, 0.0), random.gauss(*stock_params[pl]),
+                                         stock_short.get(pl, False)) for pl in stock_params}
         add_reranked("stock", _rank_composites(players_list, stock_sim))
 
         # ── Country: re-rank (Oct 2026 WEO is final for the season → zero noise) ─
@@ -1452,7 +1510,7 @@ def simulate(current_scores, odds, n=N_SIMS):
     for name in players_list:
         sims = sorted(sim_totals[name])
         out[name] = {
-            "win_pct":         round(wins[name] / n * 100, 2),
+            "win_pct":         round(wins[name] / n * 100, 4),   # 4 dp: long shots are 1-in-10,000s
             "top4_pct":        round(top4s[name] / n * 100, 2),
             "projected_total": round(sum(sims) / n, 1),
             "projected_p10":   round(sims[int(n * 0.10)], 1),

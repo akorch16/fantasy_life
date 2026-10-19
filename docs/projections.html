@@ -320,6 +320,14 @@
 </div>
 
 <script>
+// Long shots: anything that would round to 0.0% shows two decimals (0.03%); nonzero but below 0.005% shows
+// "<0.01" so a handful of winning sims out of 200,000 doesn't read as impossible. True zero shows 0.00.
+function fmtWinPct(v) {
+  if (v >= 0.05) return v.toFixed(1);
+  if (v > 0 && v < 0.005) return '<0.01';
+  return v.toFixed(2);
+}
+
 function winColor(pct) {
   if (pct >= 25) return 'win-high';
   if (pct >= 10) return 'win-mid';
@@ -370,7 +378,7 @@ fetch('./projections.json')
         <tr>
           <td class="rank-num num">${i + 1}</td>
           <td><strong>${p.name}</strong>${p.win_pct < 0.05 ? ' 💀' : ''}</td>
-          <td class="num ${winColor(p.win_pct)}">${p.win_pct.toFixed(1)}%</td>
+          <td class="num ${winColor(p.win_pct)}">${fmtWinPct(p.win_pct)}%</td>
           <td class="num" style="color:var(--muted)">${oddsHtml(p.win_pct)}</td>
           <td class="num ${winColor(p.top4_pct)}">${p.top4_pct.toFixed(1)}%</td>
           <td class="num">${p.current_total.toFixed(1)}</td>
