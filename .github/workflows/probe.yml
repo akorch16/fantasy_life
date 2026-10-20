@@ -25,10 +25,6 @@ jobs:
         with:
           ref: main
           path: main
-      - uses: actions/checkout@v4
-        with:
-          ref: fix/projections-small-odds
-          path: fix
 
       - uses: actions/setup-python@v5
         with:
@@ -40,48 +36,45 @@ jobs:
       - name: Write scenario script
         run: |
           cat > scenarios.py <<'PYEOF'
-          """Run projections.simulate with large n and record every sim won by someone other than the favourites.
-
-              python3 scenarios.py N [--offline]
-          Prints SCEN>>{json}<<SCEN with per-winner counts and per-category deltas (sim minus current) for each long-shot win.
-          """
+          """Record every sim not won by Korch; summarise, per winner, how often each category outcome occurs."""
           import inspect, json, sys, textwrap, collections, os
           sys.path.insert(0, os.getcwd())
           import projections as p
-
           N = int(sys.argv[1])
-          FAV = {"Korch", "Wu"}
           src = textwrap.dedent(inspect.getsource(p.simulate))
           src = src.replace("    for _ in range(n):\n        totals = dict(base)\n",
                             "    for _ in range(n):\n        totals = dict(base)\n        _snap = {c: dict(cat_add[c]) for c in cat_add}\n")
           src = src.replace("        ranked = sorted(players_list, key=lambda x: -totals[x])\n",
                             "        ranked = sorted(players_list, key=lambda x: -totals[x])\n"
-                            "        if ranked[0] not in _FAV:\n"
-                            "            _SCEN.append({'winner': ranked[0], 'totals': {k: round(v, 1) for k, v in totals.items()},\n"
-                            "                          'delta': {nm: {c: round(cat_add[c][nm] - _snap[c][nm], 1) for c in cat_add if abs(cat_add[c][nm] - _snap[c][nm]) > 0.05} for nm in (ranked[0], 'Korch', 'Wu')}})\n")
-          assert "_SCEN.append" in src and "_snap =" in src
-          ns = vars(p); ns["_SCEN"] = []; ns["_FAV"] = FAV
+                            "        _d = {nm: {c: round(cat_add[c][nm] - _snap[c][nm], 1) for c in cat_add if abs(cat_add[c][nm] - _snap[c][nm]) > 0.05} for nm in ('Korch', 'Wu', 'Fryar')}\n"
+                            "        _ALL.append((ranked[0], _d, round(totals[ranked[0]] - totals['Korch'], 1) if ranked[0] != 'Korch' else round(totals['Korch'] - totals[ranked[1]], 1)))\n")
+          assert "_ALL.append" in src
+          ns = vars(p); ns["_ALL"] = []
           exec(compile(src, "simulate_patched", "exec"), ns)
           scores = json.load(open(p.SCORES_PATH))["players"]
-          used = []
-          odds = p.build_odds(used)
-          odds["mls_playoff_model"] = p._build_mls_playoff_model(odds, used)
+          used = []; odds = p.build_odds(used); odds["mls_playoff_model"] = p._build_mls_playoff_model(odds, used)
           res, _ = ns["simulate"](scores, odds, n=N)
-          sc = ns["_SCEN"]
-          cnt = collections.Counter(s["winner"] for s in sc)
-          out = {"n": N, "markets_used": used, "win_pct": {k: v["win_pct"] for k, v in res.items()},
-                 "counts": cnt, "examples": {}}
-          for w in cnt:
-              ex = [s for s in sc if s["winner"] == w]
-              agg = collections.defaultdict(float)
-              for s in ex:
-                  for c, v in s["delta"][w].items(): agg["me:" + c] += v / len(ex)
-                  for c, v in s["delta"]["Korch"].items(): agg["korch:" + c] += v / len(ex)
-                  for c, v in s["delta"]["Wu"].items(): agg["wu:" + c] += v / len(ex)
-              out["examples"][w] = {"avg_delta": {k: round(v, 2) for k, v in sorted(agg.items())}, "samples": ex[:4]}
-          print("SCEN>>" + json.dumps(out) + "<<SCEN")
+          A = ns["_ALL"]
+          out = {"n": N, "win_pct": {k: v["win_pct"] for k, v in res.items()}, "odds": {k: odds.get(k) for k in ("nascar_champ", "mlb_champ", "mls_champ")}, "by_winner": {}}
+          base = collections.defaultdict(collections.Counter)            # unconditional distributions
+          for w, d, m in A:
+              for who in ("Korch", "Wu", "Fryar"):
+                  for c in ("mlb", "mls", "nascar", "actor", "actress", "stock"):
+                      base[f"{who}:{c}"][d[who].get(c, 0.0)] += 1
+          out["all"] = {k: {str(v): round(n / N, 4) for v, n in sorted(cnt.items())} for k, cnt in base.items()}
+          for W in ("Wu", "Fryar"):
+              ws = [(d, m) for w, d, m in A if w == W]
+              if not ws: continue
+              dist = collections.defaultdict(collections.Counter)
+              for d, m in ws:
+                  for who in ("Korch", "Wu", "Fryar"):
+                      for c in ("mlb", "mls", "nascar", "actor", "actress", "stock"):
+                          dist[f"{who}:{c}"][d[who].get(c, 0.0)] += 1
+              out["by_winner"][W] = {"n": len(ws), "margin_median": sorted(m for _, m in ws)[len(ws) // 2],
+                                     "dist": {k: {str(v): round(n / len(ws), 3) for v, n in sorted(cnt.items())} for k, cnt in dist.items()}}
+          print("SCEN2>>" + json.dumps(out) + "<<SCEN2")
           PYEOF
 
-      - name: Scenarios on fix branch
-        working-directory: fix
-        run: python ../scenarios.py 200000 2>&1 | grep -E "SCEN>>|MLS playoff|Traceback|Error" | sed 's/^/FIX /'
+      - name: Scenarios on main
+        working-directory: main
+        run: python ../scenarios.py 200000 2>&1 | grep -E "SCEN2>>|Traceback|Error" | sed 's/^/MAIN /'
