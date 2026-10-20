@@ -54,14 +54,15 @@ jobs:
           scores = json.load(open(p.SCORES_PATH))["players"]
           used = []; odds = p.build_odds(used); odds["mls_playoff_model"] = p._build_mls_playoff_model(odds, used)
           res, _ = ns["simulate"](scores, odds, n=N)
-          A = ns["_ALL"]
-          out = {"n": N, "win_pct": {k: v["win_pct"] for k, v in res.items()}, "odds": {k: odds.get(k) for k in ("nascar_champ", "mlb_champ", "mls_champ")}, "by_winner": {}}
+          A = [x for x in ns["_ALL"] if x[1]["Wu"].get("nascar", 0) < 13 and x[1]["Fryar"].get("nascar", 0) < 13]
+          NC = len(A)
+          out = {"n": N, "n_cond": NC, "cond_winners": collections.Counter(w for w, d, m in A), "win_pct": {k: v["win_pct"] for k, v in res.items()}, "odds": {k: odds.get(k) for k in ("nascar_champ", "mlb_champ", "mls_champ")}, "by_winner": {}}
           base = collections.defaultdict(collections.Counter)            # unconditional distributions
           for w, d, m in A:
               for who in ("Korch", "Wu", "Fryar"):
                   for c in ("mlb", "mls", "nascar", "actor", "actress", "stock"):
                       base[f"{who}:{c}"][d[who].get(c, 0.0)] += 1
-          out["all"] = {k: {str(v): round(n / N, 4) for v, n in sorted(cnt.items())} for k, cnt in base.items()}
+          out["all"] = {k: {str(v): round(n / NC, 4) for v, n in sorted(cnt.items())} for k, cnt in base.items()}
           for W in ("Wu", "Fryar"):
               ws = [(d, m) for w, d, m in A if w == W]
               if not ws: continue
@@ -70,11 +71,11 @@ jobs:
                   for who in ("Korch", "Wu", "Fryar"):
                       for c in ("mlb", "mls", "nascar", "actor", "actress", "stock"):
                           dist[f"{who}:{c}"][d[who].get(c, 0.0)] += 1
-              out["by_winner"][W] = {"n": len(ws), "margin_median": sorted(m for _, m in ws)[len(ws) // 2],
+              out["by_winner"][W] = {"n": len(ws), "margin_median": sorted(m for _, m in ws)[len(ws) // 2], "examples": [dict(d, margin=m) for d, m in ws[:6]],
                                      "dist": {k: {str(v): round(n / len(ws), 3) for v, n in sorted(cnt.items())} for k, cnt in dist.items()}}
-          print("SCEN2>>" + json.dumps(out) + "<<SCEN2")
+          print("SCEN3>>" + json.dumps(out) + "<<SCEN3")
           PYEOF
 
       - name: Scenarios on main
         working-directory: main
-        run: python ../scenarios.py 200000 2>&1 | grep -E "SCEN2>>|Traceback|Error" | sed 's/^/MAIN /'
+        run: python ../scenarios.py 400000 2>&1 | grep -E "SCEN3>>|Traceback|Error" | sed 's/^/MAIN /'
