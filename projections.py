@@ -1296,6 +1296,29 @@ RERANKED = ("actor", "actress", "stock", "country")
 SIM_CATS = ("nba", "nhl", "mlb", "mls", "nascar", "golf", "tennis") + RERANKED
 
 
+def _build_nascar_chase_model(odds, markets_used):
+    """Race-by-race Chase model (nascar_chase.py) from the live points table, calibrated to Kalshi title prices,
+    or None to fall back to the title-odds-only top-5 sampler."""
+    try:
+        import nascar_chase as _nc
+        targets = None
+        if "NASCAR-Cup" in markets_used:
+            targets = {NASCAR_PICKS[o]: q for o, q in odds.get("nascar_champ", {}).items()
+                       if q and NASCAR_PICKS.get(o) not in NASCAR_MISSED_CHASE}
+        model = _nc.build_model(targets)
+        if model is None:
+            print("  ℹ NASCAR Chase model: no current standings — using title-odds sampler")
+            return None
+        print(f"  ✓ NASCAR Chase model: {len(model.remaining)} race(s) left, leader {model.drivers[0]} "
+              f"{model.base[0]:.0f}{', calibrated to Kalshi' if model.calibration else ''}")
+        for drv in model.drivers[:7]:
+            print(f"      {drv:22} {model.base[model.drivers.index(drv)]:.0f} pts  P(1st..5th) {model.finish_probs(drv)}")
+        return model
+    except Exception as e:
+        print(f"  ⚠ NASCAR Chase model failed ({e}) — using title-odds sampler")
+        return None
+
+
 def _build_mls_playoff_model(odds, markets_used):
     """Full-table MLS playoff model for simulate(), or None to fall back to the
     champion-only sampler. Needs the stored 30-team MLS table, fresh enough that
@@ -1395,6 +1418,7 @@ def simulate(current_scores, odds, n=N_SIMS):
     mlb_norm    = _normalize(odds["mlb_champ"])
     mls_norm    = _normalize(odds["mls_champ"])
     nascar_norm = _normalize(odds["nascar_champ"])
+    chase_model = odds.get("nascar_chase_model")      # race-by-race Chase sim from live standings (nascar_chase.py)
 
     tennis_pairs = [pr for pr in [
         ("tennis_french_men_win",     "tennis_french_men_ru"),
@@ -1461,7 +1485,9 @@ def simulate(current_scores, odds, n=N_SIMS):
                       else _sample_playoff_sport(mls_norm))
         for player, pts in mls_sample.items():
             add_bonus("mls", player, pts, current_mls[player])
-        for player, pts in _sample_nascar_finish(nascar_norm).items():
+        nascar_sample = (chase_model.sample_owner_bonuses(NASCAR_PICKS) if chase_model
+                         else _sample_nascar_finish(nascar_norm))
+        for player, pts in nascar_sample.items():
             add_bonus("nascar", player, pts, current_nascar[player])
 
         # ── Golf / Tennis: only events that have not happened yet ───────────
@@ -1544,6 +1570,7 @@ def run():
         print(f"  Kalshi key ID: {KALSHI_KEY_ID[:8]}... PEM set: {bool(KALSHI_PEM)}")
     odds = build_odds(markets_used)
     odds["mls_playoff_model"] = _build_mls_playoff_model(odds, markets_used)
+    odds["nascar_chase_model"] = _build_nascar_chase_model(odds, markets_used)
 
     print("\n── Running Monte Carlo simulation ─────────────────────────────")
     sim_results, pairwise = simulate(current_scores, odds)
