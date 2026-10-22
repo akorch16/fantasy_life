@@ -1,83 +1,83 @@
 {
- "note": "component probabilities from v1_seed_d.py (Kalshi KXGRAM*-69 where marked A; others my estimates). other_noms = expected non-big-3, non-BNA nominations. Kalshi AOTY win / AOTY-ROTY-SOTY nom / BNA refreshed 2026-10-14 (ROTY/SOTY win markets not posted that day; prior values kept).",
+ "note": "component probabilities from v1_seed_d.py (Kalshi KXGRAM*-69 where marked A; others my estimates). other_noms = expected non-big-3, non-BNA nominations. Kalshi AOTY win / AOTY-ROTY-SOTY nom / BNA refreshed 2026-10-22 (ROTY/SOTY win markets not posted; prior values kept).",
  "artists": {
   "Ella Langley": {
    "big_win": [
-    0.045,
+    0.035,
     0.35,
     0.25
    ],
    "big_nom": [
-    0.7,
-    0.885,
-    0.875
+    0.665,
+    0.93,
+    0.86
    ],
    "bna": [
-    0.975,
-    0.635
+    0.985,
+    0.645
    ],
    "other_noms": 2.9
   },
   "Taylor Swift": {
    "big_win": [
-    0.04,
+    0.015,
     0.15,
     0.1
    ],
    "big_nom": [
-    0.8,
-    0.885,
+    0.785,
+    0.875,
     0.81
    ],
    "other_noms": 2.5
   },
   "Olivia Rodrigo": {
    "big_win": [
-    0.48,
+    0.485,
     0,
     0.2
    ],
    "big_nom": [
-    0.915,
+    0.94,
     0,
-    0.91
+    0.9
    ],
    "other_noms": 3.0
   },
   "Olivia Dean": {
    "big_win": [
-    0.165,
+    0.09,
     0.2,
     0.3
    ],
    "big_nom": [
-    0.905,
-    0.895,
-    0.905
+    0.915,
+    0.915,
+    0.92
    ],
    "other_noms": 2.0
   },
   "Bruno Mars": {
    "big_win": [
-    0.04,
+    0.02,
     0.15,
     0.06
    ],
    "big_nom": [
-    0.855,
-    0.88,
+    0.875,
+    0.875,
     0.51
    ],
    "other_noms": 2.5
   },
   "Rosalía": {
    "big_win": [
-    0.26,
+    0.25,
     0,
     0
    ],
    "big_nom": [
-    0.795,
+    0.89,
     0,
     0
    ],
@@ -91,8 +91,8 @@
    ],
    "big_nom": [
     0.25,
-    0.79,
-    0.8
+    0.795,
+    0.815
    ],
    "other_noms": 2.0
   },
@@ -104,19 +104,19 @@
    ],
    "big_nom": [
     0.28,
-    0.31,
+    0.42,
     0.24
    ],
    "other_noms": 1.5
   },
   "Phoebe Bridgers": {
    "big_win": [
-    0.045,
+    0.035,
     0,
     0
    ],
    "big_nom": [
-    0.515,
+    0.545,
     0,
     0
    ],
@@ -131,7 +131,7 @@
    "big_nom": [
     0,
     0,
-    0.31
+    0.36
    ],
    "other_noms": 1.5
   },
@@ -148,7 +148,7 @@
    ],
    "bna": [
     0.88,
-    0.305
+    0.31
    ],
    "other_noms": 1.0
   }

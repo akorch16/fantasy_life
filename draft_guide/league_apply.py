@@ -18,7 +18,7 @@ import numpy as np
 import league_sim as ls
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DATE = "2026-10-14"
+DATE = "2026-10-22"
 
 
 def structure_prices():

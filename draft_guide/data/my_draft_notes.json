@@ -1,11 +1,11 @@
 {
- "as_of": "2026-10-14",
+ "as_of": "2026-10-22",
  "slot": "Korch picks 13th (last) in every odd round and 1st in every even round; the keeper round also runs in draft order, so with no keeper the first three picks are back-to-back (keeper-round #13, R1 #13, R2 #14). Later pairs: 39/40, 65/66, 91/92, 117/118, 143/144, 169/170.",
  "keeper_reasoning": [
-  "No keeper wins in the simulation (158.0 vs 155.8 keeping the Avalanche, 153.4 Guyana, 153.2 Indiana; sd ~3). Keeping uses the keeper-round pick on a player you could replace later; not keeping turns it into a free pick at #13, right before your R1/R2 turn.",
-  "NHL is still fairly flat: after the Avalanche (14.0) come Oilers 13.3 and Hurricanes 12.8 (both likely kept), then Golden Knights 11.6, Wild 10.9 and Panthers 10.7, which last to about R5-R6. The Avalanche is worth ~3 over what you get later, less than a free premium pick.",
+  "No keeper wins in the simulation (157.5 vs 152.9 keeping the Avalanche, 152.1 Indiana, 151.5 Guyana; sd ~3). Keeping uses the keeper-round pick on a player you could replace later; not keeping turns it into a free pick at #13, right before your R1/R2 turn.",
+  "The Avalanche slid to 12.3 (4th in NHL) behind the Hurricanes 13.9, Lightning 13.4 and Oilers 13.1 (Oct 22 refresh). The sim now has Jamzee keeping Carolina and Fryar keeping Tampa Bay, so NHL thins out, but Golden Knights 10.8, Panthers 11.7 (Todd keeps Rodrigo) and Wild 10.6 still last to about R5. Keeping Colorado costs ~4.6 pts vs a free premium pick.",
   "Guyana is no longer the clear #1 Country: the IMF October 2026 WEO puts Iraq (19.0%), Qatar (18.8%) and Kuwait (17.1%) ahead of it for 2027 (16.8%), with Sudan 15.0% and Bahrain 13.9% close behind. Six live options, and Country goes late (median R10).",
-  "What usually falls to #13 in the keeper round (Oct 14 refresh): the San Francisco 49ers (NFL #1, 16.2 after their Kalshi title price rose to 13%). Todd owns them but keeps Rodrigo. Otherwise a top Musician (Langley 19.8 / Dean 16.0, both unowned). Texas fell to 14.8 (Kalshi title 13.5% -> 8.5%), so NCAAF is now an R1/R2 pick (Miami / Alabama / Notre Dame / Texas, whichever is left)."
+  "What usually falls to #13 in the keeper round (Oct 22 refresh): the San Francisco 49ers (NFL #1, 17.6; Kalshi Super Bowl price now 17.5%). Todd owns them but keeps Rodrigo. Otherwise a top Musician (Langley 20.1 / Dean 15.8, both unowned). NCAAF goes at R1/R2: Texas fell again to 12.3 (title 3.5%), so Notre Dame 15.5 / Miami 15.4 are the targets if their owners keep elsewhere."
  ],
  "value_picks": [
   [
@@ -15,8 +15,8 @@
   ],
   [
    "NCAAF",
-   "Texas / Miami (FL)",
-   "Texas 14.8 (unowned) and Miami 15.0 (Wu, who keeps the Spurs). After the 49ers in the keeper round, take NCAAF at R1/R2."
+   "Notre Dame / Miami (FL), then Texas",
+   "Notre Dame 15.5 (Feder keeps OKC) and Miami 15.4 (Wu keeps the Spurs) are the realistic R1/R2 targets; Texas (12.3, unowned) is the fallback after its title odds fell to 3.5%."
   ],
   [
    "NCAAB",
@@ -26,17 +26,17 @@
   [
    "NBA",
    "Philadelphia 76ers",
-   "#3 NBA (12.7), unowned. NBA gets stripped fast; this is the realistic upside after OKC/SAS are kept."
+   "#3 NBA (12.8), unowned. NBA gets stripped fast; this is the realistic upside after OKC/SAS are kept."
   ],
   [
    "NFL",
    "San Francisco 49ers, then Vikings / Jaguars",
-   "49ers 16.2 (NFL #1; Todd keeps Rodrigo, so the 49ers are in the pool) = keeper-round target. Fallback: Vikings / Jaguars 12.4, unowned, last to about R5."
+   "49ers 17.6 (NFL #1; Todd keeps Rodrigo, so the 49ers are in the pool) = keeper-round target. Fallback: Vikings 12.5 / Jaguars 11.3, unowned, last to about R5."
   ],
   [
    "NHL",
-   "Minnesota Wild / Golden Knights / Panthers",
-   "10.7-11.6 EV, last to about R5-R6."
+   "Golden Knights / Panthers / Wild",
+   "10.6-11.7 EV and last to about R5; Carolina and Tampa Bay are likely kept."
   ],
   [
    "Tennis",
