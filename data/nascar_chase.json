@@ -1,6 +1,5 @@
 {
- "as_of": "2026-10-22T14:52:07+00:00",
- "_note": "Snapshot of cf.nascar.com points + race list (standings after Phoenix, Oct 18). nascar_chase.build_model() overwrites it with the live feed on every Actions run; it is only used as a fallback while no listed race has been run.",
+ "as_of": "2026-10-22T14:57:45+00:00",
  "standings": [
   {
    "driver": "Kyle Larson",
@@ -133,6 +132,153 @@
    "points": 673,
    "top_5": 2,
    "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Michael McDowell",
+   "points": 616,
+   "top_5": 3,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Erik Jones",
+   "points": 607,
+   "top_5": 2,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Josh Berry",
+   "points": 584,
+   "top_5": 3,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Todd Gilliland",
+   "points": 582,
+   "top_5": 0,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "AJ Allmendinger",
+   "points": 574,
+   "top_5": 1,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Austin Dillon",
+   "points": 540,
+   "top_5": 0,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Zane Smith",
+   "points": 523,
+   "top_5": 2,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Alex Bowman",
+   "points": 512,
+   "top_5": 4,
+   "starts": 29,
+   "wins": 0
+  },
+  {
+   "driver": "John H Nemechek",
+   "points": 503,
+   "top_5": 1,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Ricky Stenhouse Jr.",
+   "points": 481,
+   "top_5": 3,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Riley Herbst",
+   "points": 470,
+   "top_5": 0,
+   "starts": 32,
+   "wins": 0
+  },
+  {
+   "driver": "Noah Gragson",
+   "points": 430,
+   "top_5": 0,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Cole Custer",
+   "points": 407,
+   "top_5": 0,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Connor Zilisch",
+   "points": 360,
+   "top_5": 0,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Ty Dillon",
+   "points": 352,
+   "top_5": 0,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Cody Ware",
+   "points": 237,
+   "top_5": 0,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Casey Mears",
+   "points": 13,
+   "top_5": 0,
+   "starts": 4,
+   "wins": 0
+  },
+  {
+   "driver": "Kevin Magnussen",
+   "points": 11,
+   "top_5": 0,
+   "starts": 1,
+   "wins": 0
+  },
+  {
+   "driver": "Jimmie Johnson",
+   "points": 9,
+   "top_5": 0,
+   "starts": 2,
+   "wins": 0
+  },
+  {
+   "driver": "Katherine Legge",
+   "points": 8,
+   "top_5": 0,
+   "starts": 2,
+   "wins": 0
+  },
+  {
+   "driver": "BJ McLeod",
+   "points": 8,
+   "top_5": 0,
+   "starts": 4,
    "wins": 0
   }
  ],
