@@ -18,54 +18,102 @@ jobs:
       KALSHI_API_KEY: ${{ secrets.KALSHI_API_KEY }}
       KALSHI_API_KEY_ID: ${{ secrets.KALSHI_API_KEY_ID }}
       KALSHI_PRIVATE_KEY: ${{ secrets.KALSHI_PRIVATE_KEY }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
-          path: main
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r main/requirements.txt
+        run: pip install -r requirements.txt
 
-      - name: Write scenario script
+      - name: "Kalshi structure + awards markets"
         run: |
-          cat > scenarios.py <<'PYEOF'
-          import json, requests
-          H = {"User-Agent": "Mozilla/5.0"}
-          out = {}
-          for k, u in [("points", "https://cf.nascar.com/cacher/2026/1/racinginsights-points-feed.json"),
-                       ("races", "https://cf.nascar.com/cacher/2026/race_list_basic.json"),
-                       ("espn", "https://site.api.espn.com/apis/v2/sports/racing/nascar-premier/standings")]:
+          python - <<'PY'
+          import json
+          import projections as p
+          SER = ['KXNFLPLAYOFF', 'KXNFLAFCCHAMP', 'KXNFLNFCCHAMP', 'KXSB',
+                 'KXNBAPLAYOFF', 'KXNBAEAST', 'KXNBAWEST', 'KXNBA',
+                 'KXNHLPLAYOFF', 'KXNHLEAST', 'KXNHLWEST', 'KXNHL', 'KXNCAAF',
+                 'KXGRAMAOTY', 'KXGRAMROTY', 'KXGRAMSOTY', 'KXGRAMBNA',
+                 'KXGRAMMYNOMAOTY', 'KXGRAMMYNOMROTY', 'KXGRAMMYNOMSOTY', 'KXGRAMMYNOMNAOTY',
+                 'KXOSCARACTO', 'KXOSCARACTR', 'KXOSCARSUPACTO', 'KXOSCARSUPACTR',
+                 'KXOSCARNOMACTO', 'KXOSCARNOMACTR', 'KXOSCARNOMSUPACTO', 'KXOSCARNOMSUPACTR']
+          for t in SER:
               try:
-                  r = requests.get(u, headers=H, timeout=30)
-                  out[k] = {"status": r.status_code, "len": len(r.content)}
-                  j = r.json()
-                  if k == "points":
-                      out[k]["sample"] = j[:3] if isinstance(j, list) else str(j)[:500]
-                      out[k]["rows"] = [{kk: d.get(kk) for kk in ("driver_name", "points_position", "points", "delta_leader", "playoff_eliminated", "is_in_chase", "wins", "starts", "top_5", "playoff_points", "points_earned_this_race") if kk in d} for d in (j if isinstance(j, list) else [])][:40]
-                      out[k]["keys"] = list(j[0].keys()) if isinstance(j, list) and j else None
-                  elif k == "races":
-                      s1 = j.get("series_1") if isinstance(j, dict) else None
-                      out[k]["cup"] = [{kk: r_.get(kk) for kk in ("race_name", "date_scheduled", "race_date", "track_name", "winner_driver_id", "playoff_round")} for r_ in (s1 or [])][-12:]
-                  else:
-                      out[k]["text"] = json.dumps(j)[:3000]
+                  ms = p._fetch_markets_for_series(t)
               except Exception as e:
-                  out.setdefault(k, {})["err"] = repr(e)[:200]
-          try:
-              import projections as p
-              ms = p._fetch_markets_for_series("KXNASCARCUPSERIES")
-              out["kalshi"] = [[m.get("ticker"), m.get("yes_sub_title") or m.get("title"), m.get("yes_bid_dollars"), m.get("yes_ask_dollars"), m.get("last_price_dollars"), m.get("status")] for m in ms[:60]]
-          except Exception as e:
-              out["kalshi_err"] = repr(e)[:200]
-          print("NPROBE>>" + json.dumps(out) + "<<NPROBE")
-          PYEOF
+                  print('MKT ERR', t, repr(e)[:80]); continue
+              rows = []
+              for m in ms[:90]:
+                  rows.append([m.get('ticker'), m.get('yes_sub_title') or m.get('title'), m.get('yes_bid_dollars'), m.get('yes_ask_dollars'),
+                               m.get('last_price_dollars'), m.get('status'), (m.get('close_time') or '')[:10]])
+              print('MKT>>' + json.dumps([t, len(ms), rows], ensure_ascii=False) + '<<MKT')
+          PY
 
-      - name: Scenarios on main
-        working-directory: main
-        run: python ../scenarios.py 2>&1 | grep -E "NPROBE>>|Traceback|Error" | sed 's/^/MAIN /'
+      - name: "ESPN NFL/NBA/NHL schedules"
+        run: |
+          python - <<'PY'
+          import requests, json, datetime
+          H = {'User-Agent': 'Mozilla/5.0'}
+          def games(url, params):
+              r = requests.get(url, params=params, headers=H, timeout=60)
+              out = []
+              for ev in r.json().get('events', []):
+                  c = ev['competitions'][0]
+                  teams = {x['homeAway']: x for x in c['competitors']}
+                  out.append([ev['date'][:10], teams['away']['team']['displayName'], teams['home']['team']['displayName'],
+                              teams['away'].get('score'), teams['home'].get('score'), c['status']['type']['name']])
+              return out
+          nfl = []
+          for wk in range(1, 19):
+              try:
+                  nfl += games('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard', {'dates': 2026, 'seasontype': 2, 'week': wk, 'limit': 100})
+              except Exception as e:
+                  print('NFL ERR', wk, repr(e)[:80])
+          print('NFL games', len(nfl), 'final', sum(1 for g in nfl if g[5] == 'STATUS_FINAL'))
+          print('NFLJSON>>' + json.dumps(nfl, ensure_ascii=False) + '<<NFLJSON')
+          for lg, path, a, b in [('NBA', 'basketball/nba', datetime.date(2026, 10, 19), datetime.date(2027, 4, 15)),
+                                 ('NHL', 'hockey/nhl', datetime.date(2026, 9, 28), datetime.date(2027, 4, 17))]:
+              rows = []
+              d = a
+              while d <= b:
+                  try:
+                      rows += games(f'https://site.api.espn.com/apis/site/v2/sports/{path}/scoreboard', {'dates': d.strftime('%Y%m%d'), 'limit': 100})
+                  except Exception as e:
+                      print(lg, 'ERR', d, repr(e)[:60])
+                  d += datetime.timedelta(days=1)
+              print(lg, 'games', len(rows), 'final', sum(1 for g in rows if g[5] == 'STATUS_FINAL'))
+              print(lg + 'JSON>>' + json.dumps(rows, ensure_ascii=False) + '<<' + lg + 'JSON')
+          PY
+
+      - name: "Hot 100 top-30, every 2026 issue"
+        run: |
+          python - <<'PY'
+          import requests, time, json, datetime
+          from bs4 import BeautifulSoup
+          d = datetime.date(2026, 1, 3)
+          today = datetime.date.today()
+          out = []
+          while d.year == 2026 and d - datetime.timedelta(days=4) <= today:
+              rows = []
+              for attempt in range(3):
+                  try:
+                      r = requests.get(f'https://www.billboard.com/charts/hot-100/{d.isoformat()}/', headers={'User-Agent': 'Mozilla/5.0'}, timeout=40)
+                      soup = BeautifulSoup(r.text, 'html.parser')
+                      for rank, row in enumerate(soup.select('ul.o-chart-results-list-row')[:30], 1):
+                          t = row.select_one('h3#title-of-a-story')
+                          if not t: continue
+                          a = t.find_next('span')
+                          rows.append([rank, t.get_text(strip=True), a.get_text(strip=True) if a else ''])
+                      if len(rows) >= 10: break
+                  except Exception as e:
+                      print('ERR', d, repr(e)[:100])
+                  time.sleep(2)
+              out.append([d.isoformat(), rows])
+              time.sleep(0.4)
+              d += datetime.timedelta(days=7)
+          print('WEEKS', len(out), [(w[0], len(w[1])) for w in out][-3:])
+          print('HOTALL>>' + json.dumps(out, ensure_ascii=False) + '<<HOTALL')
+          PY
