@@ -1,12 +1,12 @@
 {
- "as_of": "2026-10-14",
+ "as_of": "2026-10-22",
  "order": [
   "Shep",
   "Jens",
   "Todd",
   "Feder",
-  "Molmen",
   "Tim",
+  "Molmen",
   "Theo",
   "Buckley",
   "Mitchell",
@@ -21,199 +21,195 @@
    "label": "No keeper",
    "keep": null,
    "dropoff": {
-    "mean": 158.0,
-    "sd": 3.3,
+    "mean": 157.5,
+    "sd": 3.1,
     "rounds": {
      "0": [
       [
        "NFL",
-       0.72
+       0.8
       ],
       [
        "Musician",
-       0.25
-      ],
-      [
-       "NCAAF",
-       0.03
+       0.2
       ]
      ],
      "1": [
       [
-       "NCAAF",
-       0.59
+       "NCAAB",
+       0.41
       ],
       [
-       "NCAAB",
-       0.31
+       "NCAAF",
+       0.36
       ],
       [
        "NASCAR",
-       0.09
+       0.21
       ]
      ],
      "2": [
       [
        "NCAAF",
-       0.39
+       0.64
       ],
       [
        "NCAAB",
-       0.28
+       0.21
       ],
       [
-       "NHL",
-       0.1
+       "NBA",
+       0.05
       ]
      ],
      "3": [
       [
        "NASCAR",
-       0.82
+       0.7
       ],
       [
        "MLB",
-       0.09
+       0.1
       ],
       [
-       "NBA",
-       0.04
+       "NCAAB",
+       0.07
       ]
      ],
      "4": [
       [
-       "NCAAB",
-       0.21
+       "NBA",
+       0.39
+      ],
+      [
+       "MLB",
+       0.17
       ],
       [
        "Golf",
-       0.19
-      ],
-      [
-       "NBA",
-       0.17
+       0.15
       ]
      ],
      "5": [
       [
        "NHL",
-       0.35
+       0.38
       ],
       [
        "Tennis",
-       0.2
+       0.23
       ],
       [
        "Country",
-       0.14
+       0.07
       ]
      ],
      "6": [
       [
-       "Country",
-       0.26
+       "MLS",
+       0.29
       ],
       [
        "NHL",
        0.24
       ],
       [
-       "MLS",
-       0.19
+       "Tennis",
+       0.16
       ]
      ],
      "7": [
       [
-       "Musician",
-       0.29
-      ],
-      [
        "MLB",
-       0.25
-      ],
-      [
-       "NBA",
-       0.15
-      ]
-     ],
-     "8": [
-      [
-       "Country",
-       0.39
-      ],
-      [
-       "Golf",
-       0.29
-      ],
-      [
-       "Actor",
-       0.15
-      ]
-     ],
-     "9": [
-      [
-       "NBA",
-       0.28
+       0.35
       ],
       [
        "Musician",
        0.26
       ],
       [
+       "Country",
+       0.12
+      ]
+     ],
+     "8": [
+      [
+       "Country",
+       0.56
+      ],
+      [
+       "Golf",
+       0.26
+      ],
+      [
+       "Musician",
+       0.06
+      ]
+     ],
+     "9": [
+      [
+       "Musician",
+       0.29
+      ],
+      [
+       "NBA",
+       0.25
+      ],
+      [
        "MLB",
-       0.24
+       0.17
       ]
      ],
      "10": [
       [
        "MLS",
-       0.35
+       0.3
       ],
       [
        "Actor",
-       0.21
+       0.19
       ],
       [
-       "NBA",
-       0.17
+       "Musician",
+       0.11
       ]
      ],
      "11": [
       [
-       "MLS",
-       0.36
+       "Actress",
+       0.33
       ],
       [
-       "Actress",
-       0.23
+       "MLS",
+       0.26
       ],
       [
        "Tennis",
-       0.1
+       0.17
       ]
      ],
      "12": [
       [
        "Actress",
-       0.42
-      ],
-      [
-       "Tennis",
-       0.24
+       0.41
       ],
       [
        "Golf",
-       0.14
+       0.2
+      ],
+      [
+       "Tennis",
+       0.17
       ]
      ],
      "13": [
       [
        "Stock",
-       0.69
+       0.71
       ],
       [
        "Actress",
-       0.16
+       0.12
       ],
       [
        "Actor",
@@ -223,15 +219,15 @@
      "14": [
       [
        "Actor",
-       0.41
-      ],
-      [
-       "Stock",
-       0.17
+       0.53
       ],
       [
        "Golf",
-       0.15
+       0.17
+      ],
+      [
+       "Stock",
+       0.14
       ]
      ]
     },
@@ -239,113 +235,113 @@
      "NFL": [
       [
        "San Francisco 49ers",
-       0.74
+       0.8
+      ],
+      [
+       "Denver Broncos",
+       0.07
       ],
       [
        "Buffalo Bills",
-       0.07
-      ],
-      [
-       "Detroit Lions",
-       0.06
-      ]
-     ],
-     "NCAAB": [
-      [
-       "Florida",
-       0.59
-      ],
-      [
-       "Michigan",
-       0.1
-      ],
-      [
-       "Michigan State",
-       0.07
-      ]
-     ],
-     "NCAAF": [
-      [
-       "Miami (FL)",
-       0.34
-      ],
-      [
-       "Alabama",
-       0.28
-      ],
-      [
-       "Notre Dame",
-       0.2
+       0.04
       ]
      ],
      "NASCAR": [
       [
        "Kyle Larson",
-       0.75
+       0.7
       ],
       [
        "Denny Hamlin",
-       0.23
+       0.26
       ],
       [
-       "Christopher Bell",
+       "Joey Logano",
        0.03
       ]
      ],
-     "NBA": [
+     "NCAAF": [
       [
-       "Toronto Raptors",
-       0.21
+       "Texas",
+       0.5
       ],
       [
-       "Miami Heat",
-       0.16
+       "Notre Dame",
+       0.19
       ],
       [
-       "Philadelphia 76ers",
-       0.11
+       "Miami (FL)",
+       0.17
       ]
      ],
      "Tennis": [
       [
        "Elena Rybakina",
-       0.14
+       0.17
       ],
       [
-       "Carlos Alcaraz",
-       0.11
+       "Aryna Sabalenka",
+       0.17
       ],
       [
        "Jessica Pegula",
        0.11
       ]
      ],
-     "NHL": [
+     "NBA": [
       [
-       "Minnesota Wild",
-       0.26
+       "Minnesota Timberwolves",
+       0.24
       ],
       [
-       "Florida Panthers",
-       0.17
+       "Boston Celtics",
+       0.14
       ],
       [
-       "Tampa Bay Lightning",
-       0.17
+       "Miami Heat",
+       0.14
       ]
      ],
-     "Musician": [
+     "NHL": [
       [
-       "Drake",
-       0.2
+       "Vegas Golden Knights",
+       0.29
       ],
       [
-       "BTS",
-       0.2
+       "Minnesota Wild",
+       0.21
       ],
       [
-       "Ella Langley",
-       0.2
+       "Utah Mammoth",
+       0.14
+      ]
+     ],
+     "Actor": [
+      [
+       "Josh Gad",
+       0.55
+      ],
+      [
+       "Aaron Pierre",
+       0.21
+      ],
+      [
+       "Skyler Gisondo",
+       0.15
+      ]
+     ],
+     "MLB": [
+      [
+       "Los Angeles Dodgers",
+       0.19
+      ],
+      [
+       "Chicago Cubs",
+       0.14
+      ],
+      [
+       "Tampa Bay Rays",
+       0.11
       ]
      ],
      "Country": [
@@ -354,50 +350,50 @@
        0.31
       ],
       [
-       "Kuwait",
-       0.15
+       "Guyana",
+       0.17
       ],
       [
-       "Guyana",
-       0.11
+       "Bahrain",
+       0.14
       ]
      ],
-     "MLB": [
+     "Musician": [
       [
-       "Tampa Bay Rays",
-       0.14
+       "Morgan Wallen",
+       0.31
       ],
       [
-       "Los Angeles Dodgers",
-       0.14
+       "BTS",
+       0.24
       ],
       [
-       "Milwaukee Brewers",
-       0.11
+       "Ella Langley",
+       0.2
       ]
      ],
      "MLS": [
       [
-       "St. Louis City SC",
-       0.35
+       "Nashville SC",
+       0.2
       ],
       [
-       "FC Dallas",
-       0.16
+       "St. Louis City SC",
+       0.19
       ],
       [
        "New England Revolution",
-       0.11
+       0.12
       ]
      ],
      "Actress": [
       [
-       "Lauren Vélez",
+       "Hailee Steinfeld",
        0.36
       ],
       [
-       "Hailee Steinfeld",
-       0.25
+       "Lauren Vélez",
+       0.28
       ],
       [
        "Kimiko Glenn",
@@ -406,44 +402,44 @@
      ],
      "Golf": [
       [
-       "Collin Morikawa",
+       "Russell Henley",
+       0.15
+      ],
+      [
+       "Xander Schauffele",
        0.14
       ],
       [
-       "Rory McIlroy",
+       "Collin Morikawa",
        0.12
-      ],
-      [
-       "Russell Henley",
-       0.11
       ]
      ],
      "Stock": [
       [
        "MSTR (Long)",
-       0.55
+       0.56
       ],
       [
        "COIN (Long)",
-       0.24
+       0.26
       ],
       [
        "AMD (Long)",
-       0.11
+       0.09
       ]
      ],
-     "Actor": [
+     "NCAAB": [
       [
-       "Josh Gad",
-       0.46
+       "Florida",
+       0.62
       ],
       [
-       "Aaron Pierre",
-       0.31
+       "UConn",
+       0.1
       ],
       [
-       "Skyler Gisondo",
-       0.16
+       "Illinois",
+       0.07
       ]
      ]
     },
@@ -489,239 +485,235 @@
       1.0
      ],
      [
-      "Wu",
-      "San Antonio Spurs",
-      0.93
-     ],
-     [
       "Jamzee",
       "Carolina Hurricanes",
-      0.6
+      0.99
      ],
      [
       "Fryar",
-      "UConn",
-      0.56
+      "Tampa Bay Lightning",
+      0.99
+     ],
+     [
+      "Wu",
+      "San Antonio Spurs",
+      0.96
      ],
      [
       "Tim",
       "Vegas Golden Knights",
-      0.55
+      0.11
      ]
     ]
    },
    "bpa": {
-    "mean": 155.0,
-    "sd": 4.0,
+    "mean": 154.9,
+    "sd": 3.8,
     "rounds": {
      "0": [
       [
        "NFL",
-       0.72
+       0.8
       ],
       [
        "Musician",
-       0.25
-      ],
-      [
-       "NCAAF",
-       0.03
+       0.2
       ]
      ],
      "1": [
       [
-       "NCAAF",
-       0.51
+       "NCAAB",
+       0.45
       ],
       [
-       "NCAAB",
-       0.29
+       "NCAAF",
+       0.28
       ],
       [
        "NASCAR",
-       0.14
+       0.25
       ]
      ],
      "2": [
       [
        "NASCAR",
-       0.39
+       0.5
       ],
       [
        "NCAAB",
-       0.25
+       0.15
       ],
       [
-       "NCAAF",
+       "MLB",
        0.15
       ]
      ],
      "3": [
       [
-       "NASCAR",
-       0.34
-      ],
-      [
        "MLB",
-       0.3
+       0.2
       ],
       [
-       "NBA",
-       0.07
+       "NASCAR",
+       0.19
+      ],
+      [
+       "NHL",
+       0.15
       ]
      ],
      "4": [
       [
        "MLB",
-       0.23
+       0.26
       ],
       [
-       "Golf",
-       0.19
+       "NHL",
+       0.2
       ],
       [
-       "NBA",
-       0.15
+       "NCAAB",
+       0.17
       ]
      ],
      "5": [
       [
-       "NHL",
+       "Musician",
        0.25
       ],
       [
-       "Country",
-       0.2
+       "Tennis",
+       0.23
       ],
       [
-       "Musician",
-       0.19
+       "NHL",
+       0.16
       ]
      ],
      "6": [
       [
-       "Tennis",
-       0.25
-      ],
-      [
-       "NHL",
-       0.21
-      ],
-      [
        "Musician",
-       0.19
+       0.2
+      ],
+      [
+       "MLS",
+       0.16
+      ],
+      [
+       "MLB",
+       0.14
       ]
      ],
      "7": [
       [
        "Musician",
-       0.2
-      ],
-      [
-       "NBA",
        0.17
       ],
       [
+       "NBA",
+       0.16
+      ],
+      [
        "MLB",
-       0.15
+       0.16
       ]
      ],
      "8": [
+      [
+       "Actor",
+       0.28
+      ],
       [
        "NBA",
        0.2
       ],
       [
        "NHL",
-       0.16
-      ],
-      [
-       "Actor",
-       0.14
+       0.12
       ]
      ],
      "9": [
       [
        "MLS",
-       0.39
+       0.38
+      ],
+      [
+       "NCAAF",
+       0.17
       ],
       [
        "NBA",
-       0.25
-      ],
-      [
-       "Actor",
-       0.14
+       0.11
       ]
      ],
      "10": [
       [
-       "MLS",
-       0.3
+       "NCAAF",
+       0.34
       ],
       [
-       "Actress",
-       0.16
+       "MLS",
+       0.2
       ],
       [
        "Tennis",
-       0.15
+       0.17
       ]
      ],
      "11": [
       [
        "Actress",
-       0.51
-      ],
-      [
-       "Stock",
-       0.19
+       0.45
       ],
       [
        "Tennis",
-       0.12
+       0.17
+      ],
+      [
+       "Stock",
+       0.14
       ]
      ],
      "12": [
       [
        "Stock",
-       0.55
+       0.49
       ],
       [
        "Actress",
-       0.23
+       0.33
       ],
       [
        "Actor",
-       0.14
+       0.1
       ]
      ],
      "13": [
       [
-       "Actor",
-       0.39
+       "Stock",
+       0.34
       ],
       [
-       "Stock",
-       0.23
+       "Actor",
+       0.3
       ],
       [
        "Golf",
-       0.23
+       0.17
       ]
      ],
      "14": [
       [
        "Country",
-       0.5
+       0.6
+      ],
+      [
+       "Actor",
+       0.16
       ],
       [
        "Golf",
-       0.19
-      ],
-      [
-       "NCAAF",
-       0.14
+       0.11
       ]
      ]
     },
@@ -729,127 +721,113 @@
      "NFL": [
       [
        "San Francisco 49ers",
-       0.76
+       0.8
       ],
       [
-       "Los Angeles Rams",
+       "Chicago Bears",
        0.06
       ],
       [
-       "Minnesota Vikings",
-       0.05
+       "Buffalo Bills",
+       0.06
       ]
      ],
      "NCAAF": [
       [
-       "Miami (FL)",
+       "BYU",
        0.3
       ],
       [
-       "Texas",
-       0.21
+       "Ole Miss",
+       0.17
       ],
       [
        "Notre Dame",
-       0.17
+       0.15
+      ]
+     ],
+     "NCAAB": [
+      [
+       "Florida",
+       0.6
+      ],
+      [
+       "UConn",
+       0.16
+      ],
+      [
+       "Illinois",
+       0.11
       ]
      ],
      "NASCAR": [
       [
        "Kyle Larson",
-       0.76
+       0.81
       ],
       [
        "Denny Hamlin",
-       0.19
+       0.12
       ],
       [
        "Christopher Bell",
        0.04
       ]
      ],
-     "Golf": [
+     "MLB": [
       [
-       "Scottie Scheffler",
-       0.21
+       "Los Angeles Dodgers",
+       0.35
       ],
       [
-       "Xander Schauffele",
-       0.16
+       "Milwaukee Brewers",
+       0.2
       ],
       [
-       "Collin Morikawa",
-       0.15
-      ]
-     ],
-     "Tennis": [
-      [
-       "Aryna Sabalenka",
-       0.24
-      ],
-      [
-       "Jessica Pegula",
-       0.17
-      ],
-      [
-       "Ben Shelton",
-       0.14
-      ]
-     ],
-     "NHL": [
-      [
-       "Minnesota Wild",
-       0.19
-      ],
-      [
-       "Florida Panthers",
-       0.17
-      ],
-      [
-       "Tampa Bay Lightning",
+       "Atlanta Braves",
        0.12
-      ]
-     ],
-     "Country": [
-      [
-       "Qatar",
-       0.23
-      ],
-      [
-       "Saudi Arabia",
-       0.17
-      ],
-      [
-       "Iraq",
-       0.15
       ]
      ],
      "Musician": [
       [
        "Ariana Grande",
-       0.31
-      ],
-      [
-       "Ella Langley",
-       0.2
+       0.29
       ],
       [
        "Harry Styles",
-       0.15
+       0.21
+      ],
+      [
+       "Morgan Wallen",
+       0.21
       ]
      ],
-     "MLB": [
+     "Tennis": [
       [
-       "Milwaukee Brewers",
-       0.33
+       "Elena Rybakina",
+       0.2
       ],
       [
-       "Los Angeles Dodgers",
-       0.23
+       "Jessica Pegula",
+       0.16
       ],
       [
-       "New York Yankees",
-       0.1
+       "Ben Shelton",
+       0.11
+      ]
+     ],
+     "Golf": [
+      [
+       "Scottie Scheffler",
+       0.15
+      ],
+      [
+       "J.J. Spaun",
+       0.14
+      ],
+      [
+       "Matt Fitzpatrick",
+       0.11
       ]
      ],
      "NBA": [
@@ -858,82 +836,96 @@
        0.23
       ],
       [
-       "Miami Heat",
+       "Philadelphia 76ers",
        0.16
       ],
       [
        "Minnesota Timberwolves",
+       0.11
+      ]
+     ],
+     "NHL": [
+      [
+       "Vegas Golden Knights",
+       0.2
+      ],
+      [
+       "Florida Panthers",
+       0.19
+      ],
+      [
+       "Colorado Avalanche",
        0.14
-      ]
-     ],
-     "MLS": [
-      [
-       "FC Dallas",
-       0.25
-      ],
-      [
-       "St. Louis City SC",
-       0.25
-      ],
-      [
-       "Inter Miami CF",
-       0.16
-      ]
-     ],
-     "NCAAB": [
-      [
-       "Florida",
-       0.54
-      ],
-      [
-       "Illinois",
-       0.1
-      ],
-      [
-       "Kentucky",
-       0.09
       ]
      ],
      "Actress": [
       [
        "Hailee Steinfeld",
-       0.49
+       0.42
       ],
       [
        "Lauren Vélez",
-       0.28
+       0.23
       ],
       [
        "Kimiko Glenn",
-       0.14
+       0.17
+      ]
+     ],
+     "MLS": [
+      [
+       "St. Louis City SC",
+       0.31
+      ],
+      [
+       "FC Dallas",
+       0.16
+      ],
+      [
+       "Inter Miami CF",
+       0.15
       ]
      ],
      "Stock": [
       [
        "MSTR (Long)",
-       0.81
+       0.84
       ],
       [
        "COIN (Long)",
-       0.12
+       0.11
       ],
       [
-       "SMCI (Long)",
+       "AMD (Long)",
        0.03
       ]
      ],
      "Actor": [
       [
        "Josh Gad",
-       0.51
+       0.53
       ],
       [
        "Aaron Pierre",
-       0.3
+       0.31
       ],
       [
-       "Brian Tyree Henry",
-       0.1
+       "Skyler Gisondo",
+       0.12
+      ]
+     ],
+     "Country": [
+      [
+       "Saudi Arabia",
+       0.28
+      ],
+      [
+       "Guinea",
+       0.15
+      ],
+      [
+       "Iraq",
+       0.14
       ]
      ]
     },
@@ -979,24 +971,24 @@
       1.0
      ],
      [
-      "Wu",
-      "San Antonio Spurs",
-      0.93
-     ],
-     [
       "Jamzee",
       "Carolina Hurricanes",
-      0.6
+      0.99
      ],
      [
       "Fryar",
-      "UConn",
-      0.56
+      "Tampa Bay Lightning",
+      0.99
+     ],
+     [
+      "Wu",
+      "San Antonio Spurs",
+      0.96
      ],
      [
       "Tim",
       "Vegas Golden Knights",
-      0.55
+      0.11
      ]
     ]
    }
@@ -1008,209 +1000,205 @@
     "Colorado Avalanche"
    ],
    "dropoff": {
-    "mean": 155.8,
-    "sd": 3.3,
+    "mean": 152.9,
+    "sd": 3.5,
     "rounds": {
      "0": [
       [
        "NHL",
-       0.99
-      ],
-      [
-       "NFL",
-       0.01
+       1.0
       ]
      ],
      "1": [
       [
        "NCAAF",
-       0.46
+       0.41
       ],
       [
        "NCAAB",
-       0.3
+       0.28
       ],
       [
-       "NFL",
-       0.15
+       "NASCAR",
+       0.24
       ]
      ],
      "2": [
       [
        "NCAAF",
-       0.51
+       0.54
       ],
       [
        "NCAAB",
-       0.29
-      ],
-      [
-       "NFL",
-       0.2
-      ]
-     ],
-     "3": [
-      [
-       "NASCAR",
-       0.85
-      ],
-      [
-       "MLB",
-       0.05
-      ],
-      [
-       "Golf",
-       0.04
-      ]
-     ],
-     "4": [
-      [
-       "MLB",
-       0.2
-      ],
-      [
-       "Golf",
-       0.17
-      ],
-      [
-       "NCAAB",
-       0.16
-      ]
-     ],
-     "5": [
-      [
-       "Musician",
-       0.26
-      ],
-      [
-       "Country",
-       0.19
+       0.24
       ],
       [
        "NFL",
        0.15
       ]
      ],
-     "6": [
+     "3": [
       [
-       "MLS",
-       0.28
+       "NASCAR",
+       0.68
       ],
       [
-       "Tennis",
+       "MLB",
+       0.11
+      ],
+      [
+       "NCAAB",
+       0.1
+      ]
+     ],
+     "4": [
+      [
+       "NBA",
        0.23
       ],
       [
+       "MLB",
+       0.2
+      ],
+      [
+       "Golf",
+       0.17
+      ]
+     ],
+     "5": [
+      [
+       "NFL",
+       0.21
+      ],
+      [
+       "Tennis",
+       0.2
+      ],
+      [
        "Country",
-       0.19
+       0.16
+      ]
+     ],
+     "6": [
+      [
+       "Tennis",
+       0.26
+      ],
+      [
+       "MLS",
+       0.24
+      ],
+      [
+       "Country",
+       0.2
       ]
      ],
      "7": [
       [
+       "NFL",
+       0.28
+      ],
+      [
        "Musician",
-       0.39
+       0.28
       ],
       [
        "MLB",
-       0.24
-      ],
-      [
-       "NFL",
-       0.11
+       0.25
       ]
      ],
      "8": [
       [
        "Country",
-       0.47
+       0.46
       ],
       [
        "Golf",
-       0.26
+       0.2
       ],
       [
        "Actor",
-       0.11
+       0.14
       ]
      ],
      "9": [
       [
        "NBA",
-       0.35
+       0.3
       ],
       [
-       "MLB",
-       0.19
+       "Musician",
+       0.24
       ],
       [
        "NFL",
-       0.17
+       0.19
       ]
      ],
      "10": [
       [
        "MLS",
-       0.3
+       0.33
       ],
       [
-       "Actor",
-       0.2
+       "Musician",
+       0.16
       ],
       [
        "NBA",
-       0.17
+       0.1
       ]
      ],
      "11": [
       [
        "Actress",
-       0.28
+       0.26
       ],
       [
        "MLS",
-       0.24
+       0.26
       ],
       [
-       "NBA",
-       0.12
+       "Tennis",
+       0.14
       ]
      ],
      "12": [
       [
        "Actress",
-       0.38
+       0.45
       ],
       [
-       "Stock",
+       "Golf",
        0.19
       ],
       [
-       "Tennis",
-       0.17
+       "Stock",
+       0.14
       ]
      ],
      "13": [
       [
        "Stock",
-       0.53
-      ],
-      [
-       "Actor",
-       0.23
+       0.69
       ],
       [
        "Actress",
-       0.16
+       0.14
+      ],
+      [
+       "Actor",
+       0.14
       ]
      ],
      "14": [
       [
        "Actor",
-       0.35
+       0.51
       ],
       [
        "Stock",
-       0.25
+       0.16
       ],
       [
        "Golf",
@@ -1222,207 +1210,199 @@
      "NHL": [
       [
        "Colorado Avalanche",
-       0.99
-      ],
-      [
-       "Florida Panthers",
-       0.01
-      ]
-     ],
-     "NCAAB": [
-      [
-       "Florida",
-       0.59
-      ],
-      [
-       "Illinois",
-       0.09
-      ],
-      [
-       "Houston",
-       0.07
-      ]
-     ],
-     "NCAAF": [
-      [
-       "Alabama",
-       0.28
-      ],
-      [
-       "Miami (FL)",
-       0.25
-      ],
-      [
-       "Texas",
-       0.21
+       1.0
       ]
      ],
      "NASCAR": [
       [
        "Kyle Larson",
-       0.7
+       0.71
       ],
       [
        "Denny Hamlin",
-       0.25
-      ],
-      [
-       "Christopher Bell",
-       0.05
+       0.29
       ]
      ],
-     "Golf": [
+     "NCAAF": [
       [
-       "Matt Fitzpatrick",
-       0.14
+       "Texas",
+       0.41
       ],
       [
-       "Scottie Scheffler",
-       0.12
+       "Notre Dame",
+       0.23
       ],
       [
-       "Rory McIlroy",
-       0.1
+       "Miami (FL)",
+       0.2
       ]
      ],
      "NFL": [
       [
-       "Los Angeles Rams",
-       0.23
+       "New England Patriots",
+       0.19
       ],
       [
-       "San Francisco 49ers",
+       "Buffalo Bills",
        0.16
       ],
       [
-       "Detroit Lions",
+       "Chicago Bears",
        0.15
       ]
      ],
-     "MLS": [
+     "Tennis": [
       [
-       "St. Louis City SC",
-       0.3
+       "Elena Rybakina",
+       0.25
       ],
       [
-       "Vancouver Whitecaps FC",
-       0.14
+       "Carlos Alcaraz",
+       0.12
       ],
       [
-       "Nashville SC",
-       0.14
-      ]
-     ],
-     "Musician": [
-      [
-       "Ariana Grande",
-       0.29
-      ],
-      [
-       "Drake",
-       0.26
-      ],
-      [
-       "Harry Styles",
-       0.17
-      ]
-     ],
-     "Country": [
-      [
-       "Sudan",
-       0.28
-      ],
-      [
-       "Guyana",
-       0.14
-      ],
-      [
-       "Qatar",
-       0.14
+       "Aryna Sabalenka",
+       0.11
       ]
      ],
      "MLB": [
       [
-       "New York Yankees",
-       0.15
+       "Los Angeles Dodgers",
+       0.2
       ],
       [
        "Arizona Diamondbacks",
        0.12
       ],
       [
-       "Milwaukee Brewers",
-       0.12
+       "Chicago Cubs",
+       0.11
+      ]
+     ],
+     "MLS": [
+      [
+       "St. Louis City SC",
+       0.28
+      ],
+      [
+       "Nashville SC",
+       0.19
+      ],
+      [
+       "FC Dallas",
+       0.14
+      ]
+     ],
+     "Country": [
+      [
+       "Sudan",
+       0.16
+      ],
+      [
+       "Uganda",
+       0.15
+      ],
+      [
+       "Iraq",
+       0.14
+      ]
+     ],
+     "Actor": [
+      [
+       "Josh Gad",
+       0.62
+      ],
+      [
+       "Aaron Pierre",
+       0.2
+      ],
+      [
+       "Skyler Gisondo",
+       0.14
+      ]
+     ],
+     "Musician": [
+      [
+       "Morgan Wallen",
+       0.46
+      ],
+      [
+       "BTS",
+       0.23
+      ],
+      [
+       "Ariana Grande",
+       0.2
       ]
      ],
      "NBA": [
       [
-       "Los Angeles Lakers",
-       0.28
-      ],
-      [
-       "Toronto Raptors",
+       "Minnesota Timberwolves",
        0.19
       ],
       [
        "Miami Heat",
-       0.12
-      ]
-     ],
-     "Tennis": [
-      [
-       "Alexander Zverev",
        0.16
       ],
       [
-       "Aryna Sabalenka",
+       "Los Angeles Lakers",
        0.15
+      ]
+     ],
+     "Golf": [
+      [
+       "Rory McIlroy",
+       0.17
       ],
       [
-       "Carlos Alcaraz",
-       0.14
+       "Collin Morikawa",
+       0.1
+      ],
+      [
+       "Xander Schauffele",
+       0.1
+      ]
+     ],
+     "NCAAB": [
+      [
+       "Florida",
+       0.51
+      ],
+      [
+       "UConn",
+       0.11
+      ],
+      [
+       "Houston",
+       0.09
       ]
      ],
      "Actress": [
       [
        "Hailee Steinfeld",
-       0.33
+       0.46
       ],
       [
        "Lauren Vélez",
-       0.26
+       0.19
       ],
       [
        "Kimiko Glenn",
-       0.14
+       0.11
       ]
      ],
      "Stock": [
       [
        "MSTR (Long)",
-       0.62
+       0.57
       ],
       [
        "COIN (Long)",
        0.23
       ],
       [
-       "AMD (Long)",
-       0.07
-      ]
-     ],
-     "Actor": [
-      [
-       "Josh Gad",
-       0.53
-      ],
-      [
-       "Aaron Pierre",
-       0.33
-      ],
-      [
-       "Skyler Gisondo",
-       0.1
+       "TTWO (Long)",
+       0.06
       ]
      ]
     },
@@ -1468,189 +1448,185 @@
       1.0
      ],
      [
-      "Wu",
-      "San Antonio Spurs",
-      0.93
-     ],
-     [
       "Jamzee",
       "Carolina Hurricanes",
-      0.6
+      0.99
      ],
      [
       "Fryar",
-      "UConn",
-      0.56
+      "Tampa Bay Lightning",
+      0.99
+     ],
+     [
+      "Wu",
+      "San Antonio Spurs",
+      0.96
      ],
      [
       "Tim",
       "Vegas Golden Knights",
-      0.55
+      0.11
      ]
     ]
    },
    "bpa": {
-    "mean": 152.6,
-    "sd": 3.9,
+    "mean": 150.3,
+    "sd": 3.5,
     "rounds": {
      "0": [
       [
        "NHL",
-       0.99
-      ],
-      [
-       "NFL",
-       0.01
+       1.0
       ]
      ],
      "1": [
       [
        "NCAAF",
-       0.46
+       0.41
       ],
       [
        "NCAAB",
-       0.3
+       0.28
       ],
       [
-       "NFL",
-       0.15
+       "NASCAR",
+       0.24
       ]
      ],
      "2": [
       [
-       "NCAAB",
-       0.36
-      ],
-      [
        "NASCAR",
-       0.35
+       0.41
       ],
       [
-       "NCAAF",
-       0.17
+       "NCAAB",
+       0.28
+      ],
+      [
+       "NFL",
+       0.12
       ]
      ],
      "3": [
       [
        "NASCAR",
-       0.42
+       0.28
       ],
       [
        "MLB",
-       0.25
+       0.23
       ],
       [
-       "NBA",
+       "NCAAB",
        0.11
       ]
      ],
      "4": [
       [
        "MLB",
-       0.38
+       0.23
       ],
       [
-       "Golf",
-       0.19
+       "NBA",
+       0.21
       ],
       [
        "NFL",
-       0.17
+       0.2
       ]
      ],
      "5": [
       [
-       "Musician",
-       0.35
+       "Country",
+       0.25
       ],
       [
        "NFL",
        0.19
       ],
       [
-       "Tennis",
-       0.16
+       "Musician",
+       0.17
       ]
      ],
      "6": [
       [
        "Musician",
-       0.21
+       0.28
       ],
       [
        "Tennis",
-       0.19
+       0.2
       ],
       [
        "MLS",
-       0.16
+       0.12
       ]
      ],
      "7": [
       [
-       "NBA",
-       0.21
+       "MLB",
+       0.26
       ],
       [
        "Musician",
-       0.19
+       0.24
       ],
       [
-       "Country",
-       0.17
+       "NBA",
+       0.12
       ]
      ],
      "8": [
       [
        "NBA",
-       0.25
-      ],
-      [
-       "Actor",
-       0.19
+       0.21
       ],
       [
        "Musician",
        0.17
+      ],
+      [
+       "Actor",
+       0.14
       ]
      ],
      "9": [
       [
        "MLS",
-       0.26
-      ],
-      [
-       "NBA",
-       0.2
+       0.31
       ],
       [
        "Actor",
-       0.19
+       0.17
+      ],
+      [
+       "NBA",
+       0.14
       ]
      ],
      "10": [
       [
        "MLS",
-       0.3
+       0.31
       ],
       [
        "Tennis",
-       0.19
+       0.21
       ],
       [
-       "Actress",
-       0.17
+       "NCAAF",
+       0.15
       ]
      ],
      "11": [
       [
        "Actress",
-       0.46
+       0.45
       ],
       [
        "Stock",
-       0.19
+       0.2
       ],
       [
        "Tennis",
@@ -1660,43 +1636,43 @@
      "12": [
       [
        "Stock",
-       0.59
+       0.47
       ],
       [
        "Actress",
-       0.19
+       0.26
       ],
       [
-       "Actor",
-       0.09
+       "Golf",
+       0.14
       ]
      ],
      "13": [
       [
        "Actor",
-       0.34
+       0.39
       ],
       [
        "Stock",
-       0.19
+       0.3
       ],
       [
        "Golf",
-       0.16
+       0.15
       ]
      ],
      "14": [
       [
        "Country",
-       0.56
+       0.53
       ],
       [
        "Golf",
-       0.14
+       0.16
       ],
       [
        "Actor",
-       0.09
+       0.15
       ]
      ]
     },
@@ -1704,207 +1680,203 @@
      "NHL": [
       [
        "Colorado Avalanche",
-       0.99
-      ],
-      [
-       "Utah Mammoth",
-       0.01
-      ]
-     ],
-     "NCAAB": [
-      [
-       "Florida",
-       0.66
-      ],
-      [
-       "UConn",
-       0.07
-      ],
-      [
-       "Kentucky",
-       0.07
-      ]
-     ],
-     "NCAAF": [
-      [
-       "Miami (FL)",
-       0.25
-      ],
-      [
-       "Texas",
-       0.2
-      ],
-      [
-       "Notre Dame",
-       0.19
+       1.0
       ]
      ],
      "NASCAR": [
       [
        "Kyle Larson",
-       0.75
+       0.84
       ],
       [
        "Denny Hamlin",
-       0.15
+       0.12
       ],
       [
-       "Christopher Bell",
-       0.09
+       "Chase Elliott",
+       0.03
       ]
      ],
      "NFL": [
       [
-       "Seattle Seahawks",
-       0.26
-      ],
-      [
-       "Los Angeles Rams",
-       0.17
-      ],
-      [
-       "San Francisco 49ers",
+       "Denver Broncos",
        0.16
+      ],
+      [
+       "Chicago Bears",
+       0.16
+      ],
+      [
+       "Buffalo Bills",
+       0.15
       ]
      ],
      "NBA": [
       [
-       "Los Angeles Lakers",
-       0.28
-      ],
-      [
-       "Toronto Raptors",
+       "Philadelphia 76ers",
        0.17
       ],
       [
-       "Miami Heat",
+       "Toronto Raptors",
+       0.15
+      ],
+      [
+       "Minnesota Timberwolves",
+       0.15
+      ]
+     ],
+     "MLB": [
+      [
+       "Los Angeles Dodgers",
+       0.25
+      ],
+      [
+       "Milwaukee Brewers",
+       0.2
+      ],
+      [
+       "Chicago Cubs",
        0.16
+      ]
+     ],
+     "Musician": [
+      [
+       "Morgan Wallen",
+       0.33
+      ],
+      [
+       "Ariana Grande",
+       0.29
+      ],
+      [
+       "Harry Styles",
+       0.2
+      ]
+     ],
+     "Golf": [
+      [
+       "Collin Morikawa",
+       0.21
+      ],
+      [
+       "Scottie Scheffler",
+       0.12
+      ],
+      [
+       "Xander Schauffele",
+       0.12
+      ]
+     ],
+     "NCAAB": [
+      [
+       "Florida",
+       0.55
+      ],
+      [
+       "UConn",
+       0.16
+      ],
+      [
+       "Illinois",
+       0.07
       ]
      ],
      "MLS": [
       [
        "St. Louis City SC",
-       0.29
-      ],
-      [
-       "Nashville SC",
-       0.17
+       0.28
       ],
       [
        "FC Dallas",
-       0.16
-      ]
-     ],
-     "MLB": [
-      [
-       "Milwaukee Brewers",
-       0.3
+       0.23
       ],
       [
-       "New York Yankees",
+       "Nashville SC",
+       0.14
+      ]
+     ],
+     "NCAAF": [
+      [
+       "Notre Dame",
+       0.23
+      ],
+      [
+       "Miami (FL)",
        0.2
       ],
       [
-       "Los Angeles Dodgers",
-       0.15
-      ]
-     ],
-     "Musician": [
-      [
-       "Ariana Grande",
-       0.35
-      ],
-      [
-       "Harry Styles",
-       0.21
-      ],
-      [
-       "BTS",
-       0.2
+       "BYU",
+       0.19
       ]
      ],
      "Tennis": [
       [
-       "Jessica Pegula",
-       0.23
-      ],
-      [
        "Elena Rybakina",
-       0.15
+       0.17
       ],
       [
        "Ben Shelton",
-       0.14
+       0.16
+      ],
+      [
+       "Jannik Sinner",
+       0.15
       ]
      ],
      "Actress": [
       [
        "Hailee Steinfeld",
-       0.51
+       0.49
       ],
       [
        "Lauren Vélez",
-       0.15
+       0.3
       ],
       [
-       "Kimiko Glenn",
+       "Kristen Bell",
        0.11
       ]
      ],
      "Stock": [
       [
        "MSTR (Long)",
-       0.9
+       0.75
       ],
       [
        "COIN (Long)",
-       0.06
+       0.2
       ],
       [
-       "TTWO (Long)",
-       0.03
+       "AMD (Long)",
+       0.05
       ]
      ],
      "Actor": [
       [
        "Josh Gad",
-       0.45
+       0.56
       ],
       [
        "Aaron Pierre",
-       0.38
+       0.29
       ],
       [
        "Skyler Gisondo",
-       0.11
-      ]
-     ],
-     "Golf": [
-      [
-       "Collin Morikawa",
-       0.17
-      ],
-      [
-       "Scottie Scheffler",
-       0.15
-      ],
-      [
-       "Sam Burns",
-       0.14
+       0.1
       ]
      ],
      "Country": [
       [
-       "Saudi Arabia",
-       0.25
-      ],
-      [
        "Guinea",
-       0.21
+       0.24
       ],
       [
        "Iraq",
-       0.15
+       0.19
+      ],
+      [
+       "Saudi Arabia",
+       0.17
       ]
      ]
     },
@@ -1950,24 +1922,24 @@
       1.0
      ],
      [
-      "Wu",
-      "San Antonio Spurs",
-      0.93
-     ],
-     [
       "Jamzee",
       "Carolina Hurricanes",
-      0.6
+      0.99
      ],
      [
       "Fryar",
-      "UConn",
-      0.56
+      "Tampa Bay Lightning",
+      0.99
+     ],
+     [
+      "Wu",
+      "San Antonio Spurs",
+      0.96
      ],
      [
       "Tim",
       "Vegas Golden Knights",
-      0.55
+      0.11
      ]
     ]
    }
@@ -1979,8 +1951,8 @@
     "Indiana"
    ],
    "dropoff": {
-    "mean": 153.2,
-    "sd": 2.5,
+    "mean": 152.1,
+    "sd": 2.7,
     "rounds": {
      "0": [
       [
@@ -1991,127 +1963,127 @@
      "1": [
       [
        "NCAAB",
-       0.64
+       0.61
       ],
       [
        "NASCAR",
-       0.24
+       0.35
       ],
       [
        "NFL",
-       0.1
+       0.03
       ]
      ],
      "2": [
       [
        "NFL",
-       0.6
-      ],
-      [
-       "NHL",
-       0.25
+       0.65
       ],
       [
        "Actress",
-       0.06
+       0.17
+      ],
+      [
+       "NBA",
+       0.14
       ]
      ],
      "3": [
       [
        "NASCAR",
-       0.64
+       0.54
       ],
       [
-       "NCAAB",
-       0.1
+       "NHL",
+       0.15
       ],
       [
        "MLB",
-       0.1
+       0.12
       ]
      ],
      "4": [
-      [
-       "MLB",
-       0.24
-      ],
-      [
-       "Golf",
-       0.2
-      ],
-      [
-       "NBA",
-       0.12
-      ]
-     ],
-     "5": [
-      [
-       "NHL",
-       0.3
-      ],
-      [
-       "Country",
-       0.17
-      ],
-      [
-       "MLB",
-       0.15
-      ]
-     ],
-     "6": [
-      [
-       "MLS",
-       0.3
-      ],
-      [
-       "Tennis",
-       0.2
-      ],
-      [
-       "Country",
-       0.12
-      ]
-     ],
-     "7": [
-      [
-       "Musician",
-       0.39
-      ],
-      [
-       "MLB",
-       0.16
-      ],
-      [
-       "NBA",
-       0.11
-      ]
-     ],
-     "8": [
-      [
-       "Country",
-       0.46
-      ],
       [
        "Golf",
        0.23
       ],
       [
-       "Musician",
+       "NBA",
+       0.21
+      ],
+      [
+       "MLB",
+       0.21
+      ]
+     ],
+     "5": [
+      [
+       "NHL",
+       0.24
+      ],
+      [
+       "Tennis",
        0.19
+      ],
+      [
+       "MLB",
+       0.11
+      ]
+     ],
+     "6": [
+      [
+       "MLS",
+       0.24
+      ],
+      [
+       "Tennis",
+       0.21
+      ],
+      [
+       "Country",
+       0.2
+      ]
+     ],
+     "7": [
+      [
+       "Musician",
+       0.28
+      ],
+      [
+       "MLB",
+       0.26
+      ],
+      [
+       "Country",
+       0.15
+      ]
+     ],
+     "8": [
+      [
+       "Country",
+       0.5
+      ],
+      [
+       "Golf",
+       0.19
+      ],
+      [
+       "Actor",
+       0.12
       ]
      ],
      "9": [
       [
        "NBA",
-       0.34
-      ],
-      [
-       "MLB",
-       0.24
+       0.25
       ],
       [
        "Musician",
-       0.16
+       0.24
+      ],
+      [
+       "MLB",
+       0.2
       ]
      ],
      "10": [
@@ -2120,60 +2092,60 @@
        0.3
       ],
       [
-       "Actor",
-       0.21
+       "Musician",
+       0.16
       ],
       [
-       "NBA",
-       0.15
+       "Actor",
+       0.14
       ]
      ],
      "11": [
       [
-       "Actress",
-       0.29
+       "MLS",
+       0.26
       ],
       [
-       "MLS",
+       "Actress",
        0.24
       ],
       [
        "Tennis",
-       0.14
+       0.16
       ]
      ],
      "12": [
       [
        "Actress",
-       0.39
+       0.42
       ],
       [
        "Tennis",
-       0.2
+       0.15
       ],
       [
        "Stock",
-       0.2
+       0.14
       ]
      ],
      "13": [
       [
        "Stock",
-       0.59
+       0.65
       ],
       [
        "Actor",
-       0.2
+       0.15
       ],
       [
        "Actress",
-       0.12
+       0.11
       ]
      ],
      "14": [
       [
        "Actor",
-       0.4
+       0.49
       ],
       [
        "Golf",
@@ -2181,7 +2153,7 @@
       ],
       [
        "Stock",
-       0.2
+       0.17
       ]
      ]
     },
@@ -2190,676 +2162,202 @@
       [
        "Indiana",
        1.0
-      ]
-     ],
-     "NASCAR": [
-      [
-       "Kyle Larson",
-       0.79
-      ],
-      [
-       "Denny Hamlin",
-       0.16
-      ],
-      [
-       "Joey Logano",
-       0.04
-      ]
-     ],
-     "NFL": [
-      [
-       "Buffalo Bills",
-       0.38
-      ],
-      [
-       "Baltimore Ravens",
-       0.19
-      ],
-      [
-       "San Francisco 49ers",
-       0.09
       ]
      ],
      "NCAAB": [
       [
        "Florida",
-       0.66
-      ],
-      [
-       "Illinois",
-       0.11
+       0.62
       ],
       [
        "UConn",
-       0.07
-      ]
-     ],
-     "MLB": [
-      [
-       "Milwaukee Brewers",
-       0.16
-      ],
-      [
-       "Los Angeles Dodgers",
-       0.15
-      ],
-      [
-       "New York Yankees",
-       0.14
-      ]
-     ],
-     "Country": [
-      [
-       "Sudan",
-       0.34
-      ],
-      [
-       "Qatar",
-       0.16
-      ],
-      [
-       "Iraq",
-       0.15
-      ]
-     ],
-     "MLS": [
-      [
-       "St. Louis City SC",
-       0.23
-      ],
-      [
-       "Nashville SC",
-       0.21
-      ],
-      [
-       "FC Dallas",
-       0.14
-      ]
-     ],
-     "Musician": [
-      [
-       "Drake",
-       0.4
-      ],
-      [
-       "Ariana Grande",
-       0.23
-      ],
-      [
-       "BTS",
-       0.19
-      ]
-     ],
-     "Golf": [
-      [
-       "Scottie Scheffler",
-       0.17
-      ],
-      [
-       "Xander Schauffele",
-       0.11
-      ],
-      [
-       "Rory McIlroy",
-       0.1
-      ]
-     ],
-     "NHL": [
-      [
-       "Colorado Avalanche",
-       0.25
-      ],
-      [
-       "Minnesota Wild",
-       0.2
-      ],
-      [
-       "Florida Panthers",
-       0.19
-      ]
-     ],
-     "Actor": [
-      [
-       "Josh Gad",
-       0.53
-      ],
-      [
-       "Aaron Pierre",
-       0.26
-      ],
-      [
-       "Skyler Gisondo",
        0.12
-      ]
-     ],
-     "NBA": [
-      [
-       "Los Angeles Lakers",
-       0.25
       ],
       [
-       "Toronto Raptors",
-       0.16
-      ],
-      [
-       "Minnesota Timberwolves",
-       0.14
-      ]
-     ],
-     "Tennis": [
-      [
-       "Elena Rybakina",
-       0.16
-      ],
-      [
-       "Aryna Sabalenka",
-       0.14
-      ],
-      [
-       "Jessica Pegula",
-       0.14
-      ]
-     ],
-     "Actress": [
-      [
-       "Hailee Steinfeld",
-       0.31
-      ],
-      [
-       "Lauren Vélez",
-       0.25
-      ],
-      [
-       "Kimiko Glenn",
-       0.16
-      ]
-     ],
-     "Stock": [
-      [
-       "MSTR (Long)",
-       0.57
-      ],
-      [
-       "COIN (Long)",
-       0.19
-      ],
-      [
-       "AMD (Long)",
-       0.14
-      ]
-     ]
-    },
-    "others_keep": [
-     [
-      "Shep",
-      "Kansas City Chiefs",
-      1.0
-     ],
-     [
-      "Jens",
-      "Duke",
-      1.0
-     ],
-     [
-      "Todd",
-      "Olivia Rodrigo",
-      1.0
-     ],
-     [
-      "Feder",
-      "Oklahoma City Thunder",
-      1.0
-     ],
-     [
-      "Molmen",
-      "Taylor Swift",
-      1.0
-     ],
-     [
-      "Theo",
-      "Georgia",
-      1.0
-     ],
-     [
-      "Buckley",
-      "Edmonton Oilers",
-      1.0
-     ],
-     [
-      "Mitchell",
-      "Ohio State",
-      1.0
-     ],
-     [
-      "Wu",
-      "San Antonio Spurs",
-      0.93
-     ],
-     [
-      "Jamzee",
-      "Carolina Hurricanes",
-      0.6
-     ],
-     [
-      "Fryar",
-      "UConn",
-      0.56
-     ],
-     [
-      "Tim",
-      "Vegas Golden Knights",
-      0.55
-     ]
-    ]
-   },
-   "bpa": {
-    "mean": 149.9,
-    "sd": 2.6,
-    "rounds": {
-     "0": [
-      [
-       "NCAAF",
-       1.0
-      ]
-     ],
-     "1": [
-      [
-       "NCAAB",
-       0.64
-      ],
-      [
-       "NASCAR",
-       0.24
-      ],
-      [
-       "NFL",
-       0.1
-      ]
-     ],
-     "2": [
-      [
-       "NASCAR",
-       0.64
-      ],
-      [
-       "NFL",
-       0.23
-      ],
-      [
-       "NHL",
-       0.07
-      ]
-     ],
-     "3": [
-      [
-       "MLB",
-       0.41
-      ],
-      [
-       "NFL",
-       0.21
-      ],
-      [
-       "NBA",
+       "Michigan",
        0.11
       ]
      ],
-     "4": [
+     "NFL": [
       [
-       "MLB",
-       0.29
+       "Buffalo Bills",
+       0.47
       ],
       [
-       "Golf",
-       0.19
-      ],
-      [
-       "NHL",
-       0.15
-      ]
-     ],
-     "5": [
-      [
-       "NHL",
-       0.29
-      ],
-      [
-       "Musician",
+       "Minnesota Vikings",
        0.17
       ],
       [
-       "NFL",
-       0.15
-      ]
-     ],
-     "6": [
-      [
-       "Tennis",
-       0.25
-      ],
-      [
-       "Musician",
-       0.25
-      ],
-      [
-       "Country",
-       0.16
-      ]
-     ],
-     "7": [
-      [
-       "Musician",
-       0.24
-      ],
-      [
-       "NBA",
-       0.17
-      ],
-      [
-       "NHL",
-       0.11
-      ]
-     ],
-     "8": [
-      [
-       "Musician",
-       0.24
-      ],
-      [
-       "NBA",
-       0.19
-      ],
-      [
-       "NHL",
-       0.15
-      ]
-     ],
-     "9": [
-      [
-       "MLS",
-       0.34
-      ],
-      [
-       "Actor",
-       0.21
-      ],
-      [
-       "NBA",
-       0.2
-      ]
-     ],
-     "10": [
-      [
-       "MLS",
-       0.49
-      ],
-      [
-       "Tennis",
-       0.16
-      ],
-      [
-       "Golf",
-       0.12
-      ]
-     ],
-     "11": [
-      [
-       "Actress",
-       0.57
-      ],
-      [
-       "Tennis",
-       0.14
-      ],
-      [
-       "NCAAB",
+       "Denver Broncos",
        0.07
-      ]
-     ],
-     "12": [
-      [
-       "Stock",
-       0.6
-      ],
-      [
-       "Actress",
-       0.28
-      ],
-      [
-       "Golf",
-       0.05
-      ]
-     ],
-     "13": [
-      [
-       "Actor",
-       0.36
-      ],
-      [
-       "Stock",
-       0.31
-      ],
-      [
-       "Golf",
-       0.2
-      ]
-     ],
-     "14": [
-      [
-       "Country",
-       0.56
-      ],
-      [
-       "Golf",
-       0.19
-      ],
-      [
-       "Actor",
-       0.17
-      ]
-     ]
-    },
-    "players": {
-     "NCAAF": [
-      [
-       "Indiana",
-       1.0
       ]
      ],
      "NASCAR": [
       [
        "Kyle Larson",
-       0.89
+       0.74
       ],
       [
        "Denny Hamlin",
-       0.06
+       0.2
       ],
       [
        "Christopher Bell",
        0.05
       ]
      ],
-     "NFL": [
+     "Tennis": [
       [
-       "Minnesota Vikings",
-       0.24
+       "Elena Rybakina",
+       0.17
       ],
       [
-       "Buffalo Bills",
-       0.2
+       "Jessica Pegula",
+       0.12
       ],
       [
-       "Seattle Seahawks",
-       0.19
+       "Aryna Sabalenka",
+       0.11
       ]
      ],
      "MLB": [
       [
-       "Milwaukee Brewers",
-       0.33
-      ],
-      [
        "Los Angeles Dodgers",
-       0.28
+       0.2
       ],
       [
-       "New York Yankees",
-       0.16
+       "Chicago Cubs",
+       0.17
+      ],
+      [
+       "Milwaukee Brewers",
+       0.15
       ]
      ],
      "Golf": [
       [
-       "Xander Schauffele",
+       "Collin Morikawa",
        0.14
       ],
       [
        "Rory McIlroy",
-       0.12
-      ],
-      [
-       "Collin Morikawa",
-       0.11
-      ]
-     ],
-     "NBA": [
-      [
-       "Los Angeles Lakers",
-       0.23
-      ],
-      [
-       "Minnesota Timberwolves",
-       0.16
-      ],
-      [
-       "Toronto Raptors",
        0.14
+      ],
+      [
+       "J.J. Spaun",
+       0.12
       ]
      ],
-     "Tennis": [
+     "Country": [
       [
-       "Elena Rybakina",
+       "Sudan",
+       0.29
+      ],
+      [
+       "Bahrain",
        0.19
       ],
       [
-       "Jessica Pegula",
-       0.17
+       "Guyana",
+       0.16
+      ]
+     ],
+     "Actress": [
+      [
+       "Hailee Steinfeld",
+       0.36
       ],
       [
-       "Aryna Sabalenka",
-       0.14
+       "Lauren Vélez",
+       0.33
+      ],
+      [
+       "Julianne Moore",
+       0.17
       ]
      ],
      "Musician": [
       [
+       "Morgan Wallen",
+       0.46
+      ],
+      [
        "Ariana Grande",
-       0.31
+       0.21
       ],
       [
        "BTS",
-       0.21
-      ],
-      [
-       "Harry Styles",
-       0.21
+       0.17
       ]
      ],
      "NHL": [
       [
        "Minnesota Wild",
-       0.33
-      ],
-      [
-       "Dallas Stars",
-       0.16
+       0.17
       ],
       [
        "Vegas Golden Knights",
-       0.14
+       0.17
+      ],
+      [
+       "Florida Panthers",
+       0.16
+      ]
+     ],
+     "NBA": [
+      [
+       "Minnesota Timberwolves",
+       0.2
+      ],
+      [
+       "Toronto Raptors",
+       0.15
+      ],
+      [
+       "Philadelphia 76ers",
+       0.12
       ]
      ],
      "MLS": [
       [
        "St. Louis City SC",
-       0.45
+       0.26
       ],
       [
        "FC Dallas",
        0.24
       ],
       [
-       "Inter Miami CF",
-       0.11
-      ]
-     ],
-     "NCAAB": [
-      [
-       "Florida",
-       0.66
-      ],
-      [
-       "Kansas",
-       0.06
-      ],
-      [
-       "Illinois",
-       0.06
-      ]
-     ],
-     "Actress": [
-      [
-       "Hailee Steinfeld",
-       0.44
-      ],
-      [
-       "Kimiko Glenn",
-       0.23
-      ],
-      [
-       "Lauren Vélez",
+       "Nashville SC",
        0.19
       ]
      ],
      "Stock": [
       [
        "MSTR (Long)",
-       0.82
+       0.56
       ],
       [
        "COIN (Long)",
-       0.1
+       0.26
       ],
       [
        "AMD (Long)",
-       0.06
+       0.09
       ]
      ],
      "Actor": [
       [
        "Josh Gad",
-       0.51
+       0.56
       ],
       [
        "Aaron Pierre",
-       0.33
+       0.19
       ],
       [
        "Skyler Gisondo",
-       0.09
-      ]
-     ],
-     "Country": [
-      [
-       "Guinea",
-       0.2
-      ],
-      [
-       "Saudi Arabia",
        0.16
-      ],
-      [
-       "Iraq",
-       0.15
       ]
      ]
     },
@@ -2905,24 +2403,498 @@
       1.0
      ],
      [
-      "Wu",
-      "San Antonio Spurs",
-      0.93
-     ],
-     [
       "Jamzee",
       "Carolina Hurricanes",
-      0.6
+      0.99
      ],
      [
       "Fryar",
-      "UConn",
-      0.56
+      "Tampa Bay Lightning",
+      0.99
+     ],
+     [
+      "Wu",
+      "San Antonio Spurs",
+      0.96
      ],
      [
       "Tim",
       "Vegas Golden Knights",
-      0.55
+      0.11
+     ]
+    ]
+   },
+   "bpa": {
+    "mean": 148.8,
+    "sd": 3.1,
+    "rounds": {
+     "0": [
+      [
+       "NCAAF",
+       1.0
+      ]
+     ],
+     "1": [
+      [
+       "NCAAB",
+       0.61
+      ],
+      [
+       "NASCAR",
+       0.35
+      ],
+      [
+       "NFL",
+       0.03
+      ]
+     ],
+     "2": [
+      [
+       "NASCAR",
+       0.51
+      ],
+      [
+       "NFL",
+       0.21
+      ],
+      [
+       "NBA",
+       0.14
+      ]
+     ],
+     "3": [
+      [
+       "MLB",
+       0.26
+      ],
+      [
+       "NHL",
+       0.17
+      ],
+      [
+       "NBA",
+       0.15
+      ]
+     ],
+     "4": [
+      [
+       "MLB",
+       0.29
+      ],
+      [
+       "NHL",
+       0.15
+      ],
+      [
+       "NFL",
+       0.14
+      ]
+     ],
+     "5": [
+      [
+       "Musician",
+       0.24
+      ],
+      [
+       "NFL",
+       0.19
+      ],
+      [
+       "Tennis",
+       0.14
+      ]
+     ],
+     "6": [
+      [
+       "Musician",
+       0.23
+      ],
+      [
+       "Country",
+       0.19
+      ],
+      [
+       "NHL",
+       0.17
+      ]
+     ],
+     "7": [
+      [
+       "Musician",
+       0.26
+      ],
+      [
+       "MLB",
+       0.15
+      ],
+      [
+       "NBA",
+       0.12
+      ]
+     ],
+     "8": [
+      [
+       "NBA",
+       0.21
+      ],
+      [
+       "NFL",
+       0.15
+      ],
+      [
+       "Actor",
+       0.15
+      ]
+     ],
+     "9": [
+      [
+       "MLS",
+       0.34
+      ],
+      [
+       "NBA",
+       0.17
+      ],
+      [
+       "Musician",
+       0.12
+      ]
+     ],
+     "10": [
+      [
+       "MLS",
+       0.33
+      ],
+      [
+       "Tennis",
+       0.26
+      ],
+      [
+       "Actress",
+       0.19
+      ]
+     ],
+     "11": [
+      [
+       "Actress",
+       0.46
+      ],
+      [
+       "Stock",
+       0.16
+      ],
+      [
+       "Tennis",
+       0.14
+      ]
+     ],
+     "12": [
+      [
+       "Stock",
+       0.47
+      ],
+      [
+       "Actress",
+       0.25
+      ],
+      [
+       "Golf",
+       0.12
+      ]
+     ],
+     "13": [
+      [
+       "Actor",
+       0.4
+      ],
+      [
+       "Stock",
+       0.35
+      ],
+      [
+       "Golf",
+       0.2
+      ]
+     ],
+     "14": [
+      [
+       "Country",
+       0.57
+      ],
+      [
+       "Actor",
+       0.26
+      ],
+      [
+       "Golf",
+       0.06
+      ]
+     ]
+    },
+    "players": {
+     "NCAAF": [
+      [
+       "Indiana",
+       1.0
+      ]
+     ],
+     "NCAAB": [
+      [
+       "Florida",
+       0.62
+      ],
+      [
+       "UConn",
+       0.19
+      ],
+      [
+       "Kentucky",
+       0.05
+      ]
+     ],
+     "NASCAR": [
+      [
+       "Kyle Larson",
+       0.86
+      ],
+      [
+       "Denny Hamlin",
+       0.09
+      ],
+      [
+       "Christopher Bell",
+       0.03
+      ]
+     ],
+     "MLB": [
+      [
+       "Los Angeles Dodgers",
+       0.29
+      ],
+      [
+       "Milwaukee Brewers",
+       0.24
+      ],
+      [
+       "New York Yankees",
+       0.16
+      ]
+     ],
+     "Country": [
+      [
+       "Saudi Arabia",
+       0.28
+      ],
+      [
+       "Iraq",
+       0.23
+      ],
+      [
+       "Guinea",
+       0.17
+      ]
+     ],
+     "NFL": [
+      [
+       "Buffalo Bills",
+       0.21
+      ],
+      [
+       "Denver Broncos",
+       0.17
+      ],
+      [
+       "Jacksonville Jaguars",
+       0.16
+      ]
+     ],
+     "Musician": [
+      [
+       "Ariana Grande",
+       0.35
+      ],
+      [
+       "Morgan Wallen",
+       0.26
+      ],
+      [
+       "Harry Styles",
+       0.2
+      ]
+     ],
+     "NBA": [
+      [
+       "Philadelphia 76ers",
+       0.17
+      ],
+      [
+       "Toronto Raptors",
+       0.16
+      ],
+      [
+       "Los Angeles Lakers",
+       0.14
+      ]
+     ],
+     "NHL": [
+      [
+       "Florida Panthers",
+       0.17
+      ],
+      [
+       "Minnesota Wild",
+       0.15
+      ],
+      [
+       "Utah Mammoth",
+       0.15
+      ]
+     ],
+     "MLS": [
+      [
+       "St. Louis City SC",
+       0.34
+      ],
+      [
+       "FC Dallas",
+       0.19
+      ],
+      [
+       "New England Revolution",
+       0.11
+      ]
+     ],
+     "Tennis": [
+      [
+       "Jessica Pegula",
+       0.26
+      ],
+      [
+       "Ben Shelton",
+       0.16
+      ],
+      [
+       "Elena Rybakina",
+       0.14
+      ]
+     ],
+     "Actress": [
+      [
+       "Hailee Steinfeld",
+       0.45
+      ],
+      [
+       "Lauren Vélez",
+       0.26
+      ],
+      [
+       "Kristen Bell",
+       0.1
+      ]
+     ],
+     "Stock": [
+      [
+       "MSTR (Long)",
+       0.75
+      ],
+      [
+       "COIN (Long)",
+       0.15
+      ],
+      [
+       "AMD (Long)",
+       0.06
+      ]
+     ],
+     "Actor": [
+      [
+       "Josh Gad",
+       0.66
+      ],
+      [
+       "Aaron Pierre",
+       0.21
+      ],
+      [
+       "Brian Tyree Henry",
+       0.07
+      ]
+     ],
+     "Golf": [
+      [
+       "Scottie Scheffler",
+       0.16
+      ],
+      [
+       "Sam Burns",
+       0.12
+      ],
+      [
+       "Xander Schauffele",
+       0.11
+      ]
+     ]
+    },
+    "others_keep": [
+     [
+      "Shep",
+      "Kansas City Chiefs",
+      1.0
+     ],
+     [
+      "Jens",
+      "Duke",
+      1.0
+     ],
+     [
+      "Todd",
+      "Olivia Rodrigo",
+      1.0
+     ],
+     [
+      "Feder",
+      "Oklahoma City Thunder",
+      1.0
+     ],
+     [
+      "Molmen",
+      "Taylor Swift",
+      1.0
+     ],
+     [
+      "Theo",
+      "Georgia",
+      1.0
+     ],
+     [
+      "Buckley",
+      "Edmonton Oilers",
+      1.0
+     ],
+     [
+      "Mitchell",
+      "Ohio State",
+      1.0
+     ],
+     [
+      "Jamzee",
+      "Carolina Hurricanes",
+      0.99
+     ],
+     [
+      "Fryar",
+      "Tampa Bay Lightning",
+      0.99
+     ],
+     [
+      "Wu",
+      "San Antonio Spurs",
+      0.96
+     ],
+     [
+      "Tim",
+      "Vegas Golden Knights",
+      0.11
      ]
     ]
    }
@@ -2934,8 +2906,8 @@
     "Guyana"
    ],
    "dropoff": {
-    "mean": 153.4,
-    "sd": 2.9,
+    "mean": 151.5,
+    "sd": 3.3,
     "rounds": {
      "0": [
       [
@@ -2946,155 +2918,155 @@
      "1": [
       [
        "NCAAF",
-       0.57
-      ],
-      [
-       "NCAAB",
-       0.2
+       0.42
       ],
       [
        "NASCAR",
-       0.11
+       0.28
+      ],
+      [
+       "NCAAB",
+       0.17
       ]
      ],
      "2": [
       [
        "NCAAF",
-       0.4
+       0.53
       ],
       [
        "NCAAB",
-       0.3
+       0.24
       ],
       [
        "NFL",
-       0.2
+       0.14
       ]
      ],
      "3": [
       [
        "NASCAR",
-       0.76
+       0.54
+      ],
+      [
+       "NHL",
+       0.16
       ],
       [
        "MLB",
-       0.09
-      ],
-      [
-       "NBA",
-       0.07
+       0.15
       ]
      ],
      "4": [
       [
-       "NCAAB",
-       0.2
-      ],
-      [
        "NBA",
-       0.19
+       0.24
       ],
       [
-       "Tennis",
-       0.15
+       "MLB",
+       0.16
+      ],
+      [
+       "NASCAR",
+       0.16
       ]
      ],
      "5": [
       [
        "NHL",
-       0.34
+       0.26
       ],
       [
        "NFL",
-       0.17
+       0.2
       ],
       [
        "Tennis",
-       0.14
+       0.15
       ]
      ],
      "6": [
       [
-       "Tennis",
-       0.24
+       "NCAAB",
+       0.3
       ],
       [
        "NHL",
-       0.21
+       0.28
       ],
       [
-       "NCAAB",
-       0.19
+       "Tennis",
+       0.17
       ]
      ],
      "7": [
       [
        "Musician",
-       0.29
+       0.3
       ],
       [
        "MLB",
-       0.23
+       0.29
       ],
       [
-       "NHL",
-       0.16
+       "NFL",
+       0.23
       ]
      ],
      "8": [
       [
        "Golf",
-       0.45
-      ],
-      [
-       "Musician",
-       0.21
+       0.4
       ],
       [
        "Actor",
-       0.17
+       0.26
+      ],
+      [
+       "Musician",
+       0.15
       ]
      ],
      "9": [
       [
        "NBA",
-       0.31
-      ],
-      [
-       "MLB",
        0.3
       ],
       [
        "Musician",
-       0.19
+       0.2
+      ],
+      [
+       "NFL",
+       0.2
       ]
      ],
      "10": [
       [
        "MLS",
-       0.25
+       0.33
+      ],
+      [
+       "Musician",
+       0.15
       ],
       [
        "Actor",
-       0.19
-      ],
-      [
-       "NBA",
-       0.15
+       0.14
       ]
      ],
      "11": [
       [
        "MLS",
-       0.34
+       0.35
+      ],
+      [
+       "Tennis",
+       0.16
       ],
       [
        "Actress",
-       0.17
-      ],
-      [
-       "NBA",
-       0.15
+       0.16
       ]
      ],
      "12": [
@@ -3104,39 +3076,39 @@
       ],
       [
        "Tennis",
-       0.19
+       0.21
       ],
       [
        "Stock",
-       0.15
+       0.11
       ]
      ],
      "13": [
       [
        "Stock",
-       0.51
+       0.61
       ],
       [
        "Actress",
-       0.23
+       0.25
       ],
       [
        "Actor",
-       0.15
+       0.11
       ]
      ],
      "14": [
       [
        "Actor",
-       0.4
+       0.44
       ],
       [
        "Stock",
-       0.34
+       0.28
       ],
       [
        "Golf",
-       0.15
+       0.14
       ]
      ]
     },
@@ -3150,197 +3122,197 @@
      "NASCAR": [
       [
        "Kyle Larson",
-       0.68
+       0.64
       ],
       [
        "Denny Hamlin",
-       0.28
+       0.33
       ],
       [
-       "Christopher Bell",
-       0.04
+       "Joey Logano",
+       0.03
       ]
      ],
      "NCAAF": [
       [
-       "Miami (FL)",
-       0.36
-      ],
-      [
-       "Alabama",
-       0.23
+       "Texas",
+       0.46
       ],
       [
        "Notre Dame",
-       0.21
-      ]
-     ],
-     "NCAAB": [
-      [
-       "Florida",
-       0.5
+       0.3
       ],
       [
-       "Houston",
-       0.11
-      ],
-      [
-       "Michigan",
-       0.1
-      ]
-     ],
-     "Golf": [
-      [
-       "Rory McIlroy",
-       0.15
-      ],
-      [
-       "Russell Henley",
-       0.12
-      ],
-      [
-       "Tommy Fleetwood",
-       0.11
-      ]
-     ],
-     "Tennis": [
-      [
-       "Carlos Alcaraz",
-       0.15
-      ],
-      [
-       "Jessica Pegula",
-       0.15
-      ],
-      [
-       "Alexander Zverev",
+       "Miami (FL)",
        0.14
       ]
      ],
      "NHL": [
       [
-       "Minnesota Wild",
-       0.29
+       "Vegas Golden Knights",
+       0.28
       ],
       [
        "Florida Panthers",
+       0.15
+      ],
+      [
+       "Minnesota Wild",
+       0.14
+      ]
+     ],
+     "NBA": [
+      [
+       "Toronto Raptors",
        0.21
       ],
       [
-       "Tampa Bay Lightning",
+       "Minnesota Timberwolves",
+       0.17
+      ],
+      [
+       "Detroit Pistons",
        0.14
       ]
      ],
      "MLB": [
       [
        "Los Angeles Dodgers",
-       0.14
+       0.24
       ],
       [
        "San Diego Padres",
-       0.14
+       0.11
       ],
       [
        "Chicago Cubs",
+       0.11
+      ]
+     ],
+     "NCAAB": [
+      [
+       "Florida",
+       0.41
+      ],
+      [
+       "Michigan State",
+       0.17
+      ],
+      [
+       "Houston",
+       0.09
+      ]
+     ],
+     "NFL": [
+      [
+       "Buffalo Bills",
+       0.17
+      ],
+      [
+       "New England Patriots",
+       0.17
+      ],
+      [
+       "Denver Broncos",
+       0.17
+      ]
+     ],
+     "Golf": [
+      [
+       "Russell Henley",
+       0.12
+      ],
+      [
+       "Rory McIlroy",
+       0.11
+      ],
+      [
+       "Chris Gotterup",
+       0.1
+      ]
+     ],
+     "Musician": [
+      [
+       "Morgan Wallen",
+       0.39
+      ],
+      [
+       "BTS",
+       0.24
+      ],
+      [
+       "Ariana Grande",
+       0.19
+      ]
+     ],
+     "MLS": [
+      [
+       "St. Louis City SC",
+       0.24
+      ],
+      [
+       "FC Dallas",
+       0.19
+      ],
+      [
+       "Chicago Fire FC",
+       0.14
+      ]
+     ],
+     "Tennis": [
+      [
+       "Elena Rybakina",
+       0.19
+      ],
+      [
+       "Carlos Alcaraz",
+       0.12
+      ],
+      [
+       "Ben Shelton",
+       0.11
+      ]
+     ],
+     "Actress": [
+      [
+       "Hailee Steinfeld",
+       0.41
+      ],
+      [
+       "Lauren Vélez",
+       0.25
+      ],
+      [
+       "Kristen Bell",
+       0.1
+      ]
+     ],
+     "Stock": [
+      [
+       "MSTR (Long)",
+       0.54
+      ],
+      [
+       "COIN (Long)",
+       0.26
+      ],
+      [
+       "AMD (Long)",
        0.12
       ]
      ],
      "Actor": [
       [
        "Josh Gad",
-       0.45
+       0.46
       ],
       [
        "Aaron Pierre",
-       0.33
-      ],
-      [
-       "Skyler Gisondo",
-       0.11
-      ]
-     ],
-     "NBA": [
-      [
-       "Los Angeles Lakers",
-       0.23
-      ],
-      [
-       "Toronto Raptors",
-       0.17
-      ],
-      [
-       "Minnesota Timberwolves",
-       0.11
-      ]
-     ],
-     "NFL": [
-      [
-       "Detroit Lions",
-       0.2
-      ],
-      [
-       "Buffalo Bills",
-       0.19
-      ],
-      [
-       "Los Angeles Rams",
-       0.16
-      ]
-     ],
-     "Musician": [
-      [
-       "Drake",
-       0.28
-      ],
-      [
-       "BTS",
-       0.23
-      ],
-      [
-       "Ariana Grande",
-       0.23
-      ]
-     ],
-     "MLS": [
-      [
-       "St. Louis City SC",
        0.26
       ],
       [
-       "FC Dallas",
-       0.2
-      ],
-      [
-       "Vancouver Whitecaps FC",
-       0.12
-      ]
-     ],
-     "Actress": [
-      [
-       "Hailee Steinfeld",
-       0.34
-      ],
-      [
-       "Lauren Vélez",
-       0.23
-      ],
-      [
-       "Kimiko Glenn",
+       "Skyler Gisondo",
        0.19
-      ]
-     ],
-     "Stock": [
-      [
-       "MSTR (Long)",
-       0.55
-      ],
-      [
-       "COIN (Long)",
-       0.28
-      ],
-      [
-       "AMD (Long)",
-       0.1
       ]
      ]
     },
@@ -3386,29 +3358,29 @@
       1.0
      ],
      [
-      "Wu",
-      "San Antonio Spurs",
-      0.93
-     ],
-     [
       "Jamzee",
       "Carolina Hurricanes",
-      0.6
+      0.99
      ],
      [
       "Fryar",
-      "UConn",
-      0.56
+      "Tampa Bay Lightning",
+      0.99
+     ],
+     [
+      "Wu",
+      "San Antonio Spurs",
+      0.96
      ],
      [
       "Tim",
       "Vegas Golden Knights",
-      0.55
+      0.11
      ]
     ]
    },
    "bpa": {
-    "mean": 151.2,
+    "mean": 150.0,
     "sd": 3.3,
     "rounds": {
      "0": [
@@ -3420,197 +3392,197 @@
      "1": [
       [
        "NCAAF",
-       0.57
-      ],
-      [
-       "NCAAB",
-       0.2
+       0.42
       ],
       [
        "NASCAR",
-       0.11
+       0.28
+      ],
+      [
+       "NCAAB",
+       0.17
       ]
      ],
      "2": [
       [
        "NASCAR",
-       0.4
+       0.34
       ],
       [
        "NCAAB",
-       0.33
+       0.29
       ],
       [
-       "NFL",
+       "NBA",
        0.12
       ]
      ],
      "3": [
       [
        "NASCAR",
-       0.42
-      ],
-      [
-       "MLB",
-       0.2
+       0.34
       ],
       [
        "NCAAB",
-       0.11
+       0.17
+      ],
+      [
+       "NBA",
+       0.12
       ]
      ],
      "4": [
       [
        "MLB",
-       0.33
+       0.26
       ],
       [
-       "NFL",
-       0.2
+       "NCAAB",
+       0.19
       ],
       [
-       "Golf",
+       "NHL",
        0.15
       ]
      ],
      "5": [
       [
        "NHL",
-       0.47
+       0.21
+      ],
+      [
+       "NFL",
+       0.2
       ],
       [
        "Tennis",
        0.15
-      ],
-      [
-       "Musician",
-       0.14
       ]
      ],
      "6": [
       [
-       "Musician",
-       0.38
-      ],
-      [
-       "Tennis",
-       0.24
-      ],
-      [
        "NHL",
        0.17
+      ],
+      [
+       "Musician",
+       0.17
+      ],
+      [
+       "MLS",
+       0.14
       ]
      ],
      "7": [
       [
-       "MLB",
-       0.23
-      ],
-      [
        "Musician",
-       0.23
+       0.26
       ],
       [
-       "NBA",
-       0.2
+       "MLB",
+       0.21
+      ],
+      [
+       "NFL",
+       0.16
       ]
      ],
      "8": [
       [
-       "Musician",
-       0.2
-      ],
-      [
        "NBA",
-       0.17
+       0.33
       ],
       [
-       "MLB",
-       0.12
+       "Musician",
+       0.24
+      ],
+      [
+       "NHL",
+       0.1
       ]
      ],
      "9": [
       [
        "MLS",
-       0.38
+       0.33
       ],
       [
-       "NBA",
-       0.23
-      ],
-      [
-       "Actor",
+       "Musician",
        0.14
+      ],
+      [
+       "NCAAF",
+       0.12
       ]
      ],
      "10": [
       [
        "MLS",
-       0.35
+       0.36
+      ],
+      [
+       "NCAAF",
+       0.23
       ],
       [
        "Tennis",
-       0.21
-      ],
-      [
-       "NBA",
-       0.11
+       0.15
       ]
      ],
      "11": [
       [
        "Actress",
-       0.44
-      ],
-      [
-       "MLS",
-       0.16
+       0.36
       ],
       [
        "Tennis",
-       0.16
+       0.26
+      ],
+      [
+       "MLS",
+       0.1
       ]
      ],
      "12": [
       [
        "Stock",
-       0.45
+       0.42
       ],
       [
        "Actress",
-       0.38
+       0.41
       ],
       [
-       "Golf",
+       "Tennis",
        0.07
       ]
      ],
      "13": [
       [
        "Stock",
-       0.45
+       0.41
       ],
-      [
-       "Actor",
-       0.33
-      ],
-      [
-       "Golf",
-       0.1
-      ]
-     ],
-     "14": [
       [
        "Actor",
        0.31
       ],
       [
        "Golf",
-       0.28
+       0.12
+      ]
+     ],
+     "14": [
+      [
+       "Golf",
+       0.34
       ],
       [
-       "NCAAF",
-       0.19
+       "Actor",
+       0.33
+      ],
+      [
+       "Stock",
+       0.12
       ]
      ]
     },
@@ -3631,64 +3603,64 @@
        0.2
       ],
       [
-       "Christopher Bell",
+       "Chase Elliott",
        0.01
       ]
      ],
      "NFL": [
       [
-       "Detroit Lions",
-       0.19
+       "Denver Broncos",
+       0.21
       ],
       [
-       "Los Angeles Rams",
-       0.15
+       "Chicago Bears",
+       0.17
       ],
       [
-       "Minnesota Vikings",
+       "Buffalo Bills",
+       0.14
+      ]
+     ],
+     "NHL": [
+      [
+       "Vegas Golden Knights",
+       0.33
+      ],
+      [
+       "Florida Panthers",
+       0.17
+      ],
+      [
+       "Utah Mammoth",
        0.14
       ]
      ],
      "NCAAB": [
       [
        "Florida",
-       0.53
+       0.46
+      ],
+      [
+       "UConn",
+       0.29
       ],
       [
        "Illinois",
-       0.14
-      ],
-      [
-       "Kansas",
-       0.09
+       0.07
       ]
      ],
-     "NHL": [
+     "Musician": [
       [
-       "Florida Panthers",
-       0.33
+       "Morgan Wallen",
+       0.38
       ],
       [
-       "Minnesota Wild",
-       0.2
+       "Ariana Grande",
+       0.25
       ],
       [
-       "Tampa Bay Lightning",
-       0.15
-      ]
-     ],
-     "Tennis": [
-      [
-       "Jessica Pegula",
-       0.19
-      ],
-      [
-       "Ben Shelton",
-       0.16
-      ],
-      [
-       "Aryna Sabalenka",
-       0.16
+       "BTS",
+       0.24
       ]
      ],
      "MLS": [
@@ -3698,123 +3670,123 @@
       ],
       [
        "FC Dallas",
-       0.19
+       0.16
       ],
       [
        "New England Revolution",
-       0.16
+       0.12
       ]
      ],
      "MLB": [
       [
        "Milwaukee Brewers",
-       0.31
-      ],
-      [
-       "New York Yankees",
-       0.14
+       0.24
       ],
       [
        "Los Angeles Dodgers",
-       0.11
-      ]
-     ],
-     "Musician": [
-      [
-       "Harry Styles",
-       0.34
+       0.24
       ],
       [
-       "Ariana Grande",
-       0.23
-      ],
-      [
-       "Drake",
-       0.21
+       "Atlanta Braves",
+       0.12
       ]
      ],
      "NBA": [
       [
-       "Los Angeles Lakers",
+       "Toronto Raptors",
+       0.21
+      ],
+      [
+       "Philadelphia 76ers",
        0.19
       ],
       [
-       "Toronto Raptors",
-       0.15
-      ],
-      [
        "Miami Heat",
-       0.14
+       0.19
       ]
      ],
      "NCAAF": [
       [
-       "Miami (FL)",
-       0.36
-      ],
-      [
        "Notre Dame",
-       0.21
+       0.3
       ],
       [
-       "Texas",
-       0.11
+       "BYU",
+       0.23
+      ],
+      [
+       "Miami (FL)",
+       0.14
+      ]
+     ],
+     "Tennis": [
+      [
+       "Jessica Pegula",
+       0.26
+      ],
+      [
+       "Ben Shelton",
+       0.15
+      ],
+      [
+       "Jannik Sinner",
+       0.1
       ]
      ],
      "Actress": [
       [
        "Hailee Steinfeld",
-       0.3
+       0.46
       ],
       [
        "Lauren Vélez",
-       0.28
+       0.3
       ],
       [
        "Kimiko Glenn",
-       0.2
+       0.1
       ]
      ],
      "Stock": [
       [
        "MSTR (Long)",
-       0.74
+       0.66
       ],
       [
        "COIN (Long)",
-       0.11
+       0.16
       ],
       [
        "AMD (Long)",
-       0.09
-      ]
-     ],
-     "Golf": [
-      [
-       "Scottie Scheffler",
-       0.17
-      ],
-      [
-       "Collin Morikawa",
-       0.12
-      ],
-      [
-       "Xander Schauffele",
-       0.11
+       0.14
       ]
      ],
      "Actor": [
       [
        "Josh Gad",
-       0.59
+       0.55
       ],
       [
        "Aaron Pierre",
-       0.25
+       0.23
       ],
       [
        "Skyler Gisondo",
-       0.11
+       0.12
+      ]
+     ],
+     "Golf": [
+      [
+       "J.J. Spaun",
+       0.16
+      ],
+      [
+       "Scottie Scheffler",
+       0.14
+      ],
+      [
+       "Collin Morikawa",
+       0.12
       ]
      ]
     },
@@ -3860,24 +3832,24 @@
       1.0
      ],
      [
-      "Wu",
-      "San Antonio Spurs",
-      0.93
-     ],
-     [
       "Jamzee",
       "Carolina Hurricanes",
-      0.6
+      0.99
      ],
      [
       "Fryar",
-      "UConn",
-      0.56
+      "Tampa Bay Lightning",
+      0.99
+     ],
+     [
+      "Wu",
+      "San Antonio Spurs",
+      0.96
      ],
      [
       "Tim",
       "Vegas Golden Knights",
-      0.55
+      0.11
      ]
     ]
    }
