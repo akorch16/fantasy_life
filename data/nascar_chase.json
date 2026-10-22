@@ -1,0 +1,156 @@
+{
+ "as_of": "2026-10-22T14:52:07+00:00",
+ "_note": "Snapshot of cf.nascar.com points + race list (standings after Phoenix, Oct 18). nascar_chase.build_model() overwrites it with the live feed on every Actions run; it is only used as a fallback while no listed race has been run.",
+ "standings": [
+  {
+   "driver": "Kyle Larson",
+   "points": 2370,
+   "top_5": 14,
+   "starts": 33,
+   "wins": 2
+  },
+  {
+   "driver": "Christopher Bell",
+   "points": 2365,
+   "top_5": 15,
+   "starts": 33,
+   "wins": 1
+  },
+  {
+   "driver": "Chase Briscoe",
+   "points": 2346,
+   "top_5": 13,
+   "starts": 33,
+   "wins": 3
+  },
+  {
+   "driver": "Denny Hamlin",
+   "points": 2339,
+   "top_5": 16,
+   "starts": 33,
+   "wins": 4
+  },
+  {
+   "driver": "Ryan Blaney",
+   "points": 2330,
+   "top_5": 11,
+   "starts": 33,
+   "wins": 3
+  },
+  {
+   "driver": "Joey Logano",
+   "points": 2326,
+   "top_5": 7,
+   "starts": 33,
+   "wins": 3
+  },
+  {
+   "driver": "Tyler Reddick",
+   "points": 2314,
+   "top_5": 14,
+   "starts": 33,
+   "wins": 6
+  },
+  {
+   "driver": "Austin Cindric",
+   "points": 2240,
+   "top_5": 4,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Ty Gibbs",
+   "points": 2238,
+   "top_5": 12,
+   "starts": 33,
+   "wins": 2
+  },
+  {
+   "driver": "Chase Elliott",
+   "points": 2221,
+   "top_5": 7,
+   "starts": 33,
+   "wins": 2
+  },
+  {
+   "driver": "Carson Hocevar",
+   "points": 2212,
+   "top_5": 6,
+   "starts": 33,
+   "wins": 1
+  },
+  {
+   "driver": "Bubba Wallace",
+   "points": 2208,
+   "top_5": 4,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Daniel Suarez",
+   "points": 2182,
+   "top_5": 3,
+   "starts": 33,
+   "wins": 1
+  },
+  {
+   "driver": "William Byron",
+   "points": 2180,
+   "top_5": 5,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Chris Buescher",
+   "points": 2166,
+   "top_5": 2,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Ryan Preece",
+   "points": 2159,
+   "top_5": 1,
+   "starts": 33,
+   "wins": 1
+  },
+  {
+   "driver": "Shane van Gisbergen",
+   "points": 729,
+   "top_5": 5,
+   "starts": 33,
+   "wins": 2
+  },
+  {
+   "driver": "Brad Keselowski",
+   "points": 683,
+   "top_5": 2,
+   "starts": 33,
+   "wins": 0
+  },
+  {
+   "driver": "Ross Chastain",
+   "points": 673,
+   "top_5": 2,
+   "starts": 33,
+   "wins": 0
+  }
+ ],
+ "remaining": [
+  {
+   "name": "YellaWood 500",
+   "track": "Talladega Superspeedway",
+   "date": "2026-10-25"
+  },
+  {
+   "name": "Xfinity 500",
+   "track": "Martinsville Speedway",
+   "date": "2026-11-01"
+  },
+  {
+   "name": "NASCAR Championship Race",
+   "track": "Homestead-Miami Speedway",
+   "date": "2026-11-08"
+  }
+ ]
+}

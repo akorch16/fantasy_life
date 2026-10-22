@@ -118,6 +118,11 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   play-in (loser 0) and the bracket (lost R1 2.5 / semi 4.0 / conf final 6.5 / Cup 9.0 / champion 13.0), calibrated to
   Kalshi MLS Cup prices ≥2%. It falls back to the champion-only sampler when the table is missing/behind, or once any MLS
   bonus is banked (real bracket results exist).
+- **NASCAR Chase bonuses in projections:** `nascar_chase.py` races out the remaining Chase events from the live points
+  table (cf.nascar.com points + race-list feeds — Actions only; snapshot in `data/nascar_chase.json`, committed by
+  daily.yml, used only while no listed race has run). Per race: Plackett-Luce finish + 2 stages over 38 cars
+  (win 40 / 2nd 35 / −1 per place; stages 10..1), superspeedways mostly luck; contender skills fitted to Kalshi title
+  prices. Final top 5 → 13 / 9 / 6.5 / 4 / 2.5. Falls back to the title-odds-only top-5 sampler if standings are unavailable.
 - projections.py odds sources, in priority order: Kalshi live markets → Monte Carlo
   pairwise sim → standings-based normal approximation (`_mlb_h2h`/`_mls_h2h`/`_pts_h2h`) → static `FALLBACK`.
 - Headlines must only state facts present in Tavily snippets — the prompt forbids
