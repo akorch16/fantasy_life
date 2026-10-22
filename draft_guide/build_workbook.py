@@ -82,6 +82,8 @@ GOLD = PatternFill("solid", fgColor="FFE699")
 GREEN = PatternFill("solid", fgColor="C6E0B4")
 BLUE = PatternFill("solid", fgColor="DDEBF7")
 GREY = PatternFill("solid", fgColor="EDEDED")
+YELLOW = PatternFill("solid", fgColor="FFF2CC")
+WHITE_FILL = PatternFill("solid", fgColor="FFFFFF")
 RED = PatternFill("solid", fgColor="F8CBAD")
 HEAD = PatternFill("solid", fgColor="1F3864")
 BOLD = Font(bold=True)
@@ -691,24 +693,26 @@ def build(today):
     for c in ws_master[1]:
         c.fill, c.font = HEAD, WHITE
     for i in range(15):
-        row = [f"#{i+1}"]
+        row, evs = [f"#{i+1}"], []
         for cat in CATS:
             rows = table[cat]
             if i < len(rows):
                 r = rows[i]
-                odds = f" {r['e'].get('odds')}" if r["e"].get("odds") else ""
-                own = owners[cat].get(r["e"].get("name"))
-                row.append(f"{r['e'].get('name')}{odds} · EV {r['total']:.1f}" + (f" · [{own}]" if own else ""))
+                row.append(f"{r['e'].get('name')} ({r['total']:.1f})")
+                evs.append(round(r["total"], 1))       # colour on the number shown
             else:
                 row.append("")
+                evs.append(None)
         ws_master.append(row)
-        for j in range(len(CATS)):
+        for j, ev in enumerate(evs):
             cell = ws_master.cell(i + 2, j + 2)
-            cell.fill = GOLD if i < 3 else GREEN if i < 7 else BLUE if i < 13 else GREY
-            cell.alignment = Alignment(wrap_text=True, vertical="top")
+            # EV bands: >15 green, 10-15 yellow, 5-10 grey, below 5 white
+            if ev is not None:
+                cell.fill = GREEN if ev > 15 else YELLOW if ev >= 10 else GREY if ev >= 5 else WHITE_FILL
+            cell.alignment = Alignment(vertical="top")
     ws_master.column_dimensions["A"].width = 14
     for j in range(len(CATS)):
-        ws_master.column_dimensions[get_column_letter(j + 2)].width = 30
+        ws_master.column_dimensions[get_column_letter(j + 2)].width = 26
     ws_master.freeze_panes = "B2"
 
     # Draft Plan: what each category cost in the 2025 draft vs what waiting costs on the 2027 board
@@ -838,7 +842,7 @@ def build(today):
         (f"Built {today} for the Oct 25, 2026 draft. Regenerate: python3 draft_guide/build_workbook.py (data in draft_guide/data/*.json).", False),
         ("", False),
         ("How to read it", True),
-        ("Master = top-15 per category by expected league points (EV). Draft Board = every candidate across all 15 categories ranked by VOR.", False),
+        ("Master = top-15 per category: name (expected league points). Colour: green > 15, yellow 10-15, grey 5-10, white < 5. Draft Board = every candidate across all 15 categories ranked by VOR.", False),
         ("EV = E[rank points among the 13 drafted picks] (Monte Carlo on mu/sd) + E[bonus] (ladder × probabilities; live formula on the Assumptions tab).", False),
         ("VOR = EV − EV of the replacement pick (Nth best in the category; N on Assumptions). Risk-adj VOR subtracts λ × SD of rank points.", False),
         ("Yellow confidence cell = C (estimate) or ladder probabilities inferred from the title price. A = exchange/book price seen; B = article reporting odds.", False),
