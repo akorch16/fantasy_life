@@ -135,7 +135,8 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 - **Musician:** 2 × weeks at #1 + top-10 song-weeks (each song counts, so a 9-song week = 9), from 2026
   weekly Hot 100 issues only. Grammy bonus: Record/Album/Song of the Year win +7, other win +3,
   nomination +1.
-- **Bonus cap:** 13 per category (Amend. 7.14); Country Olympics + World Cup combined also capped at 13.
+- **Bonus cap:** 13 per category (Amend. 7.14), **except Country, which is uncapped** (Oct 2026): Olympics + World Cup
+  bonuses simply add (Fryar/Norway 13 + 4 = 17).
 - **Country/Olympics:** ranked by **total medal count**, not golds. World Cup by finish.
 - **Playoff bonuses (NFL/MLB):** keyed to the round a team was *eliminated* in — lost first round 2.5,
   next 4.0, next 6.5, lost the final 9.0, champion 13.0; teams still alive are credited at their

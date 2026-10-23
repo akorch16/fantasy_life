@@ -91,7 +91,7 @@ def check_scores(scores):
             add('ERROR', 'scores', f'{name}: total {p.get("total")} != sum of category totals {total}')
         for c in CATEGORIES:
             v = cats.get(c) or {}
-            if (v.get('bonus_pts') or 0) > BONUS_CAP + 1e-9:
+            if c != 'country' and (v.get('bonus_pts') or 0) > BONUS_CAP + 1e-9:   # Country is uncapped (Oct 2026 ruling)
                 add('ERROR', 'bonus', f'{name}/{c}: bonus {v["bonus_pts"]} exceeds the {BONUS_CAP:g} cap')
 
     for c in CATEGORIES:
@@ -176,7 +176,9 @@ def check_bonuses(scores, bonuses):
             applied = ((players.get(player) or {}).get('categories', {}).get(cat.lower()) or {}).get('bonus_pts')
             if applied is not None:
                 extra = {'country': 'Country_WorldCup', 'ncaab': 'NCAAB_Bracket'}.get(cat.lower())
-                expect = min(BONUS_CAP, val + (bonuses.get(extra, {}).get(player, 0) if extra else 0))
+                expect = val + (bonuses.get(extra, {}).get(player, 0) if extra else 0)
+                if cat.lower() != 'country':
+                    expect = min(BONUS_CAP, expect)
                 if abs(applied - expect) > 0.01:
                     add('ERROR', 'bonus', f'{cat}/{player}: bonuses.json says {val} (expected {expect}) '
                         f'but scores.json shows {applied}')
