@@ -162,8 +162,9 @@ def load_bonuses():
                 print(f'  ↩ bonus override: {cat}/{player} Supabase={bonuses[cat][player]} → file={pts}')
             bonuses[cat][player] = float(pts)
 
-    # Merge Country_WorldCup into Country, capped at 13 combined with Winter Olympics
-    _COUNTRY_CAP = 13.0
+    # Merge Country_WorldCup into Country. League ruling (Oct 2026): Country bonuses are UNCAPPED, so
+    # Olympics + World Cup simply add (Fryar: Norway 13 Olympics + 4 World Cup = 17). Other categories keep the 13 cap.
+    _BONUS_CAP = 13.0
     country_olympics = bonuses.get('Country', {})
     country_wc = bonuses.pop('Country_WorldCup', {})
     # Stash the uncapped per-source values for display (country page shows
@@ -175,11 +176,11 @@ def load_bonuses():
         all_players = set(country_olympics) | set(country_wc)
         merged = {}
         for player in all_players:
-            total = min(_COUNTRY_CAP, (country_olympics.get(player) or 0) + (country_wc.get(player) or 0))
+            total = (country_olympics.get(player) or 0) + (country_wc.get(player) or 0)
             merged[player] = total
             wc_pts = country_wc.get(player, 0)
             if wc_pts:
-                print(f'  🌍 Country WC: {player} Olympics={country_olympics.get(player, 0)} + WC={wc_pts} → {total} (cap={_COUNTRY_CAP})')
+                print(f'  🌍 Country WC: {player} Olympics={country_olympics.get(player, 0)} + WC={wc_pts} → {total} (uncapped)')
         bonuses['Country'] = merged
 
 
@@ -192,7 +193,7 @@ def load_bonuses():
     if ncaab_bracket:
         merged = dict(ncaab_tourney)
         for player, pts in ncaab_bracket.items():
-            merged[player] = min(_COUNTRY_CAP, (ncaab_tourney.get(player) or 0) + (pts or 0))
+            merged[player] = min(_BONUS_CAP, (ncaab_tourney.get(player) or 0) + (pts or 0))
             print(f'  🏀 NCAAB bracket: {player} tourney={ncaab_tourney.get(player, 0)} + bracket={pts} → {merged[player]}')
         bonuses['NCAAB'] = merged
 
@@ -822,7 +823,7 @@ def compute_all_scores():
             elif cat in ('Actor', 'Actress'):
                 entry['movies'] = p_data.get('movies', [])
             elif cat == 'Country':
-                # bonus_pts above is the capped combined total (used for scoring);
+                # bonus_pts above is the combined (uncapped) total used for scoring;
                 # these two are the uncapped per-source values for display.
                 entry['olympics_bonus_pts'] = round(bonuses.get('_country_olympics', {}).get(player, 0) or 0, 2)
                 entry['world_cup_bonus_pts'] = round(bonuses.get('_country_worldcup', {}).get(player, 0) or 0, 2)
