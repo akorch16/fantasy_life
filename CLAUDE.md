@@ -61,6 +61,7 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
 |---|---|---|
 | `docs/scores.json` | scoring.py via Actions | always take **origin/main** |
 | `docs/projections.json` | projections.py via Actions | always take **origin/main** |
+| `docs/scores_2027.json`, `data/standings_2027.json` | scoring_2027.py via Actions | always take **origin/main** |
 | `docs/projection_history.json` | projections.py via Actions (one snapshot per UTC day, full runs only; backfilled from git history to 2026-05-20) — feeds the Odds Over Time chart on projections.html | always take **origin/main** |
 | `data/bonuses.json` | hand-edited | **manually merge** — combine entries from both sides |
 | `data/*.json` (others) | hand-edited overrides | take feature branch (HEAD) |
@@ -123,6 +124,16 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   daily.yml, used only while no listed race has run). Per race: Plackett-Luce finish + 2 stages over 38 cars
   (win 40 / 2nd 35 / −1 per place; stages 10..1), superspeedways mostly luck; contender skills fitted to Kalshi title
   prices. Final top 5 → 13 / 9 / 6.5 / 4 / 2.5. Falls back to the title-odds-only top-5 sampler if standings are unavailable.
+- **2027 league (drafted Oct 25, 2026):** rosters in `draft_picks_2027.py` (board column "ChatGPTodd" = Todd). Same scoring as 2026
+  (rank 13..1 per category, RANK.AVG ties, plus bonuses). `scoring_2027.py` (daily.yml step, `continue-on-error`) writes
+  `docs/scores_2027.json` and ranks only categories whose 2027 season is underway — NFL/NBA/NHL (win % / points %), NCAAF (AFCA Coaches
+  Poll), NCAAB (AP Top 25) — from ESPN + the NHL API (raw rows cached in `data/standings_2027.json`; a failed fetch re-scores from
+  the cache and flags it stale). MLB, MLS, NASCAR, Golf, Tennis, Actor, Actress, Musician, Country and Stock score 0 until their 2027
+  seasons start. Bonuses live in `data/bonuses_2027.json` (same convention as `bonuses.json`); Country is uncapped and carries the
+  Women's World Cup ladder in `Country_WWC` (13/9/6.5/4/2.5 by round eliminated, lost Round of 16 = 2.5 — assumed, unconfirmed).
+  Site: `index.html?season=2027` and `projections.html?season=2027` (nav tabs "2027 Standings" / "2027 Projections"); the 2026
+  pages are unchanged. `docs/projections_2027.json` is the static pre-season simulation from `draft_guide/season_sim_2027.py --site`
+  (guide odds, not refreshed daily); the page overlays live standings for Now/+Exp. Women's World Cup odds: `draft_guide/wwc_model.py`.
 - projections.py odds sources, in priority order: Kalshi live markets → Monte Carlo
   pairwise sim → standings-based normal approximation (`_mlb_h2h`/`_mls_h2h`/`_pts_h2h`) → static `FALLBACK`.
 - Headlines must only state facts present in Tavily snippets — the prompt forbids

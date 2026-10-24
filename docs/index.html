@@ -916,10 +916,12 @@
 
 <nav class="site-nav">
   <a href="./index.html" class="nav-link active">Leaderboard</a>
+  <a href="./index.html?season=2027" class="nav-link" id="nav-standings-2027">2027 Standings</a>
   <a href="./rules.html" class="nav-link">Rules</a>
   <a href="./calendar.html" class="nav-link">Calendar</a>
   <a href="./trips.html" class="nav-link">Trips</a>
   <a href="./projections.html" class="nav-link">Projections</a>
+  <a href="./projections.html?season=2027" class="nav-link" id="nav-proj-2027">2027 Projections</a>
   <a href="./draft.html" class="nav-link">Draft</a>
   <a href="./sportsbook.html" class="nav-link">Sportsbook</a>
 </nav>
@@ -1103,6 +1105,15 @@
 
 <!-- ─── DATA + SCRIPT ─── -->
 <script>
+// ?season=2027 switches the leaderboard to the 2027 league (docs/scores_2027.json); default is the 2026 league.
+const SEASON_2027 = new URLSearchParams(location.search).get('season') === '2027';
+if (SEASON_2027) {
+  document.title = 'Fantasy Life 2027';
+  const pt = document.querySelector('.page-title'); if (pt) pt.innerHTML = '2027 Leader<span>board</span>';
+  document.querySelectorAll('.site-nav .nav-link.active').forEach(a => a.classList.remove('active'));
+  const nv = document.getElementById('nav-standings-2027'); if (nv) nv.classList.add('active');
+  const nb = document.getElementById('news-bar-updated'); if (nb) nb.innerHTML = '<em style="color:#fff">2027 season</em>';
+}
 // ============================================================
 // DATA — loaded from scores.json (pre-computed by GitHub Actions)
 // ============================================================
@@ -1280,7 +1291,7 @@ let currentFilter = 'all';
 // Todd's premium paywall: when true his row is locked behind the "premium required"
 // teaser and the 3-tier checkout modal (payment links in PAYMENT_LINKS below).
 // Flip to false to render his real score/breakdown like everyone else's.
-const TODD_PAYWALL_ENABLED = true;
+const TODD_PAYWALL_ENABLED = !SEASON_2027;   // 2026-league joke paywall only
 
 // Category tabs whose Bonus Pts is the capped sum of two sources: show each source as its own column.
 const EXTRA_BONUS_COLS = {
@@ -1654,7 +1665,7 @@ function closeBuckley() {
 // INIT — fetch pre-computed scores from GitHub Pages
 // ============================================================
 
-fetch('./scores.json')
+fetch(SEASON_2027 ? './scores_2027.json' : './scores.json')
   .then(r => r.json())
   .then(data => {
     window.SCORES_DATA = data.players || [];

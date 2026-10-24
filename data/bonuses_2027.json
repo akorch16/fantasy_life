@@ -1,0 +1,8 @@
+{
+  "_README": "2027 league bonus points (read by scoring_2027.py). Each value is the owner's FINAL bonus total for that category, same convention as data/bonuses.json (milestone replacement, not additive). Sports championships: champion 13 / lost final 9 / lost semi 6.5 / lost quarter 4 / lost first round 2.5. Golf +6 per major win, +2.5 runner-up; Tennis +4 slam win, +2.5 runner-up; Oscars lead win 13 / supporting win 9 / lead nom 4 / supporting nom 2.5; Grammys capped at 13; NASCAR final Chase 1st-5th 13/9/6.5/4/2.5. Bonus cap is 13 per category except Country, which is uncapped.",
+  "_Country_WWC_README": "Country_WWC = 2027 FIFA Women's World Cup (Brazil, Jun 24 - Jul 25 2027). ASSUMED ladder, confirm with the league: champion 13 / lost final 9 / lost semifinal 6.5 / lost quarterfinal 4 / lost Round of 16 2.5 / out in the group stage 0. Add or replace the owner's total as rounds finish. Combined with any other Country bonus, uncapped.",
+  "NFL": {}, "NBA": {}, "MLB": {}, "NHL": {}, "NCAAF": {}, "NCAAB": {},
+  "Tennis": {}, "Golf": {}, "NASCAR": {}, "MLS": {},
+  "Actor": {}, "Actress": {}, "Musician": {},
+  "Country": {}, "Country_WWC": {}, "Stock": {}
+}
