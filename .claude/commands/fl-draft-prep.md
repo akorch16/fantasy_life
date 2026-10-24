@@ -93,3 +93,5 @@ Oct 8 v1 → Oct 13 IMF WEO (Country final) → ~Oct 15 NFL/NCAAF week 6–7 + f
 
 ## New year setup
 Copy `draft_guide/` → `draft_guide_<year>/`, update `OUT` name and the README text in `build_workbook.py`, clear `data/`, re-pull Step 1, bump the Kalshi `-27`/`-69` suffixes, update `FILM_PIPELINE`/`EVENT_END`/`NEXT_SEASON_START` per the `CLAUDE.md` 2027 checklist (the draft room `docs/draft.html` has `SESSION_ID`).
+
+- NCAAF: `python3 draft_guide/ncaaf_update.py draft_guide/raw/cfb_<date>.json` (AP Top 25 from ESPN's `/apis/site/v2/sports/football/college-football/rankings` + Kalshi KXNCAAFPLAYOFF/KXNCAAF mids, pulled from an Actions probe). mu = 70% current AP rank / 30% P(make CFP); p_r1 = P(CFP). Country 2028 tab reads raw/imf_weo_2026-10.json (all IMF countries ranked by 2028 growth).
