@@ -1,0 +1,263 @@
+{
+ "series": "KXWCW-27",
+ "title": "2027 FIFA Women's World Cup Champion",
+ "pulled": "2026-10-24T15:45:23.692276+00:00",
+ "teams": {
+  "Argentina": {
+   "bid": 0.001,
+   "ask": 0.009,
+   "last": 0.009,
+   "mid": 0.005,
+   "volume": 336.07,
+   "open_interest": 218.95
+  },
+  "Australia": {
+   "bid": 0.001,
+   "ask": 0.017,
+   "last": 0.018,
+   "mid": 0.009,
+   "volume": 679.24,
+   "open_interest": 362.12
+  },
+  "Brazil": {
+   "bid": 0.087,
+   "ask": 0.131,
+   "last": 0.087,
+   "mid": 0.109,
+   "volume": 1539.5,
+   "open_interest": 542.89
+  },
+  "Canada": {
+   "bid": 0.001,
+   "ask": 0.048,
+   "last": 0.054,
+   "mid": 0.0245,
+   "volume": 238.25,
+   "open_interest": 238.25
+  },
+  "China PR": {
+   "bid": 0.001,
+   "ask": 0.009,
+   "last": 0.001,
+   "mid": 0.005,
+   "volume": 234.24,
+   "open_interest": 0.0
+  },
+  "Denmark": {
+   "bid": 0.001,
+   "ask": 0.009,
+   "last": 0.001,
+   "mid": 0.005,
+   "volume": 234.24,
+   "open_interest": 0.0
+  },
+  "England": {
+   "bid": 0.079,
+   "ask": 0.147,
+   "last": 0.144,
+   "mid": 0.113,
+   "volume": 2191.52,
+   "open_interest": 1312.88
+  },
+  "Japan": {
+   "bid": 0.056,
+   "ask": 0.068,
+   "last": 0.039,
+   "mid": 0.062,
+   "volume": 2887.58,
+   "open_interest": 324.13
+  },
+  "New Zealand": {
+   "bid": 0.0,
+   "ask": 0.01,
+   "last": 0.04,
+   "mid": 0.005,
+   "volume": 117.12,
+   "open_interest": 117.12
+  },
+  "Nigeria": {
+   "bid": 0.0,
+   "ask": 0.01,
+   "last": 0.0,
+   "mid": 0.005,
+   "volume": 0.0,
+   "open_interest": 0.0
+  },
+  "Norway": {
+   "bid": 0.001,
+   "ask": 0.019,
+   "last": 0.01,
+   "mid": 0.01,
+   "volume": 309.0,
+   "open_interest": 309.0
+  },
+  "Sweden": {
+   "bid": 0.007,
+   "ask": 0.054,
+   "last": 0.01,
+   "mid": 0.0305,
+   "volume": 164.01,
+   "open_interest": 164.01
+  },
+  "USA": {
+   "bid": 0.2,
+   "ask": 0.249,
+   "last": 0.249,
+   "mid": 0.2245,
+   "volume": 13201.74,
+   "open_interest": 5976.38
+  },
+  "Korea Republic": {
+   "bid": 0.0,
+   "ask": 0.007,
+   "last": 0.04,
+   "mid": 0.0035,
+   "volume": 117.12,
+   "open_interest": 117.12
+  },
+  "Italy": {
+   "bid": 0.001,
+   "ask": 0.009,
+   "last": 0.0,
+   "mid": 0.005,
+   "volume": 0.0,
+   "open_interest": 0.0
+  },
+  "Portugal": {
+   "bid": 0.001,
+   "ask": 0.007,
+   "last": 0.001,
+   "mid": 0.004,
+   "volume": 181.75,
+   "open_interest": 29.1
+  },
+  "Ireland": {
+   "bid": 0.0,
+   "ask": 0.007,
+   "last": 0.0,
+   "mid": 0.0035,
+   "volume": 0.0,
+   "open_interest": 0.0
+  },
+  "Germany": {
+   "bid": 0.022,
+   "ask": 0.076,
+   "last": 0.084,
+   "mid": 0.049,
+   "volume": 1641.29,
+   "open_interest": 197.21
+  },
+  "Netherlands": {
+   "bid": 0.004,
+   "ask": 0.062,
+   "last": 0.01,
+   "mid": 0.033,
+   "volume": 362.52,
+   "open_interest": 362.52
+  },
+  "France": {
+   "bid": 0.025,
+   "ask": 0.069,
+   "last": 0.07,
+   "mid": 0.047,
+   "volume": 744.89,
+   "open_interest": 515.81
+  },
+  "Spain": {
+   "bid": 0.23,
+   "ask": 0.247,
+   "last": 0.251,
+   "mid": 0.2385,
+   "volume": 21305.55,
+   "open_interest": 13211.56
+  },
+  "Switzerland": {
+   "bid": 0.001,
+   "ask": 0.007,
+   "last": 0.008,
+   "mid": 0.004,
+   "volume": 470.88,
+   "open_interest": 470.88
+  },
+  "Colombia": {
+   "bid": 0.0,
+   "ask": 0.019,
+   "last": 0.01,
+   "mid": 0.0095,
+   "volume": 4423.2,
+   "open_interest": 3665.1
+  },
+  "South Africa": {
+   "bid": 0.0,
+   "ask": 0.007,
+   "last": 0.0,
+   "mid": 0.0035,
+   "volume": 0.0,
+   "open_interest": 0.0
+  },
+  "Costa Rica": {
+   "bid": 0.0,
+   "ask": 0.007,
+   "last": 0.0,
+   "mid": 0.0035,
+   "volume": 0.0,
+   "open_interest": 0.0
+  },
+  "Panama": {
+   "bid": 0.0,
+   "ask": 0.006,
+   "last": 0.0,
+   "mid": 0.003,
+   "volume": 0.0,
+   "open_interest": 0.0
+  },
+  "Vietnam": {
+   "bid": 0.0,
+   "ask": 0.007,
+   "last": 0.009,
+   "mid": 0.0035,
+   "volume": 935.13,
+   "open_interest": 935.13
+  },
+  "Haiti": {
+   "bid": 0.0,
+   "ask": 0.01,
+   "last": 0.0,
+   "mid": 0.005,
+   "volume": 0.0,
+   "open_interest": 0.0
+  },
+  "Jamaica": {
+   "bid": 0.001,
+   "ask": 0.009,
+   "last": 0.009,
+   "mid": 0.005,
+   "volume": 1630.14,
+   "open_interest": 1630.14
+  },
+  "Philippines": {
+   "bid": 0.0,
+   "ask": 0.01,
+   "last": 0.01,
+   "mid": 0.005,
+   "volume": 815.92,
+   "open_interest": 315.24
+  },
+  "Morocco": {
+   "bid": 0.001,
+   "ask": 0.009,
+   "last": 0.03,
+   "mid": 0.005,
+   "volume": 156.06,
+   "open_interest": 156.06
+  },
+  "Zambia": {
+   "bid": 0.0,
+   "ask": 0.007,
+   "last": 0.0,
+   "mid": 0.0035,
+   "volume": 0.0,
+   "open_interest": 0.0
+  }
+ }
+}

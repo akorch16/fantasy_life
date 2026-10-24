@@ -241,11 +241,44 @@ def match_owners(table):
     return owners, bad
 
 
+def _merge_wwc(ents):
+    """Country 2027 bonus = 2027 Women's World Cup (data/WWC.json, built by wwc_model.py). Attaches the
+    round probabilities + E[bonus] to each country, and adds World Cup teams that weren't in the growth
+    pool (IMF Oct-2026 growth) so e.g. England/Japan show up as candidates."""
+    wwc = (load_json("WWC.json", {}) or {})
+    teams = wwc.get("teams") or {}
+    if not teams:
+        return ents
+    by_name = {e["name"]: e for e in ents}
+    imf = (load_json("../raw/imf_weo_2026-10.json", None) or {}).get("countries") or {}
+    imf_by_name = {v.get("name"): v for v in imf.values()}
+    for name, t in teams.items():
+        e = by_name.get(name)
+        if e is None:
+            rec = imf_by_name.get(name) or {}
+            g = (rec.get("growth") or {}).get("2027")
+            if g is None:
+                continue
+            e = {"name": name, "detail": f"IMF Oct-2026: 2027 {g:.3f} | added for the Women's World Cup bonus",
+                 "odds": f"IMF Oct-2026 2027: {g:.1f}%", "mu": round(g, 2), "sd": round(max(1.0, 0.25 * abs(g)), 2),
+                 "p_top3": 0.0, "forecast_2027": round(g, 2), "confidence": "A",
+                 "source": "IMF World Economic Outlook, October 2026 (raw/imf_weo_2026-10.json)",
+                 "as_of": "2026-10-13", "notes": "added from the 2027 Women's World Cup field"}
+            ents.append(e)
+            by_name[name] = e
+        for k in ("p_champ", "p_final", "p_semi", "p_quarter", "p_r1", "wwc_ev"):
+            e["wwc_" + k if k != "wwc_ev" else k] = t[k]
+        e["notes"] = ((e.get("notes") or "") + f" WWC: win {t['p_champ']*100:.0f}% / final {t['p_final']*100:.0f}% / semi {t['p_semi']*100:.0f}% (Kalshi {t['kalshi_title']*100:.1f}%)").strip()
+    return ents
+
+
 def entries_for(cat):
     d = load_json(f"{cat}.json", {}) or {}
     ents = d.get("entries", [])
     for e in ents:
         e["_as_of_cat"] = d.get("as_of")
+    if cat == "Country":
+        ents = _merge_wwc(ents)
     return _adjust(cat, ents)
 
 
@@ -290,6 +323,8 @@ def bonus_ev(cat, e, assum):
         return min(oscar_ev(e.get("name"), cat, assum["_awards"]), BONUS_CAP)
     if cat == "Musician":
         return min(e.get("grammy_ev") or 0, BONUS_CAP)
+    if cat == "Country":
+        return min(e.get("wwc_ev") or 0, BONUS_CAP)       # 2027 Women's World Cup (wwc_model.py)
     return 0.0
 
 
@@ -587,7 +622,7 @@ def build(today):
         "Actor": ["Oscar p(nom)", "Oscar p(win)", "Oscar detail", "Films", ""],
         "Actress": ["Oscar p(nom)", "Oscar p(win)", "Oscar detail", "Films", ""],
         "Musician": ["Grammy EV", "p(big-4 win)", "exp. noms", "", ""],
-        "Country": ["IMF 2027 fcst %", "p(top 3)", "", "", ""],
+        "Country": ["IMF 2027 fcst %", "p(top 3)", "WWC win", "WWC final", "WWC semi"],
         "Stock": ["Direction", "", "", "", ""],
     }
     refs = {}      # cat -> {name: row}, plus sheet ranges for Draft Board formulas
@@ -629,7 +664,7 @@ def build(today):
             elif cat == "Musician":
                 extras = [e.get("grammy_ev"), e.get("p_win_big4"), e.get("exp_noms"), None, None]
             elif cat == "Country":
-                extras = [e.get("forecast_2027"), e.get("p_top3"), None, None, None]
+                extras = [e.get("forecast_2027"), e.get("p_top3"), e.get("wwc_p_champ"), e.get("wwc_p_final"), e.get("wwc_p_semi")]
             else:
                 extras = [("Short" if "Short" in e.get("name", "") else "Long"), None, None, None, None]
             ws.append([e.get("name"), e.get("detail"), e.get("odds")] + extras + [e.get("mu"), e.get("sd")])
@@ -777,7 +812,7 @@ def build(today):
         "How to read: assumes the field strips each category in order of 2027 EV at the pace it did in the 2025 draft (keeper round + snake). 'EV left @Rk' = best player still there after the 2026-style number of teams are gone by round k.",
         "Free until round = last round where the best player left is within 1 pt of the best on the board. WAIT = the field leaves the category alone; TAKE EARLY = it strips it fast.",
         "2026 payoff: projected final = current points + projected remaining (MLS / NASCAR / MLB bonuses are not realised yet). Surplus = projected final minus the average pick in that round.",
-        "Caveats: Country's 2026 surplus is the Olympics/World Cup bonus (13 pts) which does not exist in 2027. Musician surplus is the Feb-2026 Grammy bonus (repeats in Feb 2027). Per-pick surplus is mostly luck; category averages are the signal.",
+        "Caveats: Country's 2026 surplus is the Olympics/Men's World Cup bonus (13 pts); 2027's Country bonus is only the Women's World Cup (E ~6 pts for Spain/USA). Musician surplus is the Feb-2026 Grammy bonus (repeats in Feb 2027). Per-pick surplus is mostly luck; category averages are the signal.",
         "The field does not draft by my EV order (it overweights Grammy/Oscar names), so Musician/Actor/Actress availability is approximate. Keepers may change who is already gone before round 1.",
     ]
     for k, t_ in enumerate(notes):
@@ -898,7 +933,7 @@ def build(today):
         ("Country = IMF October 2026 WEO (published Oct 13) 2027 growth, pulled from api.imf.org — final for the draft.", False),
         ("", False),
         ("Assumptions to confirm", True),
-        ("Country 2027 = GDP growth only (no Olympics/World Cup in 2027). Slot-agnostic board (replacement rank is a single tunable N per category). Each player picks one per category.", False),
+        ("Country 2027 = IMF GDP-growth rank points + Women's World Cup bonus (Brazil, Jun-Jul 2027; 13/9/6.5/4/2.5 = champion / lost final / lost semi / lost QF / lost Round of 16; tier mapping assumed, confirm). WWC E[bonus] from wwc_model.py, calibrated to Kalshi KXWCW-27. Slot-agnostic board (replacement rank is a single tunable N per category). Each player picks one per category.", False),
         ("Known limits: no 2027 futures are posted yet for MLB/MLS/NASCAR/Golf/Tennis; those rows are model estimates (conf C). Rank-point EV assumes the field drafts the best candidates by mu.", False),
         ("", False),
         ("How much to trust each tab (v2, Oct 8 2026)", True),

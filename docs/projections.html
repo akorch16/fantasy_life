@@ -263,17 +263,19 @@
 
 <nav class="site-nav">
   <a href="./index.html" class="nav-link">Leaderboard</a>
+  <a href="./index.html?season=2027" class="nav-link" id="nav-standings-2027">2027 Standings</a>
   <a href="./rules.html" class="nav-link">Rules</a>
   <a href="./calendar.html" class="nav-link">Calendar</a>
   <a href="./trips.html" class="nav-link">Trips</a>
   <a href="./projections.html" class="nav-link active">Projections</a>
+  <a href="./projections.html?season=2027" class="nav-link" id="nav-proj-2027">2027 Projections</a>
   <a href="./draft.html" class="nav-link">Draft</a>
   <a href="./sportsbook.html" class="nav-link">Sportsbook</a>
 </nav>
 
 <div class="page">
 
-  <div class="page-title">Season <span>Projections</span></div>
+  <div class="page-title" id="proj-page-title">Season <span>Projections</span></div>
 
   <!-- ─── STANDINGS TABLE ─── -->
   <div class="section-header" style="margin-top:0;border-top:none;">Projected Standings</div>
@@ -299,9 +301,9 @@
   </div>
 
   <!-- ─── TREND CHART ─── -->
-  <div class="section-header">Odds Over Time</div>
-  <div class="section-note">One snapshot per day from the simulation (last full run of the day). Click names to show or hide them.</div>
-  <div class="trend-wrap" style="position:relative;">
+  <div class="section-header" id="trend-header">Odds Over Time</div>
+  <div class="section-note" id="trend-note">One snapshot per day from the simulation (last full run of the day). Click names to show or hide them.</div>
+  <div class="trend-wrap" id="trend-wrap" style="position:relative;">
     <div class="trend-controls">
       <button class="trend-btn active" data-metric="win">Win %</button>
       <button class="trend-btn" data-metric="top4">Top-4 %</button>
@@ -362,8 +364,42 @@ function oddsHtml(pct) {
   return (odds > 0 ? '+' : '') + odds.toLocaleString('en-US');
 }
 
-fetch('./projections.json')
-  .then(r => r.json())
+// ?season=2027 shows the pre-season 2027 projections (docs/projections_2027.json, built from the draft rosters),
+// with 'Now' / '+Exp' computed against the live 2027 standings (docs/scores_2027.json).
+const SEASON_2027 = new URLSearchParams(location.search).get('season') === '2027';
+function loadProjections() {
+  if (!SEASON_2027) return fetch('./projections.json').then(r => r.json());
+  return Promise.all([
+    fetch('./projections_2027.json').then(r => r.json()),
+    fetch('./scores_2027.json').then(r => r.json()).catch(() => null),
+  ]).then(([proj, scores]) => {
+    if (scores && scores.players) {
+      const byName = {};
+      scores.players.forEach(s => { byName[s.name] = s; });
+      proj.players.forEach(p => {
+        const s = byName[p.name];
+        if (!s) return;
+        p.current_total = s.total;
+        p.projected_additional = p.projected_total - s.total;
+        const delta = {};
+        Object.keys(p.category_expected || {}).forEach(c => {
+          delta[c] = p.category_expected[c] - ((s.categories[c] || {}).total_pts || 0);
+        });
+        p.category_expected = delta;
+      });
+    }
+    return proj;
+  });
+}
+if (SEASON_2027) {
+  document.title = '2027 Projections — Fantasy Life';
+  document.getElementById('proj-page-title').innerHTML = '2027 Season <span>Projections</span>';
+  document.querySelectorAll('.site-nav .nav-link.active').forEach(a => a.classList.remove('active'));
+  const nv = document.getElementById('nav-proj-2027'); if (nv) nv.classList.add('active');
+  ['trend-header', 'trend-note', 'trend-wrap'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+}
+
+loadProjections()
   .then(data => {
     // Ranked by win probability (the actual "who's most likely to take #1"
     // metric), not projected_total -- those two can and do disagree near
@@ -397,7 +433,7 @@ fetch('./projections.json')
         </tr>
       `).join('') + `
         <tr class="proj-footer">
-          <td colspan="9">As of ${genAt} · ${nSims} sims · ${liveOdds ? 'Live Kalshi odds' : 'Static fallback odds'}</td>
+          <td colspan="9">As of ${genAt} · ${nSims} sims · ${data.footer_note || (liveOdds ? 'Live Kalshi odds' : 'Static fallback odds')}</td>
         </tr>`;
 
     // Category breakdown table
@@ -412,6 +448,7 @@ fetch('./projections.json')
       nascar: 'NASCAR', golf: 'Golf', tennis: 'Tennis',
       film: 'Film', actor: 'Actor', actress: 'Actress',
       stocks: 'Stocks', fifa: 'FIFA', music: 'Music',
+      nfl: 'NFL', ncaaf: 'NCAAF', ncaab: 'NCAAB', musician: 'Music', country: 'Country', stock: 'Stock',
     };
 
     document.getElementById('breakdown-head').innerHTML =
@@ -439,6 +476,7 @@ fetch('./projections.json')
   });
 // ─── Odds-over-time chart (docs/projection_history.json, written by projections.py) ───
 (function () {
+  if (SEASON_2027) return;     // no daily history for the 2027 projections yet
   const COLORS = ['#2d7dd2','#f59e0b','#22c55e','#ef4444','#a855f7','#14b8a6','#ec4899','#eab308',
                   '#60a5fa','#f97316','#84cc16','#e879f9','#94a3b8'];
   const LABEL = { win: 'Win %', top4: 'Top-4 %', proj: 'Projected total', cur: 'Current total' };
