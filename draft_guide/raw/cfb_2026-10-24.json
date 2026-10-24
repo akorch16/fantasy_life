@@ -1,0 +1,287 @@
+{
+ "as_of": "2026-10-24",
+ "source": "ESPN rankings API (AP Top 25, Week 8, 2026-10-18) + Kalshi KXNCAAFPLAYOFF-26 / KXNCAAF-27 exchange mids, Actions-runner pull 2026-10-24",
+ "ap": [
+  {
+   "rank": 1,
+   "team": "Miami",
+   "record": "6-0",
+   "points": 1697,
+   "first": 40,
+   "prev": 3
+  },
+  {
+   "rank": 2,
+   "team": "BYU",
+   "record": "6-0",
+   "points": 1675,
+   "first": 20,
+   "prev": 8
+  },
+  {
+   "rank": 3,
+   "team": "Ohio State",
+   "record": "6-1",
+   "points": 1649,
+   "first": 9,
+   "prev": 4
+  },
+  {
+   "rank": 4,
+   "team": "Notre Dame",
+   "record": "6-1",
+   "points": 1395,
+   "first": 0,
+   "prev": 2
+  },
+  {
+   "rank": 5,
+   "team": "Georgia",
+   "record": "6-1",
+   "points": 1382,
+   "first": 0,
+   "prev": 1
+  },
+  {
+   "rank": 6,
+   "team": "Indiana",
+   "record": "6-1",
+   "points": 1370,
+   "first": 0,
+   "prev": 5
+  },
+  {
+   "rank": 7,
+   "team": "Ole Miss",
+   "record": "5-1",
+   "points": 1360,
+   "first": 0,
+   "prev": 9
+  },
+  {
+   "rank": 8,
+   "team": "Texas Tech",
+   "record": "6-0",
+   "points": 1336,
+   "first": 1,
+   "prev": 10
+  },
+  {
+   "rank": 9,
+   "team": "UCLA",
+   "record": "6-0",
+   "points": 1159,
+   "first": 0,
+   "prev": 12
+  },
+  {
+   "rank": 10,
+   "team": "Utah",
+   "record": "6-0",
+   "points": 1153,
+   "first": 0,
+   "prev": 11
+  },
+  {
+   "rank": 11,
+   "team": "Tennessee",
+   "record": "6-1",
+   "points": 1151,
+   "first": 0,
+   "prev": 14
+  },
+  {
+   "rank": 12,
+   "team": "Kentucky",
+   "record": "6-1",
+   "points": 932,
+   "first": 0,
+   "prev": 15
+  },
+  {
+   "rank": 13,
+   "team": "Alabama",
+   "record": "5-2",
+   "points": 870,
+   "first": 0,
+   "prev": 6
+  },
+  {
+   "rank": 14,
+   "team": "Houston",
+   "record": "6-1",
+   "points": 785,
+   "first": 0,
+   "prev": 20
+  },
+  {
+   "rank": 15,
+   "team": "Iowa",
+   "record": "5-1",
+   "points": 747,
+   "first": 0,
+   "prev": 17
+  },
+  {
+   "rank": 16,
+   "team": "USC",
+   "record": "6-1",
+   "points": 592,
+   "first": 0,
+   "prev": 19
+  },
+  {
+   "rank": 17,
+   "team": "Wake Forest",
+   "record": "6-1",
+   "points": 574,
+   "first": 0,
+   "prev": 21
+  },
+  {
+   "rank": 18,
+   "team": "LSU",
+   "record": "5-2",
+   "points": 529,
+   "first": 0,
+   "prev": 22
+  },
+  {
+   "rank": 19,
+   "team": "Texas",
+   "record": "4-2",
+   "points": 440,
+   "first": 0,
+   "prev": 7
+  },
+  {
+   "rank": 20,
+   "team": "Florida",
+   "record": "5-2",
+   "points": 355,
+   "first": 0,
+   "prev": 0
+  },
+  {
+   "rank": 21,
+   "team": "Boise State",
+   "record": "5-1",
+   "points": 295,
+   "first": 0,
+   "prev": 23
+  },
+  {
+   "rank": 22,
+   "team": "Missouri",
+   "record": "5-2",
+   "points": 290,
+   "first": 0,
+   "prev": 13
+  },
+  {
+   "rank": 23,
+   "team": "SMU",
+   "record": "5-1",
+   "points": 265,
+   "first": 0,
+   "prev": 24
+  },
+  {
+   "rank": 24,
+   "team": "Northwestern",
+   "record": "5-1",
+   "points": 254,
+   "first": 0,
+   "prev": 25
+  },
+  {
+   "rank": 25,
+   "team": "Arizona",
+   "record": "5-1",
+   "points": 136,
+   "first": 0,
+   "prev": 0
+  }
+ ],
+ "ap_others": [
+  {
+   "team": "Oklahoma State",
+   "points": 128
+  },
+  {
+   "team": "Oregon",
+   "points": 79
+  },
+  {
+   "team": "Auburn",
+   "points": 61
+  },
+  {
+   "team": "James Madison",
+   "points": 52
+  },
+  {
+   "team": "Mississippi State",
+   "points": 30
+  },
+  {
+   "team": "New Mexico",
+   "points": 6
+  },
+  {
+   "team": "Oregon State",
+   "points": 3
+  }
+ ],
+ "cfp": {
+  "Miami (FL)": 0.915,
+  "Georgia": 0.84,
+  "Indiana": 0.795,
+  "Notre Dame": 0.775,
+  "Ohio State": 0.765,
+  "BYU": 0.63,
+  "Texas Tech": 0.575,
+  "Alabama": 0.56,
+  "Ole Miss": 0.535,
+  "UCLA": 0.515,
+  "Utah": 0.475,
+  "Tennessee": 0.425,
+  "LSU": 0.38,
+  "Texas": 0.35,
+  "Kentucky": 0.295,
+  "Iowa": 0.265,
+  "New Mexico": 0.205,
+  "USC": 0.225,
+  "Florida": 0.2,
+  "Houston": 0.205,
+  "Oregon": 0.175,
+  "Oregon State": 0.16,
+  "SMU": 0.155,
+  "Auburn": 0.095,
+  "Missouri": 0.085,
+  "James Madison": 0.085,
+  "Arizona": 0.09,
+  "Oklahoma State": 0.065,
+  "Michigan": 0.05,
+  "Wisconsin": 0.05,
+  "Mississippi State": 0.035
+ },
+ "title": {
+  "Georgia": 0.185,
+  "Miami (FL)": 0.145,
+  "Notre Dame": 0.135,
+  "Ohio State": 0.125,
+  "Indiana": 0.075,
+  "Ole Miss": 0.045,
+  "Alabama": 0.045,
+  "Texas": 0.035,
+  "LSU": 0.035,
+  "BYU": 0.035,
+  "Oregon": 0.025,
+  "UCLA": 0.015,
+  "Utah": 0.015,
+  "Texas Tech": 0.015,
+  "Tennessee": 0.015,
+  "Florida": 0.015
+ }
+}

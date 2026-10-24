@@ -181,6 +181,49 @@ def _norm(s):
     return unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode().lower().strip()
 
 
+def country_2028_tab(ws, table, owners):
+    """Every IMF WEO country ranked by forecast 2028 real GDP growth (Oct 2026 edition), next to 2026/2027 and the
+    2027-draft board. Reference for a 2028 league year; the 2027 draft is scored on the 2027 column."""
+    import re
+    path = os.path.join(HERE, "raw", "imf_weo_2026-10.json")
+    try:
+        weo = json.load(open(path))["countries"]
+    except Exception:
+        ws.append(["raw/imf_weo_2026-10.json not found"])
+        return
+    rows = [(v.get("name"), c, v["growth"].get("2026"), v["growth"].get("2027"), v["growth"].get("2028"))
+            for c, v in weo.items() if re.fullmatch("[A-Z]{3}", c) and v.get("growth", {}).get("2028") is not None]
+    r27 = {c: i for i, (_, c, _, g27, _) in enumerate(sorted([r for r in rows if r[3] is not None], key=lambda r: -r[3]), 1)}
+    rows.sort(key=lambda r: -r[4])
+    board = {r["e"].get("iso3"): r for r in table.get("Country", [])}
+    own = {next((r["e"].get("iso3") for r in table.get("Country", []) if r["e"].get("name") == nm), None): pl
+           for nm, pl in owners.get("Country", {}).items()}
+    ws.append(["2028 rank", "Country", "ISO3", "2026 growth %", "2027 growth %", "2028 growth %", "2027 rank",
+               "2027-draft EV", "2026 owner", "Read"])
+    for c in ws[1]:
+        c.fill, c.font = HEAD, WHITE
+        c.alignment = Alignment(wrap_text=True, vertical="top")
+    for i, (nm, iso, g26, g27, g28) in enumerate(rows, 1):
+        b = board.get(iso)
+        jump = g28 is not None and g27 is not None and g28 - g27 > 8
+        rebound = g26 is not None and g26 < -5
+        read = ("one-off jump (project start?)" if jump else "post-war/shock rebound" if rebound else
+                "steady grower" if g26 and g27 and min(g26, g27, g28) >= 5 and max(g26, g27, g28) - min(g26, g27, g28) <= 3 else
+                "boom fading" if g26 and g27 and g26 > g27 > g28 and g26 - g28 > 5 else "")
+        ws.append([i, nm, iso, g26, g27, g28, r27.get(iso), round(b["total"], 1) if b else None, own.get(iso), read])
+        fill = GREEN if g28 >= 7 else YELLOW if g28 >= 5 else None
+        if fill:
+            ws.cell(i + 1, 6).fill = fill
+        if own.get(iso):
+            ws.cell(i + 1, 9).fill = GOLD
+    n = len(rows) + 3
+    ws.cell(n, 1, "Source: IMF World Economic Outlook, October 2026 (api.imf.org, NGDP_RPCH). 2028 is two years out and will be "
+                  "revised four more times (Apr/Oct 2027, Apr/Oct 2028) before a 2028 season would be scored. Green = 7%+, yellow = 5-7%.")
+    for col, w in zip("ABCDEFGHIJ", [9, 30, 7, 11, 11, 11, 9, 12, 11, 28]):
+        ws.column_dimensions[col].width = w
+    ws.freeze_panes = "C2"
+
+
 def match_owners(table):
     """data/rosters.json (current picks) -> ({cat: {entry name: player}}, [unmatched (cat, player, pick)])."""
     picks = (load_json("rosters.json", {}) or {}).get("picks", {})
@@ -744,6 +787,7 @@ def build(today):
     ws_plan.freeze_panes = "B2"
 
     my_draft_tab(ws_me)
+    country_2028_tab(wb.create_sheet("Country 2028"), table, owners)
 
     # QA
     ws_qa = wb.create_sheet("QA")
@@ -843,6 +887,7 @@ def build(today):
         ("", False),
         ("How to read it", True),
         ("Master = top-15 per category: name (expected league points). Colour: green > 15, yellow 10-15, grey 5-10, white < 5. Draft Board = every candidate across all 15 categories ranked by VOR.", False),
+        ("Country 2028 = every IMF country ranked by forecast 2028 GDP growth (Oct 2026 WEO) beside 2026/2027 and the 2027-draft EV — reference for a 2028 season; 2027 is scored on the 2027 column.", False),
         ("EV = E[rank points among the 13 drafted picks] (Monte Carlo on mu/sd) + E[bonus] (ladder × probabilities; live formula on the Assumptions tab).", False),
         ("VOR = EV − EV of the replacement pick (Nth best in the category; N on Assumptions). Risk-adj VOR subtracts λ × SD of rank points.", False),
         ("Yellow confidence cell = C (estimate) or ladder probabilities inferred from the title price. A = exchange/book price seen; B = article reporting odds.", False),
