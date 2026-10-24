@@ -161,6 +161,9 @@
       .proj-table thead th { padding: 6px 8px; }
       .proj-table td { padding: 5px 8px; white-space: nowrap; line-height: 1.25; }
       .proj-table .rank-num { width: 24px; }
+      /* the footer note must wrap: a long one (the 2027 pre-season note) otherwise stretches every column off screen */
+      .proj-table .proj-footer td { white-space: normal; text-align: left; }
+      .proj-footer-text { position: sticky; left: 8px; max-width: calc(100vw - 64px); }   /* stay on screen while the table scrolls */
     }
 
     .win-high { color: var(--green); font-weight: 600; }
@@ -433,8 +436,19 @@ loadProjections()
         </tr>
       `).join('') + `
         <tr class="proj-footer">
-          <td colspan="9">As of ${genAt} · ${nSims} sims · ${data.footer_note || (liveOdds ? 'Live Kalshi odds' : 'Static fallback odds')}</td>
+          <td colspan="9"><div class="proj-footer-text">As of ${genAt} · ${nSims} sims · ${data.footer_note || (liveOdds ? 'Live Kalshi odds' : 'Static fallback odds')}</div></td>
         </tr>`;
+
+    // 2027 pre-season: the projected total is the headline number, so on that view the columns read
+    // # · Player · Proj · Range · Win% · Odds · Top4% · Now · +Exp (keeps Proj visible on a phone without scrolling).
+    if (SEASON_2027) {
+      const ORDER = [0, 1, 7, 8, 2, 3, 4, 5, 6];
+      document.querySelectorAll('#proj-table tr').forEach(tr => {
+        if (tr.classList.contains('proj-footer') || tr.children.length !== ORDER.length) return;
+        const cells = [...tr.children];
+        ORDER.forEach(i => tr.appendChild(cells[i]));
+      });
+    }
 
     // Category breakdown table
     // Collect all categories that appear in any player's category_expected
