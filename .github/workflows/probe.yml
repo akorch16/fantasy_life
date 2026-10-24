@@ -33,10 +33,11 @@ jobs:
       - name: Write scenario script
         run: |
           cat > ../scenarios.py <<'PYEOF'
-          import json, requests
+          import json, requests, sys, os
+          sys.path.insert(0, os.getcwd())
           H = {"User-Agent": "Mozilla/5.0"}
           out = {}
-          r = requests.get("https://site.api.espn.com/apis/site/v2/sports/college-football/rankings", headers=H, timeout=30)
+          r = requests.get("https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings", headers=H, timeout=30)
           j = r.json()
           for poll in j.get("rankings", []):
               nm = poll.get("name") or poll.get("shortName")
