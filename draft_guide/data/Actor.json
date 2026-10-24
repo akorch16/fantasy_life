@@ -1885,6 +1885,53 @@
    "as_of": "2026-10-08",
    "notes": "",
    "films": []
+  },
+  {
+   "name": "Samuel L. Jackson",
+   "detail": "The Great Beyond (Oct 1); Avengers: Secret Wars (Dec 17)",
+   "odds": null,
+   "mu": 125.1,
+   "sd": 62.5,
+   "confidence": "C",
+   "source": "Box Office Mojo / Wikipedia 2027 cast lists (draft_guide/raw, pulled 2026-10-08) x the guide's per-film box office/RT estimates; added 2026-10-24 because the 2027 draft board picked them and they were missing from the candidate pool",
+   "as_of": "2026-10-24",
+   "notes": "Nick Fury return in Avengers: Secret Wars is on Box Office Mojo's cast list but not officially confirmed by Marvel (p_release folded with an ~80% appearance chance); also The Great Beyond. Untitled Ernest Dickerson thriller listed for 2027 with no details: not counted.",
+   "films": [
+    {
+     "title": "The Great Beyond",
+     "date": "Oct 1",
+     "p_release": 0.85,
+     "bo_mid": 60,
+     "rt_mid": 70
+    },
+    {
+     "title": "Avengers: Secret Wars",
+     "date": "Dec 17",
+     "p_release": 0.4,
+     "bo_mid": 298,
+     "rt_mid": 75
+    }
+   ]
+  },
+  {
+   "name": "Bradley Cooper",
+   "detail": "Untitled Ocean's Eleven prequel (Jun 25)",
+   "odds": null,
+   "mu": 63.4,
+   "sd": 31.7,
+   "confidence": "C",
+   "source": "Box Office Mojo / Wikipedia 2027 cast lists (draft_guide/raw, pulled 2026-10-08) x the guide's per-film box office/RT estimates; added 2026-10-24 because the 2027 draft board picked them and they were missing from the candidate pool",
+   "as_of": "2026-10-24",
+   "notes": "Billed cast of the untitled Ocean's Eleven prequel.",
+   "films": [
+    {
+     "title": "Untitled Ocean's Eleven prequel",
+     "date": "Jun 25",
+     "p_release": 0.8,
+     "bo_mid": 110,
+     "rt_mid": 72
+    }
+   ]
   }
  ]
 }

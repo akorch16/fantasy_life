@@ -1718,6 +1718,46 @@
    "as_of": "2026-10-08",
    "notes": "",
    "films": []
+  },
+  {
+   "name": "Amandla Stenberg",
+   "detail": "Children of Blood and Bone (Jan 15)",
+   "odds": null,
+   "mu": 14.0,
+   "sd": 7.0,
+   "confidence": "C",
+   "source": "Box Office Mojo / Wikipedia 2027 cast lists (draft_guide/raw, pulled 2026-10-08) x the guide's per-film box office/RT estimates; added 2026-10-24 because the 2027 draft board picked them and they were missing from the candidate pool",
+   "as_of": "2026-10-24",
+   "notes": "Billed cast of Children of Blood and Bone (Jan 15).",
+   "films": [
+    {
+     "title": "Children of Blood and Bone",
+     "date": "Jan 15",
+     "p_release": 0.85,
+     "bo_mid": 30,
+     "rt_mid": 55
+    }
+   ]
+  },
+  {
+   "name": "Meryl Streep",
+   "detail": "Narnia: The Magician's Nephew (Feb 12)",
+   "odds": null,
+   "mu": 21.6,
+   "sd": 10.8,
+   "confidence": "C",
+   "source": "Box Office Mojo / Wikipedia 2027 cast lists (draft_guide/raw, pulled 2026-10-08) x the guide's per-film box office/RT estimates; added 2026-10-24 because the 2027 draft board picked them and they were missing from the candidate pool",
+   "as_of": "2026-10-24",
+   "notes": "Billed cast of Narnia: The Magician's Nephew; the guide's calendar has it Feb 12, 2027 (p_release 0.6): other reporting had a late-2026 release, verify.",
+   "films": [
+    {
+     "title": "Narnia: The Magician's Nephew",
+     "date": "Feb 12",
+     "p_release": 0.6,
+     "bo_mid": 45,
+     "rt_mid": 80
+    }
+   ]
   }
  ]
 }
