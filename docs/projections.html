@@ -439,10 +439,10 @@ loadProjections()
           <td colspan="9"><div class="proj-footer-text">As of ${genAt} · ${nSims} sims · ${data.footer_note || (liveOdds ? 'Live Kalshi odds' : 'Static fallback odds')}</div></td>
         </tr>`;
 
-    // 2027 pre-season: the projected total is the headline number, so on that view the columns read
-    // # · Player · Proj · Range · Win% · Odds · Top4% · Now · +Exp (keeps Proj visible on a phone without scrolling).
+    // 2027 pre-season view: # · Player · Win% · Odds · Proj · Range · Top4% · Now · +Exp
+    // (win chance and odds first, projected total right after, all visible on a phone without scrolling).
     if (SEASON_2027) {
-      const ORDER = [0, 1, 7, 8, 2, 3, 4, 5, 6];
+      const ORDER = [0, 1, 2, 3, 7, 8, 4, 5, 6];
       document.querySelectorAll('#proj-table tr').forEach(tr => {
         if (tr.classList.contains('proj-footer') || tr.children.length !== ORDER.length) return;
         const cells = [...tr.children];
