@@ -33,47 +33,28 @@ jobs:
       - name: Write scenario script
         run: |
           cat > ../scenarios.py <<'PYEOF'
-          """Per-winner breakdown for Molmen / Jamzee / Fryar wins, plus Fryar's win rate given Blaney's finish."""
-          import inspect, json, sys, textwrap, collections, os
-          sys.path.insert(0, os.getcwd())
-          import projections as p
-          N = int(sys.argv[1])
-          WATCH = ("Molmen", "Jamzee", "Fryar")
-          WHO = ("Korch", "Wu", "Fryar", "Molmen", "Jamzee")
-          src = textwrap.dedent(inspect.getsource(p.simulate))
-          src = src.replace("    for _ in range(n):\n        totals = dict(base)\n",
-                            "    for _ in range(n):\n        totals = dict(base)\n        _snap = {c: dict(cat_add[c]) for c in cat_add}\n")
-          src = src.replace("        ranked = sorted(players_list, key=lambda x: -totals[x])\n",
-                            "        ranked = sorted(players_list, key=lambda x: -totals[x])\n"
-                            "        _d = {nm: {c: round(cat_add[c][nm] - _snap[c][nm], 1) for c in cat_add if abs(cat_add[c][nm] - _snap[c][nm]) > 0.05} for nm in _WHO}\n"
-                            "        _ALL.append((ranked[0], _d, round(totals[ranked[0]] - totals[ranked[1]], 1)))\n")
-          ns = vars(p); ns["_ALL"] = []; ns["_WHO"] = WHO
-          exec(compile(src, "simulate_patched", "exec"), ns)
-          scores = json.load(open(p.SCORES_PATH))["players"]
-          used = []; odds = p.build_odds(used); odds["mls_playoff_model"] = p._build_mls_playoff_model(odds, used)
-          odds["nascar_chase_model"] = p._build_nascar_chase_model(odds, used)
-          res, _ = ns["simulate"](scores, odds, n=N)
-          A = ns["_ALL"]
-          out = {"n": N, "win_pct": {k: v["win_pct"] for k, v in res.items()}, "totals": {s["name"]: s["total"] for s in scores},
-                 "mls_champ": odds.get("mls_champ"), "by_winner": {}}
-          for W in WATCH:
-              ws = [(d, m) for w, d, m in A if w == W]
-              dist = collections.defaultdict(collections.Counter)
-              for d, m in ws:
-                  for nm in WHO:
-                      for c in ("mlb", "mls", "nascar", "actor", "actress", "stock"):
-                          dist[f"{nm}:{c}"][d[nm].get(c, 0.0)] += 1
-              out["by_winner"][W] = {"n": len(ws), "margin_median": sorted(m for _, m in ws)[len(ws) // 2] if ws else None,
-                                     "examples": [dict(d, margin=m) for d, m in ws[:5]],
-                                     "dist": {k: {str(v): round(c / max(1, len(ws)), 3) for v, c in sorted(cnt.items())} for k, cnt in dist.items()}}
-          # Fryar's win rate by Blaney's finish (his NASCAR bonus) and by MLS bonus
-          for key in ("nascar", "mls", "stock"):
-              tab = collections.defaultdict(lambda: [0, 0])
-              for w, d, m in A:
-                  k = d["Fryar"].get(key, 0.0); tab[k][0] += 1; tab[k][1] += (w == "Fryar")
-              out[f"fryar_winrate_by_{key}"] = {str(k): [v[0], round(v[1] / v[0], 4)] for k, v in sorted(tab.items())}
-          print("SCEN5>>" + json.dumps(out) + "<<SCEN5")
+          import json, requests
+          H = {"User-Agent": "Mozilla/5.0"}
+          out = {}
+          r = requests.get("https://site.api.espn.com/apis/site/v2/sports/college-football/rankings", headers=H, timeout=30)
+          j = r.json()
+          for poll in j.get("rankings", []):
+              nm = poll.get("name") or poll.get("shortName")
+              out[nm] = {"date": poll.get("date"), "headline": poll.get("headline"),
+                         "ranks": [[t.get("current"), (t.get("team") or {}).get("location"), (t.get("team") or {}).get("nickname"), t.get("recordSummary"), t.get("points"), t.get("firstPlaceVotes"), t.get("previous")] for t in poll.get("ranks", [])],
+                         "others": [[(t.get("team") or {}).get("location"), t.get("recordSummary"), t.get("points")] for t in poll.get("others", [])][:15]}
+          try:
+              import projections as p
+              for s in ("KXNCAAFPLAYOFF", "KXCFPPLAYOFF", "KXNCAAFCFP", "KXCFPTEAMS", "KXNCAAF"):
+                  try:
+                      ms = p._fetch_markets_for_series(s)
+                  except Exception as e:
+                      out["kalshi_" + s] = repr(e)[:80]; continue
+                  out["kalshi_" + s] = [[m.get("ticker"), m.get("yes_sub_title") or m.get("title"), m.get("yes_bid_dollars"), m.get("yes_ask_dollars"), m.get("last_price_dollars")] for m in ms[:60]]
+          except Exception as e:
+              out["kalshi_err"] = repr(e)[:200]
+          print("CFB>>" + json.dumps(out) + "<<CFB")
           PYEOF
 
       - name: Scenarios on main
-        run: python ../scenarios.py 400000 2>&1 | grep -E "SCEN5>>|Traceback|Error|NASCAR Chase" | sed 's/^/MAIN /'
+        run: python ../scenarios.py 2>&1 | grep -E "CFB>>|Traceback|Error" | sed 's/^/MAIN /'
