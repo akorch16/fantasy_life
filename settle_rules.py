@@ -90,7 +90,6 @@ def _claude_json(prompt):
     msg = client.messages.create(
         model=_CLAUDE_MODEL,
         max_tokens=300,
-        extra_body={"temperature": 0},
         messages=[{"role": "user", "content": prompt}],
     )
     text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
