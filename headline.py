@@ -86,6 +86,19 @@ def _calendar_state(today, cal=None):
     return active, concluded, upcoming
 
 
+# Company names for stock picks: news headlines say "Tesla", not "TSLA", so ticker-only searches came back as generic
+# market wraps. Searches use "Company TICKER"; Yahoo's own name (stock_official_snippets) wins when it is available.
+STOCK_COMPANY = {
+    'COIN': 'Coinbase', 'LULU': 'Lululemon', 'SOFI': 'SoFi', 'NVDA': 'Nvidia', 'CVNA': 'Carvana', 'TSLA': 'Tesla',
+    'CMG': 'Chipotle', 'PLTR': 'Palantir', 'AVGO': 'Broadcom', 'SMCI': 'Super Micro Computer', 'TTWO': 'Take-Two',
+    'INTC': 'Intel', 'NEE': 'NextEra Energy',
+}
+
+
+def _search_term(cat, pick):
+    return f"{STOCK_COMPANY.get(pick, '')} {pick}".strip() if cat == 'Stock' else pick
+
+
 def pick_names(cat) -> list:
     """Search terms for every 2026 pick in a category (stocks by ticker)."""
     return [v['ticker'] if isinstance(v, dict) else v for v in DRAFT_PICKS_2026[cat].values()]
@@ -114,7 +127,7 @@ def pick_query_pool(today, cal=None, exclude=None) -> list:
             continue
         cat = season['category']
         names = [p for p in pick_names(cat) if p not in set(exclude.get(cat, ()))]
-        per_cat.append([(cat, g, season['pick_query'].format(names=' '.join(g)))
+        per_cat.append([(cat, g, season['pick_query'].format(names=' '.join(_search_term(cat, p) for p in g)))
                         for g in _groups(names, PICK_GROUP_SIZE)] if names else [])
     pool = []
     for k in range(max((len(c) for c in per_cat), default=0)):
@@ -132,7 +145,8 @@ def active_query_groups(today, cal=None, active=None) -> list:
         cat = season['category']
         names = [p for p in pick_names(cat) if p in set(active.get(cat, ()))]
         if names and _in_window(today, season['start'], season['end']):
-            out += [(cat, g, season['pick_query'].format(names=' '.join(g))) for g in _groups(names, PICK_GROUP_SIZE)]
+            out += [(cat, g, season['pick_query'].format(names=' '.join(_search_term(cat, p) for p in g)))
+                    for g in _groups(names, PICK_GROUP_SIZE)]
     return out[:MAX_ACTIVE_QUERIES]
 
 
@@ -481,13 +495,66 @@ def billboard_official_snippets(today=None):
         return '', []
 
 
-def active_picks(today, mlb_lines='', musicians=None) -> dict:
+STOCK_DAY_MOVE = 3.0     # % one-day move that makes a stock pick news (and "active")
+STOCK_WEEK_MOVE = 7.0    # % five-trading-day move that does the same
+
+
+def _yahoo_daily(ticker):
+    """(name, [(date, close), ...] this year) from Yahoo's chart endpoint — the same one scrapers.scrape_stock uses."""
+    import requests
+    from datetime import datetime, timezone
+    r = requests.get(f'https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1d&range=ytd',
+                     headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'}, timeout=15)
+    res = (r.json().get('chart', {}).get('result') or [None])[0]
+    if not res:
+        raise ValueError('empty result')
+    meta = res.get('meta', {})
+    closes = (res.get('indicators', {}).get('quote') or [{}])[0].get('close', [])
+    rows = [(datetime.fromtimestamp(t, timezone.utc).date(), c) for t, c in zip(res.get('timestamp', []), closes) if c]
+    return meta.get('shortName') or meta.get('longName'), rows
+
+
+def stock_official_snippets(today=None):
+    """(snippet lines, [tickers that moved]) for the 13 stock picks.
+
+    Same idea as the Billboard and MLB lines: a price move is a structured fact, so it comes from the price feed,
+    not from whichever market-wrap article a ticker search happens to rank. Only meaningful moves get a line
+    (>= STOCK_DAY_MOVE % on the last session or >= STOCK_WEEK_MOVE % over five sessions). Each line says whether the
+    pick is long or short, and gives the pick's own year-to-date return (sign flipped for shorts, as scored)."""
+    lines, movers = [], []
+    for owner, pick in DRAFT_PICKS_2026['Stock'].items():
+        tk, short = pick['ticker'], pick.get('direction') == 'S'
+        try:
+            name, rows = _yahoo_daily(tk)
+        except Exception as e:
+            print(f'  ⚠ market data unavailable for {tk}: {e}')
+            continue
+        if len(rows) < 6:
+            continue
+        if name:
+            import re as _re
+            STOCK_COMPANY[tk] = _re.sub(r'[,.]?\s+(Inc\.?|Corporation|Corp\.?|Holdings?|Interactive Software|Ltd\.?|plc)$', '',
+                                        name.split(',')[0], flags=_re.I).strip() or STOCK_COMPANY.get(tk, tk)
+        (d1, c1), (_, c0), (_, c5), (_, cj) = rows[-1], rows[-2], rows[-6], rows[0]
+        day, week, ytd = (c1 / c0 - 1) * 100, (c1 / c5 - 1) * 100, (c1 / cj - 1) * 100
+        pick_ytd = -ytd if short else ytd
+        if abs(day) >= STOCK_DAY_MOVE or abs(week) >= STOCK_WEEK_MOVE:
+            movers.append(tk)
+            side = 'short pick — a falling price is good for its owner' if short else 'long pick'
+            lines.append(f"- [official market data, close {d1.strftime('%b %d')}] {tk} ({STOCK_COMPANY.get(tk, tk)}, {side}): "
+                         f"{day:+.1f}% on the day, {week:+.1f}% over 5 sessions; the pick's return this year is {pick_ytd:+.1f}%")
+    return "\n".join(lines), movers
+
+
+def active_picks(today, mlb_lines='', musicians=None, stocks=None) -> dict:
     """{category: [picks]} that are in the news right now, searched every day ahead of the rotation."""
     import json as _json
     from datetime import timedelta
     out = {}
     if musicians:
         out['Musician'] = list(musicians)
+    if stocks:
+        out['Stock'] = list(stocks)
     live = [l for l in (mlb_lines or '').splitlines() if 'in progress' in l]
     teams = [t for t in DRAFT_PICKS_2026['MLB'].values() if any(t in l for l in live)]
     if teams:
@@ -578,6 +645,7 @@ CRITICAL rules:
 - ONLY report facts explicitly stated in the snippets above. Do NOT add any result, score, or outcome not written in a snippet.
 - OFFICIAL MLB DATA: lines tagged "[official MLB data, ...]" come straight from MLB and are authoritative for MLB postseason series state. If a news snippet disagrees with them (e.g. an older series score), the official line wins. Never report an MLB series result that is older than the newest official line for that series.
 - OFFICIAL BILLBOARD DATA: lines tagged "[official Billboard data, ...]" come straight from the Hot 100 and are authoritative for chart positions and week-over-week moves (No. 1 changes, debuts, climbs, falls). They count as this week's news. Prefer them over any news snippet about the chart.
+- OFFICIAL MARKET DATA: lines tagged "[official market data, ...]" are exact closing-price moves for stock picks. Use them for any stock move; never report a price move from a market-wrap article. They say whether a pick is long or short: for a SHORT pick a falling price is good news for its owner, so phrase it that way (e.g. "TSLA (<em>Shep</em>, short) slides 6% — a win for the short").
 - BRACKET / TRACKER / STANDINGS PAGES list results from EVERY earlier round, so their publication date says nothing about when a result happened. Never take a game result from such a page (e.g. "Rays 4, Yankees 3 (Tampa Bay wins 3-0)" or a Wild Card score) unless an official MLB data line or a dated article confirms it happened within the last {MAX_SNIPPET_AGE_DAYS} days. A series that has already ended and is not on an official line is OLD — skip it.
 - OWNERSHIP: only the picks listed above have an FL owner. A team, player or ticker that is not in the list has NO owner — never attach an FL player to it, and never write possessives like "Fryar's Rays". Write only "Pick (<em>Owner</em>)" using the exact pick/owner pairs listed above, and mention opponents without an owner as plain names.
 - If a snippet mentions a pick but doesn't clearly state the result or move, skip it.
@@ -715,11 +783,16 @@ def main():
     billboard, chart_picks = billboard_official_snippets(today)
     if billboard:
         print('\n  ✓ Official Billboard Hot 100 data:\n' + '\n'.join(f'    {l[:160]}' for l in billboard.splitlines()))
-    active = active_picks(today, mlb, chart_picks)
+    stocks, stock_movers = stock_official_snippets(today)
+    if stocks:
+        print('\n  ✓ Official market data (movers):\n' + '\n'.join(f'    {l[:170]}' for l in stocks.splitlines()))
+    else:
+        print('\n  – No stock pick moved enough to report today')
+    active = active_picks(today, mlb, chart_picks, stock_movers)
     print('\n  Active picks (searched every day): ' + ('; '.join(f'{c}: {", ".join(v)}' for c, v in active.items()) or 'none'))
     print('\nSearching for today\'s sports news...')
     news = search_news(debug=debug, today=today, active=active)
-    official = '\n'.join(x for x in (mlb, billboard) if x)
+    official = '\n'.join(x for x in (mlb, billboard, stocks) if x)
     if official:
         news = official + ('\n' + news if news else '')
     if news:
