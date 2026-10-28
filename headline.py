@@ -534,7 +534,7 @@ def stock_official_snippets(today=None):
         if name:
             import re as _re
             STOCK_COMPANY[tk] = _re.sub(r'[,.]?\s+(Inc\.?|Corporation|Corp\.?|Holdings?|Interactive Software|Ltd\.?|plc)$', '',
-                                        name.split(',')[0]).strip() or STOCK_COMPANY.get(tk, tk)
+                                        name.split(',')[0], flags=_re.I).strip() or STOCK_COMPANY.get(tk, tk)
         (d1, c1), (_, c0), (_, c5), (_, cj) = rows[-1], rows[-2], rows[-6], rows[0]
         day, week, ytd = (c1 / c0 - 1) * 100, (c1 / c5 - 1) * 100, (c1 / cj - 1) * 100
         pick_ytd = -ytd if short else ytd
