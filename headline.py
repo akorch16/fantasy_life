@@ -180,8 +180,8 @@ def build_queries(today, cal=None, active=None) -> list:
         for g in season.get('generic', []):
             if _in_window(today, g['start'], g['end']):
                 queries.append(g['query'].format(today=today_str))
-    active, _, _ = _calendar_state(today, cal)
-    queries.extend(q for _, _, _, q in active)
+    live_events, _, _ = _calendar_state(today, cal)
+    queries.extend(q for _, _, _, q in live_events)
     queries.extend(q for _, _, q in pick_queries_for_day(today, cal, active=active))
     return list(dict.fromkeys(queries))       # de-dup, keep order
 
