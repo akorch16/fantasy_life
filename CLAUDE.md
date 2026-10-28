@@ -18,7 +18,7 @@ docs/*.html read both JSONs client-side (GitHub Pages, no server).
 Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly from the browser.
 ```
 
-- `daily.yml` (08:00 UTC): scrapers → scoring → projections → commit both JSONs to main.
+- `daily.yml` (6:48 AM ET via a Claude scheduled task → workflow_dispatch; GitHub cron 12:17 UTC is a backup that skips itself if today already ran — GitHub cron was starting 4-9 h late): scrapers → scoring → projections → commit both JSONs to main.
 - `odds.yml` (hourly at :23, skips 08:xx): `projections.py --odds-only` — refreshes Kalshi
   prop odds in projections.json (Monte Carlo untouched), auto-settles props whose Kalshi
   markets resolved, pays the ledger via `db.settle_sb_bet`, and maintains a GitHub issue
