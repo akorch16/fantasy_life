@@ -1276,13 +1276,28 @@ def _simulate_playoffs_conf(conf_west_probs, conf_east_probs, champ_probs):
 # already in scores.json (as baseline/bonus points) — NOT a forecast. All four golf majors
 # and all four slams are done for 2026; simulating them again from stale June FALLBACK
 # odds was handing out phantom bonus points.
-EVENT_END = {
-    "golf_uso":         datetime.date(2026, 6, 21),
-    "golf_open":        datetime.date(2026, 7, 19),
-    "tennis_french":    datetime.date(2026, 6, 7),
-    "tennis_wimbledon": datetime.date(2026, 7, 12),
-    "tennis_usopen":    datetime.date(2026, 9, 13),
-}
+def _load_event_end():
+    """{sim_key: end date} from docs/calendar.json (the single league calendar) — events tagged with a sim_key
+    (golf majors, tennis slams) stop being simulated once they end. Falls back to the 2026 dates if the file is
+    unreadable, so a calendar typo can't resurrect a finished major's bonus."""
+    fallback = {
+        "golf_uso":         datetime.date(2026, 6, 21),
+        "golf_open":        datetime.date(2026, 7, 19),
+        "tennis_french":    datetime.date(2026, 6, 7),
+        "tennis_wimbledon": datetime.date(2026, 7, 12),
+        "tennis_usopen":    datetime.date(2026, 9, 13),
+    }
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "calendar.json")) as f:
+            cal = json.load(f)
+        ends = {e["sim_key"]: datetime.date.fromisoformat(e["end"]) for e in cal["events"] if e.get("sim_key")}
+        return {**fallback, **ends}
+    except Exception as e:
+        print(f"  ⚠ calendar.json unreadable ({e}) — using built-in EVENT_END")
+        return fallback
+
+
+EVENT_END = _load_event_end()
 
 
 def _event_done(odds_key, today=None):
