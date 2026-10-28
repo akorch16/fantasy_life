@@ -14,48 +14,17 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    env:
-      KALSHI_API_KEY: ${{ secrets.KALSHI_API_KEY }}
-      KALSHI_API_KEY_ID: ${{ secrets.KALSHI_API_KEY_ID }}
-      KALSHI_PRIVATE_KEY: ${{ secrets.KALSHI_PRIVATE_KEY }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Write scenario script
+      - name: Tavily usage
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
         run: |
-          cat > ../scenarios.py <<'PYEOF'
-          import json, requests, sys, os
-          sys.path.insert(0, os.getcwd())
-          H = {"User-Agent": "Mozilla/5.0"}
-          out = {}
-          r = requests.get("https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings", headers=H, timeout=30)
-          j = r.json()
-          for poll in j.get("rankings", []):
-              nm = poll.get("name") or poll.get("shortName")
-              out[nm] = {"date": poll.get("date"), "headline": poll.get("headline"),
-                         "ranks": [[t.get("current"), (t.get("team") or {}).get("location"), (t.get("team") or {}).get("nickname"), t.get("recordSummary"), t.get("points"), t.get("firstPlaceVotes"), t.get("previous")] for t in poll.get("ranks", [])],
-                         "others": [[(t.get("team") or {}).get("location"), t.get("recordSummary"), t.get("points")] for t in poll.get("others", [])][:15]}
+          python3 - <<'PY'
+          import json, os, urllib.request
+          req = urllib.request.Request('https://api.tavily.com/usage',
+                                       headers={'Authorization': 'Bearer ' + os.environ['TAVILY_API_KEY']})
           try:
-              import projections as p
-              for s in ("KXNCAAFPLAYOFF", "KXCFPPLAYOFF", "KXNCAAFCFP", "KXCFPTEAMS", "KXNCAAF"):
-                  try:
-                      ms = p._fetch_markets_for_series(s)
-                  except Exception as e:
-                      out["kalshi_" + s] = repr(e)[:80]; continue
-                  out["kalshi_" + s] = [[m.get("ticker"), m.get("yes_sub_title") or m.get("title"), m.get("yes_bid_dollars"), m.get("yes_ask_dollars"), m.get("last_price_dollars")] for m in ms[:60]]
+              print('USAGE>>' + urllib.request.urlopen(req, timeout=30).read().decode() + '<<USAGE')
           except Exception as e:
-              out["kalshi_err"] = repr(e)[:200]
-          print("CFB>>" + json.dumps(out) + "<<CFB")
-          PYEOF
-
-      - name: Scenarios on main
-        run: python ../scenarios.py 2>&1 | grep -E "CFB>>|Traceback|Error" | sed 's/^/MAIN /'
+              print('USAGE_ERR', e, getattr(e, 'read', lambda: b'')()[:300])
+          PY
