@@ -277,36 +277,42 @@ def check_projections(proj, scores, today):
             pass
 
 
-# ── 6. rotted docs (calendar) ────────────────────────────────────────────────
-MONTHS = {m: i + 1 for i, m in enumerate(
-    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])}
-
-
+# ── 6. the league calendar (docs/calendar.json) ──────────────────────────────
+# One file feeds the Calendar tab (status computed from dates), the FL News headline's search plan, and the
+# projections' finished-event list — so it is validated here once, including that every pick can be searched.
 def check_calendar(today):
     try:
-        html = open(os.path.join(ROOT, 'docs/calendar.html')).read()
+        cal = json.load(open(os.path.join(ROOT, 'docs/calendar.json')))
     except Exception as e:
-        add('WARN', 'docs', f'could not read docs/calendar.html: {e}')
+        add('ERROR', 'calendar', f'docs/calendar.json unreadable: {e} — Calendar tab, headline search and '
+            f'projections all depend on it')
         return
-    cards = re.findall(r'event-card status-(\w+)".*?<div class="event-name">(.*?)</div>.*?'
-                       r'<div class="event-date">(.*?)</div>', html, re.S)
-    for status, name, dt in cards:
-        toks = re.findall(r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+(\d{1,2})'
-                          r'(?:\s*[–-]\s*(\d{1,2})(?!\d))?', dt)
-        if not toks:
-            continue
-        mon, d1, d2 = toks[-1]
+    def d(x):
+        return date.fromisoformat(x)
+    for e in cal.get('events', []):
         try:
-            end = date(today.year, MONTHS[mon], int(d2 or d1))
-        except ValueError:
-            continue
-        clean = re.sub(r'<.*?>', '', name)
-        if status in ('upcoming', 'live') and end < today:
-            add('WARN', 'docs', f'calendar: "{clean}" ({dt}) is still marked {status} but ended {end}')
-        if status == 'past' and end > today:
-            add('WARN', 'docs', f'calendar: "{clean}" ({dt}) is marked completed but is on {end}')
-    if re.search(r'<div class="event-date">[^<]*TBD', html):
-        add('INFO', 'docs', 'calendar still has "(TBD)" dates — firm them up when announced')
+            s, en = d(e['start']), d(e['end'])
+            if en < s:
+                add('ERROR', 'calendar', f'"{e["name"]}" ends ({en}) before it starts ({s})')
+            if e.get('search', {}).get('end') and d(e['search']['end']) < s:
+                add('ERROR', 'calendar', f'"{e["name"]}" search window ends before the event starts')
+        except Exception as ex:
+            add('ERROR', 'calendar', f'"{e.get("name")}" has a bad date: {ex}')
+        if e.get('approx') and today <= d(e['end']):
+            add('INFO', 'calendar', f'"{e["name"]}" only has a month ({e["label"]}) — firm up the date')
+    for s in cal.get('seasons', []):
+        if d(s['end']) < d(s['start']):
+            add('ERROR', 'calendar', f'season {s["category"]} ends before it starts')
+    try:
+        import headline
+        for cat, lost in headline.search_coverage(cal).items():
+            add('ERROR', 'calendar', f'FL News can never search {cat} picks: {", ".join(lost)}')
+        n = len(headline.pick_query_pool(today, cal))
+        days = -(-n // headline.PICK_QUERY_BUDGET) if n else 0
+        add('INFO', 'calendar', f'FL News search: {n} pick groups active today, every pick searched at least every '
+            f'{days} day(s) ({headline.PICK_QUERY_BUDGET} pick queries/day)')
+    except Exception as ex:
+        add('WARN', 'calendar', f'could not check FL News search coverage: {ex}')
 
 
 def render(today):

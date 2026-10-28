@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 """
 headline.py — Standalone FL News headline generator.
-Uses Tavily free tier for live sports news + Anthropic Haiku for generation.
-Cost: ~$0.009/run. Reads/writes docs/scores.json in-place.
+Tavily news search (queries planned from docs/calendar.json) + Claude Sonnet 5.5 for generation.
+Reads/writes docs/scores.json in-place.
 """
 import json, os, sys
 from typing import Optional
 from pathlib import Path
 
+HEADLINE_MODEL = 'claude-sonnet-5-5'
 DOCS_DIR = Path(__file__).parent / 'docs'
 SCORES_PATH = DOCS_DIR / 'scores.json'
 
-# Draft pick reference for the prompt, built from the canonical source.
-# NFL/NCAAF/NCAAB excluded: frozen 2025 seasons, no live news to report.
+# Draft pick reference for the prompt, built from the canonical source. All 15 categories: which ones are still
+# live is decided by the calendar's season windows (build_calendar_note tells the model which seasons are over).
 from draft_picks_2026 import DRAFT_PICKS_2026
 
-_HEADLINE_CATEGORIES = [
-    'NBA', 'NHL', 'MLB', 'Tennis', 'Golf', 'NASCAR', 'MLS',
-    'Stock', 'Actor', 'Actress', 'Musician', 'Country',
-]
+_HEADLINE_CATEGORIES = list(DRAFT_PICKS_2026)
 
 def _build_draft_summary() -> str:
     lines = []
@@ -35,35 +33,25 @@ def _build_draft_summary() -> str:
 DRAFT_SUMMARY = _build_draft_summary()
 
 
-# ── Event calendar ────────────────────────────────────────────────────────────
-# (name, start, end, query). A query runs only while today is inside
-# [start, end + RESULTS_GRACE_DAYS] — so event queries retire themselves and
-# nobody has to hand-edit the list when a tournament ends. The same table
-# drives the prompt: in-window events are announced as active, past events are
-# explicitly listed as concluded/off-limits.
-RESULTS_GRACE_DAYS = 2   # a final is still news for a couple of days
+# ── Search plan (from docs/calendar.json — the single league calendar) ───────
+# Every search window comes from docs/calendar.json, the same file the Calendar tab renders and projections reads:
+#   * events[].search  — event queries (Wimbledon, MLS Cup playoffs, ...). A query runs while today is inside
+#                        [start, search.end or end] + RESULTS_GRACE_DAYS, so it retires itself.
+#   * seasons[]        — each category's real season. While a season is active its generic queries run, and
+#                        EVERY pick in the category is searched by name (pick_query), in small balanced groups so no
+#                        pick is crowded out of a query that only returns 3 results. A daily budget rotates the groups:
+#                        every pick is searched at least every ceil(groups / PICK_QUERY_BUDGET) days.
+# Nothing here is hand-typed per pick or per event any more (the old hard-coded lists dropped 4 of 13 stocks and
+# had the MLS playoffs a month early).
+RESULTS_GRACE_DAYS = 2      # a final is still news for a couple of days
+PICK_GROUP_SIZE = 4         # picks named per query (each query returns max_results=3 articles)
+PICK_QUERY_BUDGET = 12      # pick-group queries per day; the rest rotate in on later days
+CALENDAR_PATH = DOCS_DIR / 'calendar.json'
 
-EVENT_WINDOWS = [
-    ("French Open tennis",    "2026-05-24", "2026-06-07", "French Open Roland Garros 2026 tennis results today"),
-    ("US Open golf",          "2026-06-18", "2026-06-21", "US Open golf championship 2026 final leaderboard"),
-    ("World Cup group stage", "2026-06-11", "2026-06-27", "FIFA World Cup 2026 group stage results today"),
-    ("World Cup knockout round","2026-06-28","2026-07-19", "FIFA World Cup 2026 knockout round match results today"),
-    ("Wimbledon",             "2026-06-29", "2026-07-12", "Wimbledon 2026 tennis match results today"),
-    ("The Open golf",         "2026-07-16", "2026-07-19", "The Open Championship 2026 golf leaderboard results"),
-    ("US Open tennis",        "2026-08-31", "2026-09-13", "US Open 2026 tennis match results today"),
-    ("NASCAR playoffs",       "2026-09-06", "2026-11-08", "NASCAR Cup Series playoffs 2026 race results"),
-    ("MLB playoffs",          "2026-09-29", "2026-11-01", "MLB playoffs 2026 results"),
-    ("MLS Cup playoffs",      "2026-10-21", "2026-12-06", "MLS Cup playoffs 2026 results"),
-]
 
-# Season-long categories — always searched (their pages update continuously).
-ALWAYS_ON_QUERIES = [
-    'MLB baseball results standings 2026 this week',
-    'MLS NASCAR results 2026 this week',
-    '{today} Billboard Hot 100 chart number one new entry this week',
-    'NVDA TSLA COIN PLTR AVGO SMCI LULU INTC NEE stock movers this week 2026',
-    '{today} domestic US box office opening weekend results North America',
-]
+def load_calendar() -> dict:
+    with open(CALENDAR_PATH) as f:
+        return json.load(f)
 
 
 def _parse_d(s):
@@ -71,13 +59,24 @@ def _parse_d(s):
     return date(*map(int, s.split('-')))
 
 
-def _calendar_state(today):
-    """(active, concluded, upcoming) event-window lists for the given date."""
+def _in_window(today, start, end, grace=0):
     from datetime import timedelta
+    return _parse_d(start) <= today <= _parse_d(end) + timedelta(days=grace)
+
+
+def _search_events(cal):
+    """(name, start, end, query) for every calendar event that carries a search query."""
+    return [(e['search'].get('label') or e['name'], e['start'], e['search'].get('end') or e['end'], e['search']['query'])
+            for e in cal['events'] if e.get('search')]
+
+
+def _calendar_state(today, cal=None):
+    """(active, concluded, upcoming) search-event lists for the given date."""
+    cal = cal or load_calendar()
     active, concluded, upcoming = [], [], []
-    for name, start, end, query in EVENT_WINDOWS:
+    for name, start, end, query in _search_events(cal):
         s, e = _parse_d(start), _parse_d(end)
-        if s <= today <= e + timedelta(days=RESULTS_GRACE_DAYS):
+        if _in_window(today, start, end, RESULTS_GRACE_DAYS):
             active.append((name, s, e, query))
         elif today > e:
             concluded.append((name, s, e))
@@ -86,19 +85,87 @@ def _calendar_state(today):
     return active, concluded, upcoming
 
 
-def build_queries(today) -> list:
-    """Date-aware query list: always-on categories + currently active events."""
+def pick_names(cat) -> list:
+    """Search terms for every 2026 pick in a category (stocks by ticker)."""
+    return [v['ticker'] if isinstance(v, dict) else v for v in DRAFT_PICKS_2026[cat].values()]
+
+
+def _groups(items, size):
+    """Split into ceil(n/size) groups of near-equal length (13 -> 4,3,3,3), preserving order."""
+    n = max(1, -(-len(items) // size))
+    base, extra = divmod(len(items), n)
+    out, i = [], 0
+    for k in range(n):
+        step = base + (1 if k < extra else 0)
+        out.append(items[i:i + step])
+        i += step
+    return [g for g in out if g]
+
+
+def pick_query_pool(today, cal=None) -> list:
+    """[(category, [picks], query)] for every active season, interleaved across categories so any daily slice
+    spans several categories."""
+    cal = cal or load_calendar()
+    per_cat = []
+    for season in cal['seasons']:
+        if not _in_window(today, season['start'], season['end']):
+            continue
+        cat = season['category']
+        per_cat.append([(cat, g, season['pick_query'].format(names=' '.join(g)))
+                        for g in _groups(pick_names(cat), PICK_GROUP_SIZE)])
+    pool = []
+    for k in range(max((len(c) for c in per_cat), default=0)):
+        pool.extend(c[k] for c in per_cat if k < len(c))
+    return pool
+
+
+def pick_queries_for_day(today, cal=None, budget=PICK_QUERY_BUDGET) -> list:
+    """Today's slice of the pick pool: a window of `budget` groups that advances by `budget` each day."""
+    pool = pick_query_pool(today, cal)
+    if len(pool) <= budget:
+        return pool
+    off = (today.toordinal() * budget) % len(pool)
+    return [pool[(off + i) % len(pool)] for i in range(budget)]
+
+
+def search_coverage(cal=None) -> dict:
+    """{category: [picks never named in any pick query]} over each season's whole window — should be all empty."""
+    cal = cal or load_calendar()
+    missing = {}
+    for season in cal['seasons']:
+        cat = season['category']
+        named = {p for g in _groups(pick_names(cat), PICK_GROUP_SIZE) for p in g}
+        lost = [p for p in pick_names(cat) if p not in named
+                or p not in season['pick_query'].format(names=' '.join(named))]
+        if lost or '{names}' not in season['pick_query']:
+            missing[cat] = lost or ['(pick_query has no {names} placeholder)']
+    covered = {s['category'] for s in cal['seasons']}
+    for cat in DRAFT_PICKS_2026:
+        if cat not in covered:
+            missing[cat] = ['(no season window in calendar.json)']
+    return missing
+
+
+def build_queries(today, cal=None) -> list:
+    """Date-aware query list: active seasons' generic queries + active event queries + today's pick groups."""
+    cal = cal or load_calendar()
     today_str = today.strftime('%B %d %Y')
-    queries = [q.format(today=today_str) for q in ALWAYS_ON_QUERIES]
-    active, _, _ = _calendar_state(today)
+    queries = []
+    for season in cal['seasons']:
+        for g in season.get('generic', []):
+            if _in_window(today, g['start'], g['end']):
+                queries.append(g['query'].format(today=today_str))
+    active, _, _ = _calendar_state(today, cal)
     queries.extend(q for _, _, _, q in active)
-    return queries
+    queries.extend(q for _, _, q in pick_queries_for_day(today, cal))
+    return list(dict.fromkeys(queries))       # de-dup, keep order
 
 
-def build_calendar_note(today) -> str:
+def build_calendar_note(today, cal=None) -> str:
     """Prompt guidance derived from the calendar — replaces hand-edited
     'the active events are X' lines that rot the moment an event ends."""
-    active, concluded, _ = _calendar_state(today)
+    cal = cal or load_calendar()
+    active, concluded, _ = _calendar_state(today, cal)
     lines = []
     if active:
         lines.append("Events IN PROGRESS right now (their fresh results are the priority): "
@@ -106,7 +173,10 @@ def build_calendar_note(today) -> str:
     if concluded:
         lines.append("Events already CONCLUDED — do NOT report anything from these, their news is stale: "
                      + "; ".join(f"{n} (ended {e.strftime('%b %d')})" for n, s, e in concluded))
-    lines.append("The NBA Finals and NHL Stanley Cup Finals concluded in mid-June 2026 — never report on them.")
+    over = [s for s in cal['seasons'] if today > _parse_d(s['end'])]
+    if over:
+        lines.append("Seasons already OVER for this league — never report new results for these picks: "
+                     + "; ".join(f"{s['category']} (ended {_parse_d(s['end']).strftime('%b %d')})" for s in over))
     return "\n".join(f"- {l}" for l in lines)
 
 
@@ -114,7 +184,7 @@ MAX_SNIPPET_AGE_DAYS = 3
 WEEKLY_CHART_MAX_AGE_DAYS = 7
 
 
-def search_news(debug: bool = False) -> str:
+def search_news(debug: bool = False, today=None) -> str:
     """Fetch recent news via Tavily — separate query per active event so no
     category starves another. Queries come from the date-aware calendar.
 
@@ -126,8 +196,10 @@ def search_news(debug: bool = False) -> str:
     api_key = os.environ.get('TAVILY_API_KEY', '')
     if not api_key:
         return ''
-    today = date.today()
+    today = today or date.today()
     queries = build_queries(today)
+    if debug:
+        print(f'  {len(queries)} queries for {today}')
     try:
         import requests
         seen, all_snippets, dropped = set(), [], 0
@@ -352,14 +424,23 @@ Every headline sentence MUST be backed by a numbered FACTS entry whose quote is 
         import re
         feedback = ''
         for attempt in (1, 2):
-            msg = client.messages.create(
-                model='claude-sonnet-4-6',
-                max_tokens=1200,
-                # no temperature: the Messages API now rejects it (400 'temperature: Extra inputs
-                # are not permitted', which silently froze the headline from 2026-10-22)
+            msg = client.beta.messages.create(
+                model=HEADLINE_MODEL,
+                # Sonnet 5.5 thinks by default (adaptive), and thinking counts against max_tokens — the old 1200
+                # would cut answers off before HEADLINE:. Medium effort: a short, grounded rewrite, not hard reasoning.
+                max_tokens=16000,
+                output_config={'effort': 'medium'},
+                # If a safety classifier declines, the API re-runs the request on a fallback model in the same call.
+                betas=['server-side-fallback-2026-07-01'],
+                fallbacks='default',
+                # no temperature: the Messages API rejects sampling params on current models
                 messages=[{'role': 'user', 'content': prompt + feedback}],
             )
-            raw = msg.content[0].text.strip()
+            if msg.stop_reason == 'refusal':
+                print(f'  ✗ generate_headline: request declined ({getattr(msg.stop_details, "category", None)}) — skipping')
+                return None
+            # The reply holds thinking (and possibly fallback) blocks before the text — read text blocks only.
+            raw = ''.join(b.text for b in msg.content if b.type == 'text').strip()
             # Truncation safety: if the model ran out of tokens before finishing,
             # never publish whatever partial/reasoning text it had written so far
             # (this shipped a raw chain-of-thought fragment to prod on 2026-07-17
@@ -398,7 +479,7 @@ Every headline sentence MUST be backed by a numbered FACTS entry whose quote is 
         return None
 
 
-COST_PER_RUN_USD = 0.04   # Sonnet ~1k tokens in + ~200 out ≈ $0.04
+COST_PER_RUN_USD = 0.03   # Sonnet 5.5 ($2/$10 per MTok): ~5k tokens in + ~1-2k out incl. thinking
 MIN_HOURS_BETWEEN_RUNS = 20  # once per day; 20h (not 24h) to handle GitHub Actions scheduling drift
 
 
@@ -453,7 +534,7 @@ def main():
     if dry_run:
         print('\n[--dry-run] Generating headline (will NOT write to scores.json)...')
     else:
-        print('\nGenerating FL News headline via Claude Sonnet...')
+        print(f'\nGenerating FL News headline via {HEADLINE_MODEL}...')
 
     headline = generate_headline(data, news)
     if not headline:

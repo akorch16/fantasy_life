@@ -136,6 +136,12 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   (guide odds, not refreshed daily); the page overlays live standings for Now/+Exp. Women's World Cup odds: `draft_guide/wwc_model.py`.
 - projections.py odds sources, in priority order: Kalshi live markets → Monte Carlo
   pairwise sim → standings-based normal approximation (`_mlb_h2h`/`_mls_h2h`/`_pts_h2h`) → static `FALLBACK`.
+- **League calendar: `docs/calendar.json` is the single source of truth.** The Calendar tab renders from it (status =
+  computed from dates, never typed), `headline.py` derives every search from it (`events[].search` windows + `seasons[]`:
+  while a category's season is active every pick is searched by name, in groups of 4, 12 group-queries/day rotating so each
+  pick is searched at least every ~3 days), and `projections.py` derives `EVENT_END` from `events[].sim_key`. Add or move an
+  event there only — never in the HTML or Python. `audit.py` validates it and fails if any pick can't be searched.
+  FL News model: `HEADLINE_MODEL` in headline.py (Sonnet 5.5, server-side refusal fallback on).
 - Headlines must only state facts present in Tavily snippets — the prompt forbids
   training-knowledge casting claims and stale events; keep those rules intact when editing headline.py.
 ## Rulings (decided by the league — don't re-ask)

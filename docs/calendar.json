@@ -1,0 +1,771 @@
+{
+ "_note": "Single source of truth for the 2026 league calendar. Read by docs/calendar.html (cards; status is computed from dates), headline.py (search windows: events[].search + seasons), projections.py (EVENT_END from events[].sim_key) and audit.py (validation + every pick searchable). Dates are inclusive; 'label' is the display text; approx=true means only the month is known.",
+ "season": 2026,
+ "seasons": [
+  {
+   "category": "NFL",
+   "start": "2026-01-01",
+   "end": "2026-02-08",
+   "pick_query": "{names} NFL playoffs"
+  },
+  {
+   "category": "NCAAF",
+   "start": "2026-01-01",
+   "end": "2026-01-19",
+   "pick_query": "{names} college football playoff"
+  },
+  {
+   "category": "NCAAB",
+   "start": "2026-01-01",
+   "end": "2026-04-07",
+   "pick_query": "{names} college basketball"
+  },
+  {
+   "category": "NBA",
+   "start": "2026-01-01",
+   "end": "2026-06-19",
+   "pick_query": "{names} NBA"
+  },
+  {
+   "category": "NHL",
+   "start": "2026-01-01",
+   "end": "2026-06-14",
+   "pick_query": "{names} NHL"
+  },
+  {
+   "category": "MLB",
+   "start": "2026-03-26",
+   "end": "2026-10-31",
+   "pick_query": "{names} MLB",
+   "generic": [
+    {
+     "query": "MLB baseball results standings 2026 this week",
+     "start": "2026-03-26",
+     "end": "2026-09-28"
+    }
+   ]
+  },
+  {
+   "category": "MLS",
+   "start": "2026-03-01",
+   "end": "2026-12-18",
+   "pick_query": "{names} MLS",
+   "generic": [
+    {
+     "query": "MLS results 2026 this week",
+     "start": "2026-03-01",
+     "end": "2026-11-07"
+    }
+   ]
+  },
+  {
+   "category": "NASCAR",
+   "start": "2026-02-15",
+   "end": "2026-11-08",
+   "pick_query": "{names} NASCAR Cup",
+   "generic": [
+    {
+     "query": "NASCAR Cup Series race results 2026 this week",
+     "start": "2026-02-15",
+     "end": "2026-08-29"
+    }
+   ]
+  },
+  {
+   "category": "Golf",
+   "start": "2026-01-15",
+   "end": "2026-11-22",
+   "pick_query": "{names} golf"
+  },
+  {
+   "category": "Tennis",
+   "start": "2026-01-01",
+   "end": "2026-11-22",
+   "pick_query": "{names} tennis"
+  },
+  {
+   "category": "Country",
+   "start": "2026-06-11",
+   "end": "2026-07-19",
+   "pick_query": "{names} World Cup"
+  },
+  {
+   "category": "Stock",
+   "start": "2026-01-02",
+   "end": "2026-12-31",
+   "pick_query": "{names} stock"
+  },
+  {
+   "category": "Musician",
+   "start": "2026-01-01",
+   "end": "2026-12-31",
+   "pick_query": "{names} Billboard Hot 100",
+   "generic": [
+    {
+     "query": "{today} Billboard Hot 100 chart number one new entry this week",
+     "start": "2026-01-01",
+     "end": "2026-12-31"
+    }
+   ]
+  },
+  {
+   "category": "Actor",
+   "start": "2026-01-01",
+   "end": "2026-12-31",
+   "pick_query": "{names} movie box office",
+   "generic": [
+    {
+     "query": "{today} domestic US box office opening weekend results North America",
+     "start": "2026-01-01",
+     "end": "2026-12-31"
+    }
+   ]
+  },
+  {
+   "category": "Actress",
+   "start": "2026-01-01",
+   "end": "2026-12-31",
+   "pick_query": "{names} movie box office"
+  }
+ ],
+ "events": [
+  {
+   "name": "Australian Open",
+   "category": "tennis",
+   "badge": "Tennis",
+   "start": "2026-01-18",
+   "end": "2026-02-01",
+   "label": "Jan 18 – Feb 1",
+   "detail": "Alcaraz (<strong>Todd</strong>) won the men's title; Rybakina beat Sabalenka (<strong>Fryar</strong>) in the women's final"
+  },
+  {
+   "name": "CFP National Championship",
+   "category": "ncaaf",
+   "badge": "NCAAF",
+   "start": "2026-01-19",
+   "end": "2026-01-19",
+   "label": "Jan 19",
+   "detail": "Indiana (<strong>Korch</strong>) beat Miami (<strong>Wu</strong>)"
+  },
+  {
+   "name": "NFL Conference Championships",
+   "category": "nfl",
+   "badge": "NFL",
+   "start": "2026-01-25",
+   "end": "2026-01-25",
+   "label": "Jan 25",
+   "detail": "AFC & NFC title games"
+  },
+  {
+   "name": "Grammy Awards",
+   "category": "musician",
+   "badge": "Music",
+   "start": "2026-02-01",
+   "end": "2026-02-01",
+   "label": "Feb 1",
+   "detail": "68th Annual Grammy Awards — Crypto.com Arena, LA. Bad Bunny (<strong>Mitchell</strong>) won Album of the Year; Kendrick Lamar (<strong>Tim</strong>) &amp; SZA (<strong>Korch</strong>) won Record of the Year; Lady Gaga (<strong>Feder</strong>) won Best Pop Vocal Album"
+  },
+  {
+   "name": "Super Bowl LX",
+   "category": "nfl",
+   "badge": "NFL",
+   "start": "2026-02-08",
+   "end": "2026-02-08",
+   "label": "Feb 8",
+   "detail": "Seahawks (<strong>Tim</strong>) beat Patriots (<strong>Feder</strong>) — Levi's Stadium, Santa Clara"
+  },
+  {
+   "name": "Daytona 500",
+   "category": "nascar",
+   "badge": "NASCAR",
+   "start": "2026-02-15",
+   "end": "2026-02-15",
+   "label": "Feb 15",
+   "detail": "Great American Race — Daytona International Speedway"
+  },
+  {
+   "name": "MLS Season Opens",
+   "category": "mls",
+   "badge": "MLS",
+   "start": "2026-03-01",
+   "end": "2026-03-01",
+   "label": "Mar 1 →",
+   "detail": "2026 MLS regular season underway"
+  },
+  {
+   "name": "Academy Awards (Oscars)",
+   "category": "multi",
+   "badge": "Awards",
+   "start": "2026-03-15",
+   "end": "2026-03-15",
+   "label": "Mar 15",
+   "detail": "98th Oscars — Dolby Theatre, Los Angeles. Jessie Buckley (<strong>Molmen</strong>) won Best Actress for Hamnet"
+  },
+  {
+   "name": "NCAA Tournament — March Madness",
+   "category": "ncaab",
+   "badge": "NCAAB",
+   "start": "2026-03-19",
+   "end": "2026-03-29",
+   "label": "Mar 19–29",
+   "detail": "First Round through Elite Eight complete"
+  },
+  {
+   "name": "MLB Opening Day",
+   "category": "mlb",
+   "badge": "MLB",
+   "start": "2026-03-26",
+   "end": "2026-03-26",
+   "label": "Mar 26",
+   "detail": "2026 regular season begins"
+  },
+  {
+   "name": "NCAA Championship — Final Four",
+   "category": "ncaab",
+   "badge": "NCAAB",
+   "start": "2026-04-05",
+   "end": "2026-04-07",
+   "label": "Apr 5–7",
+   "detail": "Michigan (Jamzee) won 69-63 over UConn (Fryar)"
+  },
+  {
+   "name": "The Masters",
+   "category": "golf",
+   "badge": "Golf",
+   "start": "2026-04-09",
+   "end": "2026-04-12",
+   "label": "Apr 9–12",
+   "detail": "McIlroy (Molmen) won back-to-back; Scheffler (Wu) runner-up"
+  },
+  {
+   "name": "IMF World Economic Outlook — Spring 2026",
+   "category": "country",
+   "badge": "Country",
+   "start": "2026-04-16",
+   "end": "2026-04-16",
+   "label": "Apr 16",
+   "detail": "Spring GDP growth forecasts published Apr 2026"
+  },
+  {
+   "name": "NBA Playoffs — First Round",
+   "category": "nba",
+   "badge": "NBA",
+   "start": "2026-04-18",
+   "end": "2026-04-30",
+   "label": "Apr 18–30",
+   "detail": "First round complete"
+  },
+  {
+   "name": "NHL Stanley Cup Playoffs — First Round",
+   "category": "nhl",
+   "badge": "NHL",
+   "start": "2026-04-19",
+   "end": "2026-05-01",
+   "label": "Apr 19–May 1",
+   "detail": "First round complete"
+  },
+  {
+   "name": "The Devil Wears Prada 2",
+   "category": "actress",
+   "badge": "Film",
+   "start": "2026-05-01",
+   "end": "2026-05-01",
+   "label": "May 1",
+   "detail": "20th Century Studios — Hathaway (Korch) · Streep · Blunt · Tucci — $209M domestic"
+  },
+  {
+   "name": "NBA Conference Finals",
+   "category": "nba",
+   "badge": "NBA",
+   "start": "2026-05-01",
+   "end": "2026-05-31",
+   "label": "May",
+   "approx": true,
+   "detail": "Spurs (Wu) beat Thunder (Feder) in West · Knicks (Buckley) beat Cavaliers (Jens) in East"
+  },
+  {
+   "name": "NHL Conference Finals",
+   "category": "nhl",
+   "badge": "NHL",
+   "start": "2026-05-01",
+   "end": "2026-05-31",
+   "label": "May",
+   "approx": true,
+   "detail": "Golden Knights (Tim) and Hurricanes (Jamzee) advance to Stanley Cup Finals"
+  },
+  {
+   "name": "PGA Championship",
+   "category": "golf",
+   "badge": "Golf",
+   "start": "2026-05-14",
+   "end": "2026-05-17",
+   "label": "May 14–17",
+   "detail": "Aaron Rai won at Aronimink; Rahm (<strong>Shep</strong>) finished 2nd"
+  },
+  {
+   "name": "The Mandalorian &amp; Grogu",
+   "category": "actor",
+   "badge": "Film",
+   "start": "2026-05-22",
+   "end": "2026-05-22",
+   "label": "May 22",
+   "detail": "Lucasfilm — Pascal (Mitchell) · Allen White (Shep) — $137M domestic"
+  },
+  {
+   "name": "French Open (Roland Garros)",
+   "category": "tennis",
+   "badge": "Tennis",
+   "start": "2026-05-24",
+   "end": "2026-06-07",
+   "label": "May 24 – Jun 7",
+   "detail": "Zverev (Theo) won the men's title on Parisian clay",
+   "search": {
+    "label": "French Open tennis",
+    "query": "French Open Roland Garros 2026 tennis results today"
+   },
+   "sim_key": "tennis_french"
+  },
+  {
+   "name": "Stanley Cup Finals — Golden Knights vs Hurricanes",
+   "category": "nhl",
+   "badge": "NHL",
+   "start": "2026-06-02",
+   "end": "2026-06-14",
+   "label": "Jun 2 – Jun 14",
+   "detail": "Hurricanes (Jamzee) won the Stanley Cup in six games over Golden Knights (Tim); Jordan Staal won the Conn Smythe at 37"
+  },
+  {
+   "name": "NBA Finals — Spurs vs Knicks",
+   "category": "nba",
+   "badge": "NBA",
+   "start": "2026-06-03",
+   "end": "2026-06-19",
+   "label": "Jun 3 – Jun 19",
+   "detail": "Knicks (Buckley) won the NBA Finals over Spurs (Wu)"
+  },
+  {
+   "name": "FIFA World Cup 2026 — Group Stage",
+   "category": "country",
+   "badge": "Country",
+   "start": "2026-06-11",
+   "end": "2026-06-27",
+   "label": "Jun 11 – Jun 27",
+   "detail": "48 teams · Hosted across USA, Canada &amp; Mexico · Group stage complete (Jun 11–27); the Round of 32 ran Jun 28 – Jul 3",
+   "search": {
+    "label": "World Cup group stage",
+    "query": "FIFA World Cup 2026 group stage results today"
+   }
+  },
+  {
+   "name": "US Open (Golf)",
+   "category": "golf",
+   "badge": "Golf",
+   "start": "2026-06-18",
+   "end": "2026-06-21",
+   "label": "Jun 18–21",
+   "detail": "Wyndham Clark won at Shinnecock Hills (Burns 2nd; Scheffler (<strong>Wu</strong>) tied for 4th)",
+   "search": {
+    "label": "US Open golf",
+    "query": "US Open golf championship 2026 final leaderboard"
+   },
+   "sim_key": "golf_uso"
+  },
+  {
+   "name": "FIFA World Cup 2026 — Knockout Stage",
+   "category": "country",
+   "badge": "Country",
+   "start": "2026-06-28",
+   "end": "2026-07-15",
+   "label": "Jun 28 – Jul 15",
+   "detail": "Round of 32 through Semifinals (Jun 28 – Jul 15). Co-hosts USA (<strong>Wu</strong>) and Canada (<strong>Buckley</strong>) and Brazil (<strong>Feder</strong>) fell in the Round of 16; Norway (<strong>Fryar</strong>) and Switzerland (<strong>Theo</strong>) in the quarterfinals; France (<strong>Shep</strong>) lost the semifinal to Spain; Germany (<strong>Jens</strong>) and the Netherlands (<strong>Tim</strong>) went out in the Round of 32",
+   "search": {
+    "label": "World Cup knockout rounds",
+    "query": "FIFA World Cup 2026 knockout round match results today",
+    "end": "2026-07-19"
+   }
+  },
+  {
+   "name": "Wimbledon",
+   "category": "tennis",
+   "badge": "Tennis",
+   "start": "2026-06-29",
+   "end": "2026-07-12",
+   "label": "Jun 29 – Jul 12",
+   "detail": "Sinner (<strong>Buckley</strong>) beat Zverev (<strong>Theo</strong>) in the men's final; Nosková beat Muchová in the women's final (no drafted women reached the final)",
+   "search": {
+    "label": "Wimbledon",
+    "query": "Wimbledon 2026 tennis match results today"
+   },
+   "sim_key": "tennis_wimbledon"
+  },
+  {
+   "name": "Brickyard 400",
+   "category": "nascar",
+   "badge": "NASCAR",
+   "start": "2026-07-01",
+   "end": "2026-07-31",
+   "label": "Jul",
+   "approx": true,
+   "detail": "Cup Series — Indianapolis Motor Speedway"
+  },
+  {
+   "name": "Moana (live-action)",
+   "category": "actor",
+   "badge": "Film",
+   "start": "2026-07-10",
+   "end": "2026-07-10",
+   "label": "Jul 10",
+   "detail": "Dwayne Johnson (<strong>Theo</strong>) · $126.2M domestic"
+  },
+  {
+   "name": "The Open Championship",
+   "category": "golf",
+   "badge": "Golf",
+   "start": "2026-07-16",
+   "end": "2026-07-19",
+   "label": "Jul 16–19",
+   "detail": "Ryan Fox won at Royal Birkdale, one stroke ahead of Cameron Young — no drafted player in the mix",
+   "search": {
+    "label": "The Open golf",
+    "query": "The Open Championship 2026 golf leaderboard results"
+   },
+   "sim_key": "golf_open"
+  },
+  {
+   "name": "The Odyssey",
+   "category": "multi",
+   "badge": "Film",
+   "start": "2026-07-17",
+   "end": "2026-07-17",
+   "label": "Jul 17",
+   "detail": "Nolan — Damon (<strong>Molmen</strong>) · Holland (<strong>Feder</strong>) · Zendaya (<strong>Wu</strong>) · Hathaway &amp; Bernthal (<strong>Korch</strong>) · Theron (<strong>Mitchell</strong>) · Pattinson (<strong>Buckley</strong>) · $620.6M domestic"
+  },
+  {
+   "name": "FIFA World Cup Third Place Match — France vs England",
+   "category": "country",
+   "badge": "Country",
+   "start": "2026-07-18",
+   "end": "2026-07-18",
+   "label": "Jul 18",
+   "detail": "Shep (France) · Country bonus points"
+  },
+  {
+   "name": "FIFA World Cup Final — Spain vs Argentina",
+   "category": "country",
+   "badge": "Country",
+   "start": "2026-07-19",
+   "end": "2026-07-19",
+   "label": "Jul 19",
+   "detail": "Spain (<strong>Jamzee</strong>) won the 2026 FIFA World Cup, 1–0 over Argentina (<strong>Molmen</strong>) after extra time (Torres, 106')"
+  },
+  {
+   "name": "Spider-Man: Brand New Day",
+   "category": "multi",
+   "badge": "Film",
+   "start": "2026-07-31",
+   "end": "2026-07-31",
+   "label": "Jul 31",
+   "detail": "Marvel — Holland (<strong>Feder</strong>) · Zendaya (<strong>Wu</strong>) · Bernthal (<strong>Korch</strong>) · Pugh (<strong>Fryar</strong>) · $954.7M domestic"
+  },
+  {
+   "name": "The End of Oak Street",
+   "category": "actress",
+   "badge": "Film",
+   "start": "2026-08-14",
+   "end": "2026-08-14",
+   "label": "Aug 14",
+   "detail": "Hathaway (<strong>Korch</strong>) · $54.2M domestic"
+  },
+  {
+   "name": "College Football Season Opens",
+   "category": "ncaaf",
+   "badge": "NCAAF",
+   "start": "2026-08-29",
+   "end": "2026-08-29",
+   "label": "Aug 29",
+   "detail": "2026 FBS regular season kicks off"
+  },
+  {
+   "name": "Regular Season Ends — Coke Zero Sugar 400",
+   "category": "nascar",
+   "badge": "NASCAR",
+   "start": "2026-08-29",
+   "end": "2026-08-29",
+   "label": "Aug 29",
+   "detail": "Daytona. NASCAR category frozen at the regular-season finish (Chase points reset after this race)"
+  },
+  {
+   "name": "US Open Tennis Begins",
+   "category": "tennis",
+   "badge": "Tennis",
+   "start": "2026-08-31",
+   "end": "2026-08-31",
+   "label": "Aug 31",
+   "detail": "Grand Slam — USTA Billie Jean King National Tennis Center, NY",
+   "search": {
+    "label": "US Open tennis",
+    "query": "US Open 2026 tennis match results today",
+    "end": "2026-09-13"
+   }
+  },
+  {
+   "name": "NASCAR Cup Playoffs Begin",
+   "category": "nascar",
+   "badge": "NASCAR",
+   "start": "2026-09-06",
+   "end": "2026-09-06",
+   "label": "Sep 6",
+   "detail": "Chase opens at Darlington (Cook Out Southern 500). 16 drivers, 10 races, no eliminations",
+   "search": {
+    "label": "NASCAR Chase (playoffs)",
+    "query": "NASCAR Cup Series playoffs 2026 race results",
+    "end": "2026-11-08"
+   }
+  },
+  {
+   "name": "NFL Season Begins",
+   "category": "nfl",
+   "badge": "NFL",
+   "start": "2026-09-10",
+   "end": "2026-09-10",
+   "label": "Sep 10",
+   "detail": "2026 regular season kicks off"
+  },
+  {
+   "name": "US Open Finals",
+   "category": "tennis",
+   "badge": "Tennis",
+   "start": "2026-09-12",
+   "end": "2026-09-13",
+   "label": "Sep 12–13",
+   "detail": "Rybakina beat Sabalenka (<strong>Fryar</strong>) in the women's final (Sep 12); Zverev (<strong>Theo</strong>) beat Shelton in the men's final",
+   "sim_key": "tennis_usopen"
+  },
+  {
+   "name": "Primetime",
+   "category": "multi",
+   "badge": "Film",
+   "start": "2026-09-25",
+   "end": "2026-09-25",
+   "label": "Sep 25",
+   "detail": "A24 — Pattinson (<strong>Buckley</strong>) · $26.1M domestic"
+  },
+  {
+   "name": "NHL Season Opens",
+   "category": "nhl",
+   "badge": "NHL",
+   "start": "2026-09-29",
+   "end": "2026-09-29",
+   "label": "Sep 29",
+   "detail": "2026–27 regular season begins (84-game schedule)"
+  },
+  {
+   "name": "MLB Wild Card Series",
+   "category": "mlb",
+   "badge": "MLB",
+   "start": "2026-09-29",
+   "end": "2026-10-01",
+   "label": "Sep 29 – Oct 1",
+   "detail": "Best-of-3 rounds. Cubs (<strong>Tim</strong>), Phillies (<strong>Mitchell</strong>) and Astros (<strong>Shep</strong>) eliminated; Brewers, Dodgers, Guardians, Padres, Braves and Yankees advanced",
+   "search": {
+    "label": "MLB playoffs",
+    "query": "MLB playoffs 2026 results",
+    "end": "2026-10-31"
+   }
+  },
+  {
+   "name": "Verity",
+   "category": "actress",
+   "badge": "Film",
+   "start": "2026-10-02",
+   "end": "2026-10-02",
+   "label": "Oct 2",
+   "detail": "Hathaway (<strong>Korch</strong>) · $34.4M domestic"
+  },
+  {
+   "name": "MLB Division Series",
+   "category": "mlb",
+   "badge": "MLB",
+   "start": "2026-10-03",
+   "end": "2026-10-10",
+   "label": "Oct 3–10",
+   "detail": "Brewers (<strong>Buckley</strong>) vs Padres (<strong>Theo</strong>) · Dodgers (<strong>Wu</strong>) vs Braves (<strong>Todd</strong>) · Yankees (<strong>Jens</strong>) vs Rays · Guardians (<strong>Fryar</strong>) vs White Sox. Wild Card Series ended Oct 1; Phillies (<strong>Mitchell</strong>) and Astros (<strong>Shep</strong>) were eliminated there, Cubs (<strong>Tim</strong>) lost the Wild Card round"
+  },
+  {
+   "name": "Chase Race — Las Vegas",
+   "category": "nascar",
+   "badge": "NASCAR",
+   "start": "2026-10-04",
+   "end": "2026-10-04",
+   "label": "Oct 4",
+   "detail": "Larson (<strong>Molmen</strong>) finished 2nd and leads the Chase; Briscoe (<strong>Jens</strong>) won"
+  },
+  {
+   "name": "The Social Reckoning",
+   "category": "actor",
+   "badge": "Film",
+   "start": "2026-10-09",
+   "end": "2026-10-09",
+   "label": "Oct 9",
+   "detail": "Sorkin — Jeremy Allen White (<strong>Shep</strong>)"
+  },
+  {
+   "name": "NLCS &amp; ALCS Begin",
+   "category": "mlb",
+   "badge": "MLB",
+   "start": "2026-10-11",
+   "end": "2026-10-12",
+   "label": "Oct 11–12",
+   "detail": "NLCS opens Oct 11, ALCS opens Oct 12 (Game 7s Oct 19 / Oct 20)"
+  },
+  {
+   "name": "Chase Races Continue",
+   "category": "nascar",
+   "badge": "NASCAR",
+   "start": "2026-10-11",
+   "end": "2026-11-01",
+   "label": "Oct 11 – Nov 1",
+   "detail": "Charlotte (Oct 11) · Phoenix (Oct 18) · Talladega (Oct 25) · Martinsville (Nov 1). No eliminations in 2026 — all 16 drivers race all 10 Chase races"
+  },
+  {
+   "name": "IMF World Economic Outlook — October 2026",
+   "category": "country",
+   "badge": "Country",
+   "start": "2026-10-13",
+   "end": "2026-10-13",
+   "label": "Oct 13",
+   "detail": "Final annual GDP growth figures for Country scoring · released during the Annual Meetings in Bangkok (Oct 13 local = Mon night Oct 12 US ET)"
+  },
+  {
+   "name": "NBA Season Opens",
+   "category": "nba",
+   "badge": "NBA",
+   "start": "2026-10-20",
+   "end": "2026-10-20",
+   "label": "Oct 20",
+   "detail": "2026–27 regular season begins — Knicks vs 76ers (<strong>Buckley</strong>), Thunder vs Spurs (<strong>Feder</strong>/<strong>Wu</strong>)"
+  },
+  {
+   "name": "Fantasy Life Trip to <s style=\"color:var(--muted);text-decoration-color:var(--muted);\">Solvang</s> Charleston",
+   "category": "trip",
+   "badge": "FL Trip",
+   "start": "2026-10-22",
+   "end": "2026-10-25",
+   "label": "Oct 22–25",
+   "detail": "Annual league trip"
+  },
+  {
+   "name": "MLB World Series",
+   "category": "mlb",
+   "badge": "MLB",
+   "start": "2026-10-23",
+   "end": "2026-10-31",
+   "label": "Oct 23–31",
+   "detail": "Game 1 Oct 23 at the better regular-season record · Game 7 (if needed) Oct 31"
+  },
+  {
+   "name": "MLS Regular Season Ends — Decision Day",
+   "category": "mls",
+   "badge": "MLS",
+   "start": "2026-11-07",
+   "end": "2026-11-07",
+   "label": "Nov 7",
+   "detail": "Last day to move Columbus (<strong>Fryar</strong>) and Minnesota (<strong>Wu</strong>) off the bottom of the table"
+  },
+  {
+   "name": "NASCAR Cup Championship",
+   "category": "nascar",
+   "badge": "NASCAR",
+   "start": "2026-11-08",
+   "end": "2026-11-08",
+   "label": "Nov 8",
+   "detail": "Season finale at Homestead-Miami Speedway — most points over the 10-race Chase wins (no winner-take-all Championship 4). Final standings 1st–5th earn bonus points"
+  },
+  {
+   "name": "MLS Cup Playoffs Begin",
+   "category": "mls",
+   "badge": "MLS",
+   "start": "2026-11-18",
+   "end": "2026-11-18",
+   "label": "Nov 18",
+   "detail": "Wild Card games Nov 18, then best-of-3 Round One (Nov 20 – Dec 2)",
+   "search": {
+    "label": "MLS Cup playoffs",
+    "query": "MLS Cup playoffs 2026 results",
+    "end": "2026-12-18"
+   }
+  },
+  {
+   "name": "Focker-in-Law",
+   "category": "actress",
+   "badge": "Film",
+   "start": "2026-11-25",
+   "end": "2026-11-25",
+   "label": "Nov 25",
+   "detail": "Ariana Grande (<strong>Tim</strong>)"
+  },
+  {
+   "name": "Behemoth!",
+   "category": "actor",
+   "badge": "Film",
+   "start": "2026-12-04",
+   "end": "2026-12-04",
+   "label": "Dec 4",
+   "detail": "Pascal (<strong>Mitchell</strong>)"
+  },
+  {
+   "name": "MLS Cup",
+   "category": "mls",
+   "badge": "MLS",
+   "start": "2026-12-18",
+   "end": "2026-12-18",
+   "label": "Dec 18",
+   "detail": "MLS Championship Final, hosted by the team with the better regular-season record"
+  },
+  {
+   "name": "Avengers: Doomsday",
+   "category": "actress",
+   "badge": "Film",
+   "start": "2026-12-18",
+   "end": "2026-12-18",
+   "label": "Dec 18",
+   "detail": "Marvel — Pascal (<strong>Mitchell</strong>) · Hemsworth (<strong>Fryar</strong>) · Pugh (<strong>Fryar</strong>)"
+  },
+  {
+   "name": "Dune: Part Three",
+   "category": "multi",
+   "badge": "Film",
+   "start": "2026-12-18",
+   "end": "2026-12-18",
+   "label": "Dec 18",
+   "detail": "Villeneuve — Chalamet (<strong>Jamzee</strong>) · Zendaya (<strong>Wu</strong>) · Pugh (<strong>Fryar</strong>) · Pattinson &amp; Taylor-Joy (<strong>Buckley</strong>)"
+  },
+  {
+   "name": "College Football Playoff — First Round",
+   "category": "ncaaf",
+   "badge": "NCAAF",
+   "start": "2026-12-20",
+   "end": "2026-12-20",
+   "label": "Dec 20",
+   "detail": "CFP first-round games at campus sites"
+  },
+  {
+   "name": "Jumanji: Open World",
+   "category": "actor",
+   "badge": "Film",
+   "start": "2026-12-25",
+   "end": "2026-12-25",
+   "label": "Dec 25",
+   "detail": "Dwayne Johnson (<strong>Theo</strong>)"
+  },
+  {
+   "name": "Stock Market Year-End Close",
+   "category": "stock",
+   "badge": "Stock",
+   "start": "2026-12-31",
+   "end": "2026-12-31",
+   "label": "Dec 31",
+   "detail": "Final YTD % change locked in for scoring"
+  }
+ ]
+}

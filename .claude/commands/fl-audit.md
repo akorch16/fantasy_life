@@ -67,7 +67,7 @@ Read `CLAUDE.md` — the **Rulings** section lists decisions the user already ma
 | `films` — pipeline title ≠ roster title | Title mismatch (`Jumanji` vs `Jumanji: Open World`) | Make them match the official title |
 | `films` — released, no box office | Title doesn't match Box Office Mojo's listing | Use the official title (`_norm_title` is case/punctuation-insensitive only) |
 | `projections` — no Kalshi markets | Bad `KALSHI_PRIVATE_KEY` or dead tickers → static `FALLBACK` | `/fl-repair` (Kalshi section) |
-| `docs` — calendar entry stale | `docs/calendar.html` not updated | Step 5 |
+| `calendar` — bad date / unsearchable pick | `docs/calendar.json` (single league calendar) | Step 5 |
 
 ---
 
@@ -128,7 +128,7 @@ of `FILM_PIPELINE` the same day.
 
 ## Step 5 — Docs and copy rot
 
-- `docs/calendar.html` — completed events move to Completed Months with results; add the next
+- `docs/calendar.json` — status is computed from dates (no manual moves); add result text to finished events' `detail`; add the next
   month's schedule; fix TBD dates; verify venues and dates (several carried over from 2025).
 - `docs/rules.html` — descriptions must match what `scoring.py` actually does (Actor/Actress and
   Musician were stale).
