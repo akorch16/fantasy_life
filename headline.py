@@ -209,6 +209,39 @@ MAX_SNIPPET_AGE_DAYS = 3
 WEEKLY_CHART_MAX_AGE_DAYS = 7
 
 
+TAVILY_WARN_SHARE = 0.80   # log a warning once the month's plan usage passes this share
+TAVILY_QUOTA_STATUSES = (429, 432, 433)   # rate limited / plan limit reached / pay-as-you-go limit reached
+
+
+def tavily_usage(api_key=None):
+    """{'plan', 'used', 'limit', 'remaining'} from Tavily's usage endpoint (free to call), or None.
+
+    Logged every run so creeping usage is visible before it causes a failed headline."""
+    api_key = api_key or os.environ.get('TAVILY_API_KEY', '')
+    if not api_key:
+        return None
+    try:
+        import requests
+        r = requests.get('https://api.tavily.com/usage', headers={'Authorization': f'Bearer {api_key}'}, timeout=15)
+        r.raise_for_status()
+        acct = r.json().get('account', {})
+        used, limit = acct.get('plan_usage'), acct.get('plan_limit')
+        if used is None or not limit:
+            return None
+        paygo = acct.get('paygo_limit')
+        remaining = (limit - used) + ((paygo - (acct.get('paygo_usage') or 0)) if paygo else 0)
+        info = {'plan': acct.get('current_plan'), 'used': used, 'limit': limit, 'remaining': max(0, remaining)}
+        share = used / limit
+        print(f"  Tavily: {used}/{limit} credits used this period ({share:.0%}) on the {info['plan']} plan; "
+              f"{info['remaining']} left")
+        if share >= TAVILY_WARN_SHARE:
+            print(f'  ⚠ Tavily usage is at {share:.0%} of the plan limit — today\'s searches are trimmed to fit if needed')
+        return info
+    except Exception as e:
+        print(f'  ⚠ Tavily usage check failed ({e}) — searching without a budget check')
+        return None
+
+
 def search_news(debug: bool = False, today=None, active=None) -> str:
     """Fetch recent news via Tavily — separate query per active event so no
     category starves another. Queries come from the date-aware calendar.
@@ -216,23 +249,32 @@ def search_news(debug: bool = False, today=None, active=None) -> str:
     topic='news' is REQUIRED for Tavily to honor the `days` recency filter —
     without it the general index ranks evergreen pages (Wikipedia, 'Past
     Results' leaderboards) that made headlines cover weeks-old events.
+
+    Each query succeeds or fails on its own: one failed search no longer throws away the others. A quota response
+    (429/432/433) stops further calls but keeps everything collected so far. If the usage check says fewer credits
+    remain than today's plan needs, the plan is trimmed from the end — rotation pick groups go first; season, event
+    and active-pick queries (which come first in build_queries) are kept.
     """
     from datetime import date, datetime, timedelta, timezone
+    import requests
     api_key = os.environ.get('TAVILY_API_KEY', '')
     if not api_key:
         return ''
     today = today or date.today()
     queries = build_queries(today, active=active)
+    usage = tavily_usage(api_key)
+    if usage is not None and len(queries) > usage['remaining']:
+        print(f"  ⚠ only {usage['remaining']} Tavily credits left — running {usage['remaining']} of {len(queries)} queries")
+        queries = queries[:usage['remaining']]
     if debug:
         print(f'  {len(queries)} queries for {today}')
-    try:
-        import requests
-        seen, all_snippets, dropped = set(), [], 0
-        for query in queries:
-            # Billboard posts each weekly chart ~5 days before its issue date, so a
-            # chart story is still "this week's" for up to a week.
-            max_age = WEEKLY_CHART_MAX_AGE_DAYS if 'Billboard' in query else MAX_SNIPPET_AGE_DAYS
-            cutoff = today - timedelta(days=max_age)
+    seen, all_snippets, dropped, failed, ok = set(), [], 0, [], 0
+    for query in queries:
+        # Billboard posts each weekly chart ~5 days before its issue date, so a
+        # chart story is still "this week's" for up to a week.
+        max_age = WEEKLY_CHART_MAX_AGE_DAYS if 'Billboard' in query else MAX_SNIPPET_AGE_DAYS
+        cutoff = today - timedelta(days=max_age)
+        try:
             resp = requests.post(
                 'https://api.tavily.com/search',
                 json={
@@ -246,47 +288,57 @@ def search_news(debug: bool = False, today=None, active=None) -> str:
                 },
                 timeout=20,
             )
+            if resp.status_code in TAVILY_QUOTA_STATUSES:
+                print(f'  ⚠ Tavily quota response {resp.status_code} on "{query}" — stopping searches, '
+                      f'keeping {len(all_snippets)} snippet(s) already collected')
+                failed.append(query)
+                break
             resp.raise_for_status()
             results = resp.json().get('results', [])
-            if debug:
-                print(f'\n  [QUERY] {query}')
-            for r in results:
-                title = r.get('title', '')
-                content = r.get('content', '')
-                if not title or title in seen:
-                    continue
-                seen.add(title)
-                # Hard-drop anything published before the cutoff; stamp the
-                # date into the snippet so Claude can judge freshness too.
-                pub = (r.get('published_date') or '').strip()
-                pub_label = 'date unknown'
-                if pub:
+            ok += 1
+        except Exception as e:
+            print(f'  ⚠ search failed for "{query}": {e} — continuing with the rest')
+            failed.append(query)
+            continue
+        if debug:
+            print(f'\n  [QUERY] {query}')
+        for r in results:
+            title = r.get('title', '')
+            content = r.get('content', '')
+            if not title or title in seen:
+                continue
+            seen.add(title)
+            # Hard-drop anything published before the cutoff; stamp the
+            # date into the snippet so Claude can judge freshness too.
+            pub = (r.get('published_date') or '').strip()
+            pub_label = 'date unknown'
+            if pub:
+                try:
+                    pub_day = datetime.fromisoformat(
+                        pub.replace('Z', '+00:00')).astimezone(timezone.utc).date()
+                except ValueError:
                     try:
-                        pub_day = datetime.fromisoformat(
-                            pub.replace('Z', '+00:00')).astimezone(timezone.utc).date()
+                        pub_day = datetime.strptime(pub[:16], '%a, %d %b %Y').date()
                     except ValueError:
-                        try:
-                            pub_day = datetime.strptime(pub[:16], '%a, %d %b %Y').date()
-                        except ValueError:
-                            pub_day = None
-                    if pub_day:
-                        if pub_day < cutoff:
-                            dropped += 1
-                            if debug:
-                                print(f'    ✗ dropped (published {pub_day}): {title}')
-                            continue
-                        pub_label = f'published {pub_day.isoformat()}'
-                snippet = f"- [{pub_label}] {title}: {content[:300]}"
-                all_snippets.append(snippet)
-                if debug:
-                    print(f'    → [{pub_label}] {title}')
-                    print(f'       {content[:200]}')
-        if dropped:
-            print(f'  ℹ dropped {dropped} snippet(s) older than their age limit')
-        return '\n'.join(all_snippets)
-    except Exception as e:
-        print(f'  ⚠ Tavily search failed: {e}')
-        return ''
+                        pub_day = None
+                if pub_day:
+                    if pub_day < cutoff:
+                        dropped += 1
+                        if debug:
+                            print(f'    ✗ dropped (published {pub_day}): {title}')
+                        continue
+                    pub_label = f'published {pub_day.isoformat()}'
+            snippet = f"- [{pub_label}] {title}: {content[:300]}"
+            all_snippets.append(snippet)
+            if debug:
+                print(f'    → [{pub_label}] {title}')
+                print(f'       {content[:200]}')
+    if dropped:
+        print(f'  ℹ dropped {dropped} snippet(s) older than their age limit')
+    skipped = len(queries) - ok - len(failed)
+    print(f'  Tavily: {ok}/{len(queries)} searches succeeded, {len(all_snippets)} article(s) kept'
+          + (f'; {len(failed)} failed' if failed else '') + (f'; {skipped} not run (quota)' if skipped else ''))
+    return '\n'.join(all_snippets)
 
 
 def mlb_official_snippets(today=None) -> str:
@@ -671,7 +723,7 @@ def main():
     if official:
         news = official + ('\n' + news if news else '')
     if news:
-        print(f'\n  ✓ Got {len(news.splitlines())} snippets from Tavily')
+        print(f"\n  ✓ {news.count(chr(10) + '- [') + 1} news line(s) for the prompt (official data + articles)")
         if not debug:
             # brief summary — show just titles so CI logs are useful
             for line in news.splitlines():
