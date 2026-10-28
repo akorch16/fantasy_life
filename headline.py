@@ -45,7 +45,8 @@ DRAFT_SUMMARY = _build_draft_summary()
 # had the MLS playoffs a month early).
 RESULTS_GRACE_DAYS = 2      # a final is still news for a couple of days
 PICK_GROUP_SIZE = 4         # picks named per query (each query returns max_results=3 articles)
-PICK_QUERY_BUDGET = 12      # pick-group queries per day; the rest rotate in on later days
+PICK_QUERY_BUDGET = 12      # pick-group queries per day (active picks first, the rest rotate)
+MAX_ACTIVE_QUERIES = 8      # cap on daily active-pick groups so quiet picks still rotate in
 CALENDAR_PATH = DOCS_DIR / 'calendar.json'
 
 
@@ -102,30 +103,54 @@ def _groups(items, size):
     return [g for g in out if g]
 
 
-def pick_query_pool(today, cal=None) -> list:
+def pick_query_pool(today, cal=None, exclude=None) -> list:
     """[(category, [picks], query)] for every active season, interleaved across categories so any daily slice
-    spans several categories."""
+    spans several categories. `exclude` = {category: picks} already searched today as active picks."""
     cal = cal or load_calendar()
+    exclude = exclude or {}
     per_cat = []
     for season in cal['seasons']:
         if not _in_window(today, season['start'], season['end']):
             continue
         cat = season['category']
+        names = [p for p in pick_names(cat) if p not in set(exclude.get(cat, ()))]
         per_cat.append([(cat, g, season['pick_query'].format(names=' '.join(g)))
-                        for g in _groups(pick_names(cat), PICK_GROUP_SIZE)])
+                        for g in _groups(names, PICK_GROUP_SIZE)] if names else [])
     pool = []
     for k in range(max((len(c) for c in per_cat), default=0)):
         pool.extend(c[k] for c in per_cat if k < len(c))
     return pool
 
 
-def pick_queries_for_day(today, cal=None, budget=PICK_QUERY_BUDGET) -> list:
-    """Today's slice of the pick pool: a window of `budget` groups that advances by `budget` each day."""
-    pool = pick_query_pool(today, cal)
-    if len(pool) <= budget:
-        return pool
-    off = (today.toordinal() * budget) % len(pool)
-    return [pool[(off + i) % len(pool)] for i in range(budget)]
+def active_query_groups(today, cal=None, active=None) -> list:
+    """[(category, [picks], query)] for today's ACTIVE picks (in the news right now: a top-20 song, a team still in
+    the playoffs, a driver in title contention, a movie in theaters), grouped like the rotation, capped."""
+    cal = cal or load_calendar()
+    active = active or {}
+    out = []
+    for season in cal['seasons']:
+        cat = season['category']
+        names = [p for p in pick_names(cat) if p in set(active.get(cat, ()))]
+        if names and _in_window(today, season['start'], season['end']):
+            out += [(cat, g, season['pick_query'].format(names=' '.join(g))) for g in _groups(names, PICK_GROUP_SIZE)]
+    return out[:MAX_ACTIVE_QUERIES]
+
+
+def pick_queries_for_day(today, cal=None, budget=PICK_QUERY_BUDGET, active=None) -> list:
+    """Active picks first, every day; the remaining budget rotates through everyone else (a window that advances
+    by its own length each day, so every quiet pick still comes up every few days)."""
+    first = active_query_groups(today, cal, active)
+    searched = {}
+    for cat, g, _ in first:
+        searched.setdefault(cat, []).extend(g)
+    pool = pick_query_pool(today, cal, exclude=searched)
+    room = max(0, budget - len(first))
+    if not pool or room == 0:
+        return first
+    if len(pool) <= room:
+        return first + pool
+    off = (today.toordinal() * room) % len(pool)
+    return first + [pool[(off + i) % len(pool)] for i in range(room)]
 
 
 def search_coverage(cal=None) -> dict:
@@ -146,7 +171,7 @@ def search_coverage(cal=None) -> dict:
     return missing
 
 
-def build_queries(today, cal=None) -> list:
+def build_queries(today, cal=None, active=None) -> list:
     """Date-aware query list: active seasons' generic queries + active event queries + today's pick groups."""
     cal = cal or load_calendar()
     today_str = today.strftime('%B %d %Y')
@@ -155,9 +180,9 @@ def build_queries(today, cal=None) -> list:
         for g in season.get('generic', []):
             if _in_window(today, g['start'], g['end']):
                 queries.append(g['query'].format(today=today_str))
-    active, _, _ = _calendar_state(today, cal)
-    queries.extend(q for _, _, _, q in active)
-    queries.extend(q for _, _, q in pick_queries_for_day(today, cal))
+    live_events, _, _ = _calendar_state(today, cal)
+    queries.extend(q for _, _, _, q in live_events)
+    queries.extend(q for _, _, q in pick_queries_for_day(today, cal, active=active))
     return list(dict.fromkeys(queries))       # de-dup, keep order
 
 
@@ -184,7 +209,7 @@ MAX_SNIPPET_AGE_DAYS = 3
 WEEKLY_CHART_MAX_AGE_DAYS = 7
 
 
-def search_news(debug: bool = False, today=None) -> str:
+def search_news(debug: bool = False, today=None, active=None) -> str:
     """Fetch recent news via Tavily — separate query per active event so no
     category starves another. Queries come from the date-aware calendar.
 
@@ -197,7 +222,7 @@ def search_news(debug: bool = False, today=None) -> str:
     if not api_key:
         return ''
     today = today or date.today()
-    queries = build_queries(today)
+    queries = build_queries(today, active=active)
     if debug:
         print(f'  {len(queries)} queries for {today}')
     try:
@@ -325,6 +350,118 @@ def mlb_official_snippets(today=None) -> str:
         return ''
 
 
+HOT100_TOP_N = 20   # chart positions reported / counted as "active"
+
+
+def _hot100_issue(today):
+    """Newest Hot 100 issue date: Billboard posts the chart dated Saturday D on the Tuesday before (D - 4 days)."""
+    from datetime import timedelta
+    d = today + timedelta(days=(5 - today.weekday()) % 7)
+    while d - timedelta(days=4) > today:
+        d -= timedelta(days=7)
+    return d
+
+
+def _hot100(issue_date, n=30):
+    """[(rank, title, artist_credit)] for the top n of a Hot 100 issue, straight from billboard.com."""
+    import requests
+    from bs4 import BeautifulSoup
+    r = requests.get(f'https://www.billboard.com/charts/hot-100/{issue_date.isoformat()}/',
+                     headers={'User-Agent': 'Mozilla/5.0'}, timeout=30)
+    r.raise_for_status()
+    rows = []
+    for rank, row in enumerate(BeautifulSoup(r.text, 'html.parser').select('ul.o-chart-results-list-row')[:n], 1):
+        t = row.select_one('h3#title-of-a-story')
+        if t:
+            a = t.find_next('span')
+            rows.append((rank, t.get_text(strip=True), a.get_text(strip=True) if a else ''))
+    return rows
+
+
+def _norm_name(x):
+    import unicodedata
+    return unicodedata.normalize('NFKD', x).encode('ascii', 'ignore').decode().lower().strip()
+
+
+def _credits(artist_text):
+    import re
+    parts = re.split(r'\s*[,&]\s*|\s+(?:featuring|feat\.?|with|x|and)\s+', artist_text, flags=re.IGNORECASE)
+    return {_norm_name(p.strip().strip('"')) for p in parts if p.strip()}
+
+
+def billboard_official_snippets(today=None):
+    """(snippet lines, [musician picks in the top HOT100_TOP_N]) from the two newest Hot 100 issues.
+
+    Same idea as mlb_official_snippets: chart positions are structured facts, so they come from the chart itself
+    instead of news search (where a 300-character snippet of a chart story only ever shows the No. 1)."""
+    from datetime import date, timedelta
+    today = today or date.today()
+    try:
+        cur_d = _hot100_issue(today)
+        cur, prev = _hot100(cur_d), _hot100(cur_d - timedelta(days=7))
+        if len(cur) < 10:
+            print(f'  ⚠ Billboard: only {len(cur)} rows parsed for {cur_d}')
+            return '', []
+        prev_rank = {(t, a): r for r, t, a in prev}
+        tag = f"[official Billboard data, Hot 100 dated {cur_d.strftime('%b %d')}]"
+        lines, active = [], []
+        r1, t1, a1 = cur[0]
+        was = prev_rank.get((t1, a1))
+        lines.append(f"- {tag} No. 1: {t1} by {a1}" + (" (new at No. 1)" if was and was != 1 else " (holds No. 1)" if was == 1 else ""))
+        picks = DRAFT_PICKS_2026['Musician']
+        for pick in picks.values():
+            mine = [(r, t, a) for r, t, a in cur[:HOT100_TOP_N] if _norm_name(pick) in _credits(a)]
+            if mine:
+                active.append(pick)
+            for r, t, a in mine:
+                w = prev_rank.get((t, a))
+                move = ('debuts' if w is None else f'up from No. {w}' if w > r else f'down from No. {w}' if w < r else 'holds')
+                lines.append(f"- {tag} {t} by {a}: No. {r} ({move})")
+            # a pick that fell out of the top 10 this week is news too
+            for r, t, a in prev[:10]:
+                if _norm_name(pick) in _credits(a) and not any(t == t2 for _, t2, _ in cur[:10]):
+                    now = next((r2 for r2, t2, a2 in cur if t2 == t), None)
+                    lines.append(f"- {tag} {t} by {a}: falls out of the top 10 (No. {r} last week"
+                                 + (f", now No. {now})" if now else ", now outside the top 30)"))
+        return "\n".join(lines), active
+    except Exception as e:
+        print(f'  ⚠ Billboard official data unavailable: {e}')
+        return '', []
+
+
+def active_picks(today, mlb_lines='', musicians=None) -> dict:
+    """{category: [picks]} that are in the news right now, searched every day ahead of the rotation."""
+    import json as _json
+    from datetime import timedelta
+    out = {}
+    if musicians:
+        out['Musician'] = list(musicians)
+    live = [l for l in (mlb_lines or '').splitlines() if 'in progress' in l]
+    teams = [t for t in DRAFT_PICKS_2026['MLB'].values() if any(t in l for l in live)]
+    if teams:
+        out['MLB'] = teams
+    try:   # NASCAR: picks in the top 8 of the Chase while races remain (data/nascar_chase.json, refreshed daily)
+        chase = _json.load(open(Path(__file__).parent / 'data' / 'nascar_chase.json'))
+        if any(_parse_d(r['date']) >= today for r in chase.get('remaining', [])):
+            top = [s['driver'] for s in sorted(chase['standings'], key=lambda s: -s['points'])[:8]]
+            out['NASCAR'] = [d for d in DRAFT_PICKS_2026['NASCAR'].values() if d in top]
+    except Exception:
+        pass
+    for cat, path in (('Actor', 'actor.json'), ('Actress', 'actress.json')):   # a movie opened <=21 days ago or opens within 7
+        try:
+            roster = _json.load(open(Path(__file__).parent / 'data' / path))['scores']
+            hot = [e['name'] for e in roster if any(
+                m.get('release_date') and not m.get('streaming')
+                and today - timedelta(days=21) <= _parse_d(m['release_date']) <= today + timedelta(days=7)
+                for m in e.get('movies', []))]
+            names = [p for p in DRAFT_PICKS_2026[cat].values() if _norm_name(p) in {_norm_name(h) for h in hot}]
+            if names:
+                out[cat] = names
+        except Exception:
+            pass
+    return {c: v for c, v in out.items() if v}
+
+
 _OWNERS = ('Tim', 'Wu', 'Jens', 'Todd', 'Mitchell', 'Shep', 'Theo', 'Feder',
            'Fryar', 'Korch', 'Molmen', 'Jamzee', 'Buckley')
 
@@ -388,6 +525,7 @@ CRITICAL rules:
 - PREVIEW PAGES ARE NOT RESULTS: snippets with "predictions", "preview", "odds", "how to watch", "schedule", or phrasing like "X faces Y" / "X and Y meet" / "looking to" describe an UPCOMING match. Never turn one into a result — a win/advance/elimination claim requires the snippet to explicitly state it happened ("beats", "defeated", "advances", "eliminated", a final scoreline). If no snippet states the outcome of a match, do not mention that match at all.
 - ONLY report facts explicitly stated in the snippets above. Do NOT add any result, score, or outcome not written in a snippet.
 - OFFICIAL MLB DATA: lines tagged "[official MLB data, ...]" come straight from MLB and are authoritative for MLB postseason series state. If a news snippet disagrees with them (e.g. an older series score), the official line wins. Never report an MLB series result that is older than the newest official line for that series.
+- OFFICIAL BILLBOARD DATA: lines tagged "[official Billboard data, ...]" come straight from the Hot 100 and are authoritative for chart positions and week-over-week moves (No. 1 changes, debuts, climbs, falls). They count as this week's news. Prefer them over any news snippet about the chart.
 - BRACKET / TRACKER / STANDINGS PAGES list results from EVERY earlier round, so their publication date says nothing about when a result happened. Never take a game result from such a page (e.g. "Rays 4, Yankees 3 (Tampa Bay wins 3-0)" or a Wild Card score) unless an official MLB data line or a dated article confirms it happened within the last {MAX_SNIPPET_AGE_DAYS} days. A series that has already ended and is not on an official line is OLD — skip it.
 - OWNERSHIP: only the picks listed above have an FL owner. A team, player or ticker that is not in the list has NO owner — never attach an FL player to it, and never write possessives like "Fryar's Rays". Write only "Pick (<em>Owner</em>)" using the exact pick/owner pairs listed above, and mention opponents without an owner as plain names.
 - If a snippet mentions a pick but doesn't clearly state the result or move, skip it.
@@ -516,12 +654,22 @@ def main():
         print(f'  Use --force to override.')
         sys.exit(0)
 
-    print('Searching for today\'s sports news...')
-    news = search_news(debug=debug)
+    from datetime import date
+    today = date.today()
+    # Official data first: it is authoritative, and it tells the search which picks are active today.
     mlb = mlb_official_snippets()
     if mlb:
         print('\n  ✓ Official MLB postseason data:\n' + '\n'.join(f'    {l[:160]}' for l in mlb.splitlines()))
-        news = mlb + ('\n' + news if news else '')
+    billboard, chart_picks = billboard_official_snippets(today)
+    if billboard:
+        print('\n  ✓ Official Billboard Hot 100 data:\n' + '\n'.join(f'    {l[:160]}' for l in billboard.splitlines()))
+    active = active_picks(today, mlb, chart_picks)
+    print('\n  Active picks (searched every day): ' + ('; '.join(f'{c}: {", ".join(v)}' for c, v in active.items()) or 'none'))
+    print('\nSearching for today\'s sports news...')
+    news = search_news(debug=debug, today=today, active=active)
+    official = '\n'.join(x for x in (mlb, billboard) if x)
+    if official:
+        news = official + ('\n' + news if news else '')
     if news:
         print(f'\n  ✓ Got {len(news.splitlines())} snippets from Tavily')
         if not debug:
