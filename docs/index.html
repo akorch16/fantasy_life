@@ -1670,10 +1670,14 @@ fetch(SEASON_2027 ? './scores_2027.json' : './scores.json')
   .then(data => {
     window.SCORES_DATA = data.players || [];
     window.LAST_UPDATED = data.last_updated || '';
-    if (data.headline) {
+    // The 2027 view keeps the built-in fallback ticker (the Judi Dench line in the HTML above) until FL News
+    // covers the 2027 league — headline.py only writes 2026 headlines. Flip HEADLINE_2027_LIVE to true to switch over.
+    const HEADLINE_2027_LIVE = false;
+    const showHeadline = !SEASON_2027 || HEADLINE_2027_LIVE;
+    if (data.headline && showHeadline) {
       document.getElementById('news-bar-headline').innerHTML = data.headline;
     }
-    if (data.headline_generated_at) {
+    if (data.headline_generated_at && showHeadline) {
       try {
         const d = new Date(data.headline_generated_at);
         const weekday = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
