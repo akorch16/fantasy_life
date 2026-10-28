@@ -1,12 +1,38 @@
 name: Daily Score Update
 
 on:
+  # Primary trigger: a Claude scheduled task dispatches this workflow at 6:48 AM Eastern (DST-aware) so the site
+  # is updated by ~7:00. GitHub's own cron is only a BACKUP: on this repo it has been starting 4-9 hours late
+  # (Oct 2026: never before 11:51 UTC for an 08:00 UTC slot), so it can't be the clock. 12:17 UTC = 7:17 EST / 8:17 EDT.
   schedule:
-    - cron: '0 8 * * *'   # 8 AM UTC = midnight Pacific / 3 AM Eastern
-  workflow_dispatch:        # "Run workflow" button in GitHub Actions UI
+    - cron: '17 12 * * *'
+  workflow_dispatch:        # "Run workflow" button in GitHub Actions UI (and the 6:48 AM ET scheduled task)
 
 jobs:
+  # A scheduled (backup) run skips itself if today's (Eastern date) update already succeeded. Manual / dispatched runs always run.
+  gate:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          today=$(TZ=America/New_York date +%F)
+          since=$(date -u -d "@$(TZ=America/New_York date -d "$today 00:00" +%s)" +%Y-%m-%dT%H:%M:%SZ)
+          n=$(curl -sf -H "Authorization: Bearer $GH_TOKEN" \
+                "https://api.github.com/repos/${{ github.repository }}/actions/workflows/daily.yml/runs?status=success&created=%3E%3D$since&per_page=5" \
+              | python3 -c "import json,sys; print(json.load(sys.stdin).get('total_count', 0))" || echo 0)
+          echo "successful runs since $since (ET midnight): $n"
+          if [ "$n" -gt 0 ]; then echo "run=false" >> "$GITHUB_OUTPUT"; echo "Already updated today — skipping backup run."; else echo "run=true" >> "$GITHUB_OUTPUT"; fi
+
   update-scores:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write       # needed to commit scores.json back to the repo
