@@ -142,5 +142,9 @@
   {
     "id": "mlb-alcs-fryar-wins",
     "outcome": "no"
+  },
+  {
+    "id": "mlb-ws-buckley-wins",
+    "outcome": "yes"
   }
 ]
