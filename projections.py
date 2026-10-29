@@ -1416,6 +1416,7 @@ def simulate(current_scores, odds, n=N_SIMS):
     # bonus can change further — nothing to sample.
     nba_decided = any(v >= 13.0 for v in current_nba.values())
     nhl_decided = any(v >= 13.0 for v in current_nhl.values())
+    mlb_decided = any(v >= 13.0 for v in current_mlb.values())
 
     # Full-table model (qualification, play-in, every round) while no MLS bonus is banked.
     # Once real playoff bonuses exist the sampler below must not re-roll a bracket that
@@ -1494,8 +1495,9 @@ def simulate(current_scores, odds, n=N_SIMS):
         # ── MLB / MLS / NASCAR: sample full playoff outcomes ────────────────
         # Eliminated teams keep what they banked; teams still alive keep their floor unless
         # the sampled outcome beats it.
-        for player, pts in _sample_playoff_sport(mlb_norm).items():
-            add_bonus("mlb", player, pts, current_mlb[player])
+        if not mlb_decided:
+            for player, pts in _sample_playoff_sport(mlb_norm).items():
+                add_bonus("mlb", player, pts, current_mlb[player])
         mls_sample = (mls_model.sample_owner_bonuses(mls_owner_keys) if mls_model
                       else _sample_playoff_sport(mls_norm))
         for player, pts in mls_sample.items():
