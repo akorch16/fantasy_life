@@ -43,8 +43,15 @@
     },
     {
       "name": "Amanda Seyfried",
-      "composite_score": 0,
+      "composite_score": 44.69,
       "movies": [
+        {
+          "title": "You Can See Everything",
+          "release_date": "2026-10-09",
+          "box_office": 45145476,
+          "rt_score": 99,
+          "composite": 44.69
+        },
         {
           "title": "The Life and Deaths of Wilson Shedd",
           "release_date": "2026-11-01"
@@ -201,5 +208,5 @@
       ]
     }
   ],
-  "_updated": "2026-10-07"
+  "_updated": "2026-10-30"
 }
