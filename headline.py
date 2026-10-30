@@ -44,7 +44,7 @@ DRAFT_SUMMARY = _build_draft_summary()
 # Nothing here is hand-typed per pick or per event any more (the old hard-coded lists dropped 4 of 13 stocks and
 # had the MLS playoffs a month early).
 RESULTS_GRACE_DAYS = 2      # a final is still news for a couple of days
-PICK_GROUP_SIZE = 8         # picks named per query (each query returns max_results=3 articles)
+PICK_GROUP_SIZE = 13        # picks named per query (each query returns max_results=3 articles)
 PICK_QUERY_BUDGET = 12      # pick-group queries per day (active picks first, the rest rotate)
 MAX_ACTIVE_QUERIES = 8      # cap on daily active-pick groups so quiet picks still rotate in
 CALENDAR_PATH = DOCS_DIR / 'calendar.json'
@@ -297,7 +297,7 @@ def search_news(debug: bool = False, today=None, active=None) -> str:
                     'topic': 'news',
                     'days': max_age,
                     'search_depth': 'basic',
-                    'max_results': 8,
+                    'max_results': 20,
                     'include_answer': False,
                 },
                 timeout=20,
