@@ -44,8 +44,9 @@ DRAFT_SUMMARY = _build_draft_summary()
 # Nothing here is hand-typed per pick or per event any more (the old hard-coded lists dropped 4 of 13 stocks and
 # had the MLS playoffs a month early).
 RESULTS_GRACE_DAYS = 2      # a final is still news for a couple of days
-PICK_GROUP_SIZE = 13        # picks named per query (each query returns max_results=3 articles)
+PICK_GROUP_SIZE = 4         # picks named per query (each query returns max_results=3 articles)
 PICK_QUERY_BUDGET = 12      # pick-group queries per day (active picks first, the rest rotate)
+QUIET_GROUP_SIZE = 7        # picks per query for quiet (rotation) picks; active picks stay at PICK_GROUP_SIZE
 MAX_ACTIVE_QUERIES = 8      # cap on daily active-pick groups so quiet picks still rotate in
 CALENDAR_PATH = DOCS_DIR / 'calendar.json'
 
@@ -128,7 +129,7 @@ def pick_query_pool(today, cal=None, exclude=None) -> list:
         cat = season['category']
         names = [p for p in pick_names(cat) if p not in set(exclude.get(cat, ()))]
         per_cat.append([(cat, g, season['pick_query'].format(names=' '.join(_search_term(cat, p) for p in g)))
-                        for g in _groups(names, PICK_GROUP_SIZE)] if names else [])
+                        for g in _groups(names, QUIET_GROUP_SIZE)] if names else [])
     pool = []
     for k in range(max((len(c) for c in per_cat), default=0)):
         pool.extend(c[k] for c in per_cat if k < len(c))
@@ -297,7 +298,7 @@ def search_news(debug: bool = False, today=None, active=None) -> str:
                     'topic': 'news',
                     'days': max_age,
                     'search_depth': 'basic',
-                    'max_results': 20,
+                    'max_results': 8,
                     'include_answer': False,
                 },
                 timeout=20,
