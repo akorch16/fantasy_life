@@ -138,7 +138,7 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   pairwise sim → standings-based normal approximation (`_mlb_h2h`/`_mls_h2h`/`_pts_h2h`) → static `FALLBACK`.
 - **League calendar: `docs/calendar.json` is the single source of truth.** The Calendar tab renders from it (status =
   computed from dates, never typed), `headline.py` derives every search from it (`events[].search` windows + `seasons[]`:
-  while a category's season is active every pick is searched by name, in groups of 4, 12 group-queries/day: ACTIVE picks
+  while a category's season is active every pick is searched by name, in groups of 4 for active picks / 7 for quiet ones, 20 group-queries/day, 8 results per query: ACTIVE picks
   first every day (top-20 Hot 100 song, MLB team in a live series, NASCAR top 8 in the Chase, movie in theaters; max 8 groups),
   the rest rotating). Official data lines go ahead of the news: MLB StatsAPI series state and the Hot 100 (two newest issues
   from billboard.com: No. 1, every pick in the top 20 with its move, picks falling out of the top 10), and `projections.py` derives `EVENT_END` from `events[].sim_key`. Add or move an
