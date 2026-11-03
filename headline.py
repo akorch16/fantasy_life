@@ -602,6 +602,24 @@ def _context_text(cat, ctx) -> str:
     return ", ".join(bits)
 
 
+def _notability(cat, ctx_winner, ctx_loser) -> int:
+    """How much a result matters league-wide (not fantasy scoring). Pro: best record 3, top-3 record 2, per team.
+    College: poll top 5 = 3, top 10 = 2, otherwise ranked = 1, per team; beating a ranked team +3, an upset (winner ranked
+    below the loser) +2 more."""
+    score = 0
+    for ctx in (ctx_winner, ctx_loser):
+        if not ctx:
+            continue
+        rank = ctx[1]
+        if cat in ('NFL', 'NBA', 'NHL'):
+            score += 3 if rank == 1 else 2 if rank <= 3 else 0
+        else:
+            score += 3 if rank <= 5 else 2 if rank <= 10 else 1
+    if cat in ('NCAAF', 'NCAAB') and ctx_loser:
+        score += 3 + (2 if ctx_winner is None or ctx_winner[1] > ctx_loser[1] else 0)
+    return score
+
+
 def scoreboard_official_snippets(today=None):
     """2027 league's counterpart to the MLB StatsAPI lines: final / live results from ESPN's scoreboards for the last
     two days, kept only for games that involve one of the league's picks. Each line says who beat whom, each team's
@@ -611,7 +629,7 @@ def scoreboard_official_snippets(today=None):
     import requests
     from datetime import date, timedelta
     today = today or date.today()
-    lines, active, league = [], {}, _league_context()
+    scored, active, league = [], {}, _league_context()
     for cat, path in _ESPN_SCOREBOARDS.items():
         if not any(_in_window(today, s['start'], s['end']) for s in load_calendar()['seasons'] if s['category'] == cat):
             continue
@@ -652,9 +670,12 @@ def scoreboard_official_snippets(today=None):
                     what = f"{label(*a)} beat {label(*b)}"
                 else:
                     what = f"{label(*a)} vs {label(*b)} (in progress)"
-                h2h = ' — FL head-to-head' if len(mine) == 2 else ''
-                lines.append(f"- [official ESPN scoreboard, {day.strftime('%b %d')}] {cat}: {what}{h2h}")
-    return "\n".join(lines), active
+                h2h = " — two FL owners' picks played each other" if len(mine) == 2 else ''
+                win_k, lose_k = order[0][1], order[1][1]
+                note = _notability(cat, league.get(cat, {}).get(win_k), league.get(cat, {}).get(lose_k)) if state == 'post' else 0
+                scored.append((note, f"- [official ESPN scoreboard, {day.strftime('%b %d')}, notability {note}] {cat}: {what}{h2h}"))
+    scored.sort(key=lambda x: -x[0])      # most notable first (stable: ties keep category order)
+    return "\n".join(l for _, l in scored), active
 
 
 def active_picks(today, mlb_lines='', musicians=None, stocks=None) -> dict:
@@ -740,7 +761,7 @@ def generate_headline(scores_data: dict, news_snippets: str) -> Optional[str]:
         today_d = date.today()
         today = today_d.strftime('%B %d, %Y')
         calendar_note = build_calendar_note(today_d)
-        style_2027 = ('''- 2027 STYLE: never print final scores or point totals. Say who won and why it matters — a best-in-league record, a top-ranked team, a ranked team beaten, a streak, two FL picks playing each other (name both). Only use implications that appear in an official line or a snippet. Write 3 sentences at most: choose the 2-3 most meaningful results, skip routine wins by teams with no standing. If nothing is meaningful, say less.
+        style_2027 = ('''- 2027 STYLE: never print final scores or point totals. Say who won and why it matters — a best-in-league record, a top-ranked team, a ranked team beaten, a streak. The official scoreboard lines are sorted by their notability score, highest first: prefer the top lines. Cover at least 3 different categories (this overrides the 2-category rule below); within each category use its most notable line. Only use implications that appear in an official line or a snippet. If two FL owners' picks played each other, name both owners and say it plainly, with no league jargon. Write 3-4 sentences; skip routine wins by teams with no standing.
 ''' if SEASON == '2027' else '')
         news_block = f'\nNews snippets from the last {MAX_SNIPPET_AGE_DAYS} days (today is {today}):\n{news_snippets}\n'
 
