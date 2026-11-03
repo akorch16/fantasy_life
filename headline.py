@@ -10,19 +10,27 @@ from pathlib import Path
 
 HEADLINE_MODEL = 'claude-sonnet-5-5'
 DOCS_DIR = Path(__file__).parent / 'docs'
-SCORES_PATH = DOCS_DIR / 'scores.json'
+# --season 2027 (or HEADLINE_SEASON=2027): TEST MODE for the 2027 league. Uses draft_picks_2027, docs/calendar_2027.json and
+# docs/scores_2027.json, and is always a dry run (never writes a headline anywhere).
+SEASON = '2027' if (os.environ.get('HEADLINE_SEASON') == '2027'
+                    or ('--season' in sys.argv and sys.argv[sys.argv.index('--season') + 1:][:1] == ['2027'])) else '2026'
+SCORES_PATH = DOCS_DIR / ('scores_2027.json' if SEASON == '2027' else 'scores.json')
 
 # Draft pick reference for the prompt, built from the canonical source. All 15 categories: which ones are still
 # live is decided by the calendar's season windows (build_calendar_note tells the model which seasons are over).
 from draft_picks_2026 import DRAFT_PICKS_2026
+from draft_picks_2027 import DRAFT_PICKS_2027
+PICKS = DRAFT_PICKS_2027 if SEASON == '2027' else DRAFT_PICKS_2026
 
-_HEADLINE_CATEGORIES = list(DRAFT_PICKS_2026)
+_HEADLINE_CATEGORIES = list(PICKS)
 
 def _build_draft_summary() -> str:
     lines = []
     for cat in _HEADLINE_CATEGORIES:
-        picks = DRAFT_PICKS_2026[cat]
-        if cat == 'Stock':
+        picks = PICKS[cat]
+        if cat == 'Stock' and SEASON == '2027':
+            entries = [f"{p}={v.replace(' ', '')}" for p, v in picks.items()]
+        elif cat == 'Stock':
             entries = [f"{p}={v['ticker']}({v['direction']})" for p, v in picks.items()]
         else:
             entries = [f"{p}={v.replace(' ', '').replace('.', '')}" for p, v in picks.items()]
@@ -48,7 +56,7 @@ PICK_GROUP_SIZE = 4         # active picks named per query (small groups: a pick
 PICK_QUERY_BUDGET = 20      # pick-group queries per day (active picks first, the rest rotate)
 QUIET_GROUP_SIZE = 7        # quiet (rotation) picks per query: one fresh article a week is enough, so cover more per search
 MAX_ACTIVE_QUERIES = 8      # cap on daily active-pick groups so quiet picks still rotate in
-CALENDAR_PATH = DOCS_DIR / 'calendar.json'
+CALENDAR_PATH = DOCS_DIR / ('calendar_2027.json' if SEASON == '2027' else 'calendar.json')
 
 
 def load_calendar() -> dict:
@@ -102,7 +110,7 @@ def _search_term(cat, pick):
 
 def pick_names(cat) -> list:
     """Search terms for every 2026 pick in a category (stocks by ticker)."""
-    return [v['ticker'] if isinstance(v, dict) else v for v in DRAFT_PICKS_2026[cat].values()]
+    return [v['ticker'] if isinstance(v, dict) else v for v in PICKS[cat].values()]
 
 
 def _groups(items, size):
@@ -180,7 +188,7 @@ def search_coverage(cal=None) -> dict:
         if lost or '{names}' not in season['pick_query']:
             missing[cat] = lost or ['(pick_query has no {names} placeholder)']
     covered = {s['category'] for s in cal['seasons']}
-    for cat in DRAFT_PICKS_2026:
+    for cat in PICKS:
         if cat not in covered:
             missing[cat] = ['(no season window in calendar.json)']
     return missing
@@ -213,6 +221,10 @@ def build_calendar_note(today, cal=None) -> str:
     if concluded:
         lines.append("Events already CONCLUDED — do NOT report anything from these, their news is stale: "
                      + "; ".join(f"{n} (ended {e.strftime('%b %d')})" for n, s, e in concluded))
+    not_started = [s for s in cal['seasons'] if today < _parse_d(s['start'])]
+    if not_started:
+        lines.append("Seasons NOT STARTED yet for this league — nothing has been scored; never report results, moves or news for these picks: "
+                     + "; ".join(f"{s['category']} (starts {_parse_d(s['start']).strftime('%b %d %Y')})" for s in not_started))
     over = [s for s in cal['seasons'] if today > _parse_d(s['end'])]
     if over:
         lines.append("Seasons already OVER for this league — never report new results for these picks: "
@@ -475,7 +487,7 @@ def billboard_official_snippets(today=None):
         r1, t1, a1 = cur[0]
         was = prev_rank.get((t1, a1))
         lines.append(f"- {tag} No. 1: {t1} by {a1}" + (" (new at No. 1)" if was and was != 1 else " (holds No. 1)" if was == 1 else ""))
-        picks = DRAFT_PICKS_2026['Musician']
+        picks = PICKS['Musician']
         for pick in picks.values():
             mine = [(r, t, a) for r, t, a in cur[:HOT100_TOP_N] if _norm_name(pick) in _credits(a)]
             if mine:
@@ -523,7 +535,7 @@ def stock_official_snippets(today=None):
     (>= STOCK_DAY_MOVE % on the last session or >= STOCK_WEEK_MOVE % over five sessions). Each line says whether the
     pick is long or short, and gives the pick's own year-to-date return (sign flipped for shorts, as scored)."""
     lines, movers = [], []
-    for owner, pick in DRAFT_PICKS_2026['Stock'].items():
+    for owner, pick in PICKS['Stock'].items():
         tk, short = pick['ticker'], pick.get('direction') == 'S'
         try:
             name, rows = _yahoo_daily(tk)
@@ -547,6 +559,54 @@ def stock_official_snippets(today=None):
     return "\n".join(lines), movers
 
 
+_ESPN_SCOREBOARDS = {   # 2027 league: the five categories scored today (same ESPN host scoring_2027.py uses)
+    'NFL': 'football/nfl', 'NBA': 'basketball/nba', 'NHL': 'hockey/nhl',
+    'NCAAF': 'football/college-football', 'NCAAB': 'basketball/mens-college-basketball',
+}
+
+
+def scoreboard_official_snippets(today=None):
+    """2027 league's counterpart to the MLB StatsAPI lines: final / live scores from ESPN's scoreboards for the last
+    two days, kept only for games that involve one of the league's picks. Returns (lines, {category: [picks]}) — the
+    picks in those games are 'active' (they played), everyone else rotates. Team names are matched exactly against
+    ESPN's displayName (pro) or school name (college)."""
+    import requests
+    from datetime import date, timedelta
+    today = today or date.today()
+    lines, active = [], {}
+    for cat, path in _ESPN_SCOREBOARDS.items():
+        if not any(_in_window(today, s['start'], s['end']) for s in load_calendar()['seasons'] if s['category'] == cat):
+            continue
+        pickset = set(PICKS[cat].values())
+        for back in (1, 0):
+            day = today - timedelta(days=back)
+            try:
+                r = requests.get(f'https://site.api.espn.com/apis/site/v2/sports/{path}/scoreboard',
+                                 params={'dates': day.strftime('%Y%m%d'), 'limit': 400}, timeout=20)
+                r.raise_for_status()
+                events = r.json().get('events', [])
+            except Exception as e:
+                print(f'  ⚠ {cat} scoreboard unavailable for {day}: {e}')
+                continue
+            for ev in events:
+                comp = (ev.get('competitions') or [{}])[0]
+                teams = comp.get('competitors') or []
+                state = (comp.get('status') or {}).get('type', {}).get('state')   # pre / in / post
+                if state not in ('in', 'post') or len(teams) != 2:
+                    continue
+                names = [t['team'].get('displayName') if cat in ('NFL', 'NBA', 'NHL') else t['team'].get('location')
+                         for t in teams]
+                mine = [n for n in names if n in pickset]
+                if not mine:
+                    continue
+                active.setdefault(cat, [])
+                active[cat] += [n for n in mine if n not in active[cat]]
+                tag = 'final' if state == 'post' else 'in progress'
+                score = ', '.join(f"{t['team'].get('displayName')} {t.get('score', '?')}" for t in teams)
+                lines.append(f"- [official ESPN scoreboard, {day.strftime('%b %d')}] {cat}: {score} ({tag})")
+    return "\n".join(lines), active
+
+
 def active_picks(today, mlb_lines='', musicians=None, stocks=None) -> dict:
     """{category: [picks]} that are in the news right now, searched every day ahead of the rotation."""
     import json as _json
@@ -557,14 +617,14 @@ def active_picks(today, mlb_lines='', musicians=None, stocks=None) -> dict:
     if stocks:
         out['Stock'] = list(stocks)
     live = [l for l in (mlb_lines or '').splitlines() if 'in progress' in l]
-    teams = [t for t in DRAFT_PICKS_2026['MLB'].values() if any(t in l for l in live)]
+    teams = [t for t in PICKS['MLB'].values() if any(t in l for l in live)]
     if teams:
         out['MLB'] = teams
     try:   # NASCAR: picks in the top 8 of the Chase while races remain (data/nascar_chase.json, refreshed daily)
         chase = _json.load(open(Path(__file__).parent / 'data' / 'nascar_chase.json'))
         if any(_parse_d(r['date']) >= today for r in chase.get('remaining', [])):
             top = [s['driver'] for s in sorted(chase['standings'], key=lambda s: -s['points'])[:8]]
-            out['NASCAR'] = [d for d in DRAFT_PICKS_2026['NASCAR'].values() if d in top]
+            out['NASCAR'] = [d for d in PICKS['NASCAR'].values() if d in top]
     except Exception:
         pass
     for cat, path in (('Actor', 'actor.json'), ('Actress', 'actress.json')):   # a movie opened <=21 days ago or opens within 7
@@ -574,7 +634,7 @@ def active_picks(today, mlb_lines='', musicians=None, stocks=None) -> dict:
                 m.get('release_date') and not m.get('streaming')
                 and today - timedelta(days=21) <= _parse_d(m['release_date']) <= today + timedelta(days=7)
                 for m in e.get('movies', []))]
-            names = [p for p in DRAFT_PICKS_2026[cat].values() if _norm_name(p) in {_norm_name(h) for h in hot}]
+            names = [p for p in PICKS[cat].values() if _norm_name(p) in {_norm_name(h) for h in hot}]
             if names:
                 out[cat] = names
         except Exception:
@@ -590,7 +650,7 @@ def _owner_pick_words() -> dict:
     """{owner: set of lowercase words (>=3 chars) from all of their picks}."""
     import re
     words = {o: set() for o in _OWNERS}
-    for cat, picks in DRAFT_PICKS_2026.items():
+    for cat, picks in PICKS.items():
         for owner, pick in picks.items():
             if owner not in words:
                 continue
@@ -632,7 +692,7 @@ def generate_headline(scores_data: dict, news_snippets: str) -> Optional[str]:
         calendar_note = build_calendar_note(today_d)
         news_block = f'\nNews snippets from the last {MAX_SNIPPET_AGE_DAYS} days (today is {today}):\n{news_snippets}\n'
 
-        prompt = f"""You write punchy multi-sentence "FL News" ticker headlines for Fantasy Life 2026 — a 13-person fantasy league where each player drafted real sports teams, athletes, musicians, actors, and stocks.
+        prompt = f"""You write punchy multi-sentence "FL News" ticker headlines for Fantasy Life {SEASON} — a 13-person fantasy league where each player drafted real sports teams, athletes, musicians, actors, and stocks.
 
 Draft picks (FL player → their pick) — cover ALL categories, not just sports:
 {DRAFT_SUMMARY}
@@ -757,7 +817,7 @@ def _hours_since_last_headline(data: dict) -> float:
 
 def main():
     debug   = '--debug'    in sys.argv
-    dry_run = '--dry-run'  in sys.argv
+    dry_run = '--dry-run'  in sys.argv or SEASON == '2027'   # 2027 is test-only: never writes
     force   = '--force'    in sys.argv  # skip the 24h dedup guard
 
     if not SCORES_PATH.exists():
@@ -778,22 +838,32 @@ def main():
     from datetime import date
     today = date.today()
     # Official data first: it is authoritative, and it tells the search which picks are active today.
-    mlb = mlb_official_snippets()
-    if mlb:
+    if SEASON == '2027':   # test league: MLB/Billboard/market feeds have no 2027 season yet; ESPN scoreboards stand in
+        mlb, billboard, chart_picks, stocks, stock_movers = '', '', [], '', []
+        scoreboard, active = scoreboard_official_snippets(today)
+        if scoreboard:
+            print('\n  ✓ Official ESPN scoreboards (games involving a pick):\n' + '\n'.join(f'    {l[:160]}' for l in scoreboard.splitlines()))
+    else:
+        mlb = mlb_official_snippets()
+        scoreboard = ''
+    if SEASON != '2027' and mlb:
         print('\n  ✓ Official MLB postseason data:\n' + '\n'.join(f'    {l[:160]}' for l in mlb.splitlines()))
-    billboard, chart_picks = billboard_official_snippets(today)
+    if SEASON != '2027':
+        billboard, chart_picks = billboard_official_snippets(today)
     if billboard:
         print('\n  ✓ Official Billboard Hot 100 data:\n' + '\n'.join(f'    {l[:160]}' for l in billboard.splitlines()))
-    stocks, stock_movers = stock_official_snippets(today)
+    if SEASON != '2027':
+        stocks, stock_movers = stock_official_snippets(today)
     if stocks:
         print('\n  ✓ Official market data (movers):\n' + '\n'.join(f'    {l[:170]}' for l in stocks.splitlines()))
     else:
         print('\n  – No stock pick moved enough to report today')
-    active = active_picks(today, mlb, chart_picks, stock_movers)
+    if SEASON != '2027':
+        active = active_picks(today, mlb, chart_picks, stock_movers)
     print('\n  Active picks (searched every day): ' + ('; '.join(f'{c}: {", ".join(v)}' for c, v in active.items()) or 'none'))
     print('\nSearching for today\'s sports news...')
     news = search_news(debug=debug, today=today, active=active)
-    official = '\n'.join(x for x in (mlb, billboard, stocks) if x)
+    official = '\n'.join(x for x in (mlb, billboard, stocks, scoreboard) if x)
     if official:
         news = official + ('\n' + news if news else '')
     if news:

@@ -1,0 +1,146 @@
+{
+  "_note": "TEST CALENDAR for the 2027 league (headline.py --season 2027). Season windows are approximate placeholders, not verified against league schedules; only the five categories scored today (NFL, NBA, NHL, NCAAF, NCAAB) are in season. Not read by the site or by audit.py.",
+  "season": 2027,
+  "events": [],
+  "seasons": [
+    {
+      "category": "NFL",
+      "start": "2026-09-10",
+      "end": "2027-02-14",
+      "pick_query": "{names} NFL",
+      "generic": [
+        {
+          "query": "NFL game results scores this week {today}",
+          "start": "2026-09-10",
+          "end": "2027-02-14"
+        }
+      ]
+    },
+    {
+      "category": "NBA",
+      "start": "2026-10-21",
+      "end": "2027-06-20",
+      "pick_query": "{names} NBA",
+      "generic": [
+        {
+          "query": "NBA game results scores {today}",
+          "start": "2026-10-21",
+          "end": "2027-06-20"
+        }
+      ]
+    },
+    {
+      "category": "NHL",
+      "start": "2026-10-07",
+      "end": "2027-06-20",
+      "pick_query": "{names} NHL",
+      "generic": [
+        {
+          "query": "NHL game results scores {today}",
+          "start": "2026-10-07",
+          "end": "2027-06-20"
+        }
+      ]
+    },
+    {
+      "category": "NCAAF",
+      "start": "2026-08-29",
+      "end": "2027-01-25",
+      "pick_query": "{names} college football",
+      "generic": [
+        {
+          "query": "college football Top 25 results this week {today}",
+          "start": "2026-08-29",
+          "end": "2027-01-25"
+        }
+      ]
+    },
+    {
+      "category": "NCAAB",
+      "start": "2026-11-02",
+      "end": "2027-04-05",
+      "pick_query": "{names} college basketball",
+      "generic": [
+        {
+          "query": "college basketball Top 25 results {today}",
+          "start": "2026-11-02",
+          "end": "2027-04-05"
+        }
+      ]
+    },
+    {
+      "category": "MLB",
+      "start": "2027-03-25",
+      "end": "2027-10-31",
+      "pick_query": "{names} MLB"
+    },
+    {
+      "category": "MLS",
+      "start": "2027-02-20",
+      "end": "2027-12-11",
+      "pick_query": "{names} MLS"
+    },
+    {
+      "category": "NASCAR",
+      "start": "2027-02-14",
+      "end": "2027-11-07",
+      "pick_query": "{names} NASCAR Cup"
+    },
+    {
+      "category": "Golf",
+      "start": "2027-01-01",
+      "end": "2027-11-21",
+      "pick_query": "{names} golf"
+    },
+    {
+      "category": "Tennis",
+      "start": "2027-01-01",
+      "end": "2027-11-21",
+      "pick_query": "{names} tennis"
+    },
+    {
+      "category": "Country",
+      "start": "2027-06-24",
+      "end": "2027-07-25",
+      "pick_query": "{names} Women's World Cup"
+    },
+    {
+      "category": "Stock",
+      "start": "2027-01-04",
+      "end": "2027-12-31",
+      "pick_query": "{names} stock"
+    },
+    {
+      "category": "Musician",
+      "start": "2027-01-01",
+      "end": "2027-12-31",
+      "pick_query": "{names} Billboard Hot 100",
+      "generic": [
+        {
+          "query": "{today} Billboard Hot 100 chart number one new entry this week",
+          "start": "2027-01-01",
+          "end": "2027-12-31"
+        }
+      ]
+    },
+    {
+      "category": "Actor",
+      "start": "2027-01-01",
+      "end": "2027-12-31",
+      "pick_query": "{names} movie box office",
+      "generic": [
+        {
+          "query": "{today} domestic US box office opening weekend results North America",
+          "start": "2027-01-01",
+          "end": "2027-12-31"
+        }
+      ]
+    },
+    {
+      "category": "Actress",
+      "start": "2027-01-01",
+      "end": "2027-12-31",
+      "pick_query": "{names} movie box office"
+    }
+  ]
+}
