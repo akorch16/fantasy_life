@@ -583,14 +583,14 @@ def _league_context() -> dict:
             tied = sum(1 for x in rows if x[metric] == r[metric])
             rec = (f"{int(r['wins'])}-{int(r['losses'])}" + (f"-{int(r['ties'])}" if r.get('ties') else '')
                    if 'wins' in r else f"{r['points']} pts in {r['gp']} GP")
-            out[cat][r[key]] = (rec, rank, tied)
+            out[cat][r[key]] = (rec, rank, tied, [x[key] for x in rows if x[metric] == r[metric]])
     for cat in ('NCAAF', 'NCAAB'):
-        out[cat] = {r['location']: (None, r['rank'], 1) for r in (cache.get(cat) or {}).get('rows', [])}
+        out[cat] = {r['location']: (None, r['rank'], 1, [r['location']]) for r in (cache.get(cat) or {}).get('rows', [])}
     return out
 
 
 def _context_text(cat, ctx) -> str:
-    rec, rank, tied = ctx
+    rec, rank, tied = ctx[:3]
     league = {'NFL': 'the NFL', 'NBA': 'the NBA', 'NHL': 'the NHL'}.get(cat)
     bits = [rec] if rec else []
     if league and rank == 1:
@@ -660,8 +660,13 @@ def scoreboard_official_snippets(today=None):
                 active[cat] += [k for k in mine if k not in active[cat]]
 
                 def label(t, k):
-                    ctx = _context_text(cat, league[cat][k]) if k in league.get(cat, {}) else ''
+                    full = league.get(cat, {}).get(k)
+                    ctx = _context_text(cat, full) if full else ''
                     owner = owner_of.get(k)
+                    if full and cat in ('NFL', 'NBA', 'NHL') and full[1] == 1 and full[2] > 1:   # name co-leaders that are picks
+                        co = [f"{n} [FL: {owner_of[n]}]" for n in full[3] if n != k and n in owner_of]
+                        if co:
+                            ctx += ", shared with " + " and ".join(co)
                     return (f"{t['team'].get('displayName')}" + (f" [FL: {owner}]" if owner else '')
                             + (f" ({ctx})" if ctx else ''))
                 order = sorted(zip(teams, keys), key=lambda x: not x[0].get('winner'))   # winner first
@@ -761,7 +766,7 @@ def generate_headline(scores_data: dict, news_snippets: str) -> Optional[str]:
         today_d = date.today()
         today = today_d.strftime('%B %d, %Y')
         calendar_note = build_calendar_note(today_d)
-        style_2027 = ('''- 2027 STYLE: never print final scores or point totals. Say who won and why it matters — a best-in-league record, a top-ranked team, a ranked team beaten, a streak. The official scoreboard lines are sorted by their notability score, highest first: prefer the top lines. Cover at least 3 different categories (this overrides the 2-category rule below); within each category use its most notable line. Only use implications that appear in an official line or a snippet. If two FL owners' picks played each other, name both owners and say it plainly, with no league jargon. Write 3-4 sentences; skip routine wins by teams with no standing.
+        style_2027 = ('''- 2027 STYLE: never print final scores or point totals. Say who won and why it matters — a best-in-league record, a top-ranked team, a ranked team beaten, a streak. The official scoreboard lines are sorted by their notability score, highest first: prefer the top lines. Cover at least 3 different categories (this overrides the 2-category rule below); within each category use its most notable line. Only use implications that appear in an official line or a snippet. Whenever you mention a ranked college team, give its poll rank, and for an upset give both ranks (e.g. 'No. 22 UCLA (<em>Mitchell</em>) upset No. 5 Arizona (<em>Shep</em>)'). If two FL owners' picks played each other, name both owners and say it plainly; never write 'head-to-head', 'clash' or 'matchup'. If several picks share the best record, name them together in one sentence. Write 3-4 sentences; skip routine wins by teams with no standing.
 ''' if SEASON == '2027' else '')
         news_block = f'\nNews snippets from the last {MAX_SNIPPET_AGE_DAYS} days (today is {today}):\n{news_snippets}\n'
 
