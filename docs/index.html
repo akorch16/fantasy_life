@@ -1674,6 +1674,16 @@ fetch(SEASON_2027 ? './scores_2027.json' : './scores.json')
     // covers the 2027 league — headline.py only writes 2026 headlines. Flip HEADLINE_2027_LIVE to true to switch over.
     const HEADLINE_2027_LIVE = false;
     const showHeadline = !SEASON_2027 || HEADLINE_2027_LIVE;
+    // One-day hand-written 2027 headline (Nov 3 2026, ET). Expires by itself: any other date falls back to the Judi Dench line.
+    if (SEASON_2027 && !HEADLINE_2027_LIVE &&
+        new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) === '2026-11-03') {
+      document.getElementById('news-bar-headline').innerHTML =
+        'No. 22 UCLA (<em>Mitchell</em>) upset No. 5 Arizona (<em>Shep</em>), and No. 1 Florida (<em>Korch</em>) beat No. 14 Miami. ' +
+        'Rockets (<em>Shep</em>) beat Celtics (<em>Todd</em>), and 76ers (<em>Buckley</em>) and Rockets share the NBA\'s best record. ' +
+        'Bruins (<em>Tim</em>), who hold a top-3 NHL record, beat Golden Knights (<em>Jamzee</em>).';
+      const nbEl = document.getElementById('news-bar-updated');
+      if (nbEl) nbEl.innerHTML = '<em style="color:#fff">Tuesday, November 3rd</em>';
+    }
     if (data.headline && showHeadline) {
       document.getElementById('news-bar-headline').innerHTML = data.headline;
     }
