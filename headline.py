@@ -565,19 +565,58 @@ _ESPN_SCOREBOARDS = {   # 2027 league: the five categories scored today (same ES
 }
 
 
+def _league_context() -> dict:
+    """{category: {team key: (record text, league rank, n_tied_at_rank)}} from data/standings_2027.json (the rows
+    scoring_2027.py fetched): win % for NFL/NBA, points % for NHL, the poll rank for college. League-wide facts about a
+    team, nothing to do with fantasy scoring."""
+    try:
+        cache = json.load(open(Path(__file__).parent / 'data' / 'standings_2027.json'))
+    except Exception:
+        return {}
+    out = {}
+    for cat, metric, key in (('NFL', 'win_pct', 'team'), ('NBA', 'win_pct', 'team'), ('NHL', 'points_pct', 'team')):
+        rows = (cache.get(cat) or {}).get('rows', [])
+        vals = sorted({r[metric] for r in rows}, reverse=True)
+        out[cat] = {}
+        for r in rows:
+            rank = vals.index(r[metric]) + 1
+            tied = sum(1 for x in rows if x[metric] == r[metric])
+            rec = (f"{int(r['wins'])}-{int(r['losses'])}" + (f"-{int(r['ties'])}" if r.get('ties') else '')
+                   if 'wins' in r else f"{r['points']} pts in {r['gp']} GP")
+            out[cat][r[key]] = (rec, rank, tied)
+    for cat in ('NCAAF', 'NCAAB'):
+        out[cat] = {r['location']: (None, r['rank'], 1) for r in (cache.get(cat) or {}).get('rows', [])}
+    return out
+
+
+def _context_text(cat, ctx) -> str:
+    rec, rank, tied = ctx
+    league = {'NFL': 'the NFL', 'NBA': 'the NBA', 'NHL': 'the NHL'}.get(cat)
+    bits = [rec] if rec else []
+    if league and rank == 1:
+        bits.append(f"{'tied for the ' if tied > 1 else ''}best record in {league}")
+    elif league and rank <= 3:
+        bits.append(f"top-3 record in {league}")
+    elif not league:
+        bits.append(f"No. {rank} in the poll")
+    return ", ".join(bits)
+
+
 def scoreboard_official_snippets(today=None):
-    """2027 league's counterpart to the MLB StatsAPI lines: final / live scores from ESPN's scoreboards for the last
-    two days, kept only for games that involve one of the league's picks. Returns (lines, {category: [picks]}) — the
-    picks in those games are 'active' (they played), everyone else rotates. Team names are matched exactly against
-    ESPN's displayName (pro) or school name (college)."""
+    """2027 league's counterpart to the MLB StatsAPI lines: final / live results from ESPN's scoreboards for the last
+    two days, kept only for games that involve one of the league's picks. Each line says who beat whom, each team's
+    record / poll rank (data/standings_2027.json) and whether two FL picks played each other. NO scores: the headline
+    should say why a result matters, not recite it. Returns (lines, {category: [picks]}) — the picks in those games
+    are 'active' (they played), everyone else rotates."""
     import requests
     from datetime import date, timedelta
     today = today or date.today()
-    lines, active = [], {}
+    lines, active, league = [], {}, _league_context()
     for cat, path in _ESPN_SCOREBOARDS.items():
         if not any(_in_window(today, s['start'], s['end']) for s in load_calendar()['seasons'] if s['category'] == cat):
             continue
         pickset = set(PICKS[cat].values())
+        owner_of = {team: owner for owner, team in PICKS[cat].items()}
         for back in (1, 0):
             day = today - timedelta(days=back)
             try:
@@ -594,16 +633,27 @@ def scoreboard_official_snippets(today=None):
                 state = (comp.get('status') or {}).get('type', {}).get('state')   # pre / in / post
                 if state not in ('in', 'post') or len(teams) != 2:
                     continue
-                names = [t['team'].get('displayName') if cat in ('NFL', 'NBA', 'NHL') else t['team'].get('location')
-                         for t in teams]
-                mine = [n for n in names if n in pickset]
+                pro = cat in ('NFL', 'NBA', 'NHL')
+                keys = [t['team'].get('displayName') if pro else t['team'].get('location') for t in teams]
+                mine = [k for k in keys if k in pickset]
                 if not mine:
                     continue
                 active.setdefault(cat, [])
-                active[cat] += [n for n in mine if n not in active[cat]]
-                tag = 'final' if state == 'post' else 'in progress'
-                score = ', '.join(f"{t['team'].get('displayName')} {t.get('score', '?')}" for t in teams)
-                lines.append(f"- [official ESPN scoreboard, {day.strftime('%b %d')}] {cat}: {score} ({tag})")
+                active[cat] += [k for k in mine if k not in active[cat]]
+
+                def label(t, k):
+                    ctx = _context_text(cat, league[cat][k]) if k in league.get(cat, {}) else ''
+                    owner = owner_of.get(k)
+                    return (f"{t['team'].get('displayName')}" + (f" [FL: {owner}]" if owner else '')
+                            + (f" ({ctx})" if ctx else ''))
+                order = sorted(zip(teams, keys), key=lambda x: not x[0].get('winner'))   # winner first
+                a, b = order
+                if state == 'post':
+                    what = f"{label(*a)} beat {label(*b)}"
+                else:
+                    what = f"{label(*a)} vs {label(*b)} (in progress)"
+                h2h = ' — FL head-to-head' if len(mine) == 2 else ''
+                lines.append(f"- [official ESPN scoreboard, {day.strftime('%b %d')}] {cat}: {what}{h2h}")
     return "\n".join(lines), active
 
 
@@ -690,6 +740,8 @@ def generate_headline(scores_data: dict, news_snippets: str) -> Optional[str]:
         today_d = date.today()
         today = today_d.strftime('%B %d, %Y')
         calendar_note = build_calendar_note(today_d)
+        style_2027 = ('''- 2027 STYLE: never print final scores or point totals. Say who won and why it matters — a best-in-league record, a top-ranked team, a ranked team beaten, a streak, two FL picks playing each other (name both). Only use implications that appear in an official line or a snippet. Write 3 sentences at most: choose the 2-3 most meaningful results, skip routine wins by teams with no standing. If nothing is meaningful, say less.
+''' if SEASON == '2027' else '')
         news_block = f'\nNews snippets from the last {MAX_SNIPPET_AGE_DAYS} days (today is {today}):\n{news_snippets}\n'
 
         prompt = f"""You write punchy multi-sentence "FL News" ticker headlines for Fantasy Life {SEASON} — a 13-person fantasy league where each player drafted real sports teams, athletes, musicians, actors, and stocks.
@@ -719,7 +771,7 @@ CRITICAL rules:
 - Never mention FL standings, point totals, or league positions
 - Event status (derived from the league calendar — trust this over any snippet):
 {calendar_note}
-- Cover a MIX of categories — aim for at least 2 different categories (e.g. one sports + one music/stock/movie/WorldCup)
+{style_2027}- Cover a MIX of categories — aim for at least 2 different categories (e.g. one sports + one music/stock/movie/WorldCup)
 - Format: "Pick (<em>FLPlayer</em>) result." — pick name first, FL owner in <em> tags in parentheses
 - Examples: "Knicks (<em>Buckley</em>) sweep Cavaliers (<em>Jens</em>) into the NBA Finals." / "NVDA (<em>Todd</em>) surges 9% on earnings." / "USA (<em>Wu</em>) blank Morocco 2-0 in World Cup opener." / "Taylor Swift (<em>Molmen</em>) hits #1 with new single."
 - Use <em> tags ONLY around FL player names — never around pick names
