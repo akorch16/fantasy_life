@@ -1,5 +1,5 @@
 {
- "as_of": "2026-11-03T11:51:27+00:00",
+ "as_of": "2026-11-04T11:50:43+00:00",
  "standings": [
   {
    "driver": "Kyle Larson",
@@ -79,18 +79,18 @@
    "wins": 0
   },
   {
-   "driver": "Carson Hocevar",
-   "points": 2259,
-   "top_5": 6,
-   "starts": 35,
-   "wins": 1
-  },
-  {
    "driver": "Bubba Wallace",
    "points": 2257,
    "top_5": 4,
    "starts": 35,
    "wins": 0
+  },
+  {
+   "driver": "Carson Hocevar",
+   "points": 2234,
+   "top_5": 6,
+   "starts": 35,
+   "wins": 1
   },
   {
    "driver": "Ryan Preece",
@@ -142,16 +142,16 @@
    "wins": 0
   },
   {
-   "driver": "Josh Berry",
-   "points": 652,
-   "top_5": 4,
+   "driver": "Todd Gilliland",
+   "points": 637,
+   "top_5": 0,
    "starts": 35,
    "wins": 0
   },
   {
-   "driver": "Todd Gilliland",
-   "points": 637,
-   "top_5": 0,
+   "driver": "Josh Berry",
+   "points": 627,
+   "top_5": 4,
    "starts": 35,
    "wins": 0
   },
