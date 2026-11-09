@@ -61,6 +61,21 @@
     "Wu":       3.0,
     "Molmen":   0.0
   },
+  "NASCAR": {
+    "Buckley":  0.0,
+    "Feder":    2.5,
+    "Fryar":    4.0,
+    "Jamzee":   0.0,
+    "Jens":     0.0,
+    "Korch":    0.0,
+    "Mitchell": 0.0,
+    "Molmen":  13.0,
+    "Shep":     0.0,
+    "Theo":     6.5,
+    "Tim":      0.0,
+    "Todd":     0.0,
+    "Wu":       9.0
+  },
   "NCAAB": {
     "Tim":     2.5,
     "Jens":    4.0,
