@@ -1,89 +1,96 @@
 {
- "as_of": "2026-11-08T11:50:57+00:00",
+ "as_of": "2026-11-09T00:31:46+00:00",
  "standings": [
   {
    "driver": "Kyle Larson",
-   "points": 2469,
+   "points": 2501,
    "top_5": 15,
-   "starts": 35,
+   "starts": 36,
    "wins": 3
   },
   {
    "driver": "Christopher Bell",
-   "points": 2402,
-   "top_5": 15,
-   "starts": 35,
+   "points": 2452,
+   "top_5": 16,
+   "starts": 36,
    "wins": 1
   },
   {
    "driver": "Denny Hamlin",
-   "points": 2399,
+   "points": 2445,
    "top_5": 16,
-   "starts": 35,
+   "starts": 36,
    "wins": 4
   },
   {
+   "driver": "Ryan Blaney",
+   "points": 2407,
+   "top_5": 12,
+   "starts": 36,
+   "wins": 4
+  },
+  {
+   "driver": "Tyler Reddick",
+   "points": 2397,
+   "top_5": 15,
+   "starts": 36,
+   "wins": 6
+  },
+  {
    "driver": "Chase Briscoe",
-   "points": 2385,
+   "points": 2386,
    "top_5": 13,
-   "starts": 35,
+   "starts": 36,
    "wins": 3
   },
   {
    "driver": "Joey Logano",
-   "points": 2366,
+   "points": 2386,
    "top_5": 7,
-   "starts": 35,
+   "starts": 36,
    "wins": 3
-  },
-  {
-   "driver": "Tyler Reddick",
-   "points": 2344,
-   "top_5": 14,
-   "starts": 35,
-   "wins": 6
-  },
-  {
-   "driver": "Ryan Blaney",
-   "points": 2336,
-   "top_5": 11,
-   "starts": 35,
-   "wins": 3
-  },
-  {
-   "driver": "Ty Gibbs",
-   "points": 2309,
-   "top_5": 13,
-   "starts": 35,
-   "wins": 2
   },
   {
    "driver": "William Byron",
-   "points": 2303,
-   "top_5": 7,
-   "starts": 35,
+   "points": 2344,
+   "top_5": 8,
+   "starts": 36,
    "wins": 1
   },
   {
-   "driver": "Chase Elliott",
-   "points": 2268,
-   "top_5": 8,
-   "starts": 35,
+   "driver": "Ty Gibbs",
+   "points": 2335,
+   "top_5": 13,
+   "starts": 36,
    "wins": 2
   },
   {
    "driver": "Austin Cindric",
-   "points": 2263,
+   "points": 2306,
    "top_5": 4,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Bubba Wallace",
-   "points": 2257,
-   "top_5": 4,
-   "starts": 35,
+   "points": 2293,
+   "top_5": 5,
+   "starts": 36,
    "wins": 0
+  },
+  {
+   "driver": "Chase Elliott",
+   "points": 2287,
+   "top_5": 8,
+   "starts": 36,
+   "wins": 2
+  },
+  {
+   "driver": "Daniel Suarez",
+   "points": 2243,
+   "top_5": 3,
+   "starts": 36,
+   "wins": 1
   },
   {
    "driver": "Carson Hocevar",
@@ -94,163 +101,156 @@
   },
   {
    "driver": "Ryan Preece",
-   "points": 2214,
+   "points": 2226,
    "top_5": 1,
-   "starts": 35,
-   "wins": 1
-  },
-  {
-   "driver": "Daniel Suarez",
-   "points": 2210,
-   "top_5": 3,
-   "starts": 35,
+   "starts": 36,
    "wins": 1
   },
   {
    "driver": "Chris Buescher",
-   "points": 2199,
+   "points": 2212,
    "top_5": 2,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Shane van Gisbergen",
-   "points": 771,
+   "points": 774,
    "top_5": 6,
-   "starts": 35,
+   "starts": 36,
    "wins": 2
   },
   {
    "driver": "Ross Chastain",
-   "points": 742,
+   "points": 752,
    "top_5": 3,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Brad Keselowski",
-   "points": 714,
+   "points": 723,
    "top_5": 2,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Michael McDowell",
-   "points": 664,
+   "points": 691,
    "top_5": 3,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Todd Gilliland",
-   "points": 637,
+   "points": 656,
    "top_5": 0,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Josh Berry",
-   "points": 627,
+   "points": 651,
    "top_5": 4,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Erik Jones",
-   "points": 626,
+   "points": 643,
    "top_5": 2,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Austin Dillon",
-   "points": 596,
+   "points": 607,
    "top_5": 0,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "AJ Allmendinger",
-   "points": 592,
+   "points": 606,
    "top_5": 1,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Alex Bowman",
-   "points": 569,
+   "points": 594,
    "top_5": 4,
-   "starts": 31,
+   "starts": 32,
    "wins": 0
   },
   {
    "driver": "Zane Smith",
-   "points": 559,
+   "points": 584,
    "top_5": 2,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Ricky Stenhouse Jr.",
-   "points": 522,
+   "points": 527,
    "top_5": 4,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "John H Nemechek",
-   "points": 510,
+   "points": 517,
    "top_5": 1,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Riley Herbst",
-   "points": 491,
+   "points": 495,
    "top_5": 0,
-   "starts": 34,
+   "starts": 35,
    "wins": 0
   },
   {
    "driver": "Noah Gragson",
-   "points": 458,
+   "points": 486,
    "top_5": 0,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Cole Custer",
-   "points": 442,
+   "points": 450,
    "top_5": 1,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Connor Zilisch",
-   "points": 392,
+   "points": 410,
    "top_5": 0,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Ty Dillon",
-   "points": 389,
+   "points": 395,
    "top_5": 0,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Cody Ware",
-   "points": 262,
+   "points": 264,
    "top_5": 0,
-   "starts": 35,
+   "starts": 36,
    "wins": 0
   },
   {
    "driver": "Casey Mears",
-   "points": 14,
+   "points": 15,
    "top_5": 0,
-   "starts": 5,
+   "starts": 6,
    "wins": 0
   },
   {
@@ -282,11 +282,5 @@
    "wins": 0
   }
  ],
- "remaining": [
-  {
-   "name": "NASCAR Cup Series Championship Race",
-   "track": "Homestead-Miami Speedway",
-   "date": "2026-11-08"
-  }
- ]
+ "remaining": []
 }
