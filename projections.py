@@ -1364,11 +1364,13 @@ def _build_mls_playoff_model(odds, markets_used):
                 k = _mp.team_key(MLS_PICKS.get(owner))
                 if k and q:
                     targets[k] = q
-        model = _mp.build_model({r["team"]: r["points"] for r in rows}, since, targets, sched)
+        bracket = _mp.load_bracket()
+        model = _mp.build_model({r["team"]: r["points"] for r in rows}, since, targets, sched,
+                                bracket=bracket)
         if model is None:
             print("  ℹ MLS playoff model: table incomplete — using champion-only sampler")
         else:
-            print(f"  ✓ MLS playoff model: {len(model.fixtures)} fixtures left"
+            print(f"  ✓ MLS playoff model: {'real bracket' if bracket else f'{len(model.fixtures)} fixtures left'}"
                   f"{', calibrated to Kalshi' if model.calibration else ''}")
         return model
     except Exception as e:
@@ -1418,11 +1420,13 @@ def simulate(current_scores, odds, n=N_SIMS):
     nhl_decided = any(v >= 13.0 for v in current_nhl.values())
     mlb_decided = any(v >= 13.0 for v in current_mlb.values())
 
-    # Full-table model (qualification, play-in, every round) while no MLS bonus is banked.
-    # Once real playoff bonuses exist the sampler below must not re-roll a bracket that
-    # already has results, so fall back to it (its Kalshi odds zero out eliminated teams).
+    # Full-table model (qualification, play-in, every round). Once real playoff bonuses are
+    # banked it must play from the real bracket (data/mls_bracket.json, finished series
+    # recorded), never re-roll qualification; add_bonus() then only counts points above
+    # what is banked (a Round One team's 2.5 is never counted twice). Without the bracket
+    # file, fall back to the champion-only sampler (its Kalshi odds zero out eliminated teams).
     mls_model = odds.get("mls_playoff_model")
-    if mls_model and any(v > 0 for v in current_mls.values()):
+    if mls_model and any(v > 0 for v in current_mls.values()) and not mls_model.bracket:
         mls_model = None
     mls_owner_keys = {}
     if mls_model:

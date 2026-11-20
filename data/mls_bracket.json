@@ -1,0 +1,7 @@
+{
+  "_note": "Real 2026 MLS Cup Playoffs bracket (set after the Nov 19 wild card games). Seeds 1-8 per conference; Round One pairs 1v8, 4v5, 2v7, 3v6 (best of 3), then the 1/8 winner meets the 4/5 winner and the 2/7 winner meets the 3/6 winner. While this file exists mls_playoffs.py plays from it instead of simulating the regular season and play-in. As series finish, add the winner's slug to the matching round in results (r1 = won Round One, semi = won the conference semifinal, conf_final = won the conference final, final = MLS Cup champion) so the simulation stops re-rolling them. Wild card: Cincinnati 3-1 at Orlando, Real Salt Lake 1-1 (pens) at Seattle.",
+  "as_of": "2026-11-20",
+  "East": ["nashville", "inter-miami", "new-england", "chicago", "charlotte", "philadelphia", "columbus", "cincinnati"],
+  "West": ["vancouver", "dallas", "st-louis", "san-jose", "houston", "lafc", "portland", "salt-lake"],
+  "results": {"r1": [], "semi": [], "conf_final": [], "final": []}
+}
