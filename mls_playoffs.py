@@ -29,6 +29,7 @@ import unicodedata
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 SCHEDULE_PATH = os.path.join(_HERE, "data", "mls_schedule.json")
+BRACKET_PATH = os.path.join(_HERE, "data", "mls_bracket.json")
 _UTC = datetime.timezone.utc
 
 LEAGUE_PPG = 1.35      # shrinkage target
@@ -85,10 +86,26 @@ def load_schedule(path=SCHEDULE_PATH):
         return None
 
 
+def load_bracket(path=BRACKET_PATH):
+    """The real bracket once the playoffs are set (data/mls_bracket.json), or None."""
+    try:
+        with open(path) as f:
+            b = json.load(f)
+    except Exception:
+        return None
+    if all(len(b.get(c) or []) == 8 for c in ("East", "West")):
+        b.setdefault("results", {})
+        return b
+    return None
+
+
 class MLSPlayoffModel:
-    def __init__(self, points, since, schedule, targets=None, seed=None):
-        """points: {slug: pts} for all 30 teams; since: UTC time the table reflects."""
+    def __init__(self, points, since, schedule, targets=None, seed=None, bracket=None):
+        """points: {slug: pts} for all 30 teams; since: UTC time the table reflects.
+        bracket: the real seeds + finished series (load_bracket()); when given, the
+        regular season and play-in are skipped and only unfinished series are played."""
         self.conf = schedule["conference"]
+        self.bracket = bracket
         self.rng = random.Random(seed)
         first = _parse_ts(schedule["from"])
         since = max(since, first)
@@ -128,42 +145,57 @@ class MLSPlayoffModel:
         p = _sigmoid(SCALE * (self.rating[a] - self.rating[b]))
         return a if self.rng.random() < p * p * (3 - 2 * p) else b
 
+    def _play(self, a, b, rnd, game):
+        """Winner of a series: the recorded result when the bracket has one, else simulated."""
+        if self.bracket:
+            done = self.bracket["results"].get(rnd) or []
+            for k in (a, b):
+                if k in done:
+                    return k
+        return game(a, b)
+
     # ── one full season + playoffs ───────────────────────────────────────────
     def run_once(self):
         """Returns ({slug: bonus}, champion_slug)."""
         rng = self.rng
-        pts = dict(self.pts)
-        for (h, a), (ph, pd) in zip(self.fixtures, self._probs):
-            u = rng.random()
-            if u < ph:
-                pts[h] += 3
-            elif u < ph + pd:
-                pts[h] += 1
-                pts[a] += 1
-            else:
-                pts[a] += 3
+        if self.bracket:
+            seeded = {c: list(self.bracket[c]) for c in ("East", "West")}
+        else:
+            pts = dict(self.pts)
+            for (h, a), (ph, pd) in zip(self.fixtures, self._probs):
+                u = rng.random()
+                if u < ph:
+                    pts[h] += 3
+                elif u < ph + pd:
+                    pts[h] += 1
+                    pts[a] += 1
+                else:
+                    pts[a] += 3
+            seeded = {}
+            for conf, teams in self.by_conf.items():
+                order = sorted(teams, key=lambda k: (pts[k], rng.random()), reverse=True)[:9]
+                # play-in: 8th hosts 9th; the loser earns nothing
+                p8 = _sigmoid(SCALE * (self.rating[order[7]] - self.rating[order[8]] + HFA))
+                s8 = order[7] if rng.random() < p8 else order[8]
+                seeded[conf] = order[:7] + [s8]
 
         bonus, champs = {}, {}
-        for conf, teams in self.by_conf.items():
-            order = sorted(teams, key=lambda k: (pts[k], rng.random()), reverse=True)[:9]
-            # play-in: 8th hosts 9th; the loser earns nothing
-            p8 = _sigmoid(SCALE * (self.rating[order[7]] - self.rating[order[8]] + HFA))
-            s8 = order[7] if rng.random() < p8 else order[8]
-            seeds = order[:7] + [s8]
+        for conf, seeds in seeded.items():
             for k in seeds:
                 bonus[k] = BONUS["r1"]          # made the playoffs
-            w18 = self._bo3(seeds[0], seeds[7])
-            w45 = self._bo3(seeds[3], seeds[4])
-            w27 = self._bo3(seeds[1], seeds[6])
-            w36 = self._bo3(seeds[2], seeds[5])
+            w18 = self._play(seeds[0], seeds[7], "r1", self._bo3)
+            w45 = self._play(seeds[3], seeds[4], "r1", self._bo3)
+            w27 = self._play(seeds[1], seeds[6], "r1", self._bo3)
+            w36 = self._play(seeds[2], seeds[5], "r1", self._bo3)
             for k in (w18, w45, w27, w36):
                 bonus[k] = BONUS["semi"]        # won Round One
-            f1, f2 = self._ko(w18, w45), self._ko(w27, w36)
+            f1 = self._play(w18, w45, "semi", self._ko)
+            f2 = self._play(w27, w36, "semi", self._ko)
             for k in (f1, f2):
                 bonus[k] = BONUS["conf_final"]  # won the conference semifinal
-            champs[conf] = self._ko(f1, f2)
+            champs[conf] = self._play(f1, f2, "conf_final", self._ko)
             bonus[champs[conf]] = BONUS["final"]
-        champion = self._ko(champs["East"], champs["West"])
+        champion = self._play(champs["East"], champs["West"], "final", self._ko)
         bonus[champion] = BONUS["champ"]
         return bonus, champion
 
@@ -196,7 +228,7 @@ class MLSPlayoffModel:
         return {o: bonus[k] for o, k in owner_team_keys.items() if k in bonus}
 
 
-def build_model(points_by_name, since, targets_by_key=None, schedule=None, seed=None):
+def build_model(points_by_name, since, targets_by_key=None, schedule=None, seed=None, bracket=None):
     """Returns an MLSPlayoffModel, or None if inputs aren't usable (caller falls back)."""
     schedule = schedule or load_schedule()
     if not schedule or not points_by_name:
@@ -210,7 +242,7 @@ def build_model(points_by_name, since, targets_by_key=None, schedule=None, seed=
         return None
     if since is None:
         return None
-    return MLSPlayoffModel(points, since, schedule, targets_by_key, seed)
+    return MLSPlayoffModel(points, since, schedule, targets_by_key, seed, bracket)
 
 
 # ── schedule snapshot (run locally; ESPN is blocked from Actions) ────────────────
