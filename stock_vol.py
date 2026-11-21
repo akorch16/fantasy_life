@@ -10,8 +10,17 @@ Each pick's rest-of-season price move is drawn jointly with the others, from Yah
 * moves are lognormal on the PRICE (drift from STOCK_SIM_ANNUAL, player's perspective; shorts gain when the
   price falls), scaled to the time left: log-return ~ N(ln(1 + drift*T) - sd^2*T/2, sd^2*T).
 
+Tails are deliberately nasty (Nov 2026):
+
+* shocks are multivariate Student-t (TAIL_DF degrees of freedom, rescaled to unit variance): one shared
+  chi-square draw scales every pick at once, so big moves are more common than a normal allows AND they
+  arrive together (tail dependence);
+* market crash jumps: Poisson with CRASH_RATE per year, each a log move of N(CRASH_MEAN, CRASH_SD) on the
+  "market", hitting each pick by its beta to an equal-weight basket of the 13 (shorts profit);
+* vol is realized only (VOL_BLEND = 1), no pull toward the calmer hand-set numbers.
+
 If Yahoo can't be reached for a ticker, that pick falls back to its STOCK_SIM_ANNUAL vol with zero
-correlation to the rest.
+correlation to the rest and beta 1.
 """
 import math
 import random
@@ -19,9 +28,14 @@ import random
 import requests
 
 WINDOW = 63            # ~3 months of trading days
-VOL_BLEND = 0.75       # weight on realized vol (rest = hand-set vol)
+VOL_BLEND = 1.0        # weight on realized vol (rest = hand-set vol)
 SHRINK = 0.15          # correlation shrinkage toward the identity
 TRADING_DAYS = 252
+TAIL_DF = 4            # Student-t degrees of freedom (lower = fatter, more joint tails)
+CRASH_RATE = 0.25      # market crash jumps per year
+CRASH_MEAN = -0.12     # crash log move on the market
+CRASH_SD = 0.05
+EPS_CAP = 5.0          # largest shock, in standard deviations
 CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{t}?interval=1d&range=6mo"
 
 
@@ -89,16 +103,34 @@ class StockModel:
                     corr[i][j] = corr[j][i] = c
         self.corr = corr
         self.L = _cholesky(corr)
+        # beta to an equal-weight basket of the picks with data (crash exposure); 1.0 without data
+        self.beta = {p: 1.0 for p in self.players}
+        if len(rets) >= 3:
+            names = list(rets)
+            mkt = [sum(rets[q][k] for q in names) / len(names) for k in range(len(rets[names[0]]))]
+            mm = sum(mkt) / len(mkt)
+            var = sum((x - mm) ** 2 for x in mkt)
+            if var > 0:
+                for p in names:
+                    mp = sum(rets[p]) / len(rets[p])
+                    self.beta[p] = sum((x - mp) * (y - mm) for x, y in zip(rets[p], mkt)) / var
 
     def sample_moves(self, t, rng=random):
         """{player: move_pct from the player's perspective} over T = t years."""
         z = [rng.gauss(0.0, 1.0) for _ in self.players]
+        # multivariate-t: one shared chi-square scale for every pick, rescaled to unit variance
+        w = math.sqrt((TAIL_DF - 2) / max(1e-9, rng.gammavariate(TAIL_DF / 2.0, 2.0)))
+        jump = 0.0
+        k_jumps = _poisson(CRASH_RATE * t, rng)
+        for _ in range(k_jumps):
+            jump += rng.gauss(CRASH_MEAN, CRASH_SD)
         out = {}
         for i, p in enumerate(self.players):
-            eps = sum(self.L[i][k] * z[k] for k in range(i + 1))
+            # capped at +-EPS_CAP sd: exp() of an uncapped t has an infinite mean
+            eps = max(-EPS_CAP, min(EPS_CAP, w * sum(self.L[i][k] * z[k] for k in range(i + 1))))
             sd = self.vol[p]
             mu = math.log(max(1e-6, 1 + self.price_drift[p] * t)) - 0.5 * sd * sd * t
-            ratio = math.exp(mu + sd * math.sqrt(t) * eps)
+            ratio = math.exp(mu + sd * math.sqrt(t) * eps + self.beta[p] * jump)
             out[p] = (1 - ratio) * 100.0 if self.short[p] else (ratio - 1) * 100.0
         return out
 
@@ -106,8 +138,17 @@ class StockModel:
         lines = []
         for p in self.players:
             src, v = self.source[p]
-            lines.append(f"{p}: vol {self.vol[p]*100:.0f}% ({src} {v*100:.0f}%)")
+            lines.append(f"{p}: vol {self.vol[p]*100:.0f}% ({src} {v*100:.0f}%), crash beta {self.beta[p]:.2f}")
         return lines
+
+
+def _poisson(lam, rng):
+    k, p, l = 0, 1.0, math.exp(-lam)
+    while True:
+        p *= rng.random()
+        if p <= l:
+            return k
+        k += 1
 
 
 def _corr(a, b):
