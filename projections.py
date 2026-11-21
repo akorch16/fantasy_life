@@ -1378,6 +1378,21 @@ def _build_mls_playoff_model(odds, markets_used):
         return None
 
 
+def _build_stock_model():
+    """Correlated stock-move model from Yahoo daily closes (stock_vol.py), or None."""
+    try:
+        import stock_vol
+        model = stock_vol.build_model(DRAFT_PICKS_2026["Stock"], STOCK_SIM_ANNUAL)
+        live = sum(1 for src, _ in model.source.values() if src == "yahoo")
+        print(f"  ✓ Stock model: {live}/{len(model.players)} picks with Yahoo realized vol + correlations")
+        for line in model.summary():
+            print(f"      {line}")
+        return model
+    except Exception as e:
+        print(f"  ⚠ Stock model failed ({e}) — using independent hand-set vols")
+        return None
+
+
 def simulate(current_scores, odds, n=N_SIMS):
     """
     Run n Monte Carlo simulations.
@@ -1475,6 +1490,8 @@ def simulate(current_scores, odds, n=N_SIMS):
             cat_add[cat][player] += pts - cur_pts[cat][player]
 
     stock_params = _stock_params()
+    stock_model = odds.get("stock_model")
+    stock_t = _season_frac_left()
     stock_short = {pl: info.get("direction") == "S" for pl, info in DRAFT_PICKS_2026["Stock"].items()}
     today = datetime.datetime.now(datetime.timezone.utc).date()
     film_share = {f["title"]: _in_season_share(f.get("release"), today) for f in FILM_PIPELINE}
@@ -1536,8 +1553,11 @@ def simulate(current_scores, odds, n=N_SIMS):
         add_reranked("actress", _rank_composites(players_list, actress_comp))
 
         # ── Stock: sample additional return, re-rank ────────────────────────
-        stock_sim = {pl: _compound_stock(current_stock_raw.get(pl, 0.0), random.gauss(*stock_params[pl]),
-                                         stock_short.get(pl, False)) for pl in stock_params}
+        # Correlated, data-driven moves (stock_vol.py); independent hand-set gaussians if unavailable.
+        moves = (stock_model.sample_moves(stock_t) if stock_model
+                 else {pl: random.gauss(*stock_params[pl]) for pl in stock_params})
+        stock_sim = {pl: _compound_stock(current_stock_raw.get(pl, 0.0), mv, stock_short.get(pl, False))
+                     for pl, mv in moves.items()}
         add_reranked("stock", _rank_composites(players_list, stock_sim))
 
         # ── Country: re-rank (Oct 2026 WEO is final for the season → zero noise) ─
@@ -1592,6 +1612,7 @@ def run():
     odds = build_odds(markets_used)
     odds["mls_playoff_model"] = _build_mls_playoff_model(odds, markets_used)
     odds["nascar_chase_model"] = _build_nascar_chase_model(odds, markets_used)
+    odds["stock_model"] = _build_stock_model()
 
     print("\n── Running Monte Carlo simulation ─────────────────────────────")
     sim_results, pairwise = simulate(current_scores, odds)
