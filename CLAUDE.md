@@ -122,10 +122,13 @@ Supabase also backs the sportsbook (sb_players, sb_bets) and draft room directly
   floor in `bonuses.json` (Round One teams = 2.5); `add_bonus` counts only points above what is banked. Without that file it falls
   back to the champion-only sampler when the table is missing/behind or once any MLS bonus is banked.
 - **Stock moves in projections:** `stock_vol.py` pulls ~6 months of Yahoo daily closes for the 13 tickers each full run and draws
-  the rest-of-season moves jointly: vol = 75% realized (last 63 trading days, annualised) + 25% hand-set `STOCK_SIM_ANNUAL`;
-  correlation = sample correlation of daily log returns shrunk 15% toward the identity (Cholesky); lognormal on the price, drift
-  from `STOCK_SIM_ANNUAL` (player's perspective, shorts flipped), scaled to time left (drift × T, vol × √T). A ticker Yahoo
-  can't serve falls back to its hand-set vol with zero correlation; if the module fails, simulate() uses independent gaussians.
+  the rest-of-season moves jointly: vol = realized (last 63 trading days, annualised; `VOL_BLEND` = 1); correlation = sample
+  correlation of daily log returns shrunk 15% toward the identity (Cholesky); lognormal on the price, drift from `STOCK_SIM_ANNUAL`
+  (player's perspective, shorts flipped), scaled to time left (drift × T, vol × √T). Tails are deliberately nasty: multivariate
+  Student-t shocks (`TAIL_DF` 4, one shared scale so big moves arrive together, capped at ±5 sd) plus market crash jumps
+  (`CRASH_RATE` 0.25/yr, log move N(−12%, 5%)) applied by each pick's beta to an equal-weight basket of the 13 (shorts profit).
+  A ticker Yahoo can't serve falls back to its hand-set vol, zero correlation, beta 1; if the module fails, simulate() uses
+  independent gaussians.
 - **NASCAR Chase bonuses in projections:** `nascar_chase.py` races out the remaining Chase events from the live points
   table (cf.nascar.com points + race-list feeds — Actions only; snapshot in `data/nascar_chase.json`, committed by
   daily.yml, used only while no listed race has run). Per race: Plackett-Luce finish + 2 stages over 38 cars
